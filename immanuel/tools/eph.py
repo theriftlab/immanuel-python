@@ -21,9 +21,12 @@ from immanuel.tools import find
 
 
 ALL = -1
+ANGLES = 0
+HOUSES = 1
+VERTEX = 2
 
 
-def angles(jd: float, lat: float, lon: float):
+def angles(jd: float, lat: float, lon: float) -> dict:
     """ Returns all four main chart angles & ARMC. """
     return angle(jd, lat, lon, ALL)
 
@@ -32,7 +35,7 @@ def angles(jd: float, lat: float, lon: float):
 def angle(jd: float, lat: float, lon: float, index: int) -> dict:
     """ Returns one of the four main chart angles & its speed. Also stores
     the ARMC for further calculations. Returns all if index = 0. """
-    angles, _, _ = _angles_houses_vertex(jd, lat, lon)
+    angles = _angles_houses_vertex(jd, lat, lon)[ANGLES]
 
     if index == ALL:
         return angles
@@ -43,7 +46,7 @@ def angle(jd: float, lat: float, lon: float, index: int) -> dict:
     return None
 
 
-def houses(jd: float, lat: float, lon: float):
+def houses(jd: float, lat: float, lon: float) -> dict:
     """ Returns all houses. """
     return house(jd, lat, lon, ALL)
 
@@ -51,7 +54,7 @@ def houses(jd: float, lat: float, lon: float):
 @cache
 def house(jd: float, lat: float, lon: float, index: int) -> dict:
     """ Returns a house cusp & its speed, or all houses if index = 0. """
-    _, houses, _ = _angles_houses_vertex(jd, lat, lon)
+    houses = _angles_houses_vertex(jd, lat, lon)[HOUSES]
 
     if index == ALL:
         return houses
@@ -71,7 +74,7 @@ def point(jd: float, index: int, **kwargs) -> dict:
 
     if index == chart.VERTEX:
         # Get Vertex from house/ascmc calculation
-        return _angles_houses_vertex(jd, lat, lon)[2]
+        return _angles_houses_vertex(jd, lat, lon)[VERTEX]
 
     if index == chart.SYZYGY:
         # Calculate prenatal full/new moon
@@ -148,7 +151,7 @@ def is_daytime(jd: float, lat: float, lon: float) -> bool:
 
 
 @cache
-def _angles_houses_vertex(jd: float, lat: float, lon: float) -> dict:
+def _angles_houses_vertex(jd: float, lat: float, lon: float) -> tuple:
     """ Returns ecliptic longitudes for the houses, main angles, and the
     vertex, along with their speeds. """
     cusps, ascmc, cuspsspeed, ascmcspeed = swe.houses_ex2(jd, lat, lon, options.house_system)
