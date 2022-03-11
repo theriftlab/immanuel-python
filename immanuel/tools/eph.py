@@ -131,7 +131,17 @@ def planet(jd: float, index: int) -> dict:
 
 
 @cache
+def obliquity(jd: float, mean = False) -> float:
+    """ Returns the earth's true or mean obliquity at the
+    given Julian date. """
+    ecl_nut = swe.calc_ut(jd, swe.ECL_NUT)[0]
+    return ecl_nut[1] if mean else ecl_nut[0]
+
+
+@cache
 def is_daytime(jd: float, lat: float, lon: float) -> bool:
+    """ Returns whether the sun is above the ascendant at the time
+    and place specified. """
     sun = planet(jd, chart.SUN)
     asc = angle(jd, lat, lon, chart.ASC)
     return swe.difdeg2n(sun['lon'], asc['lon']) < 0
@@ -139,6 +149,8 @@ def is_daytime(jd: float, lat: float, lon: float) -> bool:
 
 @cache
 def _angles_houses_vertex(jd: float, lat: float, lon: float) -> dict:
+    """ Returns ecliptic longitudes for the houses, main angles, and the
+    vertex, along with their speeds. """
     cusps, ascmc, cuspsspeed, ascmcspeed = swe.houses_ex2(jd, lat, lon, options.house_system)
 
     # Angles
