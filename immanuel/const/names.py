@@ -60,3 +60,14 @@ ASPECTS = {
     calc.QUINTILE: 'Quintile',
     calc.BIQUINTILE: 'Biquintile',
 }
+
+MOON_PHASES = {
+    calc.NEW_MOON: 'New',
+    calc.WAXING_CRESCENT: 'Waxing Crescent',
+    calc.FIRST_QUARTER: 'First Quarter',
+    calc.WAXING_GIBBOUS: 'Waxing Gibbous',
+    calc.FULL_MOON: 'Full',
+    calc.DISSEMINATING: 'Disseminating',
+    calc.THIRD_QUARTER: 'Third Quarter',
+    calc.BALSAMIC: 'Balsamic',
+}

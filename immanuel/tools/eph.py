@@ -134,6 +134,18 @@ def planet(jd: float, index: int) -> dict:
 
 
 @cache
+def moon_phase(jd: float) -> int:
+    """ Returns the moon phase at the given Julian date. """
+    sun = planet(jd, chart.SUN)
+    moon = planet(jd, chart.MOON)
+    distance = swe.difdegn(moon['lon'], sun['lon'])
+
+    for angle in range(45, 361, 45):
+        if distance < angle:
+            return angle
+
+
+@cache
 def obliquity(jd: float, mean = False) -> float:
     """ Returns the earth's true or mean obliquity at the
     given Julian date. """
