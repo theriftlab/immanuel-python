@@ -21,6 +21,7 @@
 """
 
 import math
+from functools import cache
 
 import swisseph as swe
 
@@ -80,6 +81,35 @@ def next_full_moon(jd: float) -> float:
     return next(chart.SUN, chart.MOON, calc.OPPOSITION, jd)
 
 
+def previous_solar_eclipse(jd: float) -> float:
+    """ Returns the Julian date of the moment of maximum eclipse for the
+    most recent global total solar eclipse that occurred before the
+    passed Julian date. """
+    return swe.sol_eclipse_when_glob(jd, swe.FLG_SWIEPH, swe.ECL_TOTAL, True)[1][0]
+
+
+def previous_lunar_eclipse(jd: float) -> float:
+    """ Returns the Julian date of the moment of maximum eclipse for the
+    most recent global total lunar eclipse that occurred before the
+    passed Julian date. """
+    return swe.lun_eclipse_when(jd, swe.FLG_SWIEPH, swe.ECL_TOTAL, True)[1][0]
+
+
+def next_solar_eclipse(jd: float) -> float:
+    """ Returns the Julian date of the moment of maximum eclipse for the
+    next global total solar eclipse that occurred after the passed
+    Julian date. """
+    return swe.sol_eclipse_when_glob(jd, swe.FLG_SWIEPH, swe.ECL_TOTAL)[1][0]
+
+
+def next_lunar_eclipse(jd: float) -> float:
+    """ Returns the Julian date of the moment of maximum eclipse for the
+    next global total lunar eclipse that occurred after the passed
+    Julian date. """
+    return swe.lun_eclipse_when(jd, swe.FLG_SWIEPH, swe.ECL_TOTAL)[1][0]
+
+
+@cache
 def _find(first: int, second: int, aspect: float, jd: float, direction: int) -> float:
     """ Returns the Julian date of the previous/next requested aspect.
     Accurate to within one second of a degree. """
