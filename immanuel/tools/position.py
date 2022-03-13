@@ -3,9 +3,10 @@
     Author: Robert Davies (robert@theriftlab.com)
 
 
-    This module provides easy access to pyswisseph data.
+    This module provides basic positional data for a given longitude.
 
-    Basic positional data for a given longitude.
+    Sign, decan, and various dignity states can be calculated with the
+    functions found here.
 
 """
 

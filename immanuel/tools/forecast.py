@@ -1,3 +1,13 @@
+"""
+    This file is part of immanuel - (C) The Rift Lab
+    Author: Robert Davies (robert@theriftlab.com)
+
+
+    This module calculates dates for forecast methods such as
+    solar returns and secondary progressions.
+
+"""
+
 from dateutil.relativedelta import relativedelta
 
 import swisseph as swe
