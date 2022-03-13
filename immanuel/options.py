@@ -14,17 +14,26 @@ import swisseph as swe
 from immanuel.const import calc, chart, dignities
 
 
-""" Paths to default & additional ephemeris files for extra chart items,
-eg. asteroids or far-out dates. """
-default_eph_filepath = f'{os.path.dirname(__file__)}{os.sep}resources{os.sep}ephemeris'
+_file_path = None
 
-def set_eph_path(path: str = None) -> None:
-    eph_filepath = default_eph_filepath
 
-    if path:
-        eph_filepath += f';{path}'
+def set_filepath(path) -> None:
+    """ Set the main file path for ephemeris files. """
+    global _file_path
+    _file_path = path
+    swe.set_ephe_path(_file_path)
 
-    swe.set_ephe_path(eph_filepath)
+
+def add_filepath(path) -> None:
+    """ Append a file path to the main one for custom extras. """
+    global _file_path
+    extra_path = f'{os.pathsep}{path}'
+
+    if _file_path.endswith(extra_path):
+        return
+
+    _file_path += extra_path
+    swe.set_ephe_path(_file_path)
 
 
 """ House system as supported by pyswisseph. """
