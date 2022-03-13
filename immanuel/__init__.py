@@ -1,5 +1,4 @@
-import os
-import swisseph as swe
+from immanuel import options
 
 
-swe.set_ephe_path(f'{os.path.dirname(__file__)}{os.sep}resources{os.sep}ephemeris')
+options.set_eph_path()

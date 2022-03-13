@@ -8,6 +8,11 @@
     Relevant data on the main angles, houses, points and planets are
     available using the module's functions, most of which are cached.
 
+    Names are returned for most of these objects, simply because some
+    names are set locally by the const.names module, and others by
+    pyswisseph's own files. Returning the name of each chart item
+    regardless of where it came from keeps things uniform.
+
 """
 
 from decimal import Decimal
@@ -16,7 +21,7 @@ from functools import cache
 import swisseph as swe
 
 from immanuel import options
-from immanuel.const import calc, chart
+from immanuel.const import calc, chart, names
 from immanuel.tools import find
 
 
@@ -85,6 +90,7 @@ def point(jd: float, index: int, **kwargs) -> dict:
         syzygy_moon = planet(syzygy_jd, chart.MOON)
 
         return {
+            'name': names.POINTS[index],
             'lon': syzygy_moon['lon'],
             'speed': syzygy_moon['speed'],
         }
@@ -101,6 +107,7 @@ def point(jd: float, index: int, **kwargs) -> dict:
             formula = (asc['lon'] + sun['lon'] - moon['lon'])
 
         return {
+            'name': names.POINTS[index],
             'lon': swe.degnorm(formula),
             'speed': 0,
         }
@@ -108,11 +115,12 @@ def point(jd: float, index: int, **kwargs) -> dict:
     # Get other available points
     calculated = index in (chart.SOUTH_NODE, chart.TRUE_SOUTH_NODE)
     swe_index = index if not calculated else index - chart.CALCULATED_OFFSET
-    p = planet(jd, swe_index)
+    res = swe.calc_ut(jd, swe_index)[0]
 
     return {
-        'lon': p['lon'] if not calculated else swe.degnorm(Decimal(str(p['lon'])) - 180),
-        'speed': p['speed'],
+        'name': names.POINTS[index],
+        'lon': res[0] if not calculated else swe.degnorm(Decimal(str(res[0])) - 180),
+        'speed': res[3],
     }
 
 
@@ -125,11 +133,50 @@ def planet(jd: float, index: int) -> dict:
     eq_res = swe.calc_ut(jd, index, swe.FLG_EQUATORIAL)[0]
 
     return {
+        'name': names.PLANETS[index],
         'lon': ec_res[0],
         'lat': ec_res[1],
         'dist': ec_res[2],
         'speed': ec_res[3],
         'dec': eq_res[1],
+    }
+
+
+@cache
+def asteroid(jd: float, index: int) -> dict:
+    """ Returns an asteroid by Julian date and pyswisseph index.
+    This will likely require extra ephemeris files. """
+    if index in (chart.CHIRON, chart.PHOLUS, chart.CERES, chart.PALLAS, chart.JUNO, chart.VESTA):
+        name = names.ASTEROIDS[index]
+    else:
+        index += swe.AST_OFFSET
+        name = swe.get_planet_name(index)
+
+    ec_res = swe.calc_ut(jd, index)[0]
+    eq_res = swe.calc_ut(jd, index, swe.FLG_EQUATORIAL)[0]
+
+    return {
+        'name': name,
+        'lon': ec_res[0],
+        'lat': ec_res[1],
+        'dist': ec_res[2],
+        'speed': ec_res[3],
+        'dec': eq_res[1],
+    }
+
+
+@cache
+def fixed_star(jd: float, name: str) -> dict:
+    """ Returns a fixed star by Julian date and name. """
+    res, stnam, _ = swe.fixstar2_ut(name, jd)
+    name = stnam.partition(',')[0]
+
+    return {
+        'name': name,
+        'lon': res[0],
+        'lat': res[1],
+        'dist': res[2],
+        'speed': res[3],
     }
 
 
@@ -173,11 +220,14 @@ def _angles_houses_vertex(jd: float, lat: float, lon: float) -> tuple:
     for i in (chart.ASC, chart.MC, chart.ARMC):
         lon = ascmc[i]
         angles[i] = {
+            'name': names.ANGLES[i],
             'lon': lon,
             'speed': ascmcspeed[i],
         }
         if i in (chart.ASC, chart.MC):
-            angles[i + chart.CALCULATED_OFFSET] = {
+            index = i + chart.CALCULATED_OFFSET
+            angles[index] = {
+                'name': names.ANGLES[index],
                 'lon': swe.degnorm(Decimal(str(lon)) - 180),
                 'speed': ascmcspeed[i],
             }
@@ -185,13 +235,16 @@ def _angles_houses_vertex(jd: float, lat: float, lon: float) -> tuple:
     # Houses
     houses = {}
     for i, lon in enumerate(cusps):
-        houses[i+1] = {
+        house = i + 1
+        houses[house] = {
+            'name': str(house),
             'lon': lon,
             'speed': cuspsspeed[i],
         }
 
     # Vertex
     vertex = {
+        'name': names.POINTS[chart.VERTEX],
         'lon': ascmc[chart.VERTEX],
         'speed': ascmcspeed[chart.VERTEX],
     }

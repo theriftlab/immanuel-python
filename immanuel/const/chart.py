@@ -53,7 +53,7 @@ MC = swe.MC
 IC = swe.MC + CALCULATED_OFFSET
 ARMC = swe.ARMC
 
-""" Planets & major asteroids. """
+""" Planets. """
 SUN = swe.SUN
 MOON = swe.MOON
 MERCURY = swe.MERCURY
@@ -64,6 +64,8 @@ SATURN = swe.SATURN
 URANUS = swe.URANUS
 NEPTUNE = swe.NEPTUNE
 PLUTO = swe.PLUTO
+
+""" Major asteroids. """
 CHIRON = swe.CHIRON
 PHOLUS = swe.PHOLUS
 CERES = swe.CERES

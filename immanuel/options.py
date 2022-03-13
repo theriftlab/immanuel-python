@@ -7,7 +7,24 @@
 
 """
 
+import os
+
+import swisseph as swe
+
 from immanuel.const import calc, chart, dignities
+
+
+""" Paths to default & additional ephemeris files for extra chart items,
+eg. asteroids or far-out dates. """
+default_eph_filepath = f'{os.path.dirname(__file__)}{os.sep}resources{os.sep}ephemeris'
+
+def set_eph_path(path: str = None) -> None:
+    eph_filepath = default_eph_filepath
+
+    if path:
+        eph_filepath += f';{path}'
+
+    swe.set_ephe_path(eph_filepath)
 
 
 """ House system as supported by pyswisseph. """
@@ -19,10 +36,14 @@ chart_items = {
     'planets': (
         chart.SUN, chart.MOON, chart.MERCURY, chart.VENUS, chart.MARS,
         chart.JUPITER, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.PLUTO,
-        chart.CHIRON,
     ),
+    'asteroids': {
+        chart.CHIRON,
+    },
     'points': (
-        chart.NORTH_NODE, chart.SOUTH_NODE, chart.VERTEX, chart.PARS_FORTUNA,
+        chart.TRUE_NORTH_NODE, chart.TRUE_SOUTH_NODE,
+        chart.VERTEX, chart.PARS_FORTUNA,
+        chart.TRUE_LILITH,
     ),
 }
 

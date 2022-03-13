@@ -25,6 +25,22 @@ SIGNS = {
     chart.PISCES: 'Pisces',
 }
 
+HOUSE_SYSTEMS = {
+    chart.ALCABITUS: 'Alcabitus',
+    chart.AZIMUTHAL: 'Azimuthal',
+    chart.CAMPANUS: 'Campanus',
+    chart.EQUAL: 'Equal House',
+    chart.KOCH: 'Koch',
+    chart.MERIDIAN: 'Meridian',
+    chart.MORINUS: 'Morinus',
+    chart.PLACIDUS: 'Placidus',
+    chart.POLICH_PAGE: 'Polich Page',
+    chart.PORPHYRIUS: 'Porphyrius',
+    chart.REGIOMONTANUS: 'Regiomontanus',
+    chart.VEHLOW_EQUAL: 'Vehlow Equal House',
+    chart.WHOLE_SIGN: 'Whole Sign',
+}
+
 ANGLES = {
     chart.ASC: 'Asc',
     chart.DESC: 'Desc',
@@ -44,6 +60,27 @@ PLANETS = {
     chart.URANUS: 'Uranus',
     chart.NEPTUNE: 'Neptune',
     chart.PLUTO: 'Pluto',
+}
+
+ASTEROIDS = {
+    chart.CHIRON: 'Chiron',
+    chart.PHOLUS: 'Pholus',
+    chart.CERES: 'Ceres',
+    chart.PALLAS: 'Pallas',
+    chart.JUNO: 'Juno',
+    chart.VESTA: 'Vesta',
+}
+
+POINTS = {
+    chart.NORTH_NODE: 'North Node',
+    chart.SOUTH_NODE: 'South Node',
+    chart.TRUE_NORTH_NODE: 'True North Node',
+    chart.TRUE_SOUTH_NODE: 'True South Node',
+    chart.VERTEX: 'Vertex',
+    chart.LILITH: 'Lilith',
+    chart.TRUE_LILITH: 'True Lilith',
+    chart.SYZYGY: 'Syzygy',
+    chart.PARS_FORTUNA: 'Part of Fortune',
 }
 
 ASPECTS = {
