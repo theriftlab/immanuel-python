@@ -36,10 +36,9 @@ def angles(jd: float, lat: float, lon: float) -> dict:
     return angle(jd, lat, lon, ALL)
 
 
-@cache
 def angle(jd: float, lat: float, lon: float, index: int) -> dict:
     """ Returns one of the four main chart angles & its speed. Also stores
-    the ARMC for further calculations. Returns all if index = 0. """
+    the ARMC for further calculations. Returns all if index == ALL. """
     angles = _angles_houses_vertex(jd, lat, lon)[ANGLES]
 
     if index == ALL:
@@ -56,9 +55,8 @@ def houses(jd: float, lat: float, lon: float) -> dict:
     return house(jd, lat, lon, ALL)
 
 
-@cache
 def house(jd: float, lat: float, lon: float, index: int) -> dict:
-    """ Returns a house cusp & its speed, or all houses if index = 0. """
+    """ Returns a house cusp & its speed, or all houses if index == ALL. """
     houses = _angles_houses_vertex(jd, lat, lon)[HOUSES]
 
     if index == ALL:
@@ -168,7 +166,7 @@ def asteroid(jd: float, index: int) -> dict:
 @cache
 def fixed_star(jd: float, name: str) -> dict:
     """ Returns a fixed star by Julian date and name. """
-    res, stnam, _ = swe.fixstar2_ut(name, jd)
+    res, stnam = swe.fixstar2_ut(name, jd)[:2]
     name = stnam.partition(',')[0]
 
     return {
