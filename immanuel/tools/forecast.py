@@ -8,14 +8,11 @@
 
 """
 
-from dateutil.relativedelta import relativedelta
-
 import swisseph as swe
 
 from immanuel import options
 from immanuel.const import calc, chart
 from immanuel.tools import convert, dates, eph
-from immanuel.tools.dates import DateTime
 
 
 def solar_return(jd: float, year: int) -> float:
@@ -35,12 +32,11 @@ def solar_return(jd: float, year: int) -> float:
     return sr_jd
 
 
-def progression(jd: float, lat: float, lon: float, pjd: float, plat = None, plon = None):
+def progression(jd: float, lat: float, lon: float, pjd: float, plat = None, plon = None) -> tuple:
     """ Returns the progressed Julian date and MC right ascension. """
     plat, plon = (convert.string_to_dec(v) for v in (plat, plon)) if plat and plon else (lat, lon)
-    dt = DateTime(jd, lat, lon)
     days = (pjd - jd) / calc.YEAR_DAYS
-    progressed_jd = dates.datetime_to_jd(dt.datetime + relativedelta(days=days))
+    progressed_jd = jd + days
 
     match options.mc_progression:
         case calc.DAILY_HOUSES:
