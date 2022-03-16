@@ -12,12 +12,12 @@ import swisseph as swe
 
 from immanuel import options
 from immanuel.const import calc, chart
-from immanuel.tools import convert, dates, eph
+from immanuel.tools import convert, date, eph
 
 
 def solar_return(jd: float, year: int) -> float:
     """ Returns the Julian date of the given year's solar return. """
-    dt = dates.jd_to_datetime(jd)
+    dt = date.jd_to_datetime(jd)
     year_diff = year - dt.year
     sr_jd = jd + year_diff * calc.YEAR_DAYS
     natal_sun = eph.planet(jd, chart.SUN)
