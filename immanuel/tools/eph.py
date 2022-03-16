@@ -234,9 +234,11 @@ def _angles_houses_vertex(jd: float, lat: float, lon: float) -> tuple:
     houses = {}
     for i, lon in enumerate(cusps):
         house = i + 1
+        size = swe.difdeg2n(cusps[i+1 if i < 11 else 0], lon)
         houses[house] = {
             'name': str(house),
             'lon': lon,
+            'size': size,
             'speed': cuspsspeed[i],
         }
 
