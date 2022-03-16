@@ -58,7 +58,7 @@ def previous_full_moon(jd: float) -> float:
     """ Fast rewind to approximate opposition. """
     sun = eph.planet(jd, chart.SUN)
     moon = eph.planet(jd, chart.MOON)
-    distance = swe.difdeg2n(moon['lon'], sun['lon']) + 180
+    distance = swe.difdegn(moon['lon'], sun['lon']+180)
     jd -= math.floor(distance) / math.ceil(calc.MOON_MEAN_MOTION)
     return previous(chart.SUN, chart.MOON, calc.OPPOSITION, jd)
 
@@ -76,7 +76,7 @@ def next_full_moon(jd: float) -> float:
     """ Fast forward to approximate opposition. """
     sun = eph.planet(jd, chart.SUN)
     moon = eph.planet(jd, chart.MOON)
-    distance = swe.difdegn(sun['lon'], moon['lon']) + 180
+    distance = swe.difdegn(sun['lon']+180, moon['lon'])
     jd += math.floor(distance) / math.ceil(calc.MOON_MEAN_MOTION)
     return next(chart.SUN, chart.MOON, calc.OPPOSITION, jd)
 
