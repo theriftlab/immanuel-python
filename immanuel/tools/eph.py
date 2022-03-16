@@ -39,7 +39,7 @@ def angles(jd: float, lat: float, lon: float) -> dict:
 def angle(jd: float, lat: float, lon: float, index: int) -> dict:
     """ Returns one of the four main chart angles & its speed. Also stores
     the ARMC for further calculations. Returns all if index == ALL. """
-    angles = _angles_houses_vertex(jd, lat, lon)[ANGLES]
+    angles = _angles_houses_vertex(jd, lat, lon, options.house_system)[ANGLES]
 
     if index == ALL:
         return angles
@@ -57,7 +57,7 @@ def houses(jd: float, lat: float, lon: float) -> dict:
 
 def house(jd: float, lat: float, lon: float, index: int) -> dict:
     """ Returns a house cusp & its speed, or all houses if index == ALL. """
-    houses = _angles_houses_vertex(jd, lat, lon)[HOUSES]
+    houses = _angles_houses_vertex(jd, lat, lon, options.house_system)[HOUSES]
 
     if index == ALL:
         return houses
@@ -77,7 +77,7 @@ def point(jd: float, index: int, **kwargs) -> dict:
 
     if index == chart.VERTEX:
         # Get Vertex from house/ascmc calculation
-        return _angles_houses_vertex(jd, lat, lon)[VERTEX]
+        return _angles_houses_vertex(jd, lat, lon, options.house_system)[VERTEX]
 
     if index == chart.SYZYGY:
         # Calculate prenatal full/new moon
@@ -208,10 +208,10 @@ def is_daytime(jd: float, lat: float, lon: float) -> bool:
 
 
 @cache
-def _angles_houses_vertex(jd: float, lat: float, lon: float) -> tuple:
+def _angles_houses_vertex(jd: float, lat: float, lon: float, house_system: bytes) -> tuple:
     """ Returns ecliptic longitudes for the houses, main angles, and the
     vertex, along with their speeds. """
-    cusps, ascmc, cuspsspeed, ascmcspeed = swe.houses_ex2(jd, lat, lon, options.house_system)
+    cusps, ascmc, cuspsspeed, ascmcspeed = swe.houses_ex2(jd, lat, lon, house_system)
 
     # Angles
     angles = {}
