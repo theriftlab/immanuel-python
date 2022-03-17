@@ -42,81 +42,85 @@ house_system = chart.CAMPANUS
 
 """ Which planets, points etc. to show. """
 chart_items = {
-    'planets': (
-        chart.SUN, chart.MOON, chart.MERCURY, chart.VENUS, chart.MARS,
-        chart.JUPITER, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.PLUTO,
-    ),
-    'asteroids': {
-        chart.CHIRON,
-    },
-    'points': (
+    chart.POINTS: (
         chart.TRUE_NORTH_NODE, chart.TRUE_SOUTH_NODE,
         chart.VERTEX, chart.PARS_FORTUNA,
         chart.TRUE_LILITH,
+    ),
+    chart.PLANETS: (
+        chart.SUN, chart.MOON, chart.MERCURY, chart.VENUS, chart.MARS,
+        chart.JUPITER, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.PLUTO,
+    ),
+    chart.ASTEROIDS: (
+        chart.CHIRON,
     ),
 }
 
 
 """ Which aspects to calculate. """
-chart_aspects = (
+aspects = (
     calc.CONJUNCTION, calc.OPPOSITION, calc.SQUARE, calc.TRINE, calc.SEXTILE,
     calc.SQUARE, calc.QUINCUNX,
 )
 
 
 """ Rules for what chart items can initiate or receive which aspects. """
-all_aspects = (
-    calc.CONJUNCTION, calc.OPPOSITION, calc.SQUARE, calc.TRINE, calc.SEXTILE,
-    calc.SEPTILE, calc.SEMISQUARE, calc.SESQUISQUARE, calc.SEMISEXTILE,
-    calc.QUINCUNX, calc.QUINTILE, calc.BIQUINTILE,
-)
-
 default_aspect_rule = {
-    'initiate': all_aspects,
-    'receive': all_aspects,
+    'initiate': aspects,
+    'receive': aspects,
 }
 
 planet_aspect_rule = {
-    'initiate': all_aspects,
-    'receive': all_aspects,
+    'initiate': aspects,
+    'receive': aspects,
 }
 
 point_aspect_rule = {
     'initiate': (calc.CONJUNCTION,),
-    'receive': all_aspects,
+    'receive': aspects,
 }
 
 aspect_rules = {
-    chart.ASC: point_aspect_rule,
-    chart.DESC: point_aspect_rule,
-    chart.MC: point_aspect_rule,
-    chart.IC: point_aspect_rule,
+    chart.ANGLES: {
+        chart.ASC: point_aspect_rule,
+        chart.DESC: point_aspect_rule,
+        chart.MC: point_aspect_rule,
+        chart.IC: point_aspect_rule,
+    },
 
-    chart.SUN: planet_aspect_rule,
-    chart.MOON: planet_aspect_rule,
-    chart.MERCURY: planet_aspect_rule,
-    chart.VENUS: planet_aspect_rule,
-    chart.MARS: planet_aspect_rule,
-    chart.JUPITER: planet_aspect_rule,
-    chart.SATURN: planet_aspect_rule,
-    chart.URANUS: planet_aspect_rule,
-    chart.NEPTUNE: planet_aspect_rule,
-    chart.PLUTO: planet_aspect_rule,
+    chart.PLANETS: {
+        chart.SUN: planet_aspect_rule,
+        chart.MOON: planet_aspect_rule,
+        chart.MERCURY: planet_aspect_rule,
+        chart.VENUS: planet_aspect_rule,
+        chart.MARS: planet_aspect_rule,
+        chart.JUPITER: planet_aspect_rule,
+        chart.SATURN: planet_aspect_rule,
+        chart.URANUS: planet_aspect_rule,
+        chart.NEPTUNE: planet_aspect_rule,
+        chart.PLUTO: planet_aspect_rule,
+    },
 
-    chart.NORTH_NODE: point_aspect_rule,
-    chart.SOUTH_NODE: point_aspect_rule,
-    chart.TRUE_NORTH_NODE: point_aspect_rule,
-    chart.TRUE_SOUTH_NODE: point_aspect_rule,
-    chart.SYZYGY: point_aspect_rule,
-    chart.PARS_FORTUNA: point_aspect_rule,
-    chart.VERTEX: point_aspect_rule,
-    chart.LILITH: point_aspect_rule,
-    chart.TRUE_LILITH: point_aspect_rule,
+    chart.POINTS: {
+        chart.NORTH_NODE: point_aspect_rule,
+        chart.SOUTH_NODE: point_aspect_rule,
+        chart.TRUE_NORTH_NODE: point_aspect_rule,
+        chart.TRUE_SOUTH_NODE: point_aspect_rule,
+        chart.SYZYGY: point_aspect_rule,
+        chart.PARS_FORTUNA: point_aspect_rule,
+        chart.VERTEX: point_aspect_rule,
+        chart.LILITH: point_aspect_rule,
+        chart.TRUE_LILITH: point_aspect_rule,
+    },
 }
 
 
 """ Orbs for chart items and their aspects. """
 default_orb = 1.0
+
+exact_orb = 0.3
+
+orb_calculation = calc.MEAN
 
 planet_orbs = {
     calc.CONJUNCTION: 10.0,
@@ -149,31 +153,37 @@ point_orbs = {
 }
 
 orbs = {
-    chart.ASC: planet_orbs,
-    chart.DESC: planet_orbs,
-    chart.MC: planet_orbs,
-    chart.IC: planet_orbs,
+    chart.ANGLES: {
+        chart.ASC: planet_orbs,
+        chart.DESC: planet_orbs,
+        chart.MC: planet_orbs,
+        chart.IC: planet_orbs,
+    },
 
-    chart.SUN: planet_orbs,
-    chart.MOON: planet_orbs,
-    chart.MERCURY: planet_orbs,
-    chart.VENUS: planet_orbs,
-    chart.MARS: planet_orbs,
-    chart.JUPITER: planet_orbs,
-    chart.SATURN: planet_orbs,
-    chart.URANUS: planet_orbs,
-    chart.NEPTUNE: planet_orbs,
-    chart.PLUTO: planet_orbs,
+    chart.PLANETS: {
+        chart.SUN: planet_orbs,
+        chart.MOON: planet_orbs,
+        chart.MERCURY: planet_orbs,
+        chart.VENUS: planet_orbs,
+        chart.MARS: planet_orbs,
+        chart.JUPITER: planet_orbs,
+        chart.SATURN: planet_orbs,
+        chart.URANUS: planet_orbs,
+        chart.NEPTUNE: planet_orbs,
+        chart.PLUTO: planet_orbs,
+    },
 
-    chart.NORTH_NODE: point_orbs,
-    chart.SOUTH_NODE: point_orbs,
-    chart.TRUE_NORTH_NODE: point_orbs,
-    chart.TRUE_SOUTH_NODE: point_orbs,
-    chart.SYZYGY: point_orbs,
-    chart.PARS_FORTUNA: point_orbs,
-    chart.VERTEX: point_orbs,
-    chart.LILITH: point_orbs,
-    chart.TRUE_LILITH: point_orbs,
+    chart.POINTS: {
+        chart.NORTH_NODE: point_orbs,
+        chart.SOUTH_NODE: point_orbs,
+        chart.TRUE_NORTH_NODE: point_orbs,
+        chart.TRUE_SOUTH_NODE: point_orbs,
+        chart.SYZYGY: point_orbs,
+        chart.PARS_FORTUNA: point_orbs,
+        chart.VERTEX: point_orbs,
+        chart.LILITH: point_orbs,
+        chart.TRUE_LILITH: point_orbs,
+    },
 }
 
 

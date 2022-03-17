@@ -88,6 +88,8 @@ def point(jd: float, index: int, **kwargs) -> dict:
         syzygy_moon = planet(syzygy_jd, chart.MOON)
 
         return {
+            'index': index,
+            'type': chart.POINTS,
             'name': names.POINTS[index],
             'lon': syzygy_moon['lon'],
             'speed': syzygy_moon['speed'],
@@ -105,9 +107,11 @@ def point(jd: float, index: int, **kwargs) -> dict:
             formula = (asc['lon'] + sun['lon'] - moon['lon'])
 
         return {
+            'index': index,
+            'type': chart.POINTS,
             'name': names.POINTS[index],
             'lon': swe.degnorm(formula),
-            'speed': 0,
+            'speed': 0.0,
         }
 
     # Get other available points
@@ -116,10 +120,37 @@ def point(jd: float, index: int, **kwargs) -> dict:
     res = swe.calc_ut(jd, swe_index)[0]
 
     return {
+        'index': index,
+        'type': chart.POINTS,
         'name': names.POINTS[index],
         'lon': res[0] if not calculated else swe.degnorm(Decimal(str(res[0])) - 180),
         'speed': res[3],
     }
+
+
+def chart_items(jd, lat, lon) -> dict:
+    """ Helper function returns a dict of all chart items requested
+    by the options module. """
+    items = {}
+
+    for type, item_list in options.chart_items.items():
+        for index in item_list:
+            match type:
+                case chart.POINTS:
+                    item = point(jd, index, lat=lat, lon=lon)
+                case chart.PLANETS:
+                    item = planet(jd, index)
+                case (chart.ASTEROIDS|chart.EXTRA_ASTEROIDS):
+                    item = asteroid(jd, index)
+                case chart.FIXED_STARS:
+                    item = fixed_star(jd, index)
+
+            if type not in items:
+                items[type] = {}
+
+            items[type][index] = item
+
+    return items
 
 
 @cache
@@ -131,6 +162,8 @@ def planet(jd: float, index: int) -> dict:
     eq_res = swe.calc_ut(jd, index, swe.FLG_EQUATORIAL)[0]
 
     return {
+        'index': index,
+        'type': chart.PLANETS,
         'name': names.PLANETS[index],
         'lon': ec_res[0],
         'lat': ec_res[1],
@@ -145,15 +178,19 @@ def asteroid(jd: float, index: int) -> dict:
     """ Returns an asteroid by Julian date and pyswisseph index.
     This will likely require extra ephemeris files. """
     if index in (chart.CHIRON, chart.PHOLUS, chart.CERES, chart.PALLAS, chart.JUNO, chart.VESTA):
+        type = chart.ASTEROIDS
         name = names.ASTEROIDS[index]
     else:
         index += swe.AST_OFFSET
+        type = chart.EXTRA_ASTEROIDS
         name = swe.get_planet_name(index)
 
     ec_res = swe.calc_ut(jd, index)[0]
     eq_res = swe.calc_ut(jd, index, swe.FLG_EQUATORIAL)[0]
 
     return {
+        'index': index,
+        'type': type,
         'name': name,
         'lon': ec_res[0],
         'lat': ec_res[1],
@@ -170,6 +207,8 @@ def fixed_star(jd: float, name: str) -> dict:
     name = stnam.partition(',')[0]
 
     return {
+        'index': name,
+        'type': chart.FIXED_STARS,
         'name': name,
         'lon': res[0],
         'lat': res[1],
@@ -218,6 +257,8 @@ def _angles_houses_vertex(jd: float, lat: float, lon: float, house_system: bytes
     for i in (chart.ASC, chart.MC, chart.ARMC):
         lon = ascmc[i]
         angles[i] = {
+            'index': i,
+            'type': chart.ANGLES,
             'name': names.ANGLES[i],
             'lon': lon,
             'speed': ascmcspeed[i],
@@ -225,6 +266,8 @@ def _angles_houses_vertex(jd: float, lat: float, lon: float, house_system: bytes
         if i in (chart.ASC, chart.MC):
             index = i + chart.CALCULATED_OFFSET
             angles[index] = {
+                'index': index,
+                'type': chart.ANGLES,
                 'name': names.ANGLES[index],
                 'lon': swe.degnorm(Decimal(str(lon)) - 180),
                 'speed': ascmcspeed[i],
@@ -236,6 +279,8 @@ def _angles_houses_vertex(jd: float, lat: float, lon: float, house_system: bytes
         house = i + 1
         size = swe.difdeg2n(cusps[i+1 if i < 11 else 0], lon)
         houses[house] = {
+            'index': house,
+            'type': chart.HOUSES,
             'name': str(house),
             'lon': lon,
             'size': size,
@@ -244,6 +289,8 @@ def _angles_houses_vertex(jd: float, lat: float, lon: float, house_system: bytes
 
     # Vertex
     vertex = {
+        'index': chart.VERTEX,
+        'type': chart.POINTS,
         'name': names.POINTS[chart.VERTEX],
         'lon': ascmc[chart.VERTEX],
         'speed': ascmcspeed[chart.VERTEX],

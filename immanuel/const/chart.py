@@ -18,6 +18,7 @@ by adding this offset. """
 CALCULATED_OFFSET = 100
 
 """ Signs. """
+SIGNS = 0
 ARIES = 1
 TAURUS = 2
 GEMINI = 3
@@ -31,7 +32,11 @@ CAPRICORN = 10
 AQUARIUS = 11
 PISCES = 12
 
+""" Houses. """
+HOUSES = 1
+
 """ House systems. """
+HOUSE_SYSTEMS = 2
 ALCABITUS = b'B'
 AZIMUTHAL = b'H'
 CAMPANUS = b'C'
@@ -47,6 +52,7 @@ VEHLOW_EQUAL = b'V'
 WHOLE_SIGN = b'W'
 
 """ Major chart angles. """
+ANGLES = 3
 ASC = swe.ASC
 DESC = swe.ASC + CALCULATED_OFFSET
 MC = swe.MC
@@ -54,6 +60,7 @@ IC = swe.MC + CALCULATED_OFFSET
 ARMC = swe.ARMC
 
 """ Planets. """
+PLANETS = 4
 SUN = swe.SUN
 MOON = swe.MOON
 MERCURY = swe.MERCURY
@@ -66,6 +73,7 @@ NEPTUNE = swe.NEPTUNE
 PLUTO = swe.PLUTO
 
 """ Major asteroids. """
+ASTEROIDS = 5
 CHIRON = swe.CHIRON
 PHOLUS = swe.PHOLUS
 CERES = swe.CERES
@@ -73,7 +81,11 @@ PALLAS = swe.PALLAS
 JUNO = swe.JUNO
 VESTA = swe.VESTA
 
+""" Extra asteroids. """
+EXTRA_ASTEROIDS = 6
+
 """ Main calculated points. """
+POINTS = 7
 NORTH_NODE = swe.MEAN_NODE
 SOUTH_NODE = swe.MEAN_NODE + CALCULATED_OFFSET
 TRUE_NORTH_NODE = swe.TRUE_NODE
@@ -83,3 +95,6 @@ LILITH = swe.MEAN_APOG
 TRUE_LILITH = swe.OSCU_APOG
 SYZYGY = 101
 PARS_FORTUNA = 102
+
+""" Fixed stars. """
+FIXED_STARS = 8

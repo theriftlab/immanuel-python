@@ -59,3 +59,15 @@ DAILY_HOUSES = 3
 DAY_FORMULA = 1
 NIGHT_FORMULA = 2
 DAY_NIGHT_FORMULA = 3
+
+""" Orb calculation when two chart items have different orbs. """
+MEAN = 0
+MAX = 1
+
+""" Aspect information. """
+APPLICATIVE = 0
+EXACT = 1
+SEPARATIVE = 2
+
+ASSOCIATE = 0
+DISSOCIATE = 1
