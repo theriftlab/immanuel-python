@@ -21,7 +21,6 @@
 """
 
 import math
-from functools import cache
 
 import swisseph as swe
 
@@ -109,7 +108,6 @@ def next_lunar_eclipse(jd: float) -> float:
     return swe.lun_eclipse_when(jd, swe.FLG_SWIEPH, swe.ECL_TOTAL)[1][0]
 
 
-@cache
 def _find(first: int, second: int, aspect: float, jd: float, direction: int) -> float:
     """ Returns the Julian date of the previous/next requested aspect.
     Accurate to within one second of a degree. """

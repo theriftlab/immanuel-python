@@ -31,6 +31,35 @@ HOUSES = 1
 VERTEX = 2
 
 
+@cache
+def chart_items(jd, lat, lon) -> dict:
+    """ Helper function returns a dict of all chart items requested
+    by the options module. """
+    items = {}
+
+    for type, item_list in options.chart_items.items():
+        for index in item_list:
+            if type not in items:
+                items[type] = {}
+
+            items[type][index] = item(type, index, jd, lat, lon)
+
+    return items
+
+
+def item(type: int, index: int, jd: float, lat: float = None, lon: float = None) -> dict:
+    """ Helper function to retrieve a chart item of any type and index. """
+    match type:
+        case chart.POINTS:
+            return point(jd, index, lat=lat, lon=lon)
+        case chart.PLANETS:
+            return planet(jd, index)
+        case (chart.ASTEROIDS|chart.EXTRA_ASTEROIDS):
+            return asteroid(jd, index)
+        case chart.FIXED_STARS:
+            return fixed_star(jd, index)
+
+
 def angles(jd: float, lat: float, lon: float) -> dict:
     """ Returns all four main chart angles & ARMC. """
     return angle(jd, lat, lon, ALL)
@@ -126,31 +155,6 @@ def point(jd: float, index: int, **kwargs) -> dict:
         'lon': res[0] if not calculated else swe.degnorm(Decimal(str(res[0])) - 180),
         'speed': res[3],
     }
-
-
-def chart_items(jd, lat, lon) -> dict:
-    """ Helper function returns a dict of all chart items requested
-    by the options module. """
-    items = {}
-
-    for type, item_list in options.chart_items.items():
-        for index in item_list:
-            match type:
-                case chart.POINTS:
-                    item = point(jd, index, lat=lat, lon=lon)
-                case chart.PLANETS:
-                    item = planet(jd, index)
-                case (chart.ASTEROIDS|chart.EXTRA_ASTEROIDS):
-                    item = asteroid(jd, index)
-                case chart.FIXED_STARS:
-                    item = fixed_star(jd, index)
-
-            if type not in items:
-                items[type] = {}
-
-            items[type][index] = item
-
-    return items
 
 
 @cache

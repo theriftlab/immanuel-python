@@ -13,7 +13,7 @@
 import swisseph as swe
 
 from immanuel import options
-from immanuel.const import calc, chart
+from immanuel.const import calc
 from immanuel.tools import position
 
 

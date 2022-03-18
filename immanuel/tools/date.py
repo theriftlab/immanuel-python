@@ -14,7 +14,6 @@
 """
 
 from datetime import datetime
-from functools import cache
 
 import swisseph as swe
 from pytz import exceptions, timezone, UTC
@@ -61,14 +60,12 @@ class DateTime:
         return f'{self.datetime.strftime("%a %d %b %Y %H:%M:%S")} {self.timezone.zone}'
 
 
-@cache
 def datetime_to_jd(dt: datetime) -> float:
     """ Convert localised datetime into universal Julian day. """
     utc_dt = dt.datetime.astimezone(UTC) if isinstance(dt, DateTime) else dt.astimezone(UTC)
     return swe.utc_to_jd(utc_dt.year, utc_dt.month, utc_dt.day, utc_dt.hour, utc_dt.minute, utc_dt.second)[1]
 
 
-@cache
 def jd_to_datetime(jd: float) -> datetime:
     """ Convert Julian day into UTC datetime object. """
     swe_utc = swe.jdut1_to_utc(jd)
