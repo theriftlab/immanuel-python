@@ -51,14 +51,14 @@ THIRD_QUARTER = 315
 BALSAMIC = 360
 
 """ MC progression formulae. """
-NAIBOD = 1
-SOLAR_ARC = 2
-DAILY_HOUSES = 3
+NAIBOD = 0
+SOLAR_ARC = 1
+DAILY_HOUSES = 2
 
 """ Part of Fortune formulae. """
-DAY_FORMULA = 1
-NIGHT_FORMULA = 2
-DAY_NIGHT_FORMULA = 3
+DAY_FORMULA = 0
+NIGHT_FORMULA = 1
+DAY_NIGHT_FORMULA = 2
 
 """ Orb calculation when two chart items have different orbs. """
 MEAN = 0
