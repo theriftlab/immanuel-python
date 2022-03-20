@@ -6,17 +6,19 @@
     This module calculates past and future transits relative
     to a passed Julian day.
 
-    previous() and next() take two chart objects (such as planets),
-    a Julian day, and an aspect. The functions will then find & return
-    the last/next Julian day before/after the passed one where the
-    requested aspect took place. This calculation can be expensive for
-    slow planets.
+    previous() and next() take two planets, a Julian day, and an aspect.
+    The functions will then find & return the last/next Julian day
+    before/after the passed one where the requested aspect took place.
+    This calculation can be expensive for slow planets, and is currently
+    not flexible enough to use with non-planetary objects or points.
 
     The previous/next new and full moon functions are designed to
     fast-rewind and fast-forward to a close approximation of each aspect
     before handing off to _find()'s loop. Since the Sun and Moon have
     relatively stable daily motions and never retrograde, these are the only
     two bodies predictable enough to safely perform this with.
+
+    The eclipse functions hand off directly to pyswisseph's own functions.
 
 """
 
