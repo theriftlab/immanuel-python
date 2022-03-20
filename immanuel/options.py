@@ -50,8 +50,6 @@ chart_items = {
     chart.PLANETS: (
         chart.SUN, chart.MOON, chart.MERCURY, chart.VENUS, chart.MARS,
         chart.JUPITER, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.PLUTO,
-    ),
-    chart.ASTEROIDS: (
         chart.CHIRON,
     ),
 }

@@ -54,7 +54,7 @@ def item(type: int, index: int, jd: float, lat: float = None, lon: float = None)
             return point(jd, index, lat=lat, lon=lon)
         case chart.PLANETS:
             return planet(jd, index)
-        case (chart.ASTEROIDS|chart.EXTRA_ASTEROIDS):
+        case chart.ASTEROIDS:
             return asteroid(jd, index)
         case chart.FIXED_STARS:
             return fixed_star(jd, index)
@@ -179,22 +179,18 @@ def planet(jd: float, index: int) -> dict:
 
 @cache
 def asteroid(jd: float, index: int) -> dict:
-    """ Returns an asteroid by Julian date and pyswisseph index.
-    This will likely require extra ephemeris files. """
-    if index in (chart.CHIRON, chart.PHOLUS, chart.CERES, chart.PALLAS, chart.JUNO, chart.VESTA):
-        type = chart.ASTEROIDS
-        name = names.ASTEROIDS[index]
-    else:
-        index += swe.AST_OFFSET
-        type = chart.EXTRA_ASTEROIDS
-        name = swe.get_planet_name(index)
+    """ Returns an asteroid by Julian date and pyswisseph index
+    from an external asteroid's ephmeris file as specified
+    in the options module. """
+    index += swe.AST_OFFSET
+    name = swe.get_planet_name(index)
 
     ec_res = swe.calc_ut(jd, index)[0]
     eq_res = swe.calc_ut(jd, index, swe.FLG_EQUATORIAL)[0]
 
     return {
         'index': index,
-        'type': type,
+        'type': chart.ASTEROIDS,
         'name': name,
         'lon': ec_res[0],
         'lat': ec_res[1],

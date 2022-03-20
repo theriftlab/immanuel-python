@@ -59,7 +59,7 @@ MC = swe.MC
 IC = swe.MC + CALCULATED_OFFSET
 ARMC = swe.ARMC
 
-""" Planets. """
+""" Planets & major asteroids we treat as planets. """
 PLANETS = 4
 SUN = swe.SUN
 MOON = swe.MOON
@@ -71,9 +71,6 @@ SATURN = swe.SATURN
 URANUS = swe.URANUS
 NEPTUNE = swe.NEPTUNE
 PLUTO = swe.PLUTO
-
-""" Major asteroids. """
-ASTEROIDS = 5
 CHIRON = swe.CHIRON
 PHOLUS = swe.PHOLUS
 CERES = swe.CERES
@@ -81,11 +78,11 @@ PALLAS = swe.PALLAS
 JUNO = swe.JUNO
 VESTA = swe.VESTA
 
-""" Extra asteroids. """
-EXTRA_ASTEROIDS = 6
+""" Custom asteroids. """
+ASTEROIDS = 5
 
 """ Main calculated points. """
-POINTS = 7
+POINTS = 6
 NORTH_NODE = swe.MEAN_NODE
 SOUTH_NODE = swe.MEAN_NODE + CALCULATED_OFFSET
 TRUE_NORTH_NODE = swe.TRUE_NODE
@@ -96,5 +93,5 @@ TRUE_LILITH = swe.OSCU_APOG
 SYZYGY = 101
 PARS_FORTUNA = 102
 
-""" Fixed stars. """
-FIXED_STARS = 8
+""" Custom fixed stars. """
+FIXED_STARS = 7
