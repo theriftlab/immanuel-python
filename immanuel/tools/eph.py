@@ -47,9 +47,16 @@ def chart_items(jd, lat, lon) -> dict:
     return items
 
 
-def item(type: int, index: int, jd: float, lat: float = None, lon: float = None) -> dict:
+def item(jd: float, type: int, index: int, **kwargs) -> dict:
     """ Helper function to retrieve a chart item of any type and index. """
+    lat = kwargs.get('lat', None)
+    lon = kwargs.get('lon', None)
+
     match type:
+        case chart.ANGLES:
+            return angle(jd, lat, lon, index)
+        case chart.HOUSES:
+            return house(jd, lat, lon, index)
         case chart.POINTS:
             return point(jd, index, lat=lat, lon=lon)
         case chart.PLANETS:
