@@ -34,16 +34,16 @@ PREVIOUS = 0
 NEXT = 1
 
 
-def previous(first: int, second: int, aspect: float, jd: float) -> float:
+def previous(jd: float, first: int, second: int, aspect: float) -> float:
     """ Returns the Julian day of the requested transit previous
     to the passed Julian day. """
-    return _find(first, second, aspect, jd, PREVIOUS)
+    return _find(jd, first, second, aspect, PREVIOUS)
 
 
-def next(first: int, second: int, aspect: float, jd: float) -> float:
+def next(jd: float, first: int, second: int, aspect: float) -> float:
     """ Returns the Julian day of the requested transit after
     the passed Julian day. """
-    return _find(first, second, aspect, jd, NEXT)
+    return _find(jd, first, second, aspect, jd, NEXT)
 
 
 def previous_new_moon(jd: float) -> float:
@@ -52,7 +52,7 @@ def previous_new_moon(jd: float) -> float:
     moon = eph.planet(jd, chart.MOON)
     distance = swe.difdegn(moon['lon'], sun['lon'])
     jd -= math.floor(distance) / math.ceil(calc.MOON_MEAN_MOTION)
-    return previous(chart.SUN, chart.MOON, calc.CONJUNCTION, jd)
+    return previous(jd, chart.SUN, chart.MOON, calc.CONJUNCTION)
 
 
 def previous_full_moon(jd: float) -> float:
@@ -61,7 +61,7 @@ def previous_full_moon(jd: float) -> float:
     moon = eph.planet(jd, chart.MOON)
     distance = swe.difdegn(moon['lon'], sun['lon']+180)
     jd -= math.floor(distance) / math.ceil(calc.MOON_MEAN_MOTION)
-    return previous(chart.SUN, chart.MOON, calc.OPPOSITION, jd)
+    return previous(jd, chart.SUN, chart.MOON, calc.OPPOSITION)
 
 
 def next_new_moon(jd: float) -> float:
@@ -70,7 +70,7 @@ def next_new_moon(jd: float) -> float:
     moon = eph.planet(jd, chart.MOON)
     distance = swe.difdegn(sun['lon'], moon['lon'])
     jd += math.floor(distance) / math.ceil(calc.MOON_MEAN_MOTION)
-    return next(chart.SUN, chart.MOON, calc.CONJUNCTION, jd)
+    return next(jd, chart.SUN, chart.MOON, calc.CONJUNCTION)
 
 
 def next_full_moon(jd: float) -> float:
@@ -79,7 +79,7 @@ def next_full_moon(jd: float) -> float:
     moon = eph.planet(jd, chart.MOON)
     distance = swe.difdegn(sun['lon']+180, moon['lon'])
     jd += math.floor(distance) / math.ceil(calc.MOON_MEAN_MOTION)
-    return next(chart.SUN, chart.MOON, calc.OPPOSITION, jd)
+    return next(jd, chart.SUN, chart.MOON, calc.OPPOSITION)
 
 
 def previous_solar_eclipse(jd: float) -> float:
@@ -110,13 +110,13 @@ def next_lunar_eclipse(jd: float) -> float:
     return swe.lun_eclipse_when(jd, swe.FLG_SWIEPH, swe.ECL_TOTAL)[1][0]
 
 
-def _find(first: int, second: int, aspect: float, jd: float, direction: int) -> float:
+def _find(jd: float, first: int, second: int, aspect: float, direction: int) -> float:
     """ Returns the Julian date of the previous/next requested aspect.
     Accurate to within one second of a degree. """
     while True:
-        first_obj = eph.planet(jd, first)
-        second_obj = eph.planet(jd, second)
-        distance = abs(swe.difdeg2n(first_obj['lon'], second_obj['lon']))
+        first_item = eph.planet(jd, first)
+        second_item = eph.planet(jd, second)
+        distance = abs(swe.difdeg2n(first_item['lon'], second_item['lon']))
         diff = abs(aspect - distance)
 
         if diff <= calc.MAX_ERROR:
