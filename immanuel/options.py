@@ -204,6 +204,7 @@ peregrine = dignities.INCLUDE_MUTUAL_RECEPTIONS
 
 dignity_scores = {
     dignities.RULER: 5,
+    dignities.MUTUAL_RECEPTION_RULERSHIP: 5,
     dignities.MUTUAL_RECEPTION_HOUSE: 5,
     dignities.EXALTED: 4,
     dignities.MUTUAL_RECEPTION_EXALTATION: 4,

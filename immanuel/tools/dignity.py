@@ -1,3 +1,16 @@
+"""
+    This file is part of immanuel - (C) The Rift Lab
+    Author: Robert Davies (robert@theriftlab.com)
+
+
+    This module provides simple dignity and mutual reception data.
+
+    Assuming only planets will be passed, these functions will return the main
+    essential dignity states of any planet. Various mutual receptions are also
+    calculated.
+
+"""
+
 from immanuel import options
 from immanuel.const import chart, dignities
 from immanuel.tools import position
@@ -93,6 +106,58 @@ def face_ruler(item: dict) -> bool:
     """ Returns whether the passed planet is the decan ruler
     within its sign. """
     return item['index'] == dignities.FACE_RULERS[position.sign(item['lon'])][position.decan(item['lon'])-1]
+
+
+def all(item: dict, **kwargs) -> dict:
+    """ Returns a dictionary of all dignity states based on passed
+    arguments. 'items', 'houses' and 'is_daytime' are optional and any
+    dignities based on these will not be calculated if missing. """
+    items = kwargs.get('items', None)
+    houses = kwargs.get('houses', None)
+    is_daytime = kwargs.get('is_daytime', None)
+
+    dignity_state = {
+        dignities.RULER: ruler(item),
+        dignities.EXALTED: exalted(item),
+        dignities.TERM_RULER: term_ruler(item),
+        dignities.FACE_RULER: face_ruler(item),
+    }
+
+    if is_daytime is not None:
+        dignity_state |= {
+            dignities.TRIPLICITY_RULER_DAY: triplicity_ruler_day(item, is_daytime),
+            dignities.TRIPLICITY_RULER_NIGHT: triplicity_ruler_night(item, is_daytime),
+            dignities.TRIPLICITY_RULER_PARTICIPATORY: triplicity_ruler_participatory(item),
+        }
+
+    if options.peregrine == dignities.IGNORE_MUTUAL_RECEPTIONS:
+        peregrine = len([v for v in dignity_state.values() if v]) == 0
+
+    if items is not None:
+        dignity_state |= {
+            dignities.MUTUAL_RECEPTION_RULERSHIP: mutual_reception_rulership(item, items),
+            dignities.MUTUAL_RECEPTION_EXALTATION: mutual_reception_exaltaion(item, items),
+        }
+
+        if houses is not None:
+            dignity_state |= {
+                dignities.MUTUAL_RECEPTION_HOUSE: mutual_reception_house(item, items, houses),
+            }
+
+    if options.peregrine == dignities.INCLUDE_MUTUAL_RECEPTIONS:
+        peregrine = len([v for v in dignity_state.values() if v]) == 0
+
+    dignity_state |= {
+        dignities.PEREGRINE: peregrine,
+    }
+
+    return dignity_state
+
+
+def score(item: dict, **kwargs) -> int:
+    """ Calculates the planet's dignity score based on options. """
+    dignity_state = all(item, **kwargs)
+    return sum([v for k, v in options.dignity_scores.items() if k in dignity_state and dignity_state[k]])
 
 
 def _planet_signs(item: dict, table: dict) -> int:
