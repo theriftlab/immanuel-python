@@ -10,13 +10,18 @@
 
 """
 
+import json
 from decimal import Decimal
 
 import swisseph as swe
 
+from immanuel import options
+
 
 SIGN = 0
 LON = 1
+
+_house = {}
 
 
 def sign(lon: float) -> int:
@@ -43,11 +48,22 @@ def decan(lon: float) -> int:
 
 
 def house(lon: float, houses: dict) -> int:
-    """ Given a longitude and a dict of houses from the eph
-    module, this returns which house the longitude is in. """
+    """ Given a longitude and a dict of houses from the eph module, this
+    returns which house the longitude is in. Basic dict caching is used. """
+    key = json.dumps([lon, houses])
+    if key in _house:
+        return _house[key]
+
     for house_number, house in houses.items():
         lon_diff = swe.difdeg2n(lon, house['lon'])
         next_cusp_diff = swe.difdeg2n(house['lon'] + house['size'], house['lon'])
 
         if 0 < lon_diff < next_cusp_diff:
+            _house[key] = house_number
             return house_number
+
+
+def opposite_house(lon: float, houses: dict) -> int:
+    """ Given a longitude and a dict of houses from the eph
+    module, this returns the house oopsite where the longitude is. """
+    return (house(lon, houses) + 6) % 12
