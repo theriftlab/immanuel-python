@@ -15,8 +15,6 @@ from decimal import Decimal
 
 import swisseph as swe
 
-from immanuel import options
-
 
 SIGN = 0
 LON = 1
