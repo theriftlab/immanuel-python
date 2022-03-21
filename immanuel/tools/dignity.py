@@ -116,40 +116,48 @@ def all(item: dict, **kwargs) -> dict:
     houses = kwargs.get('houses', None)
     is_daytime = kwargs.get('is_daytime', None)
 
-    dignity_state = {
-        dignities.RULER: ruler(item),
-        dignities.EXALTED: exalted(item),
-        dignities.TERM_RULER: term_ruler(item),
-        dignities.FACE_RULER: face_ruler(item),
-    }
+    dignity_state = {}
+
+    if dignities.RULER in options.dignity_scores:
+        dignity_state[dignities.RULER] = ruler(item)
+
+    if dignities.EXALTED in options.dignity_scores:
+        dignity_state[dignities.RULER] = exalted(item)
+
+    if dignities.TERM_RULER in options.dignity_scores:
+        dignity_state[dignities.TERM_RULER] = term_ruler(item)
+
+    if dignities.FACE_RULER in options.dignity_scores:
+        dignity_state[dignities.FACE_RULER] = face_ruler(item)
 
     if is_daytime is not None:
-        dignity_state |= {
-            dignities.TRIPLICITY_RULER_DAY: triplicity_ruler_day(item, is_daytime),
-            dignities.TRIPLICITY_RULER_NIGHT: triplicity_ruler_night(item, is_daytime),
-            dignities.TRIPLICITY_RULER_PARTICIPATORY: triplicity_ruler_participatory(item),
-        }
+        if dignities.TRIPLICITY_RULER_DAY in options.dignity_scores:
+            dignity_state[dignities.TRIPLICITY_RULER_DAY] = triplicity_ruler_day(item, is_daytime)
+
+        if dignities.TRIPLICITY_RULER_NIGHT in options.dignity_scores:
+            dignity_state[dignities.TRIPLICITY_RULER_NIGHT] = triplicity_ruler_night(item, is_daytime)
+
+        if dignities.TRIPLICITY_RULER_PARTICIPATORY in options.dignity_scores:
+            dignity_state[dignities.TRIPLICITY_RULER_PARTICIPATORY] = triplicity_ruler_participatory(item)
 
     if options.peregrine == dignities.IGNORE_MUTUAL_RECEPTIONS:
         peregrine = len([v for v in dignity_state.values() if v]) == 0
 
     if items is not None:
-        dignity_state |= {
-            dignities.MUTUAL_RECEPTION_RULERSHIP: mutual_reception_rulership(item, items),
-            dignities.MUTUAL_RECEPTION_EXALTATION: mutual_reception_exaltaion(item, items),
-        }
+        if dignities.MUTUAL_RECEPTION_RULERSHIP in options.dignity_scores:
+            dignity_state[dignities.MUTUAL_RECEPTION_RULERSHIP] = mutual_reception_rulership(item, items)
 
-        if houses is not None:
-            dignity_state |= {
-                dignities.MUTUAL_RECEPTION_HOUSE: mutual_reception_house(item, items, houses),
-            }
+        if dignities.MUTUAL_RECEPTION_EXALTATION in options.dignity_scores:
+            dignity_state[dignities.MUTUAL_RECEPTION_EXALTATION] = mutual_reception_exaltaion(item, items)
+
+        if houses is not None and dignities.MUTUAL_RECEPTION_HOUSE in options.dignity_scores:
+            dignity_state[dignities.MUTUAL_RECEPTION_HOUSE] = mutual_reception_house(item, items, houses)
 
     if options.peregrine == dignities.INCLUDE_MUTUAL_RECEPTIONS:
         peregrine = len([v for v in dignity_state.values() if v]) == 0
 
-    dignity_state |= {
-        dignities.PEREGRINE: peregrine,
-    }
+    if dignities.PEREGRINE in options.dignity_scores:
+        dignity_state[dignities.PEREGRINE] = peregrine
 
     return dignity_state
 
