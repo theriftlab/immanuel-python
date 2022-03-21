@@ -42,7 +42,7 @@ def chart_items(jd, lat, lon) -> dict:
             if type not in items:
                 items[type] = {}
 
-            items[type][index] = item(type, index, jd, lat, lon)
+            items[type][index] = item(jd, type, index, lat=lat, lon=lon)
 
     return items
 
