@@ -37,7 +37,7 @@ def add_filepath(path) -> None:
 
 
 """ House system as supported by pyswisseph. """
-house_system = chart.CAMPANUS
+house_system = chart.PLACIDUS
 
 
 """ Which planets, points etc. to show. """
@@ -203,11 +203,13 @@ terms = dignities.EGYPTIAN_TERMS
 peregrine = dignities.INCLUDE_MUTUAL_RECEPTIONS
 
 dignity_scores = {
-    dignities.DOMICILE: 5,
+    dignities.RULER: 5,
     dignities.MUTUAL_RECEPTION_HOUSE: 5,
     dignities.EXALTED: 4,
     dignities.MUTUAL_RECEPTION_EXALTATION: 4,
-    dignities.TRIPLICITY_RULER: 3,
+    dignities.TRIPLICITY_RULER_DAY: 3,
+    dignities.TRIPLICITY_RULER_NIGHT: 3,
+    dignities.TRIPLICITY_RULER_PARTICIPATORY: 3,
     dignities.TERM_RULER: 2,
     dignities.FACE_RULER: 1,
     dignities.FALL: -4,

@@ -1,98 +1,100 @@
 from immanuel import options
-from immanuel.const import dignities
+from immanuel.const import chart, dignities
 from immanuel.tools import position
 
 
-SIGN_RULER = 0
-EXALTATION = 1
-HOUSE_RULER = 2
-
-
-# TODO: peregrine? withotu calling a bunch of functions already called????????????
-def mutual_reception(items: dict, type: int) -> int:
-    """ Returns the planet which is in mutual reception with
-    the passed planet. """
-
-    """ TODO: Massively tidy this shit up.
-        for name, planet in self.planets.items():
-            planet_sign_rulers = const.ESSENTIAL_DIGNITIES[planet.sign][const.DOMICILE]
-            sign_exaltations = const.ESSENTIAL_DIGNITIES[planet.sign][const.EXALTED]
-            # By sign ruler
-            for planet_sign_ruler_name in planet_sign_rulers:
-                if planet_sign_ruler_name == name:
-                    continue
-                planet_sign_ruler = self.planets[planet_sign_ruler_name]
-                if name in const.ESSENTIAL_DIGNITIES[planet_sign_ruler.sign][const.DOMICILE]:
-                    planet.mutual_reception = planet_sign_ruler_name
-                    planet_sign_ruler.mutual_reception = name
-            # By sign exaltation
-            for sign_exaltation_name in sign_exaltations:
-                if sign_exaltation_name == name:
-                    continue
-                sign_exaltation = self.planets[sign_exaltation_name]
-                if name in const.ESSENTIAL_DIGNITIES[sign_exaltation.sign][const.EXALTED]:
-                    planet.mutual_reception_exaltion = sign_exaltation_name
-                    sign_exaltation.mutual_reception_exaltion = name
-
-        # By house ruler
-        for house_number, house in self.houses.items():
-            house_rulers = const.ESSENTIAL_DIGNITIES[house.sign][const.DOMICILE]
-
-            for house_ruler_name in house_rulers:
-                planet = self.planets[house_ruler_name]
-                if planet.house == house_number:
-                    continue
-
-                planet_house_rulers = const.ESSENTIAL_DIGNITIES[self.houses[planet.house].sign][const.DOMICILE]
-
-                for planet_house_ruler_name in planet_house_rulers:
-                    planet2 = self.planets[planet_house_ruler_name]
-                    if planet2.house == house_number:
-                        planet.mutual_reception_house = planet2.house
-                        planet2.mutual_reception_house = planet.house
-
-    """
-    return None
-
-
-def domiciled(index: int, lon: float) -> bool:
-    """ Returns whether the passed planet is domiciled within its sign. """
-    return index == options.rulerships[position.sign(lon)]
-
-
-def detriment(index: int, lon: float) -> bool:
-    """ Returns whether the passed planet is in detriment within its sign. """
-    return position.opposite_sign(lon) == list(options.rulerships.values()).index(index) + 1
-
-
-def exalted(index: int, lon: float) -> bool:
-    """ Returns whether the passed planet is exalted within its sign. """
-    return index == dignities.EXALTATIONS[position.sign(lon)]
-
-
-def fall(index: int, lon: float) -> bool:
-    """ Returns whether the passed planet is in fall within its sign. """
-    return position.opposite_sign(lon) == list(dignities.EXALTATIONS.values()).index(index) + 1
-
-
-def term_ruler(index: int, lon: float) -> bool:
-    """ Returns whether the passed planet is the term ruler
-    within its sign. """
-    planet_sign, planet_sign_lon = position.signlon(lon)
-
-    if index not in options.terms[planet_sign]:
+def mutual_reception_rulership(item: dict, items: dict) -> bool:
+    """ Whether the passed planet is in mutual reception by rulership. """
+    if ruler(item):
         return False
 
-    return options.terms[planet_sign][index][0] <= planet_sign_lon < options.terms[planet_sign][index][1]
+    item_sign = position.sign(item['lon'])
+    item_rulership_signs = _planet_signs(item, options.rulerships)
+    item_sign_rulership = options.rulerships[item_sign]
+
+    return position.sign(items[chart.PLANETS][item_sign_rulership]['lon']) in item_rulership_signs
 
 
-def triplicity_ruler(index: int, lon: float) -> bool:
-    """ Returns whether the passed planet is a triplicity ruler
+def mutual_reception_exaltaion(item: dict, items: dict) -> bool:
+    """ Whether the passed planet is in mutual reception by exaltation. """
+    if exalted(item):
+        return False
+
+    item_sign = position.sign(item['lon'])
+    item_exaltation_signs = _planet_signs(item, dignities.EXALTATIONS)
+    item_sign_exaltation = dignities.EXALTATIONS[item_sign]
+
+    return position.sign(items[chart.PLANETS][item_sign_exaltation]['lon']) in item_exaltation_signs
+
+
+def mutual_reception_house(item: dict, items: dict, houses: dict) -> bool:
+    """ Whether the passed planet is in mutual reception by
+    house-sign rulership. """
+    house = houses[position.house(item['lon'], houses)]
+    house_sign = position.sign(house['lon'])
+    house_sign_ruler = items[chart.PLANETS][options.rulerships[house_sign]]
+    house_sign_ruler_house = houses[position.house(house_sign_ruler['lon'], houses)]
+    house_sign_ruler_house_sign = position.sign(house_sign_ruler_house['lon'])
+
+    return item['index'] == options.rulerships[house_sign_ruler_house_sign]
+
+
+def ruler(item: dict) -> bool:
+    """ Returns whether the passed planet is the ruler of its sign. """
+    return item['index'] == options.rulerships[position.sign(item['lon'])]
+
+
+def exalted(item: dict) -> bool:
+    """ Returns whether the passed planet is exalted within its sign. """
+    return item['index'] == dignities.EXALTATIONS[position.sign(item['lon'])]
+
+
+def detriment(item: dict) -> bool:
+    """ Returns whether the passed planet is in detriment within its sign. """
+    return position.opposite_sign(item['lon']) in _planet_signs(item, options.rulerships)
+
+
+def fall(item: dict) -> bool:
+    """ Returns whether the passed planet is in fall within its sign. """
+    return position.opposite_sign(item['lon']) in _planet_signs(item, dignities.EXALTATIONS)
+
+
+def term_ruler(item: dict) -> bool:
+    """ Returns whether the passed planet is the term ruler
     within its sign. """
-    return index in options.triplicities[position.sign(lon)].values()
+    planet_sign, planet_sign_lon = position.signlon(item['lon'])
+
+    if item['index'] not in options.terms[planet_sign]:
+        return False
+
+    return options.terms[planet_sign][item['index']][0] <= planet_sign_lon < options.terms[planet_sign][item['index']][1]
 
 
-def face_ruler(index: int, lon: float) -> bool:
+def triplicity_ruler_day(item: dict, is_daytime: bool) -> bool:
+    """ Returns whether the passed planet is a daytime triplicity ruler
+    within its sign. """
+    return item['index'] == options.triplicities[position.sign(item['lon'])]['day'] and is_daytime
+
+
+def triplicity_ruler_night(item: dict, is_daytime: bool) -> bool:
+    """ Returns whether the passed planet is a nighttime triplicity ruler
+    within its sign. """
+    return item['index'] == options.triplicities[position.sign(item['lon'])]['night'] and not is_daytime
+
+
+def triplicity_ruler_participatory(item: dict) -> bool:
+    """ Returns whether the passed planet is a participatory triplicity ruler
+    within its sign, if the selected triplicities contain one. """
+    triplicities = options.triplicities[position.sign(item['lon'])]
+    return 'participatory' in triplicities and item['index'] == triplicities['participatory']
+
+
+def face_ruler(item: dict) -> bool:
     """ Returns whether the passed planet is the decan ruler
     within its sign. """
-    return dignities.FACE_RULERS[position.sign(lon)][position.decan(lon)-1] == index
+    return item['index'] == dignities.FACE_RULERS[position.sign(item['lon'])][position.decan(item['lon'])-1]
+
+
+def _planet_signs(item: dict, table: dict) -> int:
+    """ Returns the sign(s) a planet belongs to in {sign: planet} dicts. """
+    return tuple(k for k, v in table.items() if v == item['index'])
