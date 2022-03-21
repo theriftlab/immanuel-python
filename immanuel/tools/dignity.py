@@ -37,6 +37,9 @@ def mutual_reception_exaltaion(item: dict, items: dict) -> bool:
     item_exaltation_signs = _planet_signs(item, dignities.EXALTATIONS)
     item_sign_exaltation = dignities.EXALTATIONS[item_sign]
 
+    if item_sign_exaltation is None:
+        return False
+
     return position.sign(items[chart.PLANETS][item_sign_exaltation]['lon']) in item_exaltation_signs
 
 
@@ -155,6 +158,12 @@ def all(item: dict, **kwargs) -> dict:
 
     if options.peregrine == dignities.INCLUDE_MUTUAL_RECEPTIONS:
         peregrine = len([v for v in dignity_state.values() if v]) == 0
+
+    if dignities.DETRIMENT in options.dignity_scores:
+        dignity_state[dignities.DETRIMENT] = detriment(item)
+
+    if dignities.FALL in options.dignity_scores:
+        dignity_state[dignities.FALL] = fall(item)
 
     if dignities.PEREGRINE in options.dignity_scores:
         dignity_state[dignities.PEREGRINE] = peregrine
