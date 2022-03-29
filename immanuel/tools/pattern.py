@@ -10,10 +10,8 @@
 
 import swisseph as swe
 
+from immanuel import options
 from immanuel.const import chart, calc
-
-
-ORB = 8
 
 
 def chart_shape(items: dict) -> int:
@@ -22,27 +20,33 @@ def chart_shape(items: dict) -> int:
     max_gap = max(gaps)
 
     # All planets within 120º can only be a bundle
-    if max_gap >= 240-ORB:
+    if max_gap >= 240-options.chart_shape_orb:
         return calc.BUNDLE
 
     # Bucket handle planet(s) must be at least 90º from edges of main cluster
     for k, v in enumerate(gaps):
         next = _next(gaps, k)
-        if v >= 90-ORB and (next >= 90-ORB or (next <= ORB and _next(gaps, k, 2) >= 90-ORB)):
+        second_next = _next(gaps, k, 2)
+
+        if v >= 90-options.chart_shape_orb and (next >= 90-options.chart_shape_orb or (next <= options.chart_shape_orb and second_next >= 90-options.chart_shape_orb)):
             return calc.BUCKET
 
     # All planets being within 180º with no bucket handle means a bowl
-    if max_gap >= 180-ORB:
+    if max_gap >= 180-options.chart_shape_orb:
         return calc.BOWL
+
+    # All planets being within 240º with no bucket handle means a bowl
+    if max_gap >= 120-options.chart_shape_orb:
+        return calc.LOCOMOTIVE
 
     gaps.sort()
 
     # Only two gaps of at least 60º mean a seesaw
-    if (len([v for v in gaps if v >= 60-ORB]) == 2):
+    if (len([v for v in gaps if v >= 60-options.chart_shape_orb]) == 2):
         return calc.SEESAW
 
     # Three gaps of at least 30º mean a splay
-    if (len([v for v in gaps if v >= 30-ORB]) == 3):
+    if (len([v for v in gaps if v >= 30-options.chart_shape_orb]) == 3):
         return calc.SPLAY
 
     # Default to no particular patten

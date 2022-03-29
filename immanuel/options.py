@@ -185,6 +185,10 @@ orbs = {
 }
 
 
+""" Orb for calculating chart shapes. """
+chart_shape_orb = 8
+
+
 """ MC progression formula for secondary progressions. """
 mc_progression = calc.NAIBOD
 

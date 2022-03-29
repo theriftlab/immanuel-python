@@ -108,10 +108,10 @@ MOON_PHASES = {
 
 CHART_SHAPES = {
     calc.BUNDLE: 'Bundle',
-    calc.LOCOMOTIVE: 'Locomotive',
-    calc.SPLAY: 'Splay',
-    calc.BOWL: 'Bowl',
     calc.BUCKET: 'Bucket',
+    calc.BOWL: 'Bowl',
+    calc.LOCOMOTIVE: 'Locomotive',
     calc.SEESAW: 'Seesaw',
+    calc.SPLAY: 'Splay',
     calc.SPLASH: 'Splash',
 }
