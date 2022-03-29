@@ -105,3 +105,13 @@ MOON_PHASES = {
     calc.THIRD_QUARTER: 'Third Quarter',
     calc.BALSAMIC: 'Balsamic',
 }
+
+CHART_SHAPES = {
+    calc.BUNDLE: 'Bundle',
+    calc.LOCOMOTIVE: 'Locomotive',
+    calc.SPLAY: 'Splay',
+    calc.BOWL: 'Bowl',
+    calc.BUCKET: 'Bucket',
+    calc.SEESAW: 'Seesaw',
+    calc.SPLASH: 'Splash',
+}
