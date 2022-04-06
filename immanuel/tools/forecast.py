@@ -15,15 +15,19 @@ from immanuel.const import calc, chart
 from immanuel.tools import convert, date, eph
 
 
+JD = 0
+ARMC = 1
+
+
 def solar_return(jd: float, year: int) -> float:
     """ Returns the Julian date of the given year's solar return. """
     dt = date.jd_to_datetime(jd)
     year_diff = year - dt.year
     sr_jd = jd + year_diff * calc.YEAR_DAYS
-    natal_sun = eph.planet(jd, chart.SUN)
+    natal_sun = eph.planet(chart.SUN, jd)
 
     while True:
-        sr_sun = eph.planet(sr_jd, chart.SUN)
+        sr_sun = eph.planet(chart.SUN, sr_jd)
         distance = swe.difdeg2n(natal_sun['lon'], sr_sun['lon'])
         if abs(distance) <= calc.MAX_ERROR:
             break
@@ -40,14 +44,14 @@ def progression(jd: float, lat: float, lon: float, pjd: float, plat = None, plon
 
     match options.mc_progression:
         case calc.DAILY_HOUSES:
-            progressed_armc = eph.angle(progressed_jd, plat, plon, chart.ARMC)['lon']
+            progressed_armc = eph.angle(chart.ARMC, progressed_jd, plat, plon)['lon']
         case calc.NAIBOD:
-            natal_armc = eph.angle(jd, lat, lon, chart.ARMC)
+            natal_armc = eph.angle(chart.ARMC, jd, lat, lon)
             progressed_armc = natal_armc['lon'] + days * calc.SUN_MEAN_MOTION
         case calc.SOLAR_ARC:
-            natal_mc = eph.angle(jd, lat, lon, chart.MC)
-            natal_sun = eph.planet(jd, chart.SUN)
-            progressed_sun = eph.planet(progressed_jd, chart.SUN)
+            natal_mc = eph.angle(chart.MC, jd, lat, lon)
+            natal_sun = eph.planet(chart.SUN, jd)
+            progressed_sun = eph.planet(chart.SUN, progressed_jd)
             distance = swe.difdeg2n(progressed_sun, natal_sun)
             obliquity = eph.obliquity(progressed_jd)
             progressed_armc = swe.cotrans((natal_mc['lon'] + distance, 0, 1), -obliquity)[0]

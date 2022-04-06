@@ -60,6 +60,9 @@ PLANETS = {
     chart.URANUS: 'Uranus',
     chart.NEPTUNE: 'Neptune',
     chart.PLUTO: 'Pluto',
+}
+
+ASTEROIDS = {
     chart.CHIRON: 'Chiron',
     chart.PHOLUS: 'Pholus',
     chart.CERES: 'Ceres',

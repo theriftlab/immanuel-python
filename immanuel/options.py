@@ -41,18 +41,15 @@ house_system = chart.PLACIDUS
 
 
 """ Which planets, points etc. to show. """
-chart_items = {
-    chart.POINTS: (
-        chart.TRUE_NORTH_NODE, chart.TRUE_SOUTH_NODE,
-        chart.VERTEX, chart.PARS_FORTUNA,
-        chart.TRUE_LILITH,
-    ),
-    chart.PLANETS: (
-        chart.SUN, chart.MOON, chart.MERCURY, chart.VENUS, chart.MARS,
-        chart.JUPITER, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.PLUTO,
-        chart.CHIRON,
-    ),
-}
+items = (
+    chart.ASC, chart.DESC, chart.MC, chart.IC,
+    chart.TRUE_NORTH_NODE, chart.TRUE_SOUTH_NODE,
+    chart.VERTEX, chart.PARS_FORTUNA,
+    chart.TRUE_LILITH,
+    chart.SUN, chart.MOON, chart.MERCURY, chart.VENUS, chart.MARS,
+    chart.JUPITER, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.PLUTO,
+    chart.CHIRON,
+)
 
 
 """ Which aspects to calculate. """
@@ -79,14 +76,14 @@ point_aspect_rule = {
 }
 
 aspect_rules = {
-    chart.ANGLES: {
+    chart.ANGLE: {
         chart.ASC: point_aspect_rule,
         chart.DESC: point_aspect_rule,
         chart.MC: point_aspect_rule,
         chart.IC: point_aspect_rule,
     },
 
-    chart.PLANETS: {
+    chart.PLANET: {
         chart.SUN: planet_aspect_rule,
         chart.MOON: planet_aspect_rule,
         chart.MERCURY: planet_aspect_rule,
@@ -99,7 +96,7 @@ aspect_rules = {
         chart.PLUTO: planet_aspect_rule,
     },
 
-    chart.POINTS: {
+    chart.POINT: {
         chart.NORTH_NODE: point_aspect_rule,
         chart.SOUTH_NODE: point_aspect_rule,
         chart.TRUE_NORTH_NODE: point_aspect_rule,
@@ -151,14 +148,14 @@ point_orbs = {
 }
 
 orbs = {
-    chart.ANGLES: {
+    chart.ANGLE: {
         chart.ASC: planet_orbs,
         chart.DESC: planet_orbs,
         chart.MC: planet_orbs,
         chart.IC: planet_orbs,
     },
 
-    chart.PLANETS: {
+    chart.PLANET: {
         chart.SUN: planet_orbs,
         chart.MOON: planet_orbs,
         chart.MERCURY: planet_orbs,
@@ -171,7 +168,7 @@ orbs = {
         chart.PLUTO: planet_orbs,
     },
 
-    chart.POINTS: {
+    chart.POINT: {
         chart.NORTH_NODE: point_orbs,
         chart.SOUTH_NODE: point_orbs,
         chart.TRUE_NORTH_NODE: point_orbs,
