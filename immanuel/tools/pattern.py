@@ -15,7 +15,7 @@ from immanuel.const import chart, calc
 
 
 def chart_shape(items: dict) -> int:
-    longitudes = sorted([v['lon'] for k, v in items[chart.PLANETS].items() if k in chart.MAIN_PLANETS])
+    longitudes = sorted([v['lon'] for v in items.values() if v['type'] == chart.PLANET])
     gaps = [swe.difdegn(_next(longitudes, k), v) for k, v in enumerate(longitudes)]
     max_gap = max(gaps)
 

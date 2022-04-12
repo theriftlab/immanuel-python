@@ -17,7 +17,7 @@ from immanuel.const import calc
 from immanuel.tools import position
 
 
-def find(item1: dict, item2: dict) -> dict:
+def between(item1: dict, item2: dict) -> dict:
     """ Returns any aspect between the two passed items. """
     active, passive = (item1, item2) if abs(item1['speed']) > abs(item2['speed']) else (item2, item1)
 
@@ -46,8 +46,8 @@ def find(item1: dict, item2: dict) -> dict:
             applicative = not exact and ((aspect_orb < 0 if distance < 0 else aspect_orb > 0) or active['speed'] < -calc.STATION_SPEED)
 
             return {
-                'active': active,
-                'passive': passive,
+                'active': active['index'],
+                'passive': passive['index'],
                 'aspect': aspect,
                 'distance': distance,
                 'orb': aspect_orb,
@@ -58,21 +58,33 @@ def find(item1: dict, item2: dict) -> dict:
     return None
 
 
-def all(item: dict, items: dict, exclude_self: bool = True) -> dict:
+def for_item(item: dict, items: dict, exclude_same: bool = True) -> list:
     """ Returns all chart items aspecting the passed chart item. If two
     separate sets of items are being compared (eg. synastry) then
     exclude_self can be set to False to find aspects between the same
     item in both charts. """
     aspects = []
 
-    for type, item_list in items.items():
-        for index, check_item in item_list.items():
-            if exclude_self and type == item['type'] and index == item['index']:
-                continue
+    for index, check_item in items.items():
+        if exclude_same and index == item['index']:
+            continue
 
-            aspect = find(item, check_item)
+        aspect = between(item, check_item)
 
-            if aspect is not None:
-                aspects.append(aspect)
+        if aspect is not None:
+            aspects.append(aspect)
+
+    return aspects
+
+
+def all(items: dict, exclude_same: bool = True) -> dict:
+    """ Returns all aspects between the passed chart items. """
+    aspects = {}
+
+    for index, item in items.items():
+        item_aspects = for_item(item, items, exclude_same)
+
+        if item_aspects:
+            aspects[index] = item_aspects
 
     return aspects

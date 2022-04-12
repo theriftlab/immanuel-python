@@ -25,7 +25,7 @@ def mutual_reception_rulership(item: dict, items: dict) -> bool:
     item_rulership_signs = _planet_signs(item, options.rulerships)
     item_sign_rulership = options.rulerships[item_sign]
 
-    return position.sign(items[chart.PLANETS][item_sign_rulership]['lon']) in item_rulership_signs
+    return position.sign(items[item_sign_rulership]['lon']) in item_rulership_signs
 
 
 def mutual_reception_exaltaion(item: dict, items: dict) -> bool:
@@ -40,7 +40,7 @@ def mutual_reception_exaltaion(item: dict, items: dict) -> bool:
     if item_sign_exaltation is None:
         return False
 
-    return position.sign(items[chart.PLANETS][item_sign_exaltation]['lon']) in item_exaltation_signs
+    return position.sign(items[item_sign_exaltation]['lon']) in item_exaltation_signs
 
 
 def mutual_reception_house(item: dict, items: dict, houses: dict) -> bool:
@@ -48,7 +48,7 @@ def mutual_reception_house(item: dict, items: dict, houses: dict) -> bool:
     house-sign rulership. """
     house = houses[position.house(item['lon'], houses)]
     house_sign = position.sign(house['lon'])
-    house_sign_ruler = items[chart.PLANETS][options.rulerships[house_sign]]
+    house_sign_ruler = items[options.rulerships[house_sign]]
     house_sign_ruler_house = houses[position.house(house_sign_ruler['lon'], houses)]
     house_sign_ruler_house_sign = position.sign(house_sign_ruler_house['lon'])
 
