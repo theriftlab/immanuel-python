@@ -35,18 +35,18 @@ def chart_shape(items: dict) -> int:
     if max_gap >= 180-options.chart_shape_orb:
         return calc.BOWL
 
-    # All planets being within 240º with no bucket handle means a bowl
+    # All planets being within 240º with no bucket handle means a locomotive
     if max_gap >= 120-options.chart_shape_orb:
         return calc.LOCOMOTIVE
 
     gaps.sort()
 
     # Only two gaps of at least 60º mean a seesaw
-    if (len([v for v in gaps if v >= 60-options.chart_shape_orb]) == 2):
+    if len([v for v in gaps if v >= 60-options.chart_shape_orb]) == 2:
         return calc.SEESAW
 
     # Three gaps of at least 30º mean a splay
-    if (len([v for v in gaps if v >= 30-options.chart_shape_orb]) == 3):
+    if len([v for v in gaps if v >= 30-options.chart_shape_orb]) == 3:
         return calc.SPLAY
 
     # Default to no particular patten
