@@ -36,7 +36,7 @@ class DateTime:
         self.dst_ambiguous = None
         self.jd = None
 
-        if (isinstance(dt_jd, datetime)):
+        if isinstance(dt_jd, datetime):
             try:
                 self.datetime = self.timezone.localize(dt_jd, is_dst) if dt_jd.tzinfo is None else dt_jd.astimezone(self.timezone)
                 self.jd = datetime_to_jd(self.datetime)
