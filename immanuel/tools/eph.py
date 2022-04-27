@@ -21,16 +21,14 @@ from functools import cache
 import swisseph as swe
 
 from immanuel import options
-from immanuel.const import calc, chart, names
-from immanuel.tools import find
+from immanuel.const import chart, names
+from immanuel.tools import calculate, find
 
 
 ALL = -1
-ANGLES = 0
-HOUSES = 1
-VERTEX = 2
 
-_SWE = {
+# TODO: move into const file?
+SWE = {
     chart.ALCABITUS: b'B',
     chart.AZIMUTHAL: b'H',
     chart.CAMPANUS: b'C',
@@ -127,7 +125,7 @@ def angles(jd: float, lat: float, lon: float) -> dict:
 def angle(index: int, jd: float, lat: float, lon: float) -> dict:
     """ Returns one of the four main chart angles & its speed. Also stores
     the ARMC for further calculations. Returns all if index == ALL. """
-    angles = _angles_houses_vertex(jd, lat, lon, options.house_system)[ANGLES]
+    angles = _angles_houses_vertex(jd, lat, lon, options.house_system)['angles']
 
     if index == ALL:
         return angles
@@ -145,7 +143,7 @@ def houses(jd: float, lat: float, lon: float) -> dict:
 
 def house(index: int, jd: float, lat: float, lon: float) -> dict:
     """ Returns a house cusp & its speed, or all houses if index == ALL. """
-    houses = _angles_houses_vertex(jd, lat, lon, options.house_system)[HOUSES]
+    houses = _angles_houses_vertex(jd, lat, lon, options.house_system)['houses']
 
     if index == ALL:
         return houses
@@ -162,7 +160,7 @@ def point(index: int, jd: float, lat = None, lon = None) -> dict:
     coordinates if the calculations are based on house cusps / angles. """
     if index == chart.VERTEX:
         # Get Vertex from house/ascmc calculation
-        return _angles_houses_vertex(jd, lat, lon, options.house_system)[VERTEX]
+        return _angles_houses_vertex(jd, lat, lon, options.house_system)['vertex']
 
     if index == chart.SYZYGY:
         # Calculate prenatal full/new moon
@@ -182,25 +180,21 @@ def point(index: int, jd: float, lat = None, lon = None) -> dict:
 
     if index == chart.PARS_FORTUNA:
         # Calculate part of furtune
-        asc = angle(chart.ASC, jd, lat, lon)
-        moon = planet(chart.MOON, jd)
         sun = planet(chart.SUN, jd)
-
-        if options.pars_fortuna == calc.DAY_FORMULA or (options.pars_fortuna == calc.DAY_NIGHT_FORMULA and is_daytime(jd, lat, lon)):
-            formula = (asc['lon'] + moon['lon'] - sun['lon'])
-        else:
-            formula = (asc['lon'] + sun['lon'] - moon['lon'])
+        moon = planet(chart.MOON, jd)
+        asc = angle(chart.ASC, jd, lat, lon)
+        lon = calculate
 
         return {
             'index': index,
             'type': chart.POINT,
             'name': names.POINTS[index],
-            'lon': swe.degnorm(formula),
+            'lon': lon,
             'speed': 0.0,
         }
 
     # Get other available points
-    res = swe.calc_ut(jd, _SWE[index])[0]
+    res = swe.calc_ut(jd, SWE[index])[0]
 
     return {
         'index': index,
@@ -216,8 +210,8 @@ def planet(index: int, jd: float) -> dict:
     """ Returns a pyswisseph object by Julian date. Can also be used to
     return the six major asteroids supported by pyswisseph without using
     a separate ephemeris file. """
-    ec_res = swe.calc_ut(jd, _SWE[index])[0]
-    eq_res = swe.calc_ut(jd, _SWE[index], swe.FLG_EQUATORIAL)[0]
+    ec_res = swe.calc_ut(jd, SWE[index])[0]
+    eq_res = swe.calc_ut(jd, SWE[index], swe.FLG_EQUATORIAL)[0]
     asteroid = _type(index) == chart.ASTEROID
 
     return {
@@ -277,11 +271,7 @@ def moon_phase(jd: float) -> int:
     """ Returns the moon phase at the given Julian date. """
     sun = planet(chart.SUN, jd)
     moon = planet(chart.MOON, jd)
-    distance = swe.difdegn(moon['lon'], sun['lon'])
-
-    for angle in range(45, 361, 45):
-        if distance < angle:
-            return angle
+    return calculate.moon_phase(sun['lon'], moon['lon'])
 
 
 @cache
@@ -298,60 +288,14 @@ def is_daytime(jd: float, lat: float, lon: float) -> bool:
     and place specified. """
     sun = planet(chart.SUN, jd)
     asc = angle(chart.ASC, jd, lat, lon)
-    return swe.difdeg2n(sun['lon'], asc['lon']) < 0
+    return calculate.is_daytime(sun['lon'], asc['lon'])
 
 
 @cache
 def _angles_houses_vertex(jd: float, lat: float, lon: float, house_system: bytes) -> tuple:
     """ Returns ecliptic longitudes for the houses, main angles, and the
     vertex, along with their speeds. """
-    cusps, ascmc, cuspsspeed, ascmcspeed = swe.houses_ex2(jd, lat, lon, _SWE[house_system])
-
-    # Angles
-    angles = {}
-    for i in (chart.ASC, chart.MC, chart.ARMC):
-        lon = ascmc[_SWE[i]]
-        angles[i] = {
-            'index': i,
-            'type': chart.ANGLE,
-            'name': names.ANGLES[i],
-            'lon': lon,
-            'speed': ascmcspeed[_SWE[i]],
-        }
-        if i in (chart.ASC, chart.MC):
-            index = chart.DESC if i == chart.ASC else chart.IC
-            angles[index] = {
-                'index': index,
-                'type': chart.ANGLE,
-                'name': names.ANGLES[index],
-                'lon': swe.degnorm(Decimal(str(lon)) - 180),
-                'speed': ascmcspeed[_SWE[i]],
-            }
-
-    # Houses
-    houses = {}
-    for i, lon in enumerate(cusps):
-        index = chart.HOUSE + i + 1
-        size = swe.difdeg2n(cusps[i+1 if i < 11 else 0], lon)
-        houses[index] = {
-            'index': index,
-            'type': chart.HOUSE,
-            'name': str(i+1),
-            'lon': lon,
-            'size': size,
-            'speed': cuspsspeed[i],
-        }
-
-    # Vertex
-    vertex = {
-        'index': chart.VERTEX,
-        'type': chart.POINT,
-        'name': names.POINTS[chart.VERTEX],
-        'lon': ascmc[_SWE[chart.VERTEX]],
-        'speed': ascmcspeed[_SWE[chart.VERTEX]],
-    }
-
-    return angles, houses, vertex
+    return calculate.angles_houses_vertex(*swe.houses_ex2(jd, lat, lon, SWE[house_system]))
 
 
 def _type(index: int) -> int:
