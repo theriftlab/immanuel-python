@@ -60,6 +60,10 @@ DAY_FORMULA = 0
 NIGHT_FORMULA = 1
 DAY_NIGHT_FORMULA = 2
 
+""" Composite Part of Fortune calculations. """
+MIDPOINT = 0
+COMPOSITE = 1
+
 """ Orb calculation when two chart items have different orbs. """
 MEAN = 0
 MAX = 1

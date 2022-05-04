@@ -12,12 +12,9 @@
 
 """
 
-from decimal import Decimal
-
 import swisseph as swe
 
-from immanuel.const import calc, chart, names
-from immanuel.tools import eph
+from immanuel.const import calc
 from immanuel import options
 
 
@@ -43,56 +40,3 @@ def pars_fortuna(sun_lon: float, moon_lon: float, asc_lon: float) -> float:
         formula = (asc_lon + sun_lon - moon_lon)
 
     return swe.degnorm(formula)
-
-
-def angles_houses_vertex(cusps: tuple, ascmc: tuple, cuspsspeed: tuple, ascmcspeed: tuple) -> dict:
-    """ Returns ecliptic longitudes for the houses, main angles, and the
-        vertex, along with their speeds. """
-    angles = {}
-
-    for i in (chart.ASC, chart.MC, chart.ARMC):
-        lon = ascmc[eph.SWE[i]]
-        angles[i] = {
-            'index': i,
-            'type': chart.ANGLE,
-            'name': names.ANGLES[i],
-            'lon': lon,
-            'speed': ascmcspeed[eph.SWE[i]],
-        }
-        if i in (chart.ASC, chart.MC):
-            index = chart.DESC if i == chart.ASC else chart.IC
-            angles[index] = {
-                'index': index,
-                'type': chart.ANGLE,
-                'name': names.ANGLES[index],
-                'lon': swe.degnorm(Decimal(str(lon)) - 180),
-                'speed': ascmcspeed[eph.SWE[i]],
-            }
-
-    houses = {}
-
-    for i, lon in enumerate(cusps):
-        index = chart.HOUSE + i + 1
-        size = swe.difdeg2n(cusps[i+1 if i < 11 else 0], lon)
-        houses[index] = {
-            'index': index,
-            'type': chart.HOUSE,
-            'name': str(i+1),
-            'lon': lon,
-            'size': size,
-            'speed': cuspsspeed[i],
-        }
-
-    vertex = {
-        'index': chart.VERTEX,
-        'type': chart.POINT,
-        'name': names.POINTS[chart.VERTEX],
-        'lon': ascmc[eph.SWE[chart.VERTEX]],
-        'speed': ascmcspeed[eph.SWE[chart.VERTEX]],
-    }
-
-    return {
-        'angles': angles,
-        'houses': houses,
-        'vertex': vertex,
-    }

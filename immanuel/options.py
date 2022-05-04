@@ -190,8 +190,12 @@ chart_shape_orb = 8
 mc_progression = calc.NAIBOD
 
 
-""" Part of fortune formula. """
+""" Part of Fortune formula. """
 pars_fortuna = calc.DAY_NIGHT_FORMULA
+
+
+""" Composite Part of Fortune calcultion. """
+composite_pars_fortuna = calc.COMPOSITE
 
 
 """ Dignity settings. """

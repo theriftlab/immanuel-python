@@ -27,8 +27,7 @@ from immanuel.tools import calculate, find
 
 ALL = -1
 
-# TODO: move into const file?
-SWE = {
+_SWE = {
     chart.ALCABITUS: b'B',
     chart.AZIMUTHAL: b'H',
     chart.CAMPANUS: b'C',
@@ -183,7 +182,7 @@ def point(index: int, jd: float, lat = None, lon = None) -> dict:
         sun = planet(chart.SUN, jd)
         moon = planet(chart.MOON, jd)
         asc = angle(chart.ASC, jd, lat, lon)
-        lon = calculate
+        lon = calculate.pars_fortuna(sun['lon'], moon['lon'], asc['lon'])
 
         return {
             'index': index,
@@ -194,7 +193,7 @@ def point(index: int, jd: float, lat = None, lon = None) -> dict:
         }
 
     # Get other available points
-    res = swe.calc_ut(jd, SWE[index])[0]
+    res = swe.calc_ut(jd, _SWE[index])[0]
 
     return {
         'index': index,
@@ -210,8 +209,8 @@ def planet(index: int, jd: float) -> dict:
     """ Returns a pyswisseph object by Julian date. Can also be used to
     return the six major asteroids supported by pyswisseph without using
     a separate ephemeris file. """
-    ec_res = swe.calc_ut(jd, SWE[index])[0]
-    eq_res = swe.calc_ut(jd, SWE[index], swe.FLG_EQUATORIAL)[0]
+    ec_res = swe.calc_ut(jd, _SWE[index])[0]
+    eq_res = swe.calc_ut(jd, _SWE[index], swe.FLG_EQUATORIAL)[0]
     asteroid = _type(index) == chart.ASTEROID
 
     return {
@@ -292,10 +291,57 @@ def is_daytime(jd: float, lat: float, lon: float) -> bool:
 
 
 @cache
-def _angles_houses_vertex(jd: float, lat: float, lon: float, house_system: bytes) -> tuple:
+def _angles_houses_vertex(jd: float, lat: float, lon: float, house_system: bytes) -> dict:
     """ Returns ecliptic longitudes for the houses, main angles, and the
     vertex, along with their speeds. """
-    return calculate.angles_houses_vertex(*swe.houses_ex2(jd, lat, lon, SWE[house_system]))
+    cusps, ascmc, cuspsspeed, ascmcspeed = swe.houses_ex2(jd, lat, lon, _SWE[house_system])
+
+    angles = {}
+    for i in (chart.ASC, chart.MC, chart.ARMC):
+        lon = ascmc[_SWE[i]]
+        angles[i] = {
+            'index': i,
+            'type': chart.ANGLE,
+            'name': names.ANGLES[i],
+            'lon': lon,
+            'speed': ascmcspeed[_SWE[i]],
+        }
+        if i in (chart.ASC, chart.MC):
+            index = chart.DESC if i == chart.ASC else chart.IC
+            angles[index] = {
+                'index': index,
+                'type': chart.ANGLE,
+                'name': names.ANGLES[index],
+                'lon': swe.degnorm(Decimal(str(lon)) - 180),
+                'speed': ascmcspeed[_SWE[i]],
+            }
+
+    houses = {}
+    for i, lon in enumerate(cusps):
+        index = chart.HOUSE + i + 1
+        size = swe.difdeg2n(cusps[i+1 if i < 11 else 0], lon)
+        houses[index] = {
+            'index': index,
+            'type': chart.HOUSE,
+            'name': str(i+1),
+            'lon': lon,
+            'size': size,
+            'speed': cuspsspeed[i],
+        }
+
+    vertex = {
+        'index': chart.VERTEX,
+        'type': chart.POINT,
+        'name': names.POINTS[chart.VERTEX],
+        'lon': ascmc[_SWE[chart.VERTEX]],
+        'speed': ascmcspeed[_SWE[chart.VERTEX]],
+    }
+
+    return {
+        'angles': angles,
+        'houses': houses,
+        'vertex': vertex,
+    }
 
 
 def _type(index: int) -> int:
