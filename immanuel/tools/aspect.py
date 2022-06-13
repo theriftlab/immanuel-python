@@ -88,3 +88,22 @@ def all(items: dict, exclude_same: bool = True) -> dict:
             aspects[index] = item_aspects
 
     return aspects
+
+
+def by_type(items: dict, exclude_same: bool = True) -> dict:
+    """ Returns all aspects between the passed chart items keyed by
+    aspect type. """
+    aspects = {}
+
+    for item in items.values():
+        item_aspects = for_item(item, items, exclude_same)
+
+        if item_aspects:
+            for item_aspect in item_aspects:
+                if item_aspect['aspect'] not in aspects:
+                    aspects[item_aspect['aspect']] = []
+
+                if item_aspect not in aspects[item_aspect['aspect']]:
+                    aspects[item_aspect['aspect']].append(item_aspect)
+
+    return aspects
