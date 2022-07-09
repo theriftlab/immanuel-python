@@ -58,12 +58,12 @@ def between(item1: dict, item2: dict) -> dict:
     return None
 
 
-def for_item(item: dict, items: dict, exclude_same: bool = True) -> list:
+def for_item(item: dict, items: dict, exclude_same: bool = True) -> dict:
     """ Returns all chart items aspecting the passed chart item. If two
     separate sets of items are being compared (eg. synastry) then
     exclude_self can be set to False to find aspects between the same
     item in both charts. """
-    aspects = []
+    aspects = {}
 
     for index, check_item in items.items():
         if exclude_same and index == item['index']:
@@ -72,7 +72,7 @@ def for_item(item: dict, items: dict, exclude_same: bool = True) -> list:
         aspect = between(item, check_item)
 
         if aspect is not None:
-            aspects.append(aspect)
+            aspects[check_item['index']] = aspect
 
     return aspects
 
@@ -99,7 +99,7 @@ def by_type(items: dict, exclude_same: bool = True) -> dict:
         item_aspects = for_item(item, items, exclude_same)
 
         if item_aspects:
-            for item_aspect in item_aspects:
+            for item_aspect in item_aspects.values():
                 if item_aspect['aspect'] not in aspects:
                     aspects[item_aspect['aspect']] = []
 
