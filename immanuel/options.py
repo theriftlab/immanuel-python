@@ -52,6 +52,14 @@ items = (
 )
 
 
+""" Which chart items to include in aspect patterns. """
+aspect_pattern_items = (
+    chart.SUN, chart.MOON, chart.MERCURY, chart.VENUS, chart.MARS,
+    chart.JUPITER, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.PLUTO,
+    chart.CHIRON,
+)
+
+
 """ Which aspects to calculate. """
 aspects = (
     calc.CONJUNCTION, calc.OPPOSITION, calc.SQUARE, calc.TRINE, calc.SEXTILE,
