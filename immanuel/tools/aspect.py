@@ -17,11 +17,11 @@ from immanuel.const import calc
 from immanuel.tools import position
 
 
-def between(item1: dict, item2: dict) -> dict:
+def between(item1: dict, item2: dict, check_aspects: tuple) -> dict:
     """ Returns any aspect between the two passed items. """
     active, passive = (item1, item2) if abs(item1['speed']) > abs(item2['speed']) else (item2, item1)
 
-    for aspect in options.aspects:
+    for aspect in check_aspects:
         # Check aspect rules
         active_aspect_rule = options.aspect_rules[active['type']][active['index']] if active['type'] in options.aspect_rules and active['index'] in options.aspect_rules[active['type']] else options.default_aspect_rule
         passive_aspect_rule = options.aspect_rules[passive['type']][passive['index']] if passive['type'] in options.aspect_rules and passive['index'] in options.aspect_rules[passive['type']] else options.default_aspect_rule
@@ -58,7 +58,7 @@ def between(item1: dict, item2: dict) -> dict:
     return None
 
 
-def for_item(item: dict, items: dict, exclude_same: bool = True) -> dict:
+def for_item(item: dict, items: dict, exclude_same: bool = True, check_aspects: tuple = options.aspects) -> dict:
     """ Returns all chart items aspecting the passed chart item. If two
     separate sets of items are being compared (eg. synastry) then
     exclude_self can be set to False to find aspects between the same
@@ -69,7 +69,7 @@ def for_item(item: dict, items: dict, exclude_same: bool = True) -> dict:
         if exclude_same and index == item['index']:
             continue
 
-        aspect = between(item, check_item)
+        aspect = between(item, check_item, check_aspects)
 
         if aspect is not None:
             aspects[check_item['index']] = aspect
@@ -77,12 +77,12 @@ def for_item(item: dict, items: dict, exclude_same: bool = True) -> dict:
     return aspects
 
 
-def all(items: dict, exclude_same: bool = True) -> dict:
+def all(items: dict, exclude_same: bool = True, check_aspects: tuple = options.aspects) -> dict:
     """ Returns all aspects between the passed chart items. """
     aspects = {}
 
     for index, item in items.items():
-        item_aspects = for_item(item, items, exclude_same)
+        item_aspects = for_item(item, items, exclude_same, check_aspects)
 
         if item_aspects:
             aspects[index] = item_aspects
@@ -90,13 +90,13 @@ def all(items: dict, exclude_same: bool = True) -> dict:
     return aspects
 
 
-def by_type(items: dict, exclude_same: bool = True) -> dict:
+def by_type(items: dict, exclude_same: bool = True, check_aspects: tuple = options.aspects) -> dict:
     """ Returns all aspects between the passed chart items keyed by
     aspect type. """
     aspects = {}
 
     for item in items.values():
-        item_aspects = for_item(item, items, exclude_same)
+        item_aspects = for_item(item, items, exclude_same, check_aspects)
 
         if item_aspects:
             for item_aspect in item_aspects.values():
