@@ -12,7 +12,6 @@ import swisseph as swe
 
 from immanuel import options
 from immanuel.const import chart, calc
-from immanuel.tools import aspect
 
 
 def chart_shape(items: dict) -> int:
@@ -58,15 +57,8 @@ def aspect_figures(items: dict) -> int:
     # Ensure we're only dealing with allowed items
     check_items = {k: v for k, v in items.items() if k in options.aspect_pattern_items}
 
-    # Check for stellia
-    stellia = []
-    conjunctions = aspect.all(check_items, check_aspects=[calc.CONJUNCTION])
-
-    for index, sub_conjunctions in conjunctions.items():
-        if len(sub_conjunctions) > 1:
-            stellium = sorted([index, *sub_conjunctions.keys()])
-            if stellium not in stellia:
-                stellia.append(stellium)
+    # TODO
+    # Patterns to detect: grand trine, grand cross, yod, grand kite, mystic rectangle, t-square
 
 
 def _next(data: list, key: int, step: int = 1) -> float:
