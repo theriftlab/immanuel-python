@@ -15,6 +15,8 @@ from decimal import Decimal
 
 import swisseph as swe
 
+from immanuel.const import chart
+
 
 SIGN = 0
 LON = 1
@@ -37,7 +39,8 @@ def signlon(lon: float) -> tuple:
 def opposite_sign(lon: float) -> int:
     """ Returns the index of the zodiac sign opposite
     where the passed longitude belongs to. """
-    return (int(lon/30) + 7) % 12
+    sign_number = sign(lon)
+    return sign_number + (6 if sign_number <= 6 else -6)
 
 
 def decan(lon: float) -> int:
@@ -52,16 +55,30 @@ def house(lon: float, houses: dict) -> int:
     if key in _house:
         return _house[key]
 
-    for house_number, house in houses.items():
+    for house in houses.values():
         lon_diff = swe.difdeg2n(lon, house['lon'])
         next_cusp_diff = swe.difdeg2n(house['lon'] + house['size'], house['lon'])
 
-        if 0 < lon_diff < next_cusp_diff:
-            _house[key] = house_number
-            return house_number
+        if 0 <= lon_diff < next_cusp_diff:
+            _house[key] = house
+            return house
 
 
 def opposite_house(lon: float, houses: dict) -> int:
     """ Given a longitude and a dict of houses from the eph
-    module, this returns the house oopsite where the longitude is. """
-    return (house(lon, houses) + 6) % 12
+    module, this returns the house opposite where the longitude is. """
+    house_number = house(lon, houses)['number']
+    index = chart.HOUSE + house_number + (6 if house_number <= 6 else -6)
+    return houses[index]
+
+
+def element(lon: float) -> int:
+    """ Returns the element associated with the sign
+    which the passed longitude belongs to. """
+    return int(lon/30) % 4 + 1
+
+
+def modality(lon: float) -> int:
+    """ Returns the modality associated with the sign
+    which the passed longitude belongs to. """
+    return int(lon/30) % 3 + 1

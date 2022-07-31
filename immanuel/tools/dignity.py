@@ -12,7 +12,7 @@
 """
 
 from immanuel import options
-from immanuel.const import chart, dignities
+from immanuel.const import dignities
 from immanuel.tools import position
 
 

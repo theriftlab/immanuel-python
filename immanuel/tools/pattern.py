@@ -15,6 +15,7 @@ from immanuel.const import chart, calc
 
 
 def chart_shape(items: dict) -> int:
+    # Only deal with planets
     longitudes = sorted([v['lon'] for v in items.values() if v['type'] == chart.PLANET])
     diffs = [swe.difdegn(_next(longitudes, k), v) for k, v in enumerate(longitudes)]
     max_diff = max(diffs)
@@ -54,11 +55,9 @@ def chart_shape(items: dict) -> int:
 
 
 def aspect_figures(items: dict) -> int:
-    # Ensure we're only dealing with allowed items
-    check_items = {k: v for k, v in items.items() if k in options.aspect_pattern_items}
-
     # TODO
     # Patterns to detect: grand trine, grand cross, yod, grand kite, mystic rectangle, t-square
+    pass
 
 
 def _next(data: list, key: int, step: int = 1) -> float:

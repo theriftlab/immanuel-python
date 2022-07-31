@@ -317,16 +317,17 @@ def _angles_houses_vertex(jd: float, lat: float, lon: float, house_system: bytes
             }
 
     houses = {}
-    for i, lon in enumerate(cusps):
-        index = chart.HOUSE + i + 1
-        size = swe.difdeg2n(cusps[i+1 if i < 11 else 0], lon)
+    for i, lon in enumerate(cusps, start=1):
+        index = chart.HOUSE + i
+        size = swe.difdeg2n(cusps[i if i < 12 else 0], lon)
         houses[index] = {
             'index': index,
             'type': chart.HOUSE,
-            'name': str(i+1),
+            'name': names.HOUSES[index],
+            'number': i,
             'lon': lon,
             'size': size,
-            'speed': cuspsspeed[i],
+            'speed': cuspsspeed[i-1],
         }
 
     vertex = {

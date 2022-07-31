@@ -25,6 +25,19 @@ SIGNS = {
     chart.PISCES: 'Pisces',
 }
 
+ELEMENTS = {
+    chart.FIRE: 'Fire',
+    chart.EARTH: 'Earth',
+    chart.AIR: 'Air',
+    chart.WATER: 'Water',
+}
+
+MODALITIES = {
+    chart.CARDINAL: 'Cardinal',
+    chart.FIXED: 'Fixed',
+    chart.MUTABLE: 'Mutable',
+}
+
 HOUSE_SYSTEMS = {
     chart.ALCABITUS: 'Alcabitus',
     chart.AZIMUTHAL: 'Azimuthal',
@@ -39,6 +52,21 @@ HOUSE_SYSTEMS = {
     chart.REGIOMONTANUS: 'Regiomontanus',
     chart.VEHLOW_EQUAL: 'Vehlow Equal House',
     chart.WHOLE_SIGN: 'Whole Sign',
+}
+
+HOUSES = {
+    chart.HOUSE1: '1st House',
+    chart.HOUSE2: '2nd House',
+    chart.HOUSE3: '3rd House',
+    chart.HOUSE4: '4th House',
+    chart.HOUSE5: '5th House',
+    chart.HOUSE6: '6th House',
+    chart.HOUSE7: '7th House',
+    chart.HOUSE8: '8th House',
+    chart.HOUSE9: '9th House',
+    chart.HOUSE10: '10th House',
+    chart.HOUSE11: '11th House',
+    chart.HOUSE12: '12th House',
 }
 
 ANGLES = {

@@ -28,6 +28,17 @@ CAPRICORN = 10
 AQUARIUS = 11
 PISCES = 12
 
+""" Elements. """
+FIRE = 1
+EARTH = 2
+AIR = 3
+WATER = 4
+
+""" Modalities. """
+CARDINAL = 1
+FIXED = 2
+MUTABLE = 3
+
 """ House systems. """
 ALCABITUS = 101
 AZIMUTHAL = 102
