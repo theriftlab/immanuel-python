@@ -23,15 +23,15 @@ def between(item1: dict, item2: dict, check_aspects: tuple) -> dict:
 
     for aspect in check_aspects:
         # Check aspect rules
-        active_aspect_rule = options.aspect_rules[active['type']][active['index']] if active['type'] in options.aspect_rules and active['index'] in options.aspect_rules[active['type']] else options.default_aspect_rule
-        passive_aspect_rule = options.aspect_rules[passive['type']][passive['index']] if passive['type'] in options.aspect_rules and passive['index'] in options.aspect_rules[passive['type']] else options.default_aspect_rule
+        active_aspect_rule = options.aspect_rules[active['index']] if active['index'] in options.aspect_rules else options.default_aspect_rule
+        passive_aspect_rule = options.aspect_rules[passive['index']] if passive['index'] in options.aspect_rules else options.default_aspect_rule
 
         if aspect not in active_aspect_rule['initiate'] or aspect not in passive_aspect_rule['receive']:
             return None
 
         # Get orbs
-        active_orb = options.orbs[active['type']][active['index']][aspect] if active['type'] in options.orbs and active['index'] in options.orbs[active['type']] else options.default_orb
-        passive_orb = options.orbs[passive['type']][passive['index']][aspect] if passive['type'] in options.orbs and passive['index'] in options.orbs[passive['type']] else options.default_orb
+        active_orb = options.orbs[active['index']][aspect] if active['index'] in options.orbs else options.default_orb
+        passive_orb = options.orbs[passive['index']][aspect] if passive['index'] in options.orbs else options.default_orb
         orb = (active_orb + passive_orb) / 2 if options.orb_calculation == calc.MEAN else max(active_orb, passive_orb)
 
         # Look for an aspect

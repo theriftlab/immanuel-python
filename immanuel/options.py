@@ -76,37 +76,31 @@ point_aspect_rule = {
 }
 
 aspect_rules = {
-    chart.ANGLE: {
-        chart.ASC: point_aspect_rule,
-        chart.DESC: point_aspect_rule,
-        chart.MC: point_aspect_rule,
-        chart.IC: point_aspect_rule,
-    },
+    chart.ASC: point_aspect_rule,
+    chart.DESC: point_aspect_rule,
+    chart.MC: point_aspect_rule,
+    chart.IC: point_aspect_rule,
 
-    chart.PLANET: {
-        chart.SUN: planet_aspect_rule,
-        chart.MOON: planet_aspect_rule,
-        chart.MERCURY: planet_aspect_rule,
-        chart.VENUS: planet_aspect_rule,
-        chart.MARS: planet_aspect_rule,
-        chart.JUPITER: planet_aspect_rule,
-        chart.SATURN: planet_aspect_rule,
-        chart.URANUS: planet_aspect_rule,
-        chart.NEPTUNE: planet_aspect_rule,
-        chart.PLUTO: planet_aspect_rule,
-    },
+    chart.SUN: planet_aspect_rule,
+    chart.MOON: planet_aspect_rule,
+    chart.MERCURY: planet_aspect_rule,
+    chart.VENUS: planet_aspect_rule,
+    chart.MARS: planet_aspect_rule,
+    chart.JUPITER: planet_aspect_rule,
+    chart.SATURN: planet_aspect_rule,
+    chart.URANUS: planet_aspect_rule,
+    chart.NEPTUNE: planet_aspect_rule,
+    chart.PLUTO: planet_aspect_rule,
 
-    chart.POINT: {
-        chart.NORTH_NODE: point_aspect_rule,
-        chart.SOUTH_NODE: point_aspect_rule,
-        chart.TRUE_NORTH_NODE: point_aspect_rule,
-        chart.TRUE_SOUTH_NODE: point_aspect_rule,
-        chart.SYZYGY: point_aspect_rule,
-        chart.PARS_FORTUNA: point_aspect_rule,
-        chart.VERTEX: point_aspect_rule,
-        chart.LILITH: point_aspect_rule,
-        chart.TRUE_LILITH: point_aspect_rule,
-    },
+    chart.NORTH_NODE: point_aspect_rule,
+    chart.SOUTH_NODE: point_aspect_rule,
+    chart.TRUE_NORTH_NODE: point_aspect_rule,
+    chart.TRUE_SOUTH_NODE: point_aspect_rule,
+    chart.SYZYGY: point_aspect_rule,
+    chart.PARS_FORTUNA: point_aspect_rule,
+    chart.VERTEX: point_aspect_rule,
+    chart.LILITH: point_aspect_rule,
+    chart.TRUE_LILITH: point_aspect_rule,
 }
 
 
@@ -148,37 +142,31 @@ point_orbs = {
 }
 
 orbs = {
-    chart.ANGLE: {
-        chart.ASC: planet_orbs,
-        chart.DESC: planet_orbs,
-        chart.MC: planet_orbs,
-        chart.IC: planet_orbs,
-    },
+    chart.ASC: planet_orbs,
+    chart.DESC: planet_orbs,
+    chart.MC: planet_orbs,
+    chart.IC: planet_orbs,
 
-    chart.PLANET: {
-        chart.SUN: planet_orbs,
-        chart.MOON: planet_orbs,
-        chart.MERCURY: planet_orbs,
-        chart.VENUS: planet_orbs,
-        chart.MARS: planet_orbs,
-        chart.JUPITER: planet_orbs,
-        chart.SATURN: planet_orbs,
-        chart.URANUS: planet_orbs,
-        chart.NEPTUNE: planet_orbs,
-        chart.PLUTO: planet_orbs,
-    },
+    chart.SUN: planet_orbs,
+    chart.MOON: planet_orbs,
+    chart.MERCURY: planet_orbs,
+    chart.VENUS: planet_orbs,
+    chart.MARS: planet_orbs,
+    chart.JUPITER: planet_orbs,
+    chart.SATURN: planet_orbs,
+    chart.URANUS: planet_orbs,
+    chart.NEPTUNE: planet_orbs,
+    chart.PLUTO: planet_orbs,
 
-    chart.POINT: {
-        chart.NORTH_NODE: point_orbs,
-        chart.SOUTH_NODE: point_orbs,
-        chart.TRUE_NORTH_NODE: point_orbs,
-        chart.TRUE_SOUTH_NODE: point_orbs,
-        chart.SYZYGY: point_orbs,
-        chart.PARS_FORTUNA: point_orbs,
-        chart.VERTEX: point_orbs,
-        chart.LILITH: point_orbs,
-        chart.TRUE_LILITH: point_orbs,
-    },
+    chart.NORTH_NODE: point_orbs,
+    chart.SOUTH_NODE: point_orbs,
+    chart.TRUE_NORTH_NODE: point_orbs,
+    chart.TRUE_SOUTH_NODE: point_orbs,
+    chart.SYZYGY: point_orbs,
+    chart.PARS_FORTUNA: point_orbs,
+    chart.VERTEX: point_orbs,
+    chart.LILITH: point_orbs,
+    chart.TRUE_LILITH: point_orbs,
 }
 
 
