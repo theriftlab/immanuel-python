@@ -20,8 +20,8 @@ from functools import cache
 
 import swisseph as swe
 
-from immanuel import options
 from immanuel.const import chart, names
+from immanuel.setup import options
 from immanuel.tools import calculate, find
 
 

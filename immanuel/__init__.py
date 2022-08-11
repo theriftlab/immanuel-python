@@ -1,6 +1,6 @@
 import os
 
-from immanuel import options
+from immanuel import setup
 
 
-options.set_filepath(f'{os.path.dirname(__file__)}{os.sep}resources{os.sep}ephemeris')
+setup.set_filepath(f'{os.path.dirname(__file__)}{os.sep}resources{os.sep}ephemeris')

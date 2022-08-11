@@ -10,8 +10,8 @@
 import swisseph as swe
 
 from immanuel.const import calc, chart, names
+from immanuel.setup import options
 from immanuel.tools import calculate
-from immanuel import options
 
 
 def all(items1: dict, items2: dict) -> dict:

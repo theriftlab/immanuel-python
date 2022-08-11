@@ -11,8 +11,8 @@
 
 """
 
-from immanuel import options
 from immanuel.const import dignities
+from immanuel.setup import options
 from immanuel.tools import position
 
 

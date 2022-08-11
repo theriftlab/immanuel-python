@@ -10,8 +10,8 @@
 
 import swisseph as swe
 
-from immanuel import options
 from immanuel.const import chart, calc
+from immanuel.setup import options
 
 
 def chart_shape(items: dict) -> int:

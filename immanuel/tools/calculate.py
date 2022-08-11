@@ -15,7 +15,7 @@
 import swisseph as swe
 
 from immanuel.const import calc
-from immanuel import options
+from immanuel.setup import options
 
 
 def moon_phase(sun_lon: float, moon_lon: float) -> int:

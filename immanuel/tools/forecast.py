@@ -10,8 +10,8 @@
 
 import swisseph as swe
 
-from immanuel import options
 from immanuel.const import calc, chart
+from immanuel.setup import options
 from immanuel.tools import convert, date, eph
 
 
