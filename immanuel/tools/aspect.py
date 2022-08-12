@@ -19,6 +19,9 @@ from immanuel.tools import position
 
 def between(item1: dict, item2: dict, check_aspects: tuple) -> dict:
     """ Returns any aspect between the two passed items. """
+    if check_aspects is None:
+        check_aspects = options.aspects
+
     active, passive = (item1, item2) if abs(item1['speed']) > abs(item2['speed']) else (item2, item1)
 
     for aspect in check_aspects:
@@ -58,7 +61,7 @@ def between(item1: dict, item2: dict, check_aspects: tuple) -> dict:
     return None
 
 
-def for_item(item: dict, items: dict, exclude_same: bool = True, check_aspects: tuple = options.aspects) -> dict:
+def for_item(item: dict, items: dict, exclude_same: bool = True, check_aspects: tuple = None) -> dict:
     """ Returns all chart items aspecting the passed chart item. If two
     separate sets of items are being compared (eg. synastry) then
     exclude_self can be set to False to find aspects between the same
@@ -77,7 +80,7 @@ def for_item(item: dict, items: dict, exclude_same: bool = True, check_aspects: 
     return aspects
 
 
-def all(items: dict, exclude_same: bool = True, check_aspects: tuple = options.aspects) -> dict:
+def all(items: dict, exclude_same: bool = True, check_aspects: tuple = None) -> dict:
     """ Returns all aspects between the passed chart items. """
     aspects = {}
 
@@ -90,7 +93,7 @@ def all(items: dict, exclude_same: bool = True, check_aspects: tuple = options.a
     return aspects
 
 
-def by_type(items: dict, exclude_same: bool = True, check_aspects: tuple = options.aspects) -> dict:
+def by_type(items: dict, exclude_same: bool = True, check_aspects: tuple = None) -> dict:
     """ Returns all aspects between the passed chart items keyed by
     aspect type. """
     aspects = {}
