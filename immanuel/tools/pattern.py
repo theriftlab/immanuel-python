@@ -15,8 +15,8 @@ from immanuel.setup import options
 
 
 def chart_shape(items: dict) -> int:
-    # Only deal with planets
-    longitudes = sorted([v['lon'] for v in items.values() if v['type'] == chart.PLANET])
+    # Sort items by longitude
+    longitudes = sorted([v['lon'] for v in items.values()])
     diffs = [swe.difdegn(_next(longitudes, k), v) for k, v in enumerate(longitudes)]
     max_diff = max(diffs)
 

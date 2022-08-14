@@ -78,12 +78,11 @@ _SWE = {
 
 
 @cache
-def all(jd: float, lat: float, lon: float) -> dict:
-    """ Helper function returns a dict of all chart items requested
-    by the options module. """
+def all(jd: float, lat: float, lon: float, item_list: tuple) -> dict:
+    """ Helper function returns a dict of all requested chart items. """
     items = {}
 
-    for index in options.items:
+    for index in item_list:
         items[index] = get(index, jd, lat, lon)
 
     return items

@@ -4,6 +4,7 @@
 
 
     Provides a simple set of default options that can be overridden.
+    Also allows filepath(s) to ephermeris files to be changed or added.
 
 """
 
@@ -28,6 +29,14 @@ _options['items'] = (
     chart.TRUE_NORTH_NODE, chart.TRUE_SOUTH_NODE,
     chart.VERTEX, chart.PARS_FORTUNA,
     chart.TRUE_LILITH,
+    chart.SUN, chart.MOON, chart.MERCURY, chart.VENUS, chart.MARS,
+    chart.JUPITER, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.PLUTO,
+    chart.CHIRON,
+)
+
+""" Which planets, points etc. to use in chart
+pattern & report calculations. """
+_options['report_items'] = (
     chart.SUN, chart.MOON, chart.MERCURY, chart.VENUS, chart.MARS,
     chart.JUPITER, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.PLUTO,
     chart.CHIRON,
@@ -212,6 +221,8 @@ def add_filepath(path) -> None:
 
 
 class Options(type):
+    """ Very simple class to keep track of options. Default options are preset
+    and can be overridden in bulk with set() or singly attribute-style. """
     def set(self, options: dict) -> None:
         _options.update(options)
 
