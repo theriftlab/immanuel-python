@@ -19,9 +19,6 @@ from immanuel.tools import position
 
 def between(item1: dict, item2: dict, check_aspects: tuple) -> dict:
     """ Returns any aspect between the two passed items. """
-    if check_aspects is None:
-        check_aspects = options.aspects
-
     active, passive = (item1, item2) if abs(item1['speed']) > abs(item2['speed']) else (item2, item1)
 
     for aspect in check_aspects:
@@ -108,5 +105,18 @@ def by_type(items: dict, exclude_same: bool = True, check_aspects: tuple = None)
 
                 if item_aspect not in aspects[item_aspect['aspect']]:
                     aspects[item_aspect['aspect']].append(item_aspect)
+
+    return aspects
+
+
+def synastry(items1: dict, items2: dict, exclude_same: bool = True, check_aspects: tuple = None) -> dict:
+    """ Returns all aspects between the two sets of passed chart items. """
+    aspects = {}
+
+    for index, item in items1.items():
+        item_aspects = for_item(item, items2, exclude_same, check_aspects)
+
+        if item_aspects:
+            aspects[index] = item_aspects
 
     return aspects
