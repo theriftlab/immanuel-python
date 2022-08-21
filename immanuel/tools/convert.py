@@ -30,63 +30,87 @@ ROUND_SECOND = (3, swe.SPLIT_DEG_ROUND_SEC)
 
 def dms_to_dec(dms: list | tuple) -> float:
     """ Returns the decimal conversion of a D:M:S list. """
-    dec = sum([float(v) / 60**k for k, v in enumerate(dms[1:])])
+    dec = sum([float(abs(v)) / 60**k for k, v in enumerate(dms[1:])])
     return dec if dms[0] == '+' else -dec
 
 
-def dec_to_dms(dec: float, round_to: tuple = ROUND_SECOND) -> tuple:
+def dec_to_dms(dec: float, round_to: tuple = ROUND_SECOND, pad_rounded = False) -> tuple:
     """ Returns the rounded D:M:S conversion of a decimal float. """
-    return ('-' if dec < 0 else '+', *swe.split_deg(dec, round_to[1])[:round_to[0]])
+    dms = ('-' if dec < 0 else '+', *swe.split_deg(dec, round_to[1])[:round_to[0]])
+    return dms + (0,) * (3-round_to[0]) if pad_rounded else dms
 
 
-def dms_to_string(dms: list | tuple, format: int = FORMAT_DMS) -> str:
+def dms_to_string(dms: list | tuple, format: int = FORMAT_DMS, round_to: tuple = ROUND_SECOND, pad_rounded = None) -> str:
     """ Returns a D:M:S list as either a D:M:S, D°M'S" or
-    coordinate string. """
-    if format == FORMAT_DMS or format == FORMAT_TIME:
-        if format == FORMAT_DMS:
-            symbols = (u'\N{DEGREE SIGN}', "'", '"')
-            string = ''.join([f'{v:02d}' + symbols[k] for k, v in enumerate(dms[1:])])
-        elif format == FORMAT_TIME:
-            string = ':'.join([f'{v:02d}' for v in dms[1:]])
-        if dms[0] == '-':
-            string = '-' + string
-    elif format == FORMAT_TIME_OFFSET:
-        string = dms[0] + ':'.join([f'{v:02d}' for v in dms[1:]])
-    elif format == FORMAT_LAT or format == FORMAT_LON:
-        if format == FORMAT_LAT:
-            dir = 'S' if dms[0] == '-' else 'N'
-        elif format == FORMAT_LON:
-            dir = 'W' if dms[0] == '-' else 'E'
-        minutes = dms[2] + math.ceil(((dms[3]/60)*100))/100
-        string = f'{dms[1]}{dir}{minutes}'
-    else:
-        string = ''
+    lat/lon coordinate string. """
+    pad_rounded = True if format in (FORMAT_LAT, FORMAT_LON) or (pad_rounded is None and format != FORMAT_DMS) else pad_rounded
+    dms = dec_to_dms(dms_to_dec(dms), round_to, pad_rounded)
 
-    return string
+    if format == FORMAT_DMS:
+        return _dms_to_string_format_dms(dms)
+    if format == FORMAT_TIME:
+        return _dms_to_string_format_time(dms)
+    if format == FORMAT_TIME_OFFSET:
+        return _dms_to_string_format_time_offset(dms)
+    if format == FORMAT_LAT:
+        return _dms_to_string_format_lat(dms)
+    if format == FORMAT_LON:
+        return _dms_to_string_format_lon(dms)
+
+    return ''
 
 
-def string_to_dms(string: str) -> tuple:
-    """ Takes either a 12w34.56-type string, or a 12°34'56.78" / 12:34:56.78
-    type string, and returns a DMS tuple. """
-    digits = re.findall(r'[0-9\.-]+', string)
-    floats = [float(v) for v in digits]
-    char = string[len(digits[0])].upper()
-
-    if char in 'NESW':
-        return ('-' if char in 'SW' else '+', *floats)
-    else:
-        return ('-' if floats[0] < 0 else '+', abs(floats[0]), *floats[1:])
+def string_to_dms(string: str, round_to: tuple = ROUND_SECOND, pad_rounded = False) -> tuple:
+    """ Takes any string supported by string_to_dec() and returns a
+    DMS tuple. """
+    return dec_to_dms(string_to_dec(string), round_to, pad_rounded)
 
 
-def dec_to_string(dec: float, format: int = FORMAT_DMS, round_to: tuple = ROUND_SECOND) -> str:
+def dec_to_string(dec: float, format: int = FORMAT_DMS, round_to: tuple = ROUND_SECOND, pad_rounded = None) -> str:
     """ Returns a decimal float as either a D:M:S or a D°M'S" string. """
-    return dms_to_string(dec_to_dms(dec, round_to), format)
+    return dms_to_string(dec_to_dms(dec, round_to), format, round_to, pad_rounded)
 
 
 def string_to_dec(string: str) -> float:
-    """ Takes any string supported by string_to_dms() and returns a
-    decimal float. """
-    try:
-        return float(string)
-    except ValueError:
-        return dms_to_dec(string_to_dms(string))
+    """ Takes any string format output by dms_to_string() and returns
+    a decimal float. """
+    digits = re.findall(r'[0-9\.-]+', string)
+    char = string[len(digits[0])].upper()
+    floats = [float(v) for v in digits]
+    return dms_to_dec(['-' if char in 'SW' or floats[0] < 0 else '+', *floats])
+
+
+def _dms_to_string_format_dms(dms):
+    """ Returns DMS in degree/minute/second format. """
+    symbols = (u'\N{DEGREE SIGN}', "'", '"')
+    string = ''.join([f'{v:02d}' + symbols[k] for k, v in enumerate(dms[1:])])
+    return '-' + string if dms[0] == '-' else string
+
+
+def _dms_to_string_format_time(dms):
+    """ Returns DMS in hour:minute:second format. """
+    string = ':'.join([f'{v:02d}' for v in dms[1:]])
+    return '-' + string if dms[0] == '-' else string
+
+
+def _dms_to_string_format_time_offset(dms):
+    """ Returns DMS in signed hour:minute:second format. """
+    return dms[0] + ':'.join([f'{v:02d}' for v in dms[1:]])
+
+
+def _dms_to_string_format_lat(dms):
+    """ Returns DMS in degree/direction/minute format. """
+    dir = 'S' if dms[0] == '-' else 'N'
+    return _dms_to_string_format_lat_lon(dms, dir)
+
+
+def _dms_to_string_format_lon(dms):
+    """ Returns DMS in degree/direction/minute format. """
+    dir = 'W' if dms[0] == '-' else 'E'
+    return _dms_to_string_format_lat_lon(dms, dir)
+
+
+def _dms_to_string_format_lat_lon(dms, dir):
+    """ Returns DMS in degree/direction/minute format. """
+    minutes = dms[2] + math.ceil(((dms[3]/60)*100))/100
+    return f'{dms[1]}{dir}{minutes}'
