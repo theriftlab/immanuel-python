@@ -1,5 +1,7 @@
 __pycache__
 .venv
+.pytest_cache
 .DS_Store
 *test.py
+*.code-workspace
 TODO*
