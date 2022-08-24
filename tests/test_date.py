@@ -14,7 +14,6 @@ from pytest import approx, fixture
 import swisseph as swe
 
 from immanuel.tools import date
-from immanuel.tools.date import DateTime
 
 
 @fixture
@@ -46,6 +45,34 @@ def jd():
     return 2451545.1250041085       # 2000-01-01 15:00 UTC
 
 
+def test_timezone_utc(utc_coords):
+    assert date.timezone(*utc_coords) == 'Europe/London'
+
+
+def test_timezone_pst(pst_coords):
+    assert date.timezone(*pst_coords) == 'America/Los_Angeles'
+
+
+def test_localize(pst_coords):
+    dt = datetime(2000, 1, 1, 18)
+    aware = date.localize(dt, *pst_coords)
+    assert aware.tzinfo == ZoneInfo('America/Los_Angeles')
+
+
+def test_localize_dst(ambiguous_date, pst_coords):
+    dt_no_dst = date.localize(ambiguous_date, *pst_coords, False)
+    dt_dst = date.localize(ambiguous_date, *pst_coords, True)
+    jd_no_dst = date.datetime_to_jd(dt_no_dst)
+    jd_dst = date.datetime_to_jd(dt_dst)
+    assert dt_no_dst.hour == dt_dst.hour
+    assert jd_no_dst - jd_dst == approx(1/24)
+
+
+def test_ambiguous(ambiguous_date, pst_date):
+    assert date.ambiguous(ambiguous_date) == True
+    assert date.ambiguous(pst_date) == False
+
+
 def test_datetime_to_jd_calc(utc_date_tuple, utc_date, pst_date):
     jd_utc = date.datetime_to_jd(utc_date)
     jd_pst = date.datetime_to_jd(pst_date)
@@ -54,7 +81,7 @@ def test_datetime_to_jd_calc(utc_date_tuple, utc_date, pst_date):
     assert jd_pst == jd_utc_swe
 
 
-def test_jd_to_datetime(jd):
+def test_jd_to_datetime_utc(jd):
     dt = date.jd_to_datetime(jd)
     assert dt.year == 2000
     assert dt.month == 1
@@ -65,38 +92,12 @@ def test_jd_to_datetime(jd):
     assert dt.tzinfo == ZoneInfo('UTC')
 
 
-def test_datetime_class_timezone(utc_date, pst_coords):
-    dt = DateTime(utc_date, *pst_coords)
-    assert dt.timezone == 'America/Los_Angeles'
-
-
-def test_datetime_class_ambiguity_check(ambiguous_date, pst_date, pst_coords):
-    ambiguous_dt = DateTime(ambiguous_date, *pst_coords)
-    unambiguous_dt = DateTime(pst_date, *pst_coords)
-    assert ambiguous_dt.ambiguous()
-    assert not unambiguous_dt.ambiguous()
-
-
-def test_datetime_class_dst(ambiguous_date, pst_coords):
-    dt_no_dst = DateTime(ambiguous_date, *pst_coords, False)
-    dt_dst = DateTime(ambiguous_date, *pst_coords, True)
-    assert dt_no_dst.jd - dt_dst.jd == approx(1/24)
-
-
-def test_datetime_class_jd_calc(utc_date_tuple, utc_date, utc_coords, pst_date, pst_coords):
-    jd_utc = DateTime(utc_date, *utc_coords).jd
-    jd_pst = DateTime(pst_date, *pst_coords).jd
-    jd_utc_swe = swe.utc_to_jd(*utc_date_tuple)[1]
-    assert jd_utc == jd_utc_swe
-    assert jd_pst == jd_utc_swe
-
-
-def test_datetime_class_from_jd(jd, pst_coords):
-    dt = DateTime(jd, *pst_coords)
-    assert dt.datetime.year == 2000
-    assert dt.datetime.month == 1
-    assert dt.datetime.day == 1
-    assert dt.datetime.hour == 7
-    assert dt.datetime.minute == 0
-    assert dt.datetime.second == 0
-    assert dt.timezone == 'America/Los_Angeles'
+def test_jd_to_datetime_pst(jd, pst_coords):
+    dt = date.jd_to_datetime(jd, *pst_coords)
+    assert dt.year == 2000
+    assert dt.month == 1
+    assert dt.day == 1
+    assert dt.hour == 7
+    assert dt.minute == 0
+    assert dt.second == 0
+    assert dt.tzinfo == ZoneInfo('America/Los_Angeles')
