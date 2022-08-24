@@ -62,8 +62,8 @@ def test_localize(pst_coords):
 def test_localize_dst(ambiguous_date, pst_coords):
     dt_no_dst = date.localize(ambiguous_date, *pst_coords, False)
     dt_dst = date.localize(ambiguous_date, *pst_coords, True)
-    jd_no_dst = date.datetime_to_jd(dt_no_dst)
-    jd_dst = date.datetime_to_jd(dt_dst)
+    jd_no_dst = date.to_jd(dt_no_dst)
+    jd_dst = date.to_jd(dt_dst)
     assert dt_no_dst.hour == dt_dst.hour
     assert jd_no_dst - jd_dst == approx(1/24)
 
@@ -73,16 +73,16 @@ def test_ambiguous(ambiguous_date, pst_date):
     assert date.ambiguous(pst_date) == False
 
 
-def test_datetime_to_jd_calc(utc_date_tuple, utc_date, pst_date):
-    jd_utc = date.datetime_to_jd(utc_date)
-    jd_pst = date.datetime_to_jd(pst_date)
+def test_to_jd_calc(utc_date_tuple, utc_date, pst_date):
+    jd_utc = date.to_jd(utc_date)
+    jd_pst = date.to_jd(pst_date)
     jd_utc_swe = swe.utc_to_jd(*utc_date_tuple)[1]
     assert jd_utc == jd_utc_swe
     assert jd_pst == jd_utc_swe
 
 
-def test_jd_to_datetime_utc(jd):
-    dt = date.jd_to_datetime(jd)
+def test_from_jd_utc(jd):
+    dt = date.from_jd(jd)
     assert dt.year == 2000
     assert dt.month == 1
     assert dt.day == 1
@@ -92,8 +92,8 @@ def test_jd_to_datetime_utc(jd):
     assert dt.tzinfo == ZoneInfo('UTC')
 
 
-def test_jd_to_datetime_pst(jd, pst_coords):
-    dt = date.jd_to_datetime(jd, *pst_coords)
+def test_from_jd_pst(jd, pst_coords):
+    dt = date.from_jd(jd, *pst_coords)
     assert dt.year == 2000
     assert dt.month == 1
     assert dt.day == 1

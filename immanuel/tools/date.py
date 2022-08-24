@@ -36,12 +36,12 @@ def localize(dt: datetime, lat: float, lon: float, is_dst = None) -> datetime:
     return dt.replace(tzinfo=ZoneInfo(timezone(lat, lon)), fold=1 if is_dst == False else 0)
 
 
-def datetime_to_jd(dt: datetime) -> float:
+def to_jd(dt: datetime) -> float:
     """ Convert aware datetime into UTC Julian day. """
     return swe.utc_to_jd(*dt.astimezone(ZoneInfo('UTC')).timetuple()[0:6])[1]
 
 
-def jd_to_datetime(jd: float, lat: float = None, lon: float = None) -> datetime:
+def from_jd(jd: float, lat: float = None, lon: float = None) -> datetime:
     """ Convert Julian day into UTC or aware datetime object. """
     swe_utc = swe.jdut1_to_utc(jd)
     seconds_float = swe_utc[5]
