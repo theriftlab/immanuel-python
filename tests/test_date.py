@@ -3,8 +3,8 @@
     Author: Robert Davies (robert@theriftlab.com)
 
 
-    Gregorian UTC / Julian Day conversions ran against
-    figures from direct swisseph functions.
+    Gregorian UT / Julian Day conversions ran against
+    figures from https://ssd.jpl.nasa.gov/tools/jdc/#/cd
 """
 
 from datetime import datetime
@@ -15,10 +15,6 @@ import swisseph as swe
 
 from immanuel.tools import date
 
-
-@fixture
-def utc_date_tuple():
-    return (2000, 1, 1, 18, 0, 0)
 
 @fixture
 def utc_date():
@@ -42,7 +38,7 @@ def pst_coords():
 
 @fixture
 def jd():
-    return 2451545.1250041085       # 2000-01-01 15:00 UTC
+    return 2451545.25               # 2000-01-01 18:00 UT
 
 
 def test_timezone_utc(utc_coords):
@@ -73,12 +69,11 @@ def test_ambiguous(ambiguous_date, pst_date):
     assert date.ambiguous(pst_date) == False
 
 
-def test_to_jd_calc(utc_date_tuple, utc_date, pst_date):
+def test_to_jd_calc(utc_date, pst_date, jd):
     jd_utc = date.to_jd(utc_date)
     jd_pst = date.to_jd(pst_date)
-    jd_utc_swe = swe.utc_to_jd(*utc_date_tuple)[1]
-    assert jd_utc == jd_utc_swe
-    assert jd_pst == jd_utc_swe
+    assert jd_utc == jd
+    assert jd_pst == jd
 
 
 def test_from_jd_utc(jd):
@@ -86,7 +81,7 @@ def test_from_jd_utc(jd):
     assert dt.year == 2000
     assert dt.month == 1
     assert dt.day == 1
-    assert dt.hour == 15
+    assert dt.hour == 18
     assert dt.minute == 0
     assert dt.second == 0
     assert dt.tzinfo == ZoneInfo('UTC')
@@ -97,7 +92,7 @@ def test_from_jd_pst(jd, pst_coords):
     assert dt.year == 2000
     assert dt.month == 1
     assert dt.day == 1
-    assert dt.hour == 7
+    assert dt.hour == 10
     assert dt.minute == 0
     assert dt.second == 0
     assert dt.tzinfo == ZoneInfo('America/Los_Angeles')

@@ -7,9 +7,10 @@
     between location-specific Gregorian dates and times, and universal
     Julian dates.
 
-    The conversion functions essentially wrap pyswisseph's utc_to_jd() and
-    jdut1_to_utc() but take into account timezones based on lat/lon
-    coordinates and do the heavy lifting for you.
+    The conversion functions essentially wrap pyswisseph's julday() and
+    revjul() to work with date/times in UT, but they take into account
+    timezones based on lat/lon coordinates for the purposes of time offsets.
+    This means that datetime objects expressing UT times will be zoned as UTC.
 
 """
 
@@ -19,6 +20,8 @@ from zoneinfo import ZoneInfo
 
 import swisseph as swe
 from timezonefinder import TimezoneFinder
+
+from immanuel.tools import convert
 
 
 def ambiguous(dt: datetime) -> bool:
@@ -37,16 +40,15 @@ def localize(dt: datetime, lat: float, lon: float, is_dst = None) -> datetime:
 
 
 def to_jd(dt: datetime) -> float:
-    """ Convert aware datetime into UTC Julian day. """
-    return swe.utc_to_jd(*dt.astimezone(ZoneInfo('UTC')).timetuple()[0:6])[1]
+    """ Convert aware datetime into UT1 Julian day. """
+    dt_utc = dt.astimezone(ZoneInfo('UTC'))
+    hour = convert.dms_to_dec(('+', dt_utc.hour, dt_utc.minute, dt_utc.second))
+    return swe.julday(*dt_utc.timetuple()[0:3], hour)
 
 
 def from_jd(jd: float, lat: float = None, lon: float = None) -> datetime:
-    """ Convert Julian day into UTC or aware datetime object. """
-    swe_utc = swe.jdut1_to_utc(jd)
-    seconds_float = swe_utc[5]
-    seconds = int(seconds_float)
-    microseconds = round((seconds_float - seconds) * 1000000)
-    dt_utc = swe_utc[:5] + (seconds, microseconds)
-    dt = datetime(*dt_utc, tzinfo=ZoneInfo('UTC'))
+    """ Convert Julian day into UTC or localized datetime object. """
+    ut = swe.revjul(jd)
+    time = convert.dec_to_dms(ut[3])[1:]
+    dt = datetime(*ut[:3], *time, tzinfo=ZoneInfo('UTC'))
     return dt if lat is None or lon is None else dt.astimezone(ZoneInfo(timezone(lat, lon)))
