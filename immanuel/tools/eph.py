@@ -3,15 +3,14 @@
     Author: Robert Davies (robert@theriftlab.com)
 
 
-    This module provides easy access to pyswisseph data.
+    This module provides easy access to fairly standarised pyswisseph data.
 
     Relevant data on the main angles, houses, points and planets are
-    available using the module's functions, most of which are cached.
+    available using the module's functions, many of which are cached.
 
-    Names are returned for most of these objects, simply because some
-    names are set locally by the const.names module, and others by
-    pyswisseph's own files. Returning the name of each chart item
-    regardless of where it came from keeps things uniform.
+    Any function which relies on options is not cached as the same chart
+    details could be generated with different house systems within the same
+    session.
 
 """
 
@@ -77,9 +76,14 @@ _SWE = {
 }
 
 
-@cache
-def all(jd: float, lat: float, lon: float, item_list: tuple) -> dict:
-    """ Helper function returns a dict of all requested chart items. """
+def all(jd: float, lat: float, lon: float) -> dict:
+    """ Helper function returns a dict of all chart items
+    specified in options. """
+    return items(options.items, jd, lat, lon)
+
+
+def items(item_list: tuple, jd: float, lat: float, lon: float) -> dict:
+    """ Helper function returns a dict of all passed chart items. """
     items = {}
 
     for index in item_list:
@@ -88,7 +92,6 @@ def all(jd: float, lat: float, lon: float, item_list: tuple) -> dict:
     return items
 
 
-@cache
 def get(index: int | str, jd: float, lat: float = None, lon: float = None) -> dict:
     """ Helper function to retrieve an angle, house, planet, point,
     asteroid, or fixed star. """
@@ -152,29 +155,16 @@ def house(index: int, jd: float, lat: float, lon: float) -> dict:
     return None
 
 
-@cache
-def point(index: int, jd: float, lat = None, lon = None) -> dict:
-    """ Returns a calculated point by Julian date, and additionally by
+def point(index: int, jd: float, lat: float = None, lon: float = None) -> dict:
+    """ Returns a calculated point by Julian date, and additionally by lat/lon
     coordinates if the calculations are based on house cusps / angles. """
     if index == chart.VERTEX:
-        # Get Vertex from house/ascmc calculation
+        # Vertex is already available to us
         return _angles_houses_vertex(jd, lat, lon, options.house_system)['vertex']
 
     if index == chart.SYZYGY:
-        # Calculate prenatal full/new moon
-        sun = planet(chart.SUN, jd)
-        moon = planet(chart.MOON, jd)
-        distance = swe.difdeg2n(moon['lon'], sun['lon'])
-        syzygy_jd = find.previous_new_moon(jd) if distance > 0 else find.previous_full_moon(jd)
-        syzygy_moon = planet(chart.MOON, syzygy_jd)
-
-        return {
-            'index': index,
-            'type': chart.POINT,
-            'name': names.POINTS[index],
-            'lon': syzygy_moon['lon'],
-            'speed': syzygy_moon['speed'],
-        }
+        # Get prenatal full/new moon
+        return _syzygy(jd)
 
     if index == chart.PARS_FORTUNA:
         # Calculate part of furtune
@@ -192,6 +182,31 @@ def point(index: int, jd: float, lat = None, lon = None) -> dict:
         }
 
     # Get other available points
+    return _point(index, jd)
+
+
+@cache
+def _syzygy(jd: float) -> dict:
+        """ Calculate prenatal full/new moon - since this can be an expensive
+        calculation we separate it into its own cached function. """
+        sun = planet(chart.SUN, jd)
+        moon = planet(chart.MOON, jd)
+        distance = swe.difdeg2n(moon['lon'], sun['lon'])
+        syzygy_jd = find.previous_new_moon(jd) if distance > 0 else find.previous_full_moon(jd)
+        syzygy_moon = planet(chart.MOON, syzygy_jd)
+
+        return {
+            'index': chart.SYZYGY,
+            'type': chart.POINT,
+            'name': names.POINTS[chart.SYZYGY],
+            'lon': syzygy_moon['lon'],
+            'speed': syzygy_moon['speed'],
+        }
+
+
+@cache
+def _point(index: int, jd: float) -> dict:
+    """ Pull any remaining non-calculated points straight from swisseph. """
     res = swe.calc_ut(jd, _SWE[index])[0]
 
     return {
@@ -205,7 +220,7 @@ def point(index: int, jd: float, lat = None, lon = None) -> dict:
 
 @cache
 def planet(index: int, jd: float) -> dict:
-    """ Returns a pyswisseph object by Julian date. Can also be used to
+    """ Returns a pyswisseph object by Julian date. Can be used to
     return the six major asteroids supported by pyswisseph without using
     a separate ephemeris file. """
     ec_res = swe.calc_ut(jd, _SWE[index])[0]
@@ -228,12 +243,15 @@ def planet(index: int, jd: float) -> dict:
 def asteroid(index: int, jd: float) -> dict:
     """ Returns an asteroid by Julian date and pyswisseph index
     from an external asteroid's ephmeris file as specified
-    in the options module. """
-    index += swe.AST_OFFSET
-    name = swe.get_planet_name(index)
+    in the setup module. """
+    if _type(index) == chart.ASTEROID:
+        return planet(index, jd)
 
-    ec_res = swe.calc_ut(jd, index)[0]
-    eq_res = swe.calc_ut(jd, index, swe.FLG_EQUATORIAL)[0]
+    swe_index = index + swe.AST_OFFSET
+    name = swe.get_planet_name(swe_index)
+
+    ec_res = swe.calc_ut(jd, swe_index)[0]
+    eq_res = swe.calc_ut(jd, swe_index, swe.FLG_EQUATORIAL)[0]
 
     return {
         'index': index,
@@ -290,7 +308,7 @@ def is_daytime(jd: float, lat: float, lon: float) -> bool:
 
 
 @cache
-def _angles_houses_vertex(jd: float, lat: float, lon: float, house_system: bytes) -> dict:
+def _angles_houses_vertex(jd: float, lat: float, lon: float, house_system: int) -> dict:
     """ Returns ecliptic longitudes for the houses, main angles, and the
     vertex, along with their speeds. """
     cusps, ascmc, cuspsspeed, ascmcspeed = swe.houses_ex2(jd, lat, lon, _SWE[house_system])
