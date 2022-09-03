@@ -155,67 +155,20 @@ def house(index: int, jd: float, lat: float, lon: float) -> dict:
     return None
 
 
+@cache
 def point(index: int, jd: float, lat: float = None, lon: float = None) -> dict:
     """ Returns a calculated point by Julian date, and additionally by lat/lon
     coordinates if the calculations are based on house cusps / angles. """
     if index == chart.VERTEX:
-        # Vertex is already available to us
         return _angles_houses_vertex(jd, lat, lon, options.house_system)['vertex']
 
     if index == chart.SYZYGY:
-        # Get prenatal full/new moon
         return _syzygy(jd)
 
     if index == chart.PARS_FORTUNA:
-        # Calculate part of furtune
-        sun = planet(chart.SUN, jd)
-        moon = planet(chart.MOON, jd)
-        asc = angle(chart.ASC, jd, lat, lon)
-        lon = calculate.pars_fortuna(sun['lon'], moon['lon'], asc['lon'])
+        return _pars_fortuna(jd, lat, lon)
 
-        return {
-            'index': index,
-            'type': chart.POINT,
-            'name': names.POINTS[index],
-            'lon': lon,
-            'speed': 0.0,
-        }
-
-    # Get other available points
     return _point(index, jd)
-
-
-@cache
-def _syzygy(jd: float) -> dict:
-        """ Calculate prenatal full/new moon - since this can be an expensive
-        calculation we separate it into its own cached function. """
-        sun = planet(chart.SUN, jd)
-        moon = planet(chart.MOON, jd)
-        distance = swe.difdeg2n(moon['lon'], sun['lon'])
-        syzygy_jd = find.previous_new_moon(jd) if distance > 0 else find.previous_full_moon(jd)
-        syzygy_moon = planet(chart.MOON, syzygy_jd)
-
-        return {
-            'index': chart.SYZYGY,
-            'type': chart.POINT,
-            'name': names.POINTS[chart.SYZYGY],
-            'lon': syzygy_moon['lon'],
-            'speed': syzygy_moon['speed'],
-        }
-
-
-@cache
-def _point(index: int, jd: float) -> dict:
-    """ Pull any remaining non-calculated points straight from swisseph. """
-    res = swe.calc_ut(jd, _SWE[index])[0]
-
-    return {
-        'index': index,
-        'type': chart.POINT,
-        'name': names.POINTS[index],
-        'lon': res[0] if index not in (chart.SOUTH_NODE, chart.TRUE_SOUTH_NODE) else swe.degnorm(Decimal(str(res[0])) - 180),
-        'speed': res[3],
-    }
 
 
 @cache
@@ -359,6 +312,55 @@ def _angles_houses_vertex(jd: float, lat: float, lon: float, house_system: int) 
         'angles': angles,
         'houses': houses,
         'vertex': vertex,
+    }
+
+
+def _syzygy(jd: float) -> dict:
+    """ Calculate prenatal full/new moon - this can potentially
+    be an expensive calculation so should be cached. """
+    sun = planet(chart.SUN, jd)
+    moon = planet(chart.MOON, jd)
+    distance = swe.difdeg2n(moon['lon'], sun['lon'])
+    syzygy_jd = find.previous_new_moon(jd) if distance > 0 else find.previous_full_moon(jd)
+    syzygy_moon = planet(chart.MOON, syzygy_jd)
+
+    return {
+        'index': chart.SYZYGY,
+        'type': chart.POINT,
+        'name': names.POINTS[chart.SYZYGY],
+        'lon': syzygy_moon['lon'],
+        'speed': syzygy_moon['speed'],
+    }
+
+
+def _pars_fortuna(jd: float, lat: float, lon: float) -> dict:
+    """ Calculate Part of Fortune - although the house system could change
+    between calls, this only relies on the ascendant which will be consistent
+    across all supported systems, so it is safe to cache. """
+    sun = planet(chart.SUN, jd)
+    moon = planet(chart.MOON, jd)
+    asc = angle(chart.ASC, jd, lat, lon)
+    lon = calculate.pars_fortuna(sun['lon'], moon['lon'], asc['lon'])
+
+    return {
+        'index': chart.PARS_FORTUNA,
+        'type': chart.POINT,
+        'name': names.POINTS[chart.PARS_FORTUNA],
+        'lon': lon,
+        'speed': 0.0,
+    }
+
+
+def _point(index: int, jd: float) -> dict:
+    """ Pull any remaining non-calculated points straight from swisseph. """
+    res = swe.calc_ut(jd, _SWE[index])[0]
+
+    return {
+        'index': index,
+        'type': chart.POINT,
+        'name': names.POINTS[index],
+        'lon': res[0] if index not in (chart.SOUTH_NODE, chart.TRUE_SOUTH_NODE) else swe.degnorm(Decimal(str(res[0])) - 180),
+        'speed': res[3],
     }
 
 
