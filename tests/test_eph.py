@@ -264,3 +264,11 @@ def test_obliquity(jd):
 def test_is_daytime(jd, coords):
     # Sun above ascendant in astro.com chart visual
     assert eph.is_daytime(jd, *coords)
+
+
+def test_house_system_not_cached(jd, coords):
+    options.house_system = chart.PLACIDUS
+    house2_placidus = eph.get(chart.HOUSE2, jd, *coords)
+    options.house_system = chart.EQUAL
+    house2_equal = eph.get(chart.HOUSE2, jd, *coords)
+    assert house2_placidus['lon'] != house2_equal['lon']
