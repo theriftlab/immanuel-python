@@ -244,7 +244,7 @@ def test_get_data(coords, jd, astro):
     for key, eph_item in data.items():
         # Convert ecliptical longitude to sign-based
         item = eph_item.copy()
-        item['lon'] = position.signlon(item['lon'])[1]
+        item['lon'] = position.signlon(item['lon'])[position.LON]
 
         # Format properties to string to match astro.com front-end output
         for property_key in ('lon', 'lat', 'speed', 'dec'):
