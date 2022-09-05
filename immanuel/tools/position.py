@@ -33,7 +33,7 @@ def sign(lon: float) -> int:
 def signlon(lon: float) -> tuple:
     """ Returns the index of the zodiac sign the passed longitude
     belongs to, and the sign-specific longitude inside it. """
-    return int(lon/30) + 1, float(Decimal(str(lon)) % 30)
+    return sign(lon), float(Decimal(str(lon)) % 30)
 
 
 def opposite_sign(lon: float) -> int:
