@@ -28,6 +28,11 @@ CAPRICORN = 10
 AQUARIUS = 11
 PISCES = 12
 
+""" Decans. """
+DECAN1 = 1
+DECAN2 = 2
+DECAN3 = 3
+
 """ Elements. """
 FIRE = 1
 EARTH = 2

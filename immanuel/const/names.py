@@ -25,6 +25,12 @@ SIGNS = {
     chart.PISCES: 'Pisces',
 }
 
+DECANS = {
+    chart.DECAN1: '1st Decan',
+    chart.DECAN2: '2nd Decan',
+    chart.DECAN3: '3rd Decan',
+}
+
 ELEMENTS = {
     chart.FIRE: 'Fire',
     chart.EARTH: 'Earth',
