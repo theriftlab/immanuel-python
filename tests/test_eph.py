@@ -226,6 +226,8 @@ def test_fixed_star(jd):
 we can test the accuracy of the module's data. """
 def test_get_data(coords, jd, astro):
     setup.add_filepath(os.path.dirname(__file__))
+    pars_fortuna_option = options.pars_fortuna
+    options.pars_fortuna = calc.DAY_NIGHT_FORMULA
 
     data = {
         'asc': eph.get(chart.ASC, jd, *coords),
@@ -236,6 +238,8 @@ def test_get_data(coords, jd, astro):
         'lilith': eph.get(1181, jd),        # From its own file
         'antares': eph.get('Antares', jd),  # From its own file
     }
+
+    options.pars_fortuna = pars_fortuna_option
 
     for key, eph_item in data.items():
         # Convert ecliptical longitude to sign-based
