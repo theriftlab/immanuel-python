@@ -80,6 +80,48 @@ def string_to_dec(string: str) -> float:
     return dms_to_dec(['-' if char in 'SW' or floats[0] < 0 else '+', *floats])
 
 
+def to_dec(value: float | list | tuple | str):
+    """ If the input type is unknown, this will guess and convert. """
+    if isinstance(value, float):
+        return value
+    if isinstance(value, (list, tuple)):
+        return dms_to_dec(value)
+    if isinstance(value, str):
+        try:
+            return float(value)
+        except ValueError:
+            return string_to_dec(value)
+    return None
+
+
+def to_dms(value: float | list | tuple | str, round_to: tuple = ROUND_SECOND, pad_rounded = False):
+    """ If the input type is unknown, this will guess and convert. """
+    if isinstance(value, float):
+        return dec_to_dms(value, round_to, pad_rounded)
+    if isinstance(value, (list, tuple)):
+        return tuple(value)
+    if isinstance(value, str):
+        try:
+            return dec_to_dms(float(value), round_to, pad_rounded)
+        except ValueError:
+            return string_to_dms(value, round_to, pad_rounded)
+    return None
+
+
+def to_string(value: float | list | tuple | str, format: int = FORMAT_DMS, round_to: tuple = ROUND_SECOND, pad_rounded = None):
+    """ If the input type is unknown, this will guess and convert. """
+    if isinstance(value, float):
+        return dec_to_string(value, format, round_to, pad_rounded)
+    if isinstance(value, (list, tuple)):
+        return dms_to_string(value, format, round_to, pad_rounded)
+    if isinstance(value, str):
+        try:
+            return dec_to_string(float(value), format, round_to, pad_rounded)
+        except ValueError:
+            return dec_to_string(string_to_dec(value), format, round_to, pad_rounded)
+    return None
+
+
 def _dms_to_string_format_dms(dms):
     """ Returns DMS in degree/minute/second format. """
     symbols = (u'\N{DEGREE SIGN}', "'", '"')

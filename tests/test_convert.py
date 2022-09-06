@@ -430,3 +430,36 @@ def test_string_to_dec_lat():
 def test_string_to_dec_lon():
     assert convert.string_to_dec('12E30.75') == 12.5125
     assert convert.string_to_dec('12W30.75') == -12.5125
+
+
+""" To save another few hundred tests the to_() functions are tested
+to ensure they parse the input correctly and the accuracy of their
+outputs is assumed to have already been covered by the above tests. """
+
+def test_to_dec():
+    assert convert.to_dec(12.5125) == 12.5125
+    assert convert.to_dec(('+', 12, 30, 45)) == 12.5125
+    assert convert.to_dec(['+', 12, 30, 45]) == 12.5125
+    assert convert.to_dec('12.5125') == 12.5125
+    assert convert.to_dec('12E30.75') == 12.5125
+
+def test_to_dms():
+    assert convert.to_dms(12.5125) == ('+', 12, 30, 45)
+    assert convert.to_dms(('+', 12, 30, 45)) == ('+', 12, 30, 45)
+    assert convert.to_dms(['+', 12, 30, 45]) == ('+', 12, 30, 45)
+    assert convert.to_dms('12.5125') == ('+', 12, 30, 45)
+    assert convert.to_dms('12E30.75') == ('+', 12, 30, 45)
+    # Quick tests to ensure it respects args
+    assert convert.to_dms(12.5125, convert.ROUND_MINUTE) == ('+', 12, 31)
+    assert convert.to_dms(12.5125, convert.ROUND_MINUTE, True) == ('+', 12, 31, 0)
+
+def test_to_string():
+    assert convert.to_string(12.5125) == '12°30\'45"'
+    assert convert.to_string(('+', 12, 30, 45)) == '12°30\'45"'
+    assert convert.to_string(['+', 12, 30, 45]) == '12°30\'45"'
+    assert convert.to_string('12.5125') == '12°30\'45"'
+    assert convert.to_string('12E30.75') == '12°30\'45"'
+    # Quick tests to ensure it respects args
+    assert convert.to_string(12.5125, convert.FORMAT_LAT) == '12N30.75'
+    assert convert.to_string(12.5125, convert.FORMAT_DMS, convert.ROUND_MINUTE) == '12°31\''
+    assert convert.to_string(12.5125, convert.FORMAT_DMS, convert.ROUND_MINUTE, True) == '12°31\'00"'
