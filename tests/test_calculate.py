@@ -12,7 +12,6 @@ from datetime import datetime
 
 from pytest import fixture
 
-from immanuel.setup import options
 from immanuel.const import calc, chart
 from immanuel.tools import calculate, convert, date, eph, position
 
@@ -45,23 +44,17 @@ def test_is_daytime(day_jd, night_jd, coords):
 
 def test_pars_fortuna_day_formula(day_jd, coords):
     # Result copied from astro.com
-    pars_fortuna_option = options.pars_fortuna
-    options.pars_fortuna = calc.DAY_FORMULA
     sun, moon, asc = eph.items((chart.SUN, chart.MOON, chart.ASC), day_jd, *coords).values()
-    pof = calculate.pars_fortuna(sun['lon'], moon['lon'], asc['lon'])
+    pof = calculate.pars_fortuna(sun['lon'], moon['lon'], asc['lon'], calc.DAY_FORMULA)
     sign, lon = position.signlon(pof)
-    options.pars_fortuna = pars_fortuna_option
     assert sign == chart.CAPRICORN
     assert convert.dec_to_string(lon) == '11°18\'41"'
 
 
 def test_pars_fortuna_night_formula(night_jd, coords):
     # Result copied from astro.com
-    pars_fortuna_option = options.pars_fortuna
-    options.pars_fortuna = calc.NIGHT_FORMULA
     sun, moon, asc = eph.items((chart.SUN, chart.MOON, chart.ASC), night_jd, *coords).values()
-    pof = calculate.pars_fortuna(sun['lon'], moon['lon'], asc['lon'])
+    pof = calculate.pars_fortuna(sun['lon'], moon['lon'], asc['lon'], calc.NIGHT_FORMULA)
     sign, lon = position.signlon(pof)
-    options.pars_fortuna = pars_fortuna_option
     assert sign == chart.SAGITTARIUS
     assert convert.dec_to_string(lon) == '10°04\'30"'

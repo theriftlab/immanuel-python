@@ -165,7 +165,6 @@ def house(index: int, jd: float, lat: float, lon: float, armc: bool = False) -> 
     return None
 
 
-@cache
 def point(index: int, jd: float, lat: float = None, lon: float = None, armc: bool = False) -> dict:
     """ Returns a calculated point by Julian date, and additionally by lat / lon
     coordinates or ARMC if the calculations are based on house cusps / angles. """
@@ -179,7 +178,7 @@ def point(index: int, jd: float, lat: float = None, lon: float = None, armc: boo
         return _syzygy(jd)
 
     if index == chart.PARS_FORTUNA:
-        return _pars_fortuna(jd, lat, lon)
+        return _pars_fortuna(jd, lat, lon, options.pars_fortuna)
 
     return _point(index, jd)
 
@@ -339,6 +338,7 @@ def _angles_houses_vertex_from_swe(cusps: tuple, ascmc: tuple, cuspsspeed: tuple
     }
 
 
+@cache
 def _syzygy(jd: float) -> dict:
     """ Calculate prenatal full/new moon - this can potentially
     be an expensive calculation so should be cached. """
@@ -357,14 +357,15 @@ def _syzygy(jd: float) -> dict:
     }
 
 
-def _pars_fortuna(jd: float, lat: float, lon: float) -> dict:
+@cache
+def _pars_fortuna(jd: float, lat: float, lon: float, formula: int) -> dict:
     """ Calculate Part of Fortune - although the house system could change
     between calls, this only relies on the ascendant which will be consistent
     across all supported systems, so it is safe to cache. """
     sun = planet(chart.SUN, jd)
     moon = planet(chart.MOON, jd)
     asc = angle(chart.ASC, jd, lat, lon)
-    lon = calculate.pars_fortuna(sun['lon'], moon['lon'], asc['lon'])
+    lon = calculate.pars_fortuna(sun['lon'], moon['lon'], asc['lon'], formula)
 
     return {
         'index': chart.PARS_FORTUNA,
@@ -375,6 +376,7 @@ def _pars_fortuna(jd: float, lat: float, lon: float) -> dict:
     }
 
 
+@cache
 def _point(index: int, jd: float) -> dict:
     """ Pull any remaining non-calculated points straight from swisseph. """
     res = swe.calc_ut(jd, _SWE[index])[0]

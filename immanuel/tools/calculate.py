@@ -15,7 +15,6 @@
 import swisseph as swe
 
 from immanuel.const import calc
-from immanuel.setup import options
 
 
 def moon_phase(sun_lon: float, moon_lon: float) -> int:
@@ -32,11 +31,11 @@ def is_daytime(sun_lon: float, asc_lon: float) -> bool:
     return swe.difdeg2n(sun_lon, asc_lon) < 0
 
 
-def pars_fortuna(sun_lon: float, moon_lon: float, asc_lon: float) -> float:
+def pars_fortuna(sun_lon: float, moon_lon: float, asc_lon: float, formula: int) -> float:
     """ Returns the Part of Fortune longitude. """
-    if options.pars_fortuna == calc.DAY_FORMULA or (options.pars_fortuna == calc.DAY_NIGHT_FORMULA and is_daytime(sun_lon, asc_lon)):
-        formula = (asc_lon + moon_lon - sun_lon)
+    if formula == calc.DAY_FORMULA or (formula == calc.DAY_NIGHT_FORMULA and is_daytime(sun_lon, asc_lon)):
+        lon = (asc_lon + moon_lon - sun_lon)
     else:
-        formula = (asc_lon + sun_lon - moon_lon)
+        lon = (asc_lon + sun_lon - moon_lon)
 
-    return swe.degnorm(formula)
+    return swe.degnorm(lon)
