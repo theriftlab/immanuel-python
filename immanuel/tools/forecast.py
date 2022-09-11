@@ -21,7 +21,7 @@ ARMC = 1
 
 def solar_return(jd: float, year: int) -> float:
     """ Returns the Julian date of the given year's solar return. """
-    dt = date.jd_to_datetime(jd)
+    dt = date.from_jd(jd)
     year_diff = year - dt.year
     sr_jd = jd + year_diff * calc.YEAR_DAYS
     natal_sun = eph.planet(chart.SUN, jd)
@@ -36,24 +36,21 @@ def solar_return(jd: float, year: int) -> float:
     return sr_jd
 
 
-def progression(jd: float, lat: float, lon: float, pjd: float, plat = None, plon = None) -> tuple:
+def progression(jd: float, lat: float, lon: float, pjd: float) -> tuple:
     """ Returns the progressed Julian date and MC right ascension. """
-    plat, plon = (convert.string_to_dec(v) for v in (plat, plon)) if plat and plon else (lat, lon)
     days = (pjd - jd) / calc.YEAR_DAYS
     progressed_jd = jd + days
 
-    match options.mc_progression:
-        case calc.DAILY_HOUSES:
-            progressed_armc = eph.angle(chart.ARMC, progressed_jd, plat, plon)['lon']
-        case calc.NAIBOD:
-            natal_armc = eph.angle(chart.ARMC, jd, lat, lon)
-            progressed_armc = natal_armc['lon'] + days * calc.SUN_MEAN_MOTION
-        case calc.SOLAR_ARC:
-            natal_mc = eph.angle(chart.MC, jd, lat, lon)
-            natal_sun = eph.planet(chart.SUN, jd)
-            progressed_sun = eph.planet(chart.SUN, progressed_jd)
-            distance = swe.difdeg2n(progressed_sun, natal_sun)
-            obliquity = eph.obliquity(progressed_jd)
-            progressed_armc = swe.cotrans((natal_mc['lon'] + distance, 0, 1), -obliquity)[0]
+    if options.mc_progression in (calc.DAILY_HOUSES, calc.NAIBOD):
+        natal_armc = eph.angle(chart.ARMC, jd, lat, lon)
+        multiplier = calc.SUN_MEAN_MOTION if options.mc_progression == calc.NAIBOD else natal_armc['speed']
+        progressed_armc = swe.degnorm(natal_armc['lon'] + days * multiplier)
+    elif options.mc_progression == calc.SOLAR_ARC:
+        natal_mc = eph.angle(chart.MC, jd, lat, lon)
+        natal_sun = eph.planet(chart.SUN, jd)
+        progressed_sun = eph.planet(chart.SUN, progressed_jd)
+        distance = swe.difdeg2n(progressed_sun['lon'], natal_sun['lon'])
+        obliquity = eph.obliquity(jd)
+        progressed_armc = swe.cotrans((natal_mc['lon'] + distance, 0, 1), -obliquity)[0]
 
     return progressed_jd, progressed_armc

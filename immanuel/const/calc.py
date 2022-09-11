@@ -3,8 +3,9 @@
     Author: Robert Davies (robert@theriftlab.com)
 
 
-    Defines certain astrological and astronomical constants used for chart
-    calculations.
+    Defines certain astrological and astronomical constants used for
+    chart calculations. YEAR_DAYS and SUN_MEAN_MOTION are set to the
+    same constants used by astro.com's calculations.
 
 """
 
@@ -25,11 +26,11 @@ BIQUINTILE = 144.0
 
 """ Calculations. """
 MAX_ERROR = 0.000001                        # For precise exact conjunctions
-STATION_SPEED = 0.0003                      # ~1 second of movement
-YEAR_DAYS = 365.242196                      # Average days in a solar year
+STATION_SPEED = 0.0003                      # ~1 arc-second of movement
+YEAR_DAYS = 365.24219893                    # Average days in a solar year (see https://groups.io/g/swisseph/topic/27497437#6329)
 
 """ Mean daily planetary motions. """
-SUN_MEAN_MOTION = 0.985556
+SUN_MEAN_MOTION = 0.98564733                # See https://www.astro.com/cgi/h.cgi?f=gch&h=gch246&lang=e
 MOON_MEAN_MOTION = 13.176389
 MERCURY_MEAN_MOTION = 1.383333
 VENUS_MEAN_MOTION = 1.2
