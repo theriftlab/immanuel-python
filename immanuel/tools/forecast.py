@@ -11,8 +11,7 @@
 import swisseph as swe
 
 from immanuel.const import calc, chart
-from immanuel.setup import options
-from immanuel.tools import convert, date, eph
+from immanuel.tools import date, eph
 
 
 JD = 0
@@ -36,16 +35,16 @@ def solar_return(jd: float, year: int) -> float:
     return sr_jd
 
 
-def progression(jd: float, lat: float, lon: float, pjd: float) -> tuple:
+def progression(jd: float, lat: float, lon: float, pjd: float, method: int) -> tuple:
     """ Returns the progressed Julian date and MC right ascension. """
     days = (pjd - jd) / calc.YEAR_DAYS
     progressed_jd = jd + days
 
-    if options.mc_progression in (calc.DAILY_HOUSES, calc.NAIBOD):
+    if method in (calc.DAILY_HOUSES, calc.NAIBOD):
         natal_armc = eph.angle(chart.ARMC, jd, lat, lon)
-        multiplier = calc.SUN_MEAN_MOTION if options.mc_progression == calc.NAIBOD else natal_armc['speed']
+        multiplier = calc.SUN_MEAN_MOTION if method == calc.NAIBOD else natal_armc['speed']
         progressed_armc = swe.degnorm(natal_armc['lon'] + days * multiplier)
-    elif options.mc_progression == calc.SOLAR_ARC:
+    elif method == calc.SOLAR_ARC:
         natal_mc = eph.angle(chart.MC, jd, lat, lon)
         natal_sun = eph.planet(chart.SUN, jd)
         progressed_sun = eph.planet(chart.SUN, progressed_jd)

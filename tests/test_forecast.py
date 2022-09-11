@@ -11,13 +11,11 @@
     the decimal conversion.
 """
 
-import os
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from pytest import approx, fixture
 
-from immanuel import setup
 from immanuel.const import calc, chart
 from immanuel.tools import convert, date, eph, forecast, position
 from immanuel.setup import options
@@ -208,8 +206,11 @@ def test_solar_return_date(jd, coords):
 
 
 def test_progression_date(jd, pjd, coords):
-    """ Progressed date copied from astro.com which returns UT date. """
-    progressed_dt = date.from_jd(forecast.progression(jd, *coords, pjd)[forecast.JD])
+    """ Progressed date copied from astro.com which returns UT date.
+    Since the progressed date is always the same whatever method we
+    use to calculate the houses, we can use any available method
+    for this test. """
+    progressed_dt = date.from_jd(forecast.progression(jd, *coords, pjd, calc.NAIBOD)[forecast.JD])
     astro_dt = datetime(2000, 1, 27, 5, 14, 57, tzinfo=ZoneInfo('UTC'))
     assert progressed_dt.year == astro_dt.year
     assert progressed_dt.month == astro_dt.month
@@ -220,18 +221,12 @@ def test_progression_date(jd, pjd, coords):
 
 
 def test_progression(jd, pjd, coords, astro):
-    """ Test all three types of house progression. """
-    mc_progression_option = options.mc_progression
-
-    for mc_progression, results in astro.items():
-        options.mc_progression = mc_progression
-
-        progressed_armc = forecast.progression(jd, *coords, pjd)[forecast.ARMC]
+    """ Test all available types of house progression. """
+    for method, results in astro.items():
+        progressed_armc = forecast.progression(jd, *coords, pjd, method)[forecast.ARMC]
 
         for index, data in results.items():
             house = eph.house(index, jd, coords[0], progressed_armc, True)
             sign, lon = position.signlon(house['lon'])
             assert sign == data['sign']
             assert lon == approx(convert.string_to_dec(data['lon']), abs=1e-3)
-
-    options.mc_progression = mc_progression_option
