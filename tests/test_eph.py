@@ -7,6 +7,13 @@
     from astro.com with default Placidus house system.
     Additional data courtesy of websites cited in test
     function comments.
+
+    The ARMC-based calculations are very difficult to
+    test against astro.com results and they have been
+    left out of this series of tests with any testing
+    being taken care of by the forecast module's test
+    series, as they are heavily tied up in progressed
+    chart functionality.
 """
 
 import os
@@ -158,14 +165,13 @@ def test_items(jd, coords):
 
 def test_get(jd, coords):
     setup.add_filepath(os.path.dirname(__file__))
-    assert eph.get(chart.ASC, jd, *coords)['index'] == chart.ASC
-    assert eph.get(chart.HOUSE2, jd, *coords)['index'] == chart.HOUSE2
-    assert eph.get(chart.SUN, jd)['index'] == chart.SUN
-    assert eph.get(chart.PARS_FORTUNA, jd, *coords)['index'] == chart.PARS_FORTUNA
-    assert eph.get(chart.JUNO, jd)['index'] == chart.JUNO
-    # These are from external ephemeris files.
-    lilith = eph.get(1181, jd)
-    antares = eph.get('Antares', jd)
+    assert eph.angle(chart.ASC, jd, *coords)['index'] == chart.ASC
+    assert eph.house(chart.HOUSE2, jd, *coords)['index'] == chart.HOUSE2
+    assert eph.planet(chart.SUN, jd)['index'] == chart.SUN
+    assert eph.point(chart.PARS_FORTUNA, jd, *coords)['index'] == chart.PARS_FORTUNA
+    assert eph.asteroid(chart.JUNO, jd)['index'] == chart.JUNO  # Included with planets
+    lilith = eph.asteroid(1181, jd)                             # From external file
+    antares = eph.fixed_star('Antares', jd)
     assert lilith['index'] == 1181 and lilith['type'] == chart.ASTEROID
     assert antares['index'] == 'Antares' and antares['type'] == chart.FIXED_STAR
 
@@ -230,13 +236,13 @@ def test_get_data(coords, jd, astro):
     options.pars_fortuna = calc.DAY_NIGHT_FORMULA
 
     data = {
-        'asc': eph.get(chart.ASC, jd, *coords),
-        'house_2': eph.get(chart.HOUSE2, jd, *coords),
-        'sun': eph.get(chart.SUN, jd),
-        'pof': eph.get(chart.PARS_FORTUNA, jd, *coords),
-        'juno': eph.get(chart.JUNO, jd),    # Included with planets
-        'lilith': eph.get(1181, jd),        # From its own file
-        'antares': eph.get('Antares', jd),  # From its own file
+        'asc': eph.angle(chart.ASC, jd, *coords),
+        'house_2': eph.house(chart.HOUSE2, jd, *coords),
+        'sun': eph.planet(chart.SUN, jd),
+        'pof': eph.point(chart.PARS_FORTUNA, jd, *coords),
+        'juno': eph.asteroid(chart.JUNO, jd),    # Included with planets
+        'lilith': eph.asteroid(1181, jd),        # From external file
+        'antares': eph.fixed_star('Antares', jd),
     }
 
     options.pars_fortuna = pars_fortuna_option
@@ -272,8 +278,10 @@ def test_is_daytime(jd, coords):
 
 
 def test_house_system_not_cached(jd, coords):
+    house_system_option = options.house_system
     options.house_system = chart.PLACIDUS
-    house2_placidus = eph.get(chart.HOUSE2, jd, *coords)
+    house2_placidus = eph.house(chart.HOUSE2, jd, *coords)
     options.house_system = chart.EQUAL
-    house2_equal = eph.get(chart.HOUSE2, jd, *coords)
+    house2_equal = eph.house(chart.HOUSE2, jd, *coords)
     assert house2_placidus['lon'] != house2_equal['lon']
+    options.house_system = house_system_option

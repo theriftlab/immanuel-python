@@ -12,6 +12,10 @@
     details could be generated with different house systems within the same
     session.
 
+    Many of the functions here, including angle, house and vertex functions,
+    can take an ARMC argument for the "lon" parameter if it is required to
+    calculate based on this instead.
+
 """
 
 from decimal import Decimal
@@ -76,23 +80,23 @@ _SWE = {
 }
 
 
-def all(jd: float, lat: float, lon: float) -> dict:
+def all(jd: float, lat: float, lon: float, armc: bool = False) -> dict:
     """ Helper function returns a dict of all chart items
     specified in options. """
-    return items(options.items, jd, lat, lon)
+    return items(options.items, jd, lat, lon, armc)
 
 
-def items(item_list: tuple, jd: float, lat: float, lon: float) -> dict:
+def items(item_list: tuple, jd: float, lat: float, lon: float, armc: bool = False) -> dict:
     """ Helper function returns a dict of all passed chart items. """
     items = {}
 
     for index in item_list:
-        items[index] = get(index, jd, lat, lon)
+        items[index] = get(index, jd, lat, lon, armc)
 
     return items
 
 
-def get(index: int | str, jd: float, lat: float = None, lon: float = None) -> dict:
+def get(index: int | str, jd: float, lat: float = None, lon: float = None, armc: bool = False) -> dict:
     """ Helper function to retrieve an angle, house, planet, point,
     asteroid, or fixed star. """
     if isinstance(index, int):
@@ -100,33 +104,36 @@ def get(index: int | str, jd: float, lat: float = None, lon: float = None) -> di
             return asteroid(index, jd)
 
         if index == chart.ANGLE:
-            return angles(jd, lat, lon)
+            return angles(jd, lat, lon, armc)
 
         if index == chart.HOUSE:
-            return houses(jd, lat, lon)
+            return houses(jd, lat, lon, armc)
 
         match _type(index):
             case chart.ANGLE:
-                return angle(index, jd, lat, lon)
+                return angle(index, jd, lat, lon, armc)
             case chart.HOUSE:
-                return house(index, jd, lat, lon)
+                return house(index, jd, lat, lon, armc)
             case chart.POINT:
-                return point(index, jd, lat, lon)
+                return point(index, jd, lat, lon, armc)
             case (chart.ASTEROID|chart.PLANET):
                 return planet(index, jd)
     else:
         return fixed_star(index, jd)
 
 
-def angles(jd: float, lat: float, lon: float) -> dict:
+def angles(jd: float, lat: float, lon: float, armc: bool = False) -> dict:
     """ Returns all four main chart angles & ARMC. """
-    return angle(ALL, jd, lat, lon)
+    return angle(ALL, jd, lat, lon, armc)
 
 
-def angle(index: int, jd: float, lat: float, lon: float) -> dict:
+def angle(index: int, jd: float, lat: float, lon: float, armc: bool = False) -> dict:
     """ Returns one of the four main chart angles & its speed. Also stores
     the ARMC for further calculations. Returns all if index == ALL. """
-    angles = _angles_houses_vertex(jd, lat, lon, options.house_system)['angles']
+    if (armc):
+        angles = _angles_houses_vertex_armc(lon, lat, obliquity(jd), options.house_system)['angles']
+    else:
+        angles = _angles_houses_vertex(jd, lat, lon, options.house_system)['angles']
 
     if index == ALL:
         return angles
@@ -137,14 +144,17 @@ def angle(index: int, jd: float, lat: float, lon: float) -> dict:
     return None
 
 
-def houses(jd: float, lat: float, lon: float) -> dict:
+def houses(jd: float, lat: float, lon: float, armc: bool = False) -> dict:
     """ Returns all houses. """
-    return house(ALL, jd, lat, lon)
+    return house(ALL, jd, lat, lon, armc)
 
 
-def house(index: int, jd: float, lat: float, lon: float) -> dict:
+def house(index: int, jd: float, lat: float, lon: float, armc: bool = False) -> dict:
     """ Returns a house cusp & its speed, or all houses if index == ALL. """
-    houses = _angles_houses_vertex(jd, lat, lon, options.house_system)['houses']
+    if (armc):
+        houses = _angles_houses_vertex_armc(lon, lat, obliquity(jd), options.house_system)['houses']
+    else:
+        houses = _angles_houses_vertex(jd, lat, lon, options.house_system)['houses']
 
     if index == ALL:
         return houses
@@ -156,11 +166,14 @@ def house(index: int, jd: float, lat: float, lon: float) -> dict:
 
 
 @cache
-def point(index: int, jd: float, lat: float = None, lon: float = None) -> dict:
-    """ Returns a calculated point by Julian date, and additionally by lat/lon
-    coordinates if the calculations are based on house cusps / angles. """
+def point(index: int, jd: float, lat: float = None, lon: float = None, armc: bool = False) -> dict:
+    """ Returns a calculated point by Julian date, and additionally by lat / lon
+    coordinates or ARMC if the calculations are based on house cusps / angles. """
     if index == chart.VERTEX:
-        return _angles_houses_vertex(jd, lat, lon, options.house_system)['vertex']
+        if (armc):
+            return _angles_houses_vertex_armc(lon, lat, obliquity(jd), options.house_system)['vertex']
+        else:
+            return _angles_houses_vertex(jd, lat, lon, options.house_system)['vertex']
 
     if index == chart.SYZYGY:
         return _syzygy(jd)
@@ -252,20 +265,31 @@ def obliquity(jd: float, mean = False) -> float:
 
 
 @cache
-def is_daytime(jd: float, lat: float, lon: float) -> bool:
+def is_daytime(jd: float, lat: float, lon: float, armc: bool = False) -> bool:
     """ Returns whether the sun is above the ascendant at the time
     and place specified. """
     sun = planet(chart.SUN, jd)
-    asc = angle(chart.ASC, jd, lat, lon)
+    asc = angle(chart.ASC, jd, lat, lon, armc)
     return calculate.is_daytime(sun['lon'], asc['lon'])
 
 
 @cache
 def _angles_houses_vertex(jd: float, lat: float, lon: float, house_system: int) -> dict:
-    """ Returns ecliptic longitudes for the houses, main angles, and the
-    vertex, along with their speeds. """
-    cusps, ascmc, cuspsspeed, ascmcspeed = swe.houses_ex2(jd, lat, lon, _SWE[house_system])
+    """ Returns ecliptic longitudes for the houses, main angles,
+    and the vertex, along with their speeds. Based on Julian
+    date and lat / lon coordinates. """
+    return _angles_houses_vertex_from_swe(*swe.houses_ex2(jd, lat, lon, _SWE[house_system]))
 
+
+@cache
+def _angles_houses_vertex_armc(armc: float, lat: float, obliquity: float, house_system: int) -> dict:
+    """ Returns ecliptic longitudes for the houses, main angles,
+    and the vertex, along with their speeds. Based on ARMC, latitude
+    and ecliptic obliquity. """
+    return _angles_houses_vertex_from_swe(*swe.houses_armc_ex2(armc, lat, obliquity, _SWE[house_system]))
+
+
+def _angles_houses_vertex_from_swe(cusps: tuple, ascmc: tuple, cuspsspeed: tuple, ascmcspeed: tuple) -> dict:
     angles = {}
     for i in (chart.ASC, chart.MC, chart.ARMC):
         lon = ascmc[_SWE[i]]
