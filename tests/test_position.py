@@ -16,9 +16,8 @@ from datetime import datetime
 from pytest import fixture
 
 from immanuel import setup
-from immanuel.const import chart
+from immanuel.const import calc, chart
 from immanuel.tools import convert, date, eph, position
-from immanuel.setup import options
 
 
 @fixture
@@ -32,17 +31,16 @@ def jd(coords):
 
 @fixture
 def data(jd, coords):
-    options.house_system = chart.PLACIDUS
     setup.add_filepath(os.path.dirname(__file__))
 
     return {
-        'asc': eph.get(chart.ASC, jd, *coords),
-        'house_2': eph.get(chart.HOUSE2, jd, *coords),
-        'sun': eph.get(chart.SUN, jd),
-        'pof': eph.get(chart.PARS_FORTUNA, jd, *coords),
-        'juno': eph.get(chart.JUNO, jd),    # Included with planets
-        'lilith': eph.get(1181, jd),        # From its own file
-        'antares': eph.get('Antares', jd),  # From its own file
+        'asc': eph.angle(chart.ASC, jd, *coords, chart.PLACIDUS),
+        'house_2': eph.house(chart.HOUSE2, jd, *coords, chart.PLACIDUS),
+        'sun': eph.planet(chart.SUN, jd),
+        'pof': eph.point(chart.PARS_FORTUNA, jd, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA),
+        'juno': eph.asteroid(chart.JUNO, jd),       # Included with planets
+        'lilith': eph.asteroid(1181, jd),           # From its own file
+        'antares': eph.fixed_star('Antares', jd),
     }
 
 @fixture
@@ -148,14 +146,14 @@ def test_decan(data, astro):
 
 
 def test_house(jd, coords, data, astro):
-    houses = eph.houses(jd, *coords)
+    houses = eph.houses(jd, *coords, chart.PLACIDUS)
 
     for key, item in {k: v for k, v in data.items() if 'house' in v}:
         assert position.house(item['lon'], houses) == astro[key]['house']
 
 
 def test_opposite_house(jd, coords, data, astro):
-    houses = eph.houses(jd, *coords)
+    houses = eph.houses(jd, *coords, chart.PLACIDUS)
 
     for key, item in {k: v for k, v in data.items() if 'house' in v}:
         assert position.opposite_house(item['lon'], houses) == astro[key]['opposite_house']

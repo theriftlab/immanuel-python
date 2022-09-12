@@ -24,7 +24,6 @@ from pytest import approx, fixture
 from immanuel import setup
 from immanuel.const import calc, chart
 from immanuel.tools import convert, date, eph, position
-from immanuel.setup import options
 
 
 @fixture
@@ -152,59 +151,54 @@ def astro():
 
 """ These tests simply check the correct chart items are being
 returned. Data is checked separately afterwards. """
-def test_all(jd, coords):
-    all = eph.all(jd, *coords)
-    assert tuple(all.keys()) == options.items
-
-
 def test_items(jd, coords):
     chart_items = (chart.SUN, chart.MOON, chart.PARS_FORTUNA, chart.SYZYGY, chart.NORTH_NODE, chart.ASC)
-    items = eph.items(chart_items, jd, *coords)
+    items = eph.items(chart_items, jd, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
     assert tuple(items.keys()) == chart_items
 
 
 def test_get(jd, coords):
     setup.add_filepath(os.path.dirname(__file__))
-    assert eph.angle(chart.ASC, jd, *coords)['index'] == chart.ASC
-    assert eph.house(chart.HOUSE2, jd, *coords)['index'] == chart.HOUSE2
-    assert eph.planet(chart.SUN, jd)['index'] == chart.SUN
-    assert eph.point(chart.PARS_FORTUNA, jd, *coords)['index'] == chart.PARS_FORTUNA
-    assert eph.asteroid(chart.JUNO, jd)['index'] == chart.JUNO  # Included with planets
-    lilith = eph.asteroid(1181, jd)                             # From external file
-    antares = eph.fixed_star('Antares', jd)
+    assert eph.get(chart.ASC, jd, *coords, chart.PLACIDUS)['index'] == chart.ASC
+    assert eph.get(chart.HOUSE2, jd, *coords, chart.PLACIDUS)['index'] == chart.HOUSE2
+    assert eph.get(chart.SUN, jd)['index'] == chart.SUN
+    assert eph.get(chart.PARS_FORTUNA, jd, *coords, pars_fortuna_formula=calc.DAY_NIGHT_FORMULA)['index'] == chart.PARS_FORTUNA
+    assert eph.get(chart.JUNO, jd)['index'] == chart.JUNO   # Included with planets
+    lilith = eph.get(1181, jd)                              # From external file
+    antares = eph.get('Antares', jd)
     assert lilith['index'] == 1181 and lilith['type'] == chart.ASTEROID
     assert antares['index'] == 'Antares' and antares['type'] == chart.FIXED_STAR
 
 
 def test_angles(jd, coords, all_angles):
-    angles = eph.angles(jd, *coords)
+    angles = eph.angles(jd, *coords, chart.PLACIDUS)
     assert len(set(all_angles).difference(set(angles.keys()))) == 0
 
 
 def test_angle(jd, coords, all_angles):
     for index in all_angles:
-        angle = eph.angle(index, jd, *coords)
+        angle = eph.angle(index, jd, *coords, chart.PLACIDUS)
         assert angle['index'] == index and angle['type'] == chart.ANGLE
 
-    assert eph.angle(eph.ALL, jd, *coords) == eph.angles(jd, *coords)
+    assert eph.angle(eph.ALL, jd, *coords, chart.PLACIDUS) == eph.angles(jd, *coords, chart.PLACIDUS)
 
 
 def test_houses(jd, coords, all_houses):
-    houses = eph.houses(jd, *coords)
+    houses = eph.houses(jd, *coords, chart.PLACIDUS)
     assert len(set(all_houses).difference(set(houses.keys()))) == 0
 
 
 def test_house(jd, coords, all_houses):
     for index in all_houses:
-        house = eph.house(index, jd, *coords)
+        house = eph.house(index, jd, *coords, chart.PLACIDUS)
         assert house['index'] == index and house['type'] == chart.HOUSE
 
-    assert eph.house(eph.ALL, jd, *coords) == eph.houses(jd, *coords)
+    assert eph.house(eph.ALL, jd, *coords, chart.PLACIDUS) == eph.houses(jd, *coords, chart.PLACIDUS)
 
 
 def test_point(jd, coords, all_points):
     for index in all_points:
-        point = eph.point(index, jd, *coords)
+        point = eph.point(index, jd, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
         assert point['index'] == index and point['type'] == chart.POINT
 
 
@@ -232,20 +226,16 @@ def test_fixed_star(jd):
 we can test the accuracy of the module's data. """
 def test_get_data(coords, jd, astro):
     setup.add_filepath(os.path.dirname(__file__))
-    pars_fortuna_option = options.pars_fortuna
-    options.pars_fortuna = calc.DAY_NIGHT_FORMULA
 
     data = {
-        'asc': eph.angle(chart.ASC, jd, *coords),
-        'house_2': eph.house(chart.HOUSE2, jd, *coords),
+        'asc': eph.angle(chart.ASC, jd, *coords, chart.PLACIDUS),
+        'house_2': eph.house(chart.HOUSE2, jd, *coords, chart.PLACIDUS),
         'sun': eph.planet(chart.SUN, jd),
-        'pof': eph.point(chart.PARS_FORTUNA, jd, *coords),
+        'pof': eph.point(chart.PARS_FORTUNA, jd, *coords, pars_fortuna_formula=calc.DAY_NIGHT_FORMULA),
         'juno': eph.asteroid(chart.JUNO, jd),    # Included with planets
         'lilith': eph.asteroid(1181, jd),        # From external file
         'antares': eph.fixed_star('Antares', jd),
     }
-
-    options.pars_fortuna = pars_fortuna_option
 
     for key, eph_item in data.items():
         # Convert ecliptical longitude to sign-based
@@ -275,13 +265,3 @@ def test_obliquity(jd):
 def test_is_daytime(jd, coords):
     # Sun above ascendant in astro.com chart visual
     assert eph.is_daytime(jd, *coords)
-
-
-def test_house_system_not_cached(jd, coords):
-    house_system_option = options.house_system
-    options.house_system = chart.PLACIDUS
-    house2_placidus = eph.house(chart.HOUSE2, jd, *coords)
-    options.house_system = chart.EQUAL
-    house2_equal = eph.house(chart.HOUSE2, jd, *coords)
-    assert house2_placidus['lon'] != house2_equal['lon']
-    options.house_system = house_system_option

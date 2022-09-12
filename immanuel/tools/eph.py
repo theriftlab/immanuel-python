@@ -8,10 +8,6 @@
     Relevant data on the main angles, houses, points and planets are
     available using the module's functions, many of which are cached.
 
-    Any function which relies on options is not cached as the same chart
-    details could be generated with different house systems within the same
-    session.
-
     Many of the functions here, including angle, house and vertex functions,
     can take an ARMC argument for the "lon" parameter if it is required to
     calculate based on this instead.
@@ -24,7 +20,6 @@ from functools import cache
 import swisseph as swe
 
 from immanuel.const import chart, names
-from immanuel.setup import options
 from immanuel.tools import calculate, find
 
 
@@ -80,23 +75,17 @@ _SWE = {
 }
 
 
-def all(jd: float, lat: float, lon: float, armc: bool = False) -> dict:
-    """ Helper function returns a dict of all chart items
-    specified in options. """
-    return items(options.items, jd, lat, lon, armc)
-
-
-def items(item_list: tuple, jd: float, lat: float, lon: float, armc: bool = False) -> dict:
+def items(item_list: tuple, jd: float, lat: float = None, lon: float = None, house_system: int = None, pars_fortuna_formula: int = None, armc: bool = False) -> dict:
     """ Helper function returns a dict of all passed chart items. """
     items = {}
 
     for index in item_list:
-        items[index] = get(index, jd, lat, lon, armc)
+        items[index] = get(index, jd, lat, lon, house_system, pars_fortuna_formula, armc)
 
     return items
 
 
-def get(index: int | str, jd: float, lat: float = None, lon: float = None, armc: bool = False) -> dict:
+def get(index: int | str, jd: float, lat: float = None, lon: float = None, house_system: int = None, pars_fortuna_formula: int = None, armc: bool = False) -> dict:
     """ Helper function to retrieve an angle, house, planet, point,
     asteroid, or fixed star. """
     if isinstance(index, int):
@@ -104,36 +93,36 @@ def get(index: int | str, jd: float, lat: float = None, lon: float = None, armc:
             return asteroid(index, jd)
 
         if index == chart.ANGLE:
-            return angles(jd, lat, lon, armc)
+            return angles(jd, lat, lon, house_system, armc)
 
         if index == chart.HOUSE:
-            return houses(jd, lat, lon, armc)
+            return houses(jd, lat, lon, house_system, armc)
 
         match _type(index):
             case chart.ANGLE:
-                return angle(index, jd, lat, lon, armc)
+                return angle(index, jd, lat, lon, house_system, armc)
             case chart.HOUSE:
-                return house(index, jd, lat, lon, armc)
+                return house(index, jd, lat, lon, house_system, armc)
             case chart.POINT:
-                return point(index, jd, lat, lon, armc)
+                return point(index, jd, lat, lon, house_system, pars_fortuna_formula, armc)
             case (chart.ASTEROID|chart.PLANET):
                 return planet(index, jd)
     else:
         return fixed_star(index, jd)
 
 
-def angles(jd: float, lat: float, lon: float, armc: bool = False) -> dict:
+def angles(jd: float, lat: float, lon: float, house_system: int, armc: bool = False) -> dict:
     """ Returns all four main chart angles & ARMC. """
-    return angle(ALL, jd, lat, lon, armc)
+    return angle(ALL, jd, lat, lon, house_system, armc)
 
 
-def angle(index: int, jd: float, lat: float, lon: float, armc: bool = False) -> dict:
+def angle(index: int, jd: float, lat: float, lon: float, house_system: int, armc: bool = False) -> dict:
     """ Returns one of the four main chart angles & its speed. Also stores
     the ARMC for further calculations. Returns all if index == ALL. """
-    if (armc):
-        angles = _angles_houses_vertex_armc(lon, lat, obliquity(jd), options.house_system)['angles']
+    if armc:
+        angles = _angles_houses_vertex_armc(lon, lat, obliquity(jd), house_system)['angles']
     else:
-        angles = _angles_houses_vertex(jd, lat, lon, options.house_system)['angles']
+        angles = _angles_houses_vertex(jd, lat, lon, house_system)['angles']
 
     if index == ALL:
         return angles
@@ -144,17 +133,17 @@ def angle(index: int, jd: float, lat: float, lon: float, armc: bool = False) -> 
     return None
 
 
-def houses(jd: float, lat: float, lon: float, armc: bool = False) -> dict:
+def houses(jd: float, lat: float, lon: float, house_system: int, armc: bool = False) -> dict:
     """ Returns all houses. """
-    return house(ALL, jd, lat, lon, armc)
+    return house(ALL, jd, lat, lon, house_system, armc)
 
 
-def house(index: int, jd: float, lat: float, lon: float, armc: bool = False) -> dict:
+def house(index: int, jd: float, lat: float, lon: float, house_system: int, armc: bool = False) -> dict:
     """ Returns a house cusp & its speed, or all houses if index == ALL. """
-    if (armc):
-        houses = _angles_houses_vertex_armc(lon, lat, obliquity(jd), options.house_system)['houses']
+    if armc:
+        houses = _angles_houses_vertex_armc(lon, lat, obliquity(jd), house_system)['houses']
     else:
-        houses = _angles_houses_vertex(jd, lat, lon, options.house_system)['houses']
+        houses = _angles_houses_vertex(jd, lat, lon, house_system)['houses']
 
     if index == ALL:
         return houses
@@ -165,20 +154,20 @@ def house(index: int, jd: float, lat: float, lon: float, armc: bool = False) -> 
     return None
 
 
-def point(index: int, jd: float, lat: float = None, lon: float = None, armc: bool = False) -> dict:
+def point(index: int, jd: float, lat: float = None, lon: float = None, house_system: int = None, pars_fortuna_formula: int = None, armc: bool = False) -> dict:
     """ Returns a calculated point by Julian date, and additionally by lat / lon
     coordinates or ARMC if the calculations are based on house cusps / angles. """
     if index == chart.VERTEX:
-        if (armc):
-            return _angles_houses_vertex_armc(lon, lat, obliquity(jd), options.house_system)['vertex']
+        if armc:
+            return _angles_houses_vertex_armc(lon, lat, obliquity(jd), house_system)['vertex']
         else:
-            return _angles_houses_vertex(jd, lat, lon, options.house_system)['vertex']
+            return _angles_houses_vertex(jd, lat, lon, house_system)['vertex']
 
     if index == chart.SYZYGY:
         return _syzygy(jd)
 
     if index == chart.PARS_FORTUNA:
-        return _pars_fortuna(jd, lat, lon, options.pars_fortuna)
+        return _pars_fortuna(jd, lat, lon, pars_fortuna_formula)
 
     return _point(index, jd)
 
@@ -265,10 +254,12 @@ def obliquity(jd: float, mean = False) -> float:
 
 @cache
 def is_daytime(jd: float, lat: float, lon: float, armc: bool = False) -> bool:
-    """ Returns whether the sun is above the ascendant at the time
-    and place specified. """
+    """ Returns whether the sun is above the ascendant at the time and
+    place specified. This only relies on the ascendant which will be
+    consistent across all supported systems, so it is safe to pass Placidus
+    as the default. """
     sun = planet(chart.SUN, jd)
-    asc = angle(chart.ASC, jd, lat, lon, armc)
+    asc = angle(chart.ASC, jd, lat, lon, chart.PLACIDUS, armc)
     return calculate.is_daytime(sun['lon'], asc['lon'])
 
 
@@ -359,12 +350,12 @@ def _syzygy(jd: float) -> dict:
 
 @cache
 def _pars_fortuna(jd: float, lat: float, lon: float, formula: int) -> dict:
-    """ Calculate Part of Fortune - although the house system could change
-    between calls, this only relies on the ascendant which will be consistent
-    across all supported systems, so it is safe to cache. """
+    """ Calculate Part of Fortune - this only relies on the ascendant
+    which will be consistent across all supported systems, so it is safe
+    to pass Placidus as the default. """
     sun = planet(chart.SUN, jd)
     moon = planet(chart.MOON, jd)
-    asc = angle(chart.ASC, jd, lat, lon)
+    asc = angle(chart.ASC, jd, lat, lon, chart.PLACIDUS)
     lon = calculate.pars_fortuna(sun['lon'], moon['lon'], asc['lon'], formula)
 
     return {
