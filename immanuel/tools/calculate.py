@@ -53,5 +53,4 @@ def solar_year_length(jd):
     dvel = 1296027711.03429 + 2 * 109.15809 * t + 3 * 0.07207 * t2 - 4 * 0.23530 * t3 - 5 * 0.00180 * t4 + 6 * 0.00020 * t5
     # Degrees per millennium
     dvel /= 3600
-    year_days =  360 * 365250 / dvel
-    return year_days
+    return 360 * 365250 / dvel

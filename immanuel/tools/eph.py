@@ -3,7 +3,7 @@
     Author: Robert Davies (robert@theriftlab.com)
 
 
-    This module provides easy access to fairly standarised pyswisseph data.
+    This module provides easy access to fairly standardised pyswisseph data.
 
     Relevant data on the main angles, houses, points and planets are
     available using the module's functions, many of which are cached.
