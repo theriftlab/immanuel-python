@@ -27,7 +27,8 @@ BIQUINTILE = 144.0
 """ Calculations. """
 MAX_ERROR = 0.000001                        # For precise exact conjunctions
 STATION_SPEED = 0.0003                      # ~1 arc-second of movement
-YEAR_DAYS = 365.24219893                    # Average days in a solar year (see https://groups.io/g/swisseph/topic/27497437#6329)
+YEAR_DAYS = 365.24219893                    # Average days in a solar year (see swisseph swehouse.c)
+J2000 = 2451545                             # Julian year 2000
 
 """ Mean daily planetary motions. """
 SUN_MEAN_MOTION = 0.98564733                # See https://www.astro.com/cgi/h.cgi?f=gch&h=gch246&lang=e

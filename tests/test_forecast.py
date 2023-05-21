@@ -222,10 +222,10 @@ def test_progression_date(jd, pjd, coords):
 def test_progression(jd, pjd, coords, astro):
     """ Test all available types of house progression. """
     for method, results in astro.items():
-        progressed_armc = forecast.progression(jd, *coords, pjd, chart.PLACIDUS, method)[forecast.ARMC]
+        progressed_jd, progressed_armc = forecast.progression(jd, *coords, pjd, chart.PLACIDUS, method)
 
         for index, data in results.items():
-            house = eph.house(index, jd, coords[0], progressed_armc, chart.PLACIDUS, True)
+            house = eph.house(index, progressed_jd, coords[0], progressed_armc, chart.PLACIDUS, True)
             sign, lon = position.signlon(house['lon'])
             assert sign == data['sign']
-            assert lon == approx(convert.string_to_dec(data['lon']), abs=1e-3)
+            assert convert.to_string(lon) == data['lon']

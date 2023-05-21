@@ -39,3 +39,19 @@ def pars_fortuna(sun_lon: float, moon_lon: float, asc_lon: float, formula: int) 
         lon = (asc_lon + sun_lon - moon_lon)
 
     return swe.degnorm(lon)
+
+
+def solar_year_length(jd):
+    """ Returns the length in days of the year passed in the given
+    Julian date. This is a direct copy of astro.com's calculations. """
+    t = (jd - calc.J2000) / 365250
+    t2 = t * t
+    t3 = t2 * t
+    t4 = t3 * t
+    t5 = t4 * t
+    # Arcsec per milllennium
+    dvel = 1296027711.03429 + 2 * 109.15809 * t + 3 * 0.07207 * t2 - 4 * 0.23530 * t3 - 5 * 0.00180 * t4 + 6 * 0.00020 * t5
+    # Degrees per millennium
+    dvel /= 3600
+    year_days =  360 * 365250 / dvel
+    return year_days

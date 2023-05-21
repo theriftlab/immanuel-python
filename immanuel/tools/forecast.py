@@ -11,7 +11,7 @@
 import swisseph as swe
 
 from immanuel.const import calc, chart
-from immanuel.tools import date, eph
+from immanuel.tools import calculate, date, eph
 
 
 JD = 0
@@ -37,19 +37,22 @@ def solar_return(jd: float, year: int) -> float:
 
 def progression(jd: float, lat: float, lon: float, pjd: float, house_system: int, method: int) -> tuple:
     """ Returns the progressed Julian date and MC right ascension. """
-    days = (pjd - jd) / calc.YEAR_DAYS
-    progressed_jd = jd + days
+    year_days = calculate.solar_year_length(jd)
+    years = (pjd - jd) / year_days
+    progressed_jd = jd + years
 
-    if method in (calc.DAILY_HOUSES, calc.NAIBOD):
-        natal_armc = eph.angle(chart.ARMC, jd, lat, lon, house_system)
-        multiplier = calc.SUN_MEAN_MOTION if method == calc.NAIBOD else natal_armc['speed']
-        progressed_armc = swe.degnorm(natal_armc['lon'] + days * multiplier)
-    elif method == calc.SOLAR_ARC:
-        natal_mc = eph.angle(chart.MC, jd, lat, lon, house_system)
-        natal_sun = eph.planet(chart.SUN, jd)
-        progressed_sun = eph.planet(chart.SUN, progressed_jd)
-        distance = swe.difdeg2n(progressed_sun['lon'], natal_sun['lon'])
-        obliquity = eph.obliquity(jd)
-        progressed_armc = swe.cotrans((natal_mc['lon'] + distance, 0, 1), -obliquity)[0]
+    match method:
+        case calc.DAILY_HOUSES:
+            progressed_armc = eph.angle(chart.ARMC, progressed_jd, lat, lon, house_system)['lon']
+        case calc.NAIBOD:
+            natal_armc = eph.angle(chart.ARMC, jd, lat, lon, house_system)['lon']
+            progressed_armc = swe.degnorm(natal_armc + years * calc.SUN_MEAN_MOTION)
+        case calc.SOLAR_ARC:
+            natal_mc = eph.angle(chart.MC, jd, lat, lon, house_system)
+            natal_sun = eph.planet(chart.SUN, jd)
+            progressed_sun = eph.planet(chart.SUN, progressed_jd)
+            distance = swe.difdeg2n(progressed_sun['lon'], natal_sun['lon'])
+            obliquity = eph.obliquity(progressed_jd)
+            progressed_armc = swe.cotrans((natal_mc['lon'] + distance, 0, 1), -obliquity)[0]
 
     return progressed_jd, progressed_armc
