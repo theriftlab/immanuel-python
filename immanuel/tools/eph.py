@@ -116,10 +116,10 @@ def _get(index: int | str, jd: float, lat: float = None, lon_armc: float = None,
             return asteroid(index, jd)
 
         if index == chart.ANGLE:
-            return _angles(jd, lat, lon_armc, house_system, armc)
+            return _angle(ALL, jd, lat, lon_armc, house_system, armc)
 
         if index == chart.HOUSE:
-            return _houses(jd, lat, lon_armc, house_system, armc)
+            return _house(ALL, jd, lat, lon_armc, house_system, armc)
 
         match _type(index):
             case chart.ANGLE:
