@@ -170,9 +170,19 @@ def test_get(jd, coords):
     assert antares['index'] == 'Antares' and antares['type'] == chart.FIXED_STAR
 
 
+def test_get_angles(jd, coords, all_angles):
+    angles = eph.get(chart.ANGLE, jd, *coords, chart.PLACIDUS)
+    assert len(all_angles) == len(angles)
+
+
+def test_get_houses(jd, coords, all_houses):
+    houses = eph.get(chart.HOUSE, jd, *coords, chart.PLACIDUS)
+    assert len(all_houses) == len(houses)
+
+
 def test_angles(jd, coords, all_angles):
     angles = eph.angles(jd, *coords, chart.PLACIDUS)
-    assert len(set(all_angles).difference(set(angles.keys()))) == 0
+    assert len(all_angles) == len(angles)
 
 
 def test_angle(jd, coords, all_angles):
@@ -185,7 +195,7 @@ def test_angle(jd, coords, all_angles):
 
 def test_houses(jd, coords, all_houses):
     houses = eph.houses(jd, *coords, chart.PLACIDUS)
-    assert len(set(all_houses).difference(set(houses.keys()))) == 0
+    assert len(all_houses) == len(houses)
 
 
 def test_house(jd, coords, all_houses):
