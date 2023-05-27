@@ -132,6 +132,17 @@ ASPECTS = {
     calc.BIQUINTILE: 'Biquintile',
 }
 
+ASPECT_MOVEMENTS = {
+    calc.APPLICATIVE: 'Applicative',
+    calc.EXACT: 'Exact',
+    calc.SEPARATIVE: 'Separative',
+}
+
+ASPECT_CONDITIONS = {
+    calc.ASSOCIATE: 'Associate',
+    calc.DISSOCIATE: 'Dissociate',
+}
+
 MOON_PHASES = {
     calc.NEW_MOON: 'New',
     calc.WAXING_CRESCENT: 'Waxing Crescent',

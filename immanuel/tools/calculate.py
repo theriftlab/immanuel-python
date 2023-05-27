@@ -33,10 +33,10 @@ def is_daytime(sun_lon: float, asc_lon: float) -> bool:
 
 def pars_fortuna(sun_lon: float, moon_lon: float, asc_lon: float, formula: int) -> float:
     """ Returns the Part of Fortune longitude. """
-    if formula == calc.DAY_FORMULA or (formula == calc.DAY_NIGHT_FORMULA and is_daytime(sun_lon, asc_lon)):
-        lon = (asc_lon + moon_lon - sun_lon)
-    else:
+    if formula == calc.NIGHT_FORMULA or (formula == calc.DAY_NIGHT_FORMULA and not is_daytime(sun_lon, asc_lon)):
         lon = (asc_lon + sun_lon - moon_lon)
+    else:
+        lon = (asc_lon + moon_lon - sun_lon)
 
     return swe.degnorm(lon)
 

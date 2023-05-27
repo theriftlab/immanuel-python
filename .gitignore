@@ -5,3 +5,4 @@ __pycache__
 *test.py
 *.code-workspace
 TODO*
+*.pdf

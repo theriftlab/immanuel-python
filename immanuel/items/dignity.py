@@ -12,7 +12,7 @@
 """
 
 from immanuel.const import dignities
-from immanuel.setup import options
+from immanuel.setup import settings
 from immanuel.tools import position
 
 
@@ -22,8 +22,8 @@ def mutual_reception_rulership(item: dict, items: dict) -> bool:
         return False
 
     item_sign = position.sign(item['lon'])
-    item_rulership_signs = _planet_signs(item, options.rulerships)
-    item_sign_rulership = options.rulerships[item_sign]
+    item_rulership_signs = _planet_signs(item, settings.rulerships)
+    item_sign_rulership = settings.rulerships[item_sign]
 
     return position.sign(items[item_sign_rulership]['lon']) in item_rulership_signs
 
@@ -48,16 +48,16 @@ def mutual_reception_house(item: dict, items: dict, houses: dict) -> bool:
     house-sign rulership. """
     house = houses[position.house(item['lon'], houses)['index']]
     house_sign = position.sign(house['lon'])
-    house_sign_ruler = items[options.rulerships[house_sign]]
+    house_sign_ruler = items[settings.rulerships[house_sign]]
     house_sign_ruler_house = houses[position.house(house_sign_ruler['lon'], houses)['index']]
     house_sign_ruler_house_sign = position.sign(house_sign_ruler_house['lon'])
 
-    return item['index'] == options.rulerships[house_sign_ruler_house_sign]
+    return item['index'] == settings.rulerships[house_sign_ruler_house_sign]
 
 
 def ruler(item: dict) -> bool:
     """ Returns whether the passed planet is the ruler of its sign. """
-    return item['index'] == options.rulerships[position.sign(item['lon'])]
+    return item['index'] == settings.rulerships[position.sign(item['lon'])]
 
 
 def exalted(item: dict) -> bool:
@@ -67,7 +67,7 @@ def exalted(item: dict) -> bool:
 
 def detriment(item: dict) -> bool:
     """ Returns whether the passed planet is in detriment within its sign. """
-    return position.opposite_sign(item['lon']) in _planet_signs(item, options.rulerships)
+    return position.opposite_sign(item['lon']) in _planet_signs(item, settings.rulerships)
 
 
 def fall(item: dict) -> bool:
@@ -80,28 +80,28 @@ def term_ruler(item: dict) -> bool:
     within its sign. """
     planet_sign, planet_sign_lon = position.signlon(item['lon'])
 
-    if item['index'] not in options.terms[planet_sign]:
+    if item['index'] not in settings.terms[planet_sign]:
         return False
 
-    return options.terms[planet_sign][item['index']][0] <= planet_sign_lon < options.terms[planet_sign][item['index']][1]
+    return settings.terms[planet_sign][item['index']][0] <= planet_sign_lon < settings.terms[planet_sign][item['index']][1]
 
 
 def triplicity_ruler_day(item: dict, is_daytime: bool) -> bool:
     """ Returns whether the passed planet is a daytime triplicity ruler
     within its sign. """
-    return item['index'] == options.triplicities[position.sign(item['lon'])]['day'] and is_daytime
+    return item['index'] == settings.triplicities[position.sign(item['lon'])]['day'] and is_daytime
 
 
 def triplicity_ruler_night(item: dict, is_daytime: bool) -> bool:
     """ Returns whether the passed planet is a nighttime triplicity ruler
     within its sign. """
-    return item['index'] == options.triplicities[position.sign(item['lon'])]['night'] and not is_daytime
+    return item['index'] == settings.triplicities[position.sign(item['lon'])]['night'] and not is_daytime
 
 
 def triplicity_ruler_participatory(item: dict) -> bool:
     """ Returns whether the passed planet is a participatory triplicity ruler
     within its sign, if the selected triplicities contain one. """
-    triplicities = options.triplicities[position.sign(item['lon'])]
+    triplicities = settings.triplicities[position.sign(item['lon'])]
     return 'participatory' in triplicities and item['index'] == triplicities['participatory']
 
 
@@ -120,45 +120,45 @@ def all(item: dict, **kwargs) -> dict:
     is_daytime = kwargs.get('is_daytime', None)
 
     dignity_state = {
-        dignities.RULER: ruler(item) if dignities.RULER in options.dignity_scores else None,
-        dignities.EXALTED: exalted(item) if dignities.EXALTED in options.dignity_scores else None,
-        dignities.TERM_RULER: term_ruler(item) if dignities.TERM_RULER in options.dignity_scores else None,
-        dignities.FACE_RULER: face_ruler(item) if dignities.FACE_RULER in options.dignity_scores else None,
+        dignities.RULER: ruler(item) if dignities.RULER in settings.dignity_scores else None,
+        dignities.EXALTED: exalted(item) if dignities.EXALTED in settings.dignity_scores else None,
+        dignities.TERM_RULER: term_ruler(item) if dignities.TERM_RULER in settings.dignity_scores else None,
+        dignities.FACE_RULER: face_ruler(item) if dignities.FACE_RULER in settings.dignity_scores else None,
     }
 
     if is_daytime is not None:
         dignity_state |= {
-            dignities.TRIPLICITY_RULER_DAY: triplicity_ruler_day(item, is_daytime) if dignities.TRIPLICITY_RULER_DAY in options.dignity_scores else None,
-            dignities.TRIPLICITY_RULER_NIGHT: triplicity_ruler_night(item, is_daytime) if dignities.TRIPLICITY_RULER_NIGHT in options.dignity_scores else None,
-            dignities.TRIPLICITY_RULER_PARTICIPATORY: triplicity_ruler_participatory(item) if dignities.TRIPLICITY_RULER_PARTICIPATORY in options.dignity_scores else None,
+            dignities.TRIPLICITY_RULER_DAY: triplicity_ruler_day(item, is_daytime) if dignities.TRIPLICITY_RULER_DAY in settings.dignity_scores else None,
+            dignities.TRIPLICITY_RULER_NIGHT: triplicity_ruler_night(item, is_daytime) if dignities.TRIPLICITY_RULER_NIGHT in settings.dignity_scores else None,
+            dignities.TRIPLICITY_RULER_PARTICIPATORY: triplicity_ruler_participatory(item) if dignities.TRIPLICITY_RULER_PARTICIPATORY in settings.dignity_scores else None,
         }
 
-    if options.peregrine == dignities.IGNORE_MUTUAL_RECEPTIONS:
+    if settings.peregrine == dignities.IGNORE_MUTUAL_RECEPTIONS:
         peregrine = len([v for v in dignity_state.values() if v]) == 0
 
     if items is not None:
         dignity_state |= {
-            dignities.MUTUAL_RECEPTION_RULERSHIP: mutual_reception_rulership(item, items) if dignities.MUTUAL_RECEPTION_RULERSHIP in options.dignity_scores else None,
-            dignities.MUTUAL_RECEPTION_EXALTATION: mutual_reception_exaltaion(item, items) if dignities.MUTUAL_RECEPTION_EXALTATION in options.dignity_scores else None,
-            dignities.MUTUAL_RECEPTION_HOUSE: mutual_reception_house(item, items, houses) if houses is not None and dignities.MUTUAL_RECEPTION_HOUSE in options.dignity_scores else None,
+            dignities.MUTUAL_RECEPTION_RULERSHIP: mutual_reception_rulership(item, items) if dignities.MUTUAL_RECEPTION_RULERSHIP in settings.dignity_scores else None,
+            dignities.MUTUAL_RECEPTION_EXALTATION: mutual_reception_exaltaion(item, items) if dignities.MUTUAL_RECEPTION_EXALTATION in settings.dignity_scores else None,
+            dignities.MUTUAL_RECEPTION_HOUSE: mutual_reception_house(item, items, houses) if houses is not None and dignities.MUTUAL_RECEPTION_HOUSE in settings.dignity_scores else None,
         }
 
-    if options.peregrine == dignities.INCLUDE_MUTUAL_RECEPTIONS:
+    if settings.peregrine == dignities.INCLUDE_MUTUAL_RECEPTIONS:
         peregrine = len([v for v in dignity_state.values() if v]) == 0
 
     dignity_state |= {
-        dignities.DETRIMENT: detriment(item) if dignities.DETRIMENT in options.dignity_scores else None,
-        dignities.FALL: fall(item) if dignities.FALL in options.dignity_scores else None,
-        dignities.PEREGRINE: peregrine if dignities.PEREGRINE in options.dignity_scores else None,
+        dignities.DETRIMENT: detriment(item) if dignities.DETRIMENT in settings.dignity_scores else None,
+        dignities.FALL: fall(item) if dignities.FALL in settings.dignity_scores else None,
+        dignities.PEREGRINE: peregrine if dignities.PEREGRINE in settings.dignity_scores else None,
     }
 
     return {k: v for k, v in dignity_state.items() if v is not None}
 
 
 def score(item: dict, **kwargs) -> int:
-    """ Calculates the planet's dignity score based on options. """
+    """ Calculates the planet's dignity score based on settings. """
     dignity_state = all(item, **kwargs)
-    return sum([v for k, v in options.dignity_scores.items() if k in dignity_state and dignity_state[k]])
+    return sum([v for k, v in settings.dignity_scores.items() if k in dignity_state and dignity_state[k]])
 
 
 def _planet_signs(item: dict, table: dict) -> tuple:

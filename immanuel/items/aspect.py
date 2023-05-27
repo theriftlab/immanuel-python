@@ -3,36 +3,36 @@
     Author: Robert Davies (robert@theriftlab.com)
 
 
-    This module calculates aspects between chart items based on the options
-    specified in the options module.
+    This module calculates aspects between chart items based on
+    the settings provided by the setup module.
 
-    This relies on the item data returned by the eph module.
+    The functions also rely on the item data returned by the eph module.
 
 """
 
 import swisseph as swe
 
 from immanuel.const import calc
-from immanuel.setup import options
+from immanuel.setup import settings
 from immanuel.tools import position
 
 
-def between(item1: dict, item2: dict, check_aspects: tuple) -> dict:
+def between(item1: dict, item2: dict) -> dict:
     """ Returns any aspect between the two passed items. """
     active, passive = (item1, item2) if abs(item1['speed']) > abs(item2['speed']) else (item2, item1)
 
-    for aspect in check_aspects:
+    for aspect in settings.aspects:
         # Check aspect rules
-        active_aspect_rule = options.aspect_rules[active['index']] if active['index'] in options.aspect_rules else options.default_aspect_rule
-        passive_aspect_rule = options.aspect_rules[passive['index']] if passive['index'] in options.aspect_rules else options.default_aspect_rule
+        active_aspect_rule = settings.aspect_rules[active['index']] if active['index'] in settings.aspect_rules else settings.default_aspect_rule
+        passive_aspect_rule = settings.aspect_rules[passive['index']] if passive['index'] in settings.aspect_rules else settings.default_aspect_rule
 
         if aspect not in active_aspect_rule['initiate'] or aspect not in passive_aspect_rule['receive']:
             return None
 
         # Get orbs
-        active_orb = options.orbs[active['index']][aspect] if active['index'] in options.orbs else options.default_orb
-        passive_orb = options.orbs[passive['index']][aspect] if passive['index'] in options.orbs else options.default_orb
-        orb = (active_orb + passive_orb) / 2 if options.orb_calculation == calc.MEAN else max(active_orb, passive_orb)
+        active_orb = settings.orbs[active['index']][aspect] if active['index'] in settings.orbs else settings.default_orb
+        passive_orb = settings.orbs[passive['index']][aspect] if passive['index'] in settings.orbs else settings.default_orb
+        orb = ((active_orb + passive_orb) / 2) if settings.orb_calculation == calc.MEAN else max(active_orb, passive_orb)
 
         # Look for an aspect
         distance = swe.difdeg2n(passive['lon'], active['lon'])
@@ -42,7 +42,7 @@ def between(item1: dict, item2: dict, check_aspects: tuple) -> dict:
             aspect_orb = abs(distance) - aspect
             exact_lon = swe.degnorm(passive['lon'] + (aspect if distance < 0 else -aspect))
             associate = position.sign(exact_lon) == position.sign(active['lon'])
-            exact = exact_lon-options.exact_orb <= active['lon'] <= exact_lon+options.exact_orb
+            exact = exact_lon-settings.exact_orb <= active['lon'] <= exact_lon+settings.exact_orb
             applicative = not exact and ((aspect_orb < 0 if distance < 0 else aspect_orb > 0) or active['speed'] < -calc.STATION_SPEED)
 
             return {
@@ -58,7 +58,7 @@ def between(item1: dict, item2: dict, check_aspects: tuple) -> dict:
     return None
 
 
-def for_item(item: dict, items: dict, exclude_same: bool = True, check_aspects: tuple = None) -> dict:
+def for_item(item: dict, items: dict, exclude_same: bool = True) -> dict:
     """ Returns all chart items aspecting the passed chart item. If two
     separate sets of items are being compared (eg. synastry) then
     exclude_self can be set to False to find aspects between the same
@@ -69,7 +69,7 @@ def for_item(item: dict, items: dict, exclude_same: bool = True, check_aspects: 
         if exclude_same and index == item['index']:
             continue
 
-        aspect = between(item, check_item, check_aspects)
+        aspect = between(item, check_item)
 
         if aspect is not None:
             aspects[check_item['index']] = aspect
@@ -77,12 +77,12 @@ def for_item(item: dict, items: dict, exclude_same: bool = True, check_aspects: 
     return aspects
 
 
-def all(items: dict, exclude_same: bool = True, check_aspects: tuple = None) -> dict:
+def all(items: dict, exclude_same: bool = True) -> dict:
     """ Returns all aspects between the passed chart items. """
     aspects = {}
 
     for index, item in items.items():
-        item_aspects = for_item(item, items, exclude_same, check_aspects)
+        item_aspects = for_item(item, items, exclude_same)
 
         if item_aspects:
             aspects[index] = item_aspects
@@ -90,13 +90,13 @@ def all(items: dict, exclude_same: bool = True, check_aspects: tuple = None) -> 
     return aspects
 
 
-def by_type(items: dict, exclude_same: bool = True, check_aspects: tuple = None) -> dict:
+def by_type(items: dict, exclude_same: bool = True) -> dict:
     """ Returns all aspects between the passed chart items keyed by
     aspect type. """
     aspects = {}
 
     for item in items.values():
-        item_aspects = for_item(item, items, exclude_same, check_aspects)
+        item_aspects = for_item(item, items, exclude_same)
 
         if item_aspects:
             for item_aspect in item_aspects.values():
@@ -109,12 +109,12 @@ def by_type(items: dict, exclude_same: bool = True, check_aspects: tuple = None)
     return aspects
 
 
-def synastry(items1: dict, items2: dict, exclude_same: bool = True, check_aspects: tuple = None) -> dict:
+def synastry(items1: dict, items2: dict, exclude_same: bool = True) -> dict:
     """ Returns all aspects between the two sets of passed chart items. """
     aspects = {}
 
     for index, item in items1.items():
-        item_aspects = for_item(item, items2, exclude_same, check_aspects)
+        item_aspects = for_item(item, items2, exclude_same)
 
         if item_aspects:
             aspects[index] = item_aspects

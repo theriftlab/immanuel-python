@@ -3,15 +3,12 @@
     Author: Robert Davies (robert@theriftlab.com)
 
 
-    Inspetcs element and quadrant weighting from a dict of chart items
+    Inspects element and quadrant weighting from a dict of chart items
     provided by the eph module.
 
 """
 
-import swisseph as swe
-
 from immanuel.const import chart
-from immanuel.setup import options
 from immanuel.tools import position
 
 
