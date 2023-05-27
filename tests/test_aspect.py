@@ -13,13 +13,12 @@ import math
 
 from datetime import datetime
 
-from pytest import approx, fixture
+from pytest import fixture
 
-from immanuel import setup
 from immanuel.const import calc, chart
 from immanuel.items import aspect
 from immanuel.setup import settings
-from immanuel.tools import convert, date, eph, position
+from immanuel.tools import convert, date, eph
 
 
 @fixture
