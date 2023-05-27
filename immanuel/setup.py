@@ -24,7 +24,7 @@ _settings = {}
 _settings['house_system'] = chart.PLACIDUS
 
 """ Which planets, points etc. to show. """
-_settings['items'] = (
+_settings['objects'] = (
     chart.ASC, chart.DESC, chart.MC, chart.IC,
     chart.TRUE_NORTH_NODE, chart.TRUE_SOUTH_NODE,
     chart.VERTEX, chart.PARS_FORTUNA,
@@ -36,7 +36,7 @@ _settings['items'] = (
 
 """ Which planets, points etc. to use in chart
 pattern & report calculations. """
-_settings['report_items'] = (
+_settings['report_objects'] = (
     chart.SUN, chart.MOON, chart.MERCURY, chart.VENUS, chart.MARS,
     chart.JUPITER, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.PLUTO,
     chart.CHIRON,
@@ -48,7 +48,7 @@ _settings['aspects'] = (
     calc.QUINCUNX,
 )
 
-""" Rules for what chart items can initiate or receive which aspects. """
+""" Rules for what chart objects can initiate or receive which aspects. """
 _settings['default_aspect_rule'] = {
     'initiate': _settings['aspects'],
     'receive': _settings['aspects'],
@@ -93,7 +93,7 @@ _settings['aspect_rules'] = {
 }
 
 
-""" Orbs for chart items and their aspects. """
+""" Orbs for chart objects and their aspects. """
 _settings['default_orb'] = 1.0
 
 _settings['exact_orb'] = 0.3

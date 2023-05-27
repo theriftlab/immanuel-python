@@ -3,7 +3,7 @@
     Author: Robert Davies (robert@theriftlab.com)
 
 
-    Extracts chart-shape and aspect patterns from a dict of chart items
+    Extracts chart-shape and aspect patterns from a dict of chart objects
     provided by the eph module.
 
 """
@@ -13,9 +13,9 @@ import swisseph as swe
 from immanuel.const import calc
 
 
-def chart_shape(items: dict, chart_shape_orb: float) -> int:
-    # Sort items by longitude
-    longitudes = sorted([v['lon'] for v in items.values()])
+def chart_shape(objects: dict, chart_shape_orb: float) -> int:
+    # Sort objects by longitude
+    longitudes = sorted([v['lon'] for v in objects.values()])
     diffs = [swe.difdegn(_next(longitudes, k), v) for k, v in enumerate(longitudes)]
     max_diff = max(diffs)
 

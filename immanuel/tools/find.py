@@ -114,9 +114,9 @@ def _find(first: int, second: int, jd: float, aspect: float, direction: int) -> 
     """ Returns the Julian date of the previous/next requested aspect.
     Accurate to within one second of a degree. """
     while True:
-        first_item = eph.get(first, jd)
-        second_item = eph.get(second, jd)
-        distance = abs(swe.difdeg2n(first_item['lon'], second_item['lon']))
+        first_object = eph.get(first, jd)
+        second_object = eph.get(second, jd)
+        distance = abs(swe.difdeg2n(first_object['lon'], second_object['lon']))
         diff = abs(aspect - distance)
 
         if diff <= calc.MAX_ERROR:

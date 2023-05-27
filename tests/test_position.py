@@ -124,46 +124,46 @@ def astro():
 
 
 def test_sign(data, astro):
-    for key, item in data.items():
-        assert position.sign(item['lon']) == astro[key]['sign']
+    for key, object in data.items():
+        assert position.sign(object['lon']) == astro[key]['sign']
 
 
 def test_signlon(data, astro):
-    for key, item in data.items():
-        sign, lon = position.signlon(item['lon'])
+    for key, object in data.items():
+        sign, lon = position.signlon(object['lon'])
         assert sign == astro[key]['sign']
         assert convert.dec_to_string(lon) == astro[key]['lon']
 
 
 def test_opposite_sign(data, astro):
-    for key, item in data.items():
-        assert position.opposite_sign(item['lon']) == astro[key]['opposite_sign']
+    for key, object in data.items():
+        assert position.opposite_sign(object['lon']) == astro[key]['opposite_sign']
 
 
 def test_decan(data, astro):
-    for key, item in data.items():
-        assert position.decan(item['lon']) == astro[key]['decan']
+    for key, object in data.items():
+        assert position.decan(object['lon']) == astro[key]['decan']
 
 
 def test_house(jd, coords, data, astro):
     houses = eph.houses(jd, *coords, chart.PLACIDUS)
 
-    for key, item in {k: v for k, v in data.items() if 'house' in v}:
-        assert position.house(item['lon'], houses) == astro[key]['house']
+    for key, object in {k: v for k, v in data.items() if 'house' in v}:
+        assert position.house(object['lon'], houses) == astro[key]['house']
 
 
 def test_opposite_house(jd, coords, data, astro):
     houses = eph.houses(jd, *coords, chart.PLACIDUS)
 
-    for key, item in {k: v for k, v in data.items() if 'house' in v}:
-        assert position.opposite_house(item['lon'], houses) == astro[key]['opposite_house']
+    for key, object in {k: v for k, v in data.items() if 'house' in v}:
+        assert position.opposite_house(object['lon'], houses) == astro[key]['opposite_house']
 
 
 def test_element(data, astro):
-    for key, item in data.items():
-        assert position.element(item['lon']) == astro[key]['element']
+    for key, object in data.items():
+        assert position.element(object['lon']) == astro[key]['element']
 
 
 def test_modality(data, astro):
-    for key, item in data.items():
-        assert position.modality(item['lon']) == astro[key]['modality']
+    for key, object in data.items():
+        assert position.modality(object['lon']) == astro[key]['modality']

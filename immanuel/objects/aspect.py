@@ -3,10 +3,10 @@
     Author: Robert Davies (robert@theriftlab.com)
 
 
-    This module calculates aspects between chart items based on
+    This module calculates aspects between chart objects based on
     the settings provided by the setup module.
 
-    The functions also rely on the item data returned by the eph module.
+    The functions also rely on the object data returned by the eph module.
 
 """
 
@@ -17,9 +17,9 @@ from immanuel.setup import settings
 from immanuel.tools import position
 
 
-def between(item1: dict, item2: dict) -> dict:
-    """ Returns any aspect between the two passed items. """
-    active, passive = (item1, item2) if abs(item1['speed']) > abs(item2['speed']) else (item2, item1)
+def between(object1: dict, object2: dict) -> dict:
+    """ Returns any aspect between the two passed objects. """
+    active, passive = (object1, object2) if abs(object1['speed']) > abs(object2['speed']) else (object2, object1)
 
     for aspect in settings.aspects:
         # Check aspect rules
@@ -58,65 +58,65 @@ def between(item1: dict, item2: dict) -> dict:
     return None
 
 
-def for_item(item: dict, items: dict, exclude_same: bool = True) -> dict:
-    """ Returns all chart items aspecting the passed chart item. If two
-    separate sets of items are being compared (eg. synastry) then
+def for_object(object: dict, objects: dict, exclude_same: bool = True) -> dict:
+    """ Returns all chart objects aspecting the passed chart object. If two
+    separate sets of objects are being compared (eg. synastry) then
     exclude_self can be set to False to find aspects between the same
-    item in both charts. """
+    object in both charts. """
     aspects = {}
 
-    for index, check_item in items.items():
-        if exclude_same and index == item['index']:
+    for index, check_object in objects.items():
+        if exclude_same and index == object['index']:
             continue
 
-        aspect = between(item, check_item)
+        aspect = between(object, check_object)
 
         if aspect is not None:
-            aspects[check_item['index']] = aspect
+            aspects[check_object['index']] = aspect
 
     return aspects
 
 
-def all(items: dict, exclude_same: bool = True) -> dict:
-    """ Returns all aspects between the passed chart items. """
+def all(objects: dict, exclude_same: bool = True) -> dict:
+    """ Returns all aspects between the passed chart objects. """
     aspects = {}
 
-    for index, item in items.items():
-        item_aspects = for_item(item, items, exclude_same)
+    for index, object in objects.items():
+        object_aspects = for_object(object, objects, exclude_same)
 
-        if item_aspects:
-            aspects[index] = item_aspects
+        if object_aspects:
+            aspects[index] = object_aspects
 
     return aspects
 
 
-def by_type(items: dict, exclude_same: bool = True) -> dict:
-    """ Returns all aspects between the passed chart items keyed by
+def by_type(objects: dict, exclude_same: bool = True) -> dict:
+    """ Returns all aspects between the passed chart objects keyed by
     aspect type. """
     aspects = {}
 
-    for item in items.values():
-        item_aspects = for_item(item, items, exclude_same)
+    for object in objects.values():
+        object_aspects = for_object(object, objects, exclude_same)
 
-        if item_aspects:
-            for item_aspect in item_aspects.values():
-                if item_aspect['aspect'] not in aspects:
-                    aspects[item_aspect['aspect']] = []
+        if object_aspects:
+            for object_aspect in object_aspects.values():
+                if object_aspect['aspect'] not in aspects:
+                    aspects[object_aspect['aspect']] = []
 
-                if item_aspect not in aspects[item_aspect['aspect']]:
-                    aspects[item_aspect['aspect']].append(item_aspect)
+                if object_aspect not in aspects[object_aspect['aspect']]:
+                    aspects[object_aspect['aspect']].append(object_aspect)
 
     return aspects
 
 
-def synastry(items1: dict, items2: dict, exclude_same: bool = True) -> dict:
-    """ Returns all aspects between the two sets of passed chart items. """
+def synastry(objects1: dict, objects2: dict, exclude_same: bool = True) -> dict:
+    """ Returns all aspects between the two sets of passed chart objects. """
     aspects = {}
 
-    for index, item in items1.items():
-        item_aspects = for_item(item, items2, exclude_same)
+    for index, object in objects1.items():
+        object_aspects = for_object(object, objects2, exclude_same)
 
-        if item_aspects:
-            aspects[index] = item_aspects
+        if object_aspects:
+            aspects[index] = object_aspects
 
     return aspects

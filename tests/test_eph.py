@@ -106,7 +106,7 @@ def all_asteroids():
 @fixture
 def astro():
     """ Results copied from astro.com chart table. We spot-check
-    chart items by picking one of each type. """
+    chart objects by picking one of each type. """
     return {
         # angle
         'asc': {
@@ -149,12 +149,12 @@ def astro():
     }
 
 
-""" These tests simply check the correct chart items are being
+""" These tests simply check the correct chart objects are being
 returned. Data is checked separately afterwards. """
-def test_items(jd, coords):
-    chart_items = (chart.SUN, chart.MOON, chart.PARS_FORTUNA, chart.SYZYGY, chart.NORTH_NODE, chart.ASC)
-    items = eph.items(chart_items, jd, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
-    assert tuple(items.keys()) == chart_items
+def test_objects(jd, coords):
+    chart_objects = (chart.SUN, chart.MOON, chart.PARS_FORTUNA, chart.SYZYGY, chart.NORTH_NODE, chart.ASC)
+    objects = eph.objects(chart_objects, jd, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
+    assert tuple(objects.keys()) == chart_objects
 
 
 def test_get(jd, coords):
@@ -232,7 +232,7 @@ def test_fixed_star(jd):
     assert fixed_star['index'] == 'Antares' and fixed_star['type'] == chart.FIXED_STAR
 
 
-""" Now we are satisfied the correct chart items are being returned,
+""" Now we are satisfied the correct chart objects are being returned,
 we can test the accuracy of the module's data. """
 def test_get_data(coords, jd, astro):
     setup.add_filepath(os.path.dirname(__file__))
@@ -247,18 +247,18 @@ def test_get_data(coords, jd, astro):
         'antares': eph.fixed_star('Antares', jd),
     }
 
-    for key, eph_item in data.items():
+    for key, eph_object in data.items():
         # Convert ecliptical longitude to sign-based
-        item = eph_item.copy()
-        item['lon'] = position.signlon(item['lon'])[position.LON]
+        object = eph_object.copy()
+        object['lon'] = position.signlon(object['lon'])[position.LON]
 
         # Format properties to string to match astro.com front-end output
         for property_key in ('lon', 'lat', 'speed', 'dec'):
-            if property_key in item:
-                item[property_key] = convert.dec_to_string(item[property_key])
+            if property_key in object:
+                object[property_key] = convert.dec_to_string(object[property_key])
 
         for property, value in astro[key].items():
-            assert item[property] == value
+            assert object[property] == value
 
 
 def test_moon_phase(jd):

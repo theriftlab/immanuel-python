@@ -66,7 +66,7 @@ DAY_NIGHT_FORMULA = 2
 MIDPOINT = 0
 COMPOSITE = 1
 
-""" Orb calculation when two chart items have different orbs. """
+""" Orb calculation when two chart objects have different orbs. """
 MEAN = 0
 MAX = 1
 

@@ -3,7 +3,7 @@
     Author: Robert Davies (robert@theriftlab.com)
 
 
-    Inspects element and quadrant weighting from a dict of chart items
+    Inspects element and quadrant weighting from a dict of chart objects
     provided by the eph module.
 
 """
@@ -12,8 +12,8 @@ from immanuel.const import chart
 from immanuel.tools import position
 
 
-def elements(items: dict) -> dict:
-    """ Returns data on the amount of chart items
+def elements(objects: dict) -> dict:
+    """ Returns data on the amount of chart objects
     belonging to each element. """
     weightings = {
         chart.FIRE: [],
@@ -22,14 +22,14 @@ def elements(items: dict) -> dict:
         chart.WATER: [],
     }
 
-    for item in items.values():
-        weightings[position.element(item['lon'])].append(item['index'])
+    for object in objects.values():
+        weightings[position.element(object['lon'])].append(object['index'])
 
     return weightings
 
 
-def modalities(items: dict) -> dict:
-    """ Returns data on the amount of chart items
+def modalities(objects: dict) -> dict:
+    """ Returns data on the amount of chart objects
     belonging to each modality. """
     weightings = {
         chart.CARDINAL: [],
@@ -37,14 +37,14 @@ def modalities(items: dict) -> dict:
         chart.MUTABLE: [],
     }
 
-    for item in items.values():
-        weightings[position.modality(item['lon'])].append(item['index'])
+    for object in objects.values():
+        weightings[position.modality(object['lon'])].append(object['index'])
 
     return weightings
 
 
-def quadrants(items: dict, houses: dict) -> dict:
-    """ Returns data on the amount of chart items
+def quadrants(objects: dict, houses: dict) -> dict:
+    """ Returns data on the amount of chart objects
     belonging to each of the chart's house quadrants. """
     weightings = {
         1: [],
@@ -53,9 +53,9 @@ def quadrants(items: dict, houses: dict) -> dict:
         4: [],
     }
 
-    for item in items.values():
-        house = position.house(item['lon'], houses)
+    for object in objects.values():
+        house = position.house(object['lon'], houses)
         quadrant = int((house['number']-1) / 3) + 1
-        weightings[quadrant].append(item['index'])
+        weightings[quadrant].append(object['index'])
 
     return weightings

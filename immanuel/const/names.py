@@ -3,7 +3,7 @@
     Author: Robert Davies (robert@theriftlab.com)
 
 
-    User-facing names for chart data items.
+    User-facing names for chart data objects.
 
 """
 

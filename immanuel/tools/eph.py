@@ -75,25 +75,25 @@ _SWE = {
 }
 
 
-def items(item_list: tuple, jd: float, lat: float = None, lon: float = None, house_system: int = None, pars_fortuna_formula: int = None) -> dict:
-    """ Helper function returns a dict of all passed chart items. """
-    return _items(item_list, jd, lat, lon, house_system, pars_fortuna_formula, False)
+def objects(object_list: tuple, jd: float, lat: float = None, lon: float = None, house_system: int = None, pars_fortuna_formula: int = None) -> dict:
+    """ Helper function returns a dict of all passed chart objects. """
+    return _objects(object_list, jd, lat, lon, house_system, pars_fortuna_formula, False)
 
 
-def armc_items(item_list: tuple, jd: float, lat: float = None, armc: float = None, house_system: int = None, pars_fortuna_formula: int = None) -> dict:
-    """ Helper function returns a dict of all passed chart items
+def armc_objects(object_list: tuple, jd: float, lat: float = None, armc: float = None, house_system: int = None, pars_fortuna_formula: int = None) -> dict:
+    """ Helper function returns a dict of all passed chart objects
     with houses & angles calculated from the passed ARMC. """
-    return _items(item_list, jd, lat, armc, house_system, pars_fortuna_formula, True)
+    return _objects(object_list, jd, lat, armc, house_system, pars_fortuna_formula, True)
 
 
-def _items(item_list: tuple, jd: float, lat: float = None, lon_armc: float = None, house_system: int = None, pars_fortuna_formula: int = None, armc: bool = False) -> dict:
+def _objects(object_list: tuple, jd: float, lat: float = None, lon_armc: float = None, house_system: int = None, pars_fortuna_formula: int = None, armc: bool = False) -> dict:
     """ Function for items() and armc_items(). """
-    items = {}
+    objects = {}
 
-    for index in item_list:
-        items[index] = _get(index, jd, lat, lon_armc, house_system, pars_fortuna_formula, armc)
+    for index in object_list:
+        objects[index] = _get(index, jd, lat, lon_armc, house_system, pars_fortuna_formula, armc)
 
-    return items
+    return objects
 
 
 def get(index: int | str, jd: float, lat: float = None, lon: float = None, house_system: int = None, pars_fortuna_formula: int = None) -> dict:
@@ -458,5 +458,5 @@ def _swisseph_point(index: int, jd: float) -> dict:
 
 
 def _type(index: int) -> int:
-    """ Return the type index of a give item's index. """
+    """ Return the type index of a give object's index. """
     return round(index, -2)

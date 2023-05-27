@@ -3,14 +3,14 @@
     Author: Robert Davies (robert@theriftlab.com)
 
 
-    Defines indices for the main chart items supported by pyswisseph,
-    along with custom-calculated items based on pyswisseph. These
+    Defines indices for the main chart objects supported by pyswisseph,
+    along with custom-calculated objects based on pyswisseph. These
     constants are mainly used by the eph module.
 
 """
 
 
-""" Determine item type by dividing index by this. Since asteroids are passed
+""" Determine object type by dividing index by this. Since asteroids are passed
 by number, this must be higher than the highest-numbered asteroid. """
 TYPE_MULTIPLIER = 1000000
 

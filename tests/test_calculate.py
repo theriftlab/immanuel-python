@@ -36,15 +36,15 @@ def test_moon_phase(day_jd):
 
 
 def test_is_daytime(day_jd, night_jd, coords):
-    sun, asc = eph.items((chart.SUN, chart.ASC), day_jd, *coords, chart.PLACIDUS).values()
+    sun, asc = eph.objects((chart.SUN, chart.ASC), day_jd, *coords, chart.PLACIDUS).values()
     assert calculate.is_daytime(sun['lon'], asc['lon']) == True
-    sun, asc = eph.items((chart.SUN, chart.ASC), night_jd, *coords, chart.PLACIDUS).values()
+    sun, asc = eph.objects((chart.SUN, chart.ASC), night_jd, *coords, chart.PLACIDUS).values()
     assert calculate.is_daytime(sun['lon'], asc['lon']) == False
 
 
 def test_pars_fortuna_day_formula(day_jd, coords):
     # Result copied from astro.com
-    sun, moon, asc = eph.items((chart.SUN, chart.MOON, chart.ASC), day_jd, *coords, chart.PLACIDUS).values()
+    sun, moon, asc = eph.objects((chart.SUN, chart.MOON, chart.ASC), day_jd, *coords, chart.PLACIDUS).values()
     pof = calculate.pars_fortuna(sun['lon'], moon['lon'], asc['lon'], calc.DAY_FORMULA)
     sign, lon = position.signlon(pof)
     assert sign == chart.CAPRICORN
@@ -53,7 +53,7 @@ def test_pars_fortuna_day_formula(day_jd, coords):
 
 def test_pars_fortuna_night_formula(night_jd, coords):
     # Result copied from astro.com
-    sun, moon, asc = eph.items((chart.SUN, chart.MOON, chart.ASC), night_jd, *coords, chart.PLACIDUS).values()
+    sun, moon, asc = eph.objects((chart.SUN, chart.MOON, chart.ASC), night_jd, *coords, chart.PLACIDUS).values()
     pof = calculate.pars_fortuna(sun['lon'], moon['lon'], asc['lon'], calc.NIGHT_FORMULA)
     sign, lon = position.signlon(pof)
     assert sign == chart.SAGITTARIUS
