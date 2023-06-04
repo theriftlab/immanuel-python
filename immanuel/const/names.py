@@ -7,8 +7,16 @@
 
 """
 
-from immanuel.const import calc, chart
+from immanuel.const import calc, chart, dignities
 
+OBJECTS = {
+    chart.HOUSE: 'House',
+    chart.ANGLE: 'Angle',
+    chart.PLANET: 'Planet',
+    chart.ASTEROID: 'Asteroid',
+    chart.POINT: 'Point',
+    chart.FIXED_STAR: 'Fixed star',
+}
 
 SIGNS = {
     chart.ARIES: 'Aries',
@@ -143,6 +151,22 @@ ASPECT_CONDITIONS = {
     calc.DISSOCIATE: 'Dissociate',
 }
 
+DIGNITIES = {
+    dignities.RULER: 'Ruler',
+    dignities.EXALTED: 'Exalted',
+    dignities.DETRIMENT: 'Detriment',
+    dignities.FALL: 'Fall',
+    dignities.MUTUAL_RECEPTION_RULERSHIP: 'Mutual Reception by Rulership',
+    dignities.MUTUAL_RECEPTION_EXALTATION: 'Mutual Reception by Exaltation',
+    dignities.MUTUAL_RECEPTION_HOUSE: 'Mutual Reception by House',
+    dignities.TRIPLICITY_RULER_DAY: 'Day Triplicity Ruler',
+    dignities.TRIPLICITY_RULER_NIGHT: 'Night Triplicity Ruler',
+    dignities.TRIPLICITY_RULER_PARTICIPATORY: 'Participatory Triplicity Ruler',
+    dignities.TERM_RULER: 'Term Ruler',
+    dignities.FACE_RULER: 'Face Ruler',
+    dignities.PEREGRINE: 'Peregrine',
+}
+
 MOON_PHASES = {
     calc.NEW_MOON: 'New',
     calc.WAXING_CRESCENT: 'Waxing Crescent',
@@ -152,6 +176,12 @@ MOON_PHASES = {
     calc.DISSEMINATING: 'Disseminating',
     calc.THIRD_QUARTER: 'Third Quarter',
     calc.BALSAMIC: 'Balsamic',
+}
+
+OBJECT_MOVEMENTS = {
+    calc.DIRECT: 'Direct',
+    calc.STATIONARY: 'Stationary',
+    calc.RETROGRADE: 'Retrograde',
 }
 
 CHART_SHAPES = {

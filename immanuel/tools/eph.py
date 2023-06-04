@@ -319,6 +319,10 @@ def obliquity(jd: float, mean = False) -> float:
     return ecl_nut[1] if mean else ecl_nut[0]
 
 
+def deltat(jd: float) -> float:
+    return swe.deltat(jd)
+
+
 def is_daytime(jd: float, lat: float, lon: float) -> bool:
     """ Returns whether the sun is above the horizon line at the time and
     place specified. """

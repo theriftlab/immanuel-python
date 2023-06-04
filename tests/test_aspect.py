@@ -16,7 +16,7 @@ from datetime import datetime
 from pytest import fixture
 
 from immanuel.const import calc, chart
-from immanuel.objects import aspect
+from immanuel.data import aspect
 from immanuel.setup import settings
 from immanuel.tools import convert, date, eph
 
@@ -40,10 +40,11 @@ def test_between(objects):
     assert a['active'] == chart.MOON
     assert a['passive'] == chart.SUN
     assert a['aspect'] == calc.SEXTILE
-    assert math.ceil(a['orb']) == -5                    # astro.com rounds up
-    assert a['distance'] - a['orb'] == calc.SEXTILE
+    assert a['difference'] <= a['orb']
+    assert math.ceil(a['difference']) == -5                 # astro.com rounds up
+    assert a['distance'] - a['difference'] == calc.SEXTILE
     assert a['movement'] == calc.SEPARATIVE
-    assert a['condition'] == calc.ASSOCIATE             # Not on astro.com report, can be ascertained visually
+    assert a['condition'] == calc.ASSOCIATE                 # Not on astro.com report, can be ascertained visually
 
 
 def test_for_object(objects):
@@ -64,8 +65,8 @@ def test_all(objects):
         'receive': (),
     }
     all = aspect.all(objects)
-    for index, aspects in all.items():
-        for i, a in aspects.items():
+    for index, aspect_list in all.items():
+        for i, a in aspect_list.items():
             assert i in all
             assert index in all[i]
             assert a['aspect'] == all[i][index]['aspect']

@@ -156,9 +156,11 @@ def all(object: dict, **kwargs) -> dict:
 
 
 def score(object: dict, **kwargs) -> int:
-    """ Calculates the planet's dignity score based on settings. """
-    dignity_state = all(object, **kwargs)
-    return sum([v for k, v in settings.dignity_scores.items() if k in dignity_state and dignity_state[k]])
+    """ Calculates the planet's dignity score based on settings. This function
+     accepts either the same arguments as all(), or its return value if it has
+     already been called. """
+    dignities = kwargs.get('dignities', all(object, **kwargs))
+    return sum([v for k, v in settings.dignity_scores.items() if k in dignities and dignities[k]])
 
 
 def _planet_signs(object: dict, table: dict) -> tuple:

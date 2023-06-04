@@ -49,8 +49,9 @@ def between(object1: dict, object2: dict) -> dict:
                 'active': active['index'],
                 'passive': passive['index'],
                 'aspect': aspect,
+                'orb': orb,
                 'distance': distance,
-                'orb': aspect_orb,
+                'difference': aspect_orb,
                 'movement': calc.EXACT if exact else calc.APPLICATIVE if applicative else calc.SEPARATIVE,
                 'condition': calc.ASSOCIATE if associate else calc.DISSOCIATE,
             }

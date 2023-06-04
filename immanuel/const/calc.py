@@ -52,6 +52,11 @@ DISSEMINATING = 270
 THIRD_QUARTER = 315
 BALSAMIC = 360
 
+""" Object movements. """
+DIRECT = 0
+RETROGRADE = 1
+STATIONARY = 2
+
 """ MC progression formulae. """
 NAIBOD = 0
 SOLAR_ARC = 1

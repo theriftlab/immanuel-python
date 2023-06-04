@@ -15,6 +15,7 @@
 import swisseph as swe
 
 from immanuel.const import calc
+from immanuel.tools import eph
 
 
 def moon_phase(sun_lon: float, moon_lon: float) -> int:
@@ -41,7 +42,30 @@ def pars_fortuna(sun_lon: float, moon_lon: float, asc_lon: float, formula: int) 
     return swe.degnorm(lon)
 
 
-def solar_year_length(jd):
+def sidereal_time(armc: float) -> float:
+    """ Returns sidereal time based on ARMC. """
+    return armc / 15
+
+
+def object_movement(object: dict) -> int:
+    """ Returns whether a chart object is direct, stationary or retrograde. """
+    if -calc.STATION_SPEED <= object['speed'] <= calc.STATION_SPEED:
+        return calc.STATIONARY
+
+    return calc.DIRECT if object['speed'] > calc.STATION_SPEED else calc.RETROGRADE
+
+
+def is_out_of_bounds(jd: float, object: dict) -> bool:
+    """ Returns whether the passed object is out of bounds on the passed
+    Julian date. """
+    if 'dec' in object:
+        obliquity = eph.obliquity(jd)
+        return not -obliquity < object['dec'] < obliquity
+
+    return False
+
+
+def solar_year_length(jd) -> float:
     """ Returns the length in days of the year passed in the given
     Julian date. This is a direct copy of astro.com's calculations. """
     t = (jd - calc.J2000) / 365250
