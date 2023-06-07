@@ -9,6 +9,15 @@
 
 from immanuel.const import calc, chart, dignities
 
+
+CHART_TYPES = {
+    chart.NATAL: 'Natal',
+    chart.SOLAR_RETURN: 'Solar Return',
+    chart.PROGRESSED: 'Progressed',
+    chart.SYNASTRY: 'Synastry',
+    chart.COMPOSITE: 'Composite',
+}
+
 OBJECTS = {
     chart.HOUSE: 'House',
     chart.ANGLE: 'Angle',

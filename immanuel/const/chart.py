@@ -14,6 +14,13 @@
 by number, this must be higher than the highest-numbered asteroid. """
 TYPE_MULTIPLIER = 1000000
 
+""" Suppotrted chart types. """
+NATAL = 1
+SOLAR_RETURN = 2
+PROGRESSED = 3
+SYNASTRY = 4
+COMPOSITE = 5
+
 """ Signs. """
 ARIES = 1
 TAURUS = 2

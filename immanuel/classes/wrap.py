@@ -12,8 +12,7 @@
 from datetime import datetime
 
 from immanuel.const import calc, chart, dignities, names
-from immanuel.setup import settings
-from immanuel.data import aspect, dignity, pattern, report
+from immanuel.data import dignity
 from immanuel.tools import calculate, convert, date, eph, position
 
 
@@ -103,16 +102,17 @@ class Movement:
         self.direct = self._movement == calc.DIRECT
         self.stationary = self._movement == calc.STATIONARY
         self.retrograde = self._movement == calc.RETROGRADE
+        self.formatted = names.OBJECT_MOVEMENTS[self._movement]
 
     def __str__(self) -> str:
-        return names.OBJECT_MOVEMENTS[self._movement]
+        return self.formatted
 
 
 class Object:
     def __init__(self, object: dict, objects: dict = None, houses: dict = None, is_daytime: bool = None, jd: float = None) -> None:
         self.index = object['index']
         self.name = object['name']
-        self.type = names.OBJECTS[object['type']]
+        self.type = ObjectType(object['type'])
 
         if 'lat' in object:
             self.latitude = Angle(object['lat'])
@@ -154,6 +154,15 @@ class Object:
         return str
 
 
+class ObjectType:
+    def __init__(self, type: int) -> None:
+        self.index = type
+        self.name = names.OBJECTS[type]
+
+    def __str__(self) -> str:
+        return self.name
+
+
 class Sign:
     def __init__(self, number: int) -> None:
         self.number = number
@@ -161,42 +170,3 @@ class Sign:
 
     def __str__(self) -> str:
         return self.name
-
-
-class Chart:
-    """ The main chart class itself. """
-    # TODO How will str dates work with progressions / solar returns etc?
-    def __init__(self, dt: str, lat: float, lon: float) -> None:
-        # self.type = None
-
-        dt = date.localize(datetime.fromisoformat(dt), lat, lon)
-        jd = date.to_jd(dt)
-        sun = eph.planet(chart.SUN, jd)
-        moon = eph.planet(chart.MOON, jd)
-        asc = eph.angle(chart.ASC, jd, lat, lon, settings.house_system)
-        armc = eph.angle(chart.ARMC, jd, lat, lon, settings.house_system)
-
-        objects = eph.objects(settings.objects, jd, lat, lon, settings.house_system)
-        houses = eph.houses(jd, lat, lon, settings.house_system)
-
-        self.house_system = names.HOUSE_SYSTEMS[settings.house_system]
-        self.shape = names.CHART_SHAPES[pattern.chart_shape(objects)]
-        self.diurnal = calculate.is_daytime(sun['lon'], asc['lon'])
-        self.moon_phase = names.MOON_PHASES[calculate.moon_phase(sun['lon'], moon['lon'])]
-        self.sidereal_time = convert.dec_to_string(calculate.sidereal_time(armc['lon']), convert.FORMAT_TIME)
-        self.date = Date(dt)
-        self.coords = Coords(lat, lon)
-        self.objects = {index: Object(obj, objects, houses, self.diurnal, jd) for index, obj in objects.items()}
-        self.houses = {index: Object(house) for index, house in houses.items()}
-
-        self.aspects = {}
-        aspects = aspect.all(objects)
-
-        for index, aspect_list in aspects.items():
-            self.aspects[index] = {object_index: Aspect(object_aspect, objects) for object_index, object_aspect in aspect_list.items()}
-
-        self.weightings = {
-            'elements': dict(zip(('fire', 'earth', 'air', 'water'), report.elements(objects).values())),
-            'modalities': dict(zip(('cardinal', 'fixed', 'mutable'), report.modalities(objects).values())),
-            'quadrants': report.quadrants(objects, houses),
-        }

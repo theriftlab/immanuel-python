@@ -10,7 +10,7 @@
 from json import JSONEncoder
 
 
-class Serializable(JSONEncoder):
+class ToJSON(JSONEncoder):
     def default(self, obj) -> dict | str | None:
         if hasattr(obj, 'to_json'):
             return obj.to_json()
