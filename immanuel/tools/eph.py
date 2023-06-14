@@ -142,7 +142,7 @@ def angles(jd: float, lat: float, lon: float, house_system: int) -> dict:
     return _angle(ALL, jd, lat, lon, house_system)
 
 
-def armc_angles(jd: float, lat: float, armc: float, obliquity: float, house_system: int) -> dict:
+def armc_angles(jd: float, armc: float, lat: float, obliquity: float, house_system: int) -> dict:
     """ Returns all four main chart angles calculated from the
     passed ARMC. """
     return _angle(ALL, jd, lat, None, house_system, armc, obliquity)
@@ -154,7 +154,7 @@ def angle(index: int, jd: float, lat: float, lon: float, house_system: int) -> d
     return _angle(index, jd, lat, lon, house_system)
 
 
-def armc_angle(index: int, jd: float, lat: float, armc: float, obliquity: float, house_system: int) -> dict:
+def armc_angle(index: int, jd: float, armc: float, lat: float, obliquity: float, house_system: int) -> dict:
     """ Returns one of the four main chart angles & its speed, calculated from
     the passed ARMC. Returns all if index == ALL. """
     return _angle(index, jd, lat, None, house_system, armc, obliquity)
@@ -183,7 +183,7 @@ def houses(jd: float, lat: float, lon: float, house_system: int) -> dict:
     return _house(ALL, jd, lat, lon, house_system)
 
 
-def armc_houses(jd: float, lat: float, armc: float, obliquity: float, house_system: int) -> dict:
+def armc_houses(jd: float, armc: float, lat: float, obliquity: float, house_system: int) -> dict:
     """ Returns all houses calculated from the passed ARMC. """
     return _house(ALL, jd, lat, None, house_system, armc, obliquity)
 
@@ -193,7 +193,7 @@ def house(index: int, jd: float, lat: float, lon: float, house_system: int) -> d
     return _house(index, jd, lat, lon, house_system)
 
 
-def armc_house(index: int, jd: float, lat: float, armc: float, obliquity: float, house_system: int) -> dict:
+def armc_house(index: int, jd: float, armc: float, lat: float, obliquity: float, house_system: int) -> dict:
     """ Returns a house cusp & its speed, or all houses if index == ALL,
      calculated from passed ARMC. """
     return _house(index, jd, lat, None, house_system, armc, obliquity)
@@ -223,7 +223,7 @@ def point(index: int, jd: float, lat: float = None, lon: float = None, house_sys
     return _point(index, jd, lat, lon, house_system, pars_fortuna_formula)
 
 
-def armc_point(index: int, jd: float, lat: float, armc: float, obliquity: float, house_system: int = None, pars_fortuna_formula: int = None) -> dict:
+def armc_point(index: int, jd: float, armc: float, lat: float, obliquity: float, house_system: int = None, pars_fortuna_formula: int = None) -> dict:
     """ Returns a calculated point by Julian date, and additionally by the
      passed ARMC. """
     return _point(index, jd, lat, None, house_system, pars_fortuna_formula, armc, obliquity)
@@ -338,7 +338,7 @@ def is_daytime(jd: float, lat: float, lon: float) -> bool:
     return _is_daytime(jd, lat, lon)
 
 
-def armc_is_daytime(jd: float, lat: float, armc: float, obliquity: float) -> bool:
+def armc_is_daytime(jd: float, armc: float, lat: float, obliquity: float) -> bool:
     """ Returns whether the sun is above the horizon line at the time and
     place specified, as calculated by the passed ARMC. """
     return _is_daytime(jd, lat, None, armc, obliquity)
@@ -438,13 +438,13 @@ def _syzygy(jd: float) -> dict:
 
 
 @cache
-def _pars_fortuna(jd: float, lat: float, lon: float, formula: int, armc: float, obliquity: float) -> dict:
+def _pars_fortuna(jd: float, lat: float, lon: float, formula: int, armc: float, armc_obliquity: float) -> dict:
     """ Calculate Part of Fortune - this only relies on the ascendant
     which will be consistent across all supported systems, so it is safe
     to pass Placidus as the default. """
     sun = planet(chart.SUN, jd)
     moon = planet(chart.MOON, jd)
-    asc = angle(chart.ASC, jd, lat, lon, chart.PLACIDUS) if armc is None else armc_angle(chart.ASC, jd, lat, armc, obliquity, chart.PLACIDUS)
+    asc = angle(chart.ASC, jd, lat, lon, chart.PLACIDUS) if armc is None else armc_angle(chart.ASC, jd, armc, lat, armc_obliquity, chart.PLACIDUS)
     lon = calculate.pars_fortuna(sun['lon'], moon['lon'], asc['lon'], formula)
 
     return {
