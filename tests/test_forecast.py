@@ -225,7 +225,7 @@ def test_progression(jd, pjd, coords, astro):
         progressed_jd, progressed_armc = forecast.progression(jd, *coords, pjd, chart.PLACIDUS, method)
 
         for index, data in results.items():
-            house = eph.armc_house(index, progressed_jd, progressed_armc, coords[0], None, chart.PLACIDUS)
+            house = eph.armc_house(index, progressed_armc, coords[0], eph.obliquity(progressed_jd), chart.PLACIDUS)
             sign, lon = position.signlon(house['lon'])
             assert sign == data['sign']
             assert convert.to_string(lon) == data['lon']
