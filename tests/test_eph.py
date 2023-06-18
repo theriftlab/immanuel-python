@@ -7,13 +7,6 @@
     from astro.com with default Placidus house system.
     Additional data courtesy of websites cited in test
     function comments.
-
-    The ARMC-based calculations are very difficult to
-    test against astro.com results and they have been
-    left out of this series of tests with any testing
-    being taken care of by the forecast module's test
-    series, as they are heavily tied up in progressed
-    chart functionality.
 """
 
 import os
@@ -34,6 +27,11 @@ def coords():
 @fixture
 def jd(coords):
     return date.to_jd(date.localize(datetime.fromisoformat('2000-01-01 10:00'), *coords))
+
+@fixture
+def armc():
+    # ARMC longitude on the above Julian date
+    return 253.55348499294269
 
 @fixture
 def all_angles():
@@ -157,6 +155,12 @@ def test_objects(jd, coords):
     assert tuple(objects.keys()) == chart_objects
 
 
+def test_armc_objects(jd, coords, armc):
+    chart_objects = (chart.SUN, chart.MOON, chart.PARS_FORTUNA, chart.SYZYGY, chart.NORTH_NODE, chart.ASC)
+    objects = eph.armc_objects(chart_objects, jd, armc, *coords, None, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
+    assert tuple(objects.keys()) == chart_objects
+
+
 def test_get(jd, coords):
     setup.add_filepath(os.path.dirname(__file__))
     assert eph.get(chart.ASC, jd, *coords, chart.PLACIDUS)['index'] == chart.ASC
@@ -170,19 +174,41 @@ def test_get(jd, coords):
     assert antares['index'] == 'Antares' and antares['type'] == chart.FIXED_STAR
 
 
+def test_armc_get(jd, coords, armc):
+    setup.add_filepath(os.path.dirname(__file__))
+    assert eph.armc_get(chart.ASC, jd, armc, coords[0], house_system=chart.PLACIDUS)['index'] == chart.ASC
+    assert eph.armc_get(chart.HOUSE2, jd, armc, coords[0], house_system=chart.PLACIDUS)['index'] == chart.HOUSE2
+    assert eph.armc_get(chart.PARS_FORTUNA, jd, armc, coords[0], pars_fortuna_formula=calc.DAY_NIGHT_FORMULA)['index'] == chart.PARS_FORTUNA
+
+
 def test_get_angles(jd, coords, all_angles):
     angles = eph.get(chart.ANGLE, jd, *coords, chart.PLACIDUS)
-    assert len(all_angles) == len(angles)
+    assert sorted(all_angles) == sorted(angles)
+
+
+def test_armc_get_angles(jd, coords, armc, all_angles):
+    angles = eph.armc_get(chart.ANGLE, jd, armc, *coords, eph.obliquity(jd), chart.PLACIDUS)
+    assert sorted(all_angles) == sorted(angles)
 
 
 def test_get_houses(jd, coords, all_houses):
     houses = eph.get(chart.HOUSE, jd, *coords, chart.PLACIDUS)
-    assert len(all_houses) == len(houses)
+    assert sorted(all_houses) == sorted(houses)
+
+
+def test_armc_get_houses(jd, coords, armc, all_houses):
+    houses = eph.armc_get(chart.HOUSE, jd, armc, *coords, eph.obliquity(jd), chart.PLACIDUS)
+    assert sorted(all_houses) == sorted(houses)
 
 
 def test_angles(jd, coords, all_angles):
     angles = eph.angles(jd, *coords, chart.PLACIDUS)
-    assert len(all_angles) == len(angles)
+    assert sorted(all_angles) == sorted(angles)
+
+
+def test_armc_angles(jd, coords, armc, all_angles):
+    angles = eph.armc_angles(jd, armc, coords[0], eph.obliquity(jd), chart.PLACIDUS)
+    assert sorted(all_angles) == sorted(angles)
 
 
 def test_angle(jd, coords, all_angles):
@@ -193,9 +219,24 @@ def test_angle(jd, coords, all_angles):
     assert eph.angle(eph.ALL, jd, *coords, chart.PLACIDUS) == eph.angles(jd, *coords, chart.PLACIDUS)
 
 
+def test_armc_angle(jd, coords, armc, all_angles):
+    obliquity = eph.obliquity(jd)
+
+    for index in all_angles:
+        angle = eph.armc_angle(index, jd, armc, coords[0], obliquity, chart.PLACIDUS)
+        assert angle['index'] == index and angle['type'] == chart.ANGLE
+
+    assert eph.armc_angle(eph.ALL, jd, armc, coords[0], obliquity, chart.PLACIDUS) == eph.armc_angles(jd, armc, coords[0], obliquity, chart.PLACIDUS)
+
+
 def test_houses(jd, coords, all_houses):
     houses = eph.houses(jd, *coords, chart.PLACIDUS)
-    assert len(all_houses) == len(houses)
+    assert sorted(all_houses) == sorted(houses)
+
+
+def test_armc_houses(jd, coords, armc, all_houses):
+    houses = eph.armc_houses(armc, coords[0], eph.obliquity(jd), chart.PLACIDUS)
+    assert sorted(all_houses) == sorted(houses)
 
 
 def test_house(jd, coords, all_houses):
@@ -206,9 +247,25 @@ def test_house(jd, coords, all_houses):
     assert eph.house(eph.ALL, jd, *coords, chart.PLACIDUS) == eph.houses(jd, *coords, chart.PLACIDUS)
 
 
+def test_armc_house(jd, coords, armc, all_houses):
+    obliquity = eph.obliquity(jd)
+
+    for index in all_houses:
+        house = eph.armc_house(index, armc, coords[0], obliquity, chart.PLACIDUS)
+        assert house['index'] == index and house['type'] == chart.HOUSE
+
+    assert eph.armc_house(eph.ALL, armc, coords[0], obliquity, chart.PLACIDUS) == eph.armc_houses(armc, coords[0], obliquity, chart.PLACIDUS)
+
+
 def test_point(jd, coords, all_points):
     for index in all_points:
         point = eph.point(index, jd, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
+        assert point['index'] == index and point['type'] == chart.POINT
+
+
+def test_armc_point(jd, coords, armc, all_points):
+    for index in all_points:
+        point = eph.armc_point(index, jd, armc, coords[0], eph.obliquity(jd), chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
         assert point['index'] == index and point['type'] == chart.POINT
 
 
@@ -261,6 +318,31 @@ def test_get_data(coords, jd, astro):
             assert object[property] == value
 
 
+def test_armc_get_data(coords, jd, astro, armc):
+    setup.add_filepath(os.path.dirname(__file__))
+
+    obliquity = eph.obliquity(jd)
+
+    data = {
+        'asc': eph.armc_angle(chart.ASC, jd, armc, coords[0], obliquity, chart.PLACIDUS),
+        'house_2': eph.armc_house(chart.HOUSE2, armc, coords[0], obliquity, chart.PLACIDUS),
+        'pof': eph.armc_point(chart.PARS_FORTUNA, jd, armc, coords[0], obliquity, pars_fortuna_formula=calc.DAY_NIGHT_FORMULA),
+    }
+
+    for key, eph_object in data.items():
+        # Convert ecliptical longitude to sign-based
+        object = eph_object.copy()
+        object['lon'] = position.signlon(object['lon'])[position.LON]
+
+        # Format properties to string to match astro.com front-end output
+        for property_key in ('lon', 'lat', 'speed', 'dec'):
+            if property_key in object:
+                object[property_key] = convert.dec_to_string(object[property_key])
+
+        for property, value in astro[key].items():
+            assert object[property] == value
+
+
 def test_moon_phase(jd):
     # Courtesy of https://stardate.org/nightsky/moon
     assert eph.moon_phase(jd) == calc.THIRD_QUARTER             # third quarter = waning crescent
@@ -275,3 +357,16 @@ def test_obliquity(jd):
 def test_is_daytime(jd, coords):
     # Sun above ascendant in astro.com chart visual
     assert eph.is_daytime(jd, *coords)
+
+
+def test_armc_is_daytime(jd, coords, armc):
+    # Sun above ascendant in astro.com chart visual
+    assert eph.armc_is_daytime(jd, armc, coords[0], eph.obliquity(jd))
+
+
+def test_deltat():
+    pass
+
+
+def test_sidereal_time():
+    pass
