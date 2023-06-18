@@ -364,9 +364,6 @@ def test_armc_is_daytime(jd, coords, armc):
     assert eph.armc_is_daytime(jd, armc, coords[0], eph.obliquity(jd))
 
 
-def test_deltat():
-    pass
-
-
-def test_sidereal_time():
-    pass
+def test_deltat(jd):
+    # Courtesy of astro.com "Additional Tables"
+    assert round(eph.deltat(jd, True), 1) == 63.8

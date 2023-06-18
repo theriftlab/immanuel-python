@@ -440,8 +440,10 @@ def obliquity(jd: float, mean = False) -> float:
     return ecl_nut[1] if mean else ecl_nut[0]
 
 
-def deltat(jd: float) -> float:
-    return swe.deltat(jd)
+def deltat(jd: float, seconds = False) -> float:
+    """ Return the Delta-T value of the passed Julian date. Optionally it
+     will return this value in seconds. """
+    return swe.deltat(jd) if not seconds else swe.deltat(jd) * 24 * 3600
 
 
 def is_daytime(jd: float, lat: float, lon: float) -> bool:
