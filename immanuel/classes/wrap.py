@@ -170,3 +170,35 @@ class Sign:
 
     def __str__(self) -> str:
         return self.name
+
+
+class Elements:
+    def __init__(self, elements: dict) -> None:
+        self.fire = elements[chart.FIRE]
+        self.earth = elements[chart.EARTH]
+        self.air = elements[chart.AIR]
+        self.water = elements[chart.WATER]
+
+    def __str__(self) -> str:
+        return f'Fire: {len(self.fire)}, Earth: {len(self.earth)}, Air: {len(self.air)}, Water: {len(self.water)}'
+
+
+class Modalities:
+    def __init__(self, modalities: dict) -> None:
+        self.cardinal = modalities[chart.CARDINAL]
+        self.fixed = modalities[chart.FIXED]
+        self.mutable = modalities[chart.MUTABLE]
+
+    def __str__(self) -> str:
+        return f'Cardinal: {len(self.cardinal)}, Fixed: {len(self.fixed)}, Mutable: {len(self.mutable)}'
+
+
+class Quadrants:
+    def __init__(self, quadrants: dict) -> None:
+        self.first = quadrants[1]
+        self.second = quadrants[2]
+        self.third = quadrants[3]
+        self.fourth = quadrants[4]
+
+    def __str__(self) -> str:
+        return f'First: {len(self.first)}, Second: {len(self.second)}, Third: {len(self.third)}, Fourth: {len(self.fourth)}'
