@@ -134,6 +134,13 @@ POINTS = {
     chart.PARS_FORTUNA: 'Part of Fortune',
 }
 
+ECLIPSES = {
+    chart.PRE_NATAL_LUNAR_ECLIPSE: 'Pre-natal Lunar Eclipse',
+    chart.PRE_NATAL_SOLAR_ECLIPSE: 'Pre-natal Solar Eclipse',
+    chart.POST_NATAL_LUNAR_ECLIPSE: 'Post-natal Lunar Eclipse',
+    chart.POST_NATAL_SOLAR_ECLIPSE: 'Post-natal Solar Eclipse',
+}
+
 ASPECTS = {
     calc.CONJUNCTION: 'Conjunction',
     calc.OPPOSITION: 'Opposition',

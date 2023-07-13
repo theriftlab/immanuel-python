@@ -55,11 +55,12 @@ def object_movement(object: dict) -> int:
     return calc.DIRECT if object['speed'] > calc.STATION_SPEED else calc.RETROGRADE
 
 
-def is_out_of_bounds(jd: float, object: dict) -> bool:
-    """ Returns whether the passed object is out of bounds on the passed
-    Julian date. """
+def is_out_of_bounds(object: dict, jd: float = None, obliquity: float = None) -> bool:
+    """ Returns whether the passed object is out of bounds either on the passed
+    Julian date or relative to the passed obliquity. """
     if 'dec' in object:
-        obliquity = eph.obliquity(jd)
+        if jd is not None:
+            obliquity = eph.obliquity(jd)
         return not -obliquity < object['dec'] < obliquity
 
     return False

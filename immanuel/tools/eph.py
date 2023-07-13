@@ -273,6 +273,34 @@ def armc_point(index: int, jd: float, armc: float, lat: float, obliquity: float,
     )
 
 
+def eclipse(index: int, jd: float) -> dict:
+    """ Returns a calculated object based on the moon's or sun's position
+     during a pre or post-natal lunar or solar eclipse. """
+    match index:
+        case chart.PRE_NATAL_LUNAR_ECLIPSE:
+            eclipse_jd = find.previous_lunar_eclipse(jd)
+            object = planet(chart.MOON, eclipse_jd)
+        case chart.PRE_NATAL_SOLAR_ECLIPSE:
+            eclipse_jd = find.previous_solar_eclipse(jd)
+            object = planet(chart.SUN, eclipse_jd)
+        case chart.POST_NATAL_LUNAR_ECLIPSE:
+            eclipse_jd = find.next_lunar_eclipse(jd)
+            object = planet(chart.MOON, eclipse_jd)
+        case chart.POST_NATAL_SOLAR_ECLIPSE:
+            eclipse_jd = find.next_solar_eclipse(jd)
+            object = planet(chart.SUN, eclipse_jd)
+
+    return {
+        **object,
+        **{
+            'index': index,
+            'type': chart.ECLIPSE,
+            'name': names.ECLIPSES[index],
+            'jd': eclipse_jd,
+        },
+    }
+
+
 def _objects(object_list: tuple, jd: float, lat: float, lon: float, house_system: int, pars_fortuna_formula: int, armc: float, armc_obliquity: float) -> dict:
     """ Function for items() and armc_items(). """
     objects = {}
@@ -305,6 +333,8 @@ def _get(index: int | str, jd: float, lat: float, lon: float, house_system: int,
                 return _house(index, jd, lat, lon, house_system, armc, armc_obliquity)
             case chart.POINT:
                 return _point(index, jd, lat, lon, house_system, pars_fortuna_formula, armc, armc_obliquity)
+            case chart.ECLIPSE:
+                return eclipse(index, jd)
             case (chart.ASTEROID|chart.PLANET):
                 return planet(index, jd)
     else:
@@ -433,14 +463,14 @@ def moon_phase(jd: float) -> int:
 
 
 @cache
-def obliquity(jd: float, mean = False) -> float:
+def obliquity(jd: float, mean: bool = False) -> float:
     """ Returns the earth's true or mean obliquity at the
     given Julian date. """
     ecl_nut = swe.calc_ut(jd, swe.ECL_NUT)[0]
     return ecl_nut[1] if mean else ecl_nut[0]
 
 
-def deltat(jd: float, seconds = False) -> float:
+def deltat(jd: float, seconds: bool = False) -> float:
     """ Return the Delta-T value of the passed Julian date. Optionally it
      will return this value in seconds. """
     return swe.deltat(jd) if not seconds else swe.deltat(jd) * 24 * 3600

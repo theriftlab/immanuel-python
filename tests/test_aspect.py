@@ -16,7 +16,7 @@ from datetime import datetime
 from pytest import fixture
 
 from immanuel.const import calc, chart
-from immanuel.data import aspect
+from immanuel.reports import aspect
 from immanuel.setup import settings
 from immanuel.tools import convert, date, eph
 

@@ -12,7 +12,7 @@
 from datetime import datetime
 
 from immanuel.const import calc, chart, dignities, names
-from immanuel.data import dignity
+from immanuel.reports import dignity
 from immanuel.tools import calculate, convert, date, eph, position
 
 
@@ -56,11 +56,12 @@ class Coords:
 
 
 class Date:
-    def __init__(self, dt: datetime) -> None:
+    def __init__(self, dt: datetime, armc_lon: float) -> None:
         self.datetime = dt
         self.timezone = dt.tzname()
         self.julian = date.to_jd(dt)
         self.deltat = eph.deltat(self.julian)
+        self.sidereal_time = convert.dec_to_string(calculate.sidereal_time(armc_lon), convert.FORMAT_TIME)
 
     def __str__(self) -> str:
         return f'{self.datetime.strftime("%a %b %d %Y %I:%M:%S %p")} {self.timezone}'
@@ -109,7 +110,7 @@ class Movement:
 
 
 class Object:
-    def __init__(self, object: dict, objects: dict = None, houses: dict = None, is_daytime: bool = None, jd: float = None) -> None:
+    def __init__(self, object: dict, objects: dict = None, houses: dict = None, is_daytime: bool = None, obliquity: float = None) -> None:
         self.index = object['index']
         self.name = object['name']
         self.type = ObjectType(object['type'])
@@ -135,7 +136,7 @@ class Object:
 
         if 'dec' in object:
             self.declination = Angle(object['dec'])
-            self.out_of_bounds = calculate.is_out_of_bounds(jd, object)
+            self.out_of_bounds = calculate.is_out_of_bounds(object=object, obliquity=obliquity)
 
         if 'size' in object:
             self.size = object['size']

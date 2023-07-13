@@ -110,7 +110,7 @@ def by_type(objects: dict, exclude_same: bool = True) -> dict:
     return aspects
 
 
-def synastry(objects1: dict, objects2: dict, exclude_same: bool = True) -> dict:
+def synastry(objects1: dict, objects2: dict, exclude_same: bool = False) -> dict:
     """ Returns all aspects between the two sets of passed chart objects. """
     aspects = {}
 

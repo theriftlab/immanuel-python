@@ -13,7 +13,7 @@ from typing import Any
 
 import swisseph as swe
 
-from immanuel.const import calc, chart, dignities
+from immanuel.const import calc, chart, data, dignities
 
 
 _file_path = None
@@ -198,6 +198,85 @@ _settings['dignity_scores'] = {
     dignities.FALL: -4,
     dignities.DETRIMENT: -5,
     dignities.PEREGRINE: -5,
+}
+
+
+""" Data that should be included for each chart type's output. """
+_settings['chart_data'] = {
+    chart.NATAL: (
+        data.NATAL_DATE,
+        data.NATAL_COORDS,
+        data.HOUSE_SYSTEM,
+        data.SHAPE,
+        data.DIURNAL,
+        data.MOON_PHASE,
+        data.OBJECTS,
+        data.HOUSES,
+        data.ASPECTS,
+        data.WEIGHTINGS,
+    ),
+    chart.SOLAR_RETURN: (
+        data.NATAL_DATE,
+        data.SOLAR_RETURN_YEAR,
+        data.SOLAR_RETURN_DATE,
+        data.NATAL_COORDS,
+        data.HOUSE_SYSTEM,
+        data.SHAPE,
+        data.DIURNAL,
+        data.MOON_PHASE,
+        data.OBJECTS,
+        data.HOUSES,
+        data.ASPECTS,
+        data.WEIGHTINGS,
+    ),
+    chart.PROGRESSED: {
+        data.NATAL_DATE,
+        data.PROGRESSION_DATE,
+        data.PROGRESSED_DATE,
+        data.NATAL_COORDS,
+        data.HOUSE_SYSTEM,
+        data.SHAPE,
+        data.DIURNAL,
+        data.MOON_PHASE,
+        data.OBJECTS,
+        data.HOUSES,
+        data.ASPECTS,
+        data.WEIGHTINGS,
+    },
+    chart.SYNASTRY: {
+        data.NATAL_DATE,
+        data.NATAL_COORDS,
+        data.PARTNER_DATE,
+        data.PARTNER_COORDS,
+        data.HOUSE_SYSTEM,
+        data.SHAPE,
+        data.PARTNER_SHAPE,
+        data.DIURNAL,
+        data.PARTNER_DIURNAL,
+        data.MOON_PHASE,
+        data.PARTNER_MOON_PHASE,
+        data.OBJECTS,
+        data.PARTNER_OBJECTS,
+        data.HOUSES,
+        data.PARTNER_HOUSES,
+        data.ASPECTS,
+        data.WEIGHTINGS,
+        data.PARTNER_WEIGHTINGS,
+    },
+    chart.COMPOSITE: {
+        data.NATAL_DATE,
+        data.NATAL_COORDS,
+        data.PARTNER_DATE,
+        data.PARTNER_COORDS,
+        data.HOUSE_SYSTEM,
+        data.SHAPE,
+        data.DIURNAL,
+        data.MOON_PHASE,
+        data.OBJECTS,
+        data.HOUSES,
+        data.ASPECTS,
+        data.WEIGHTINGS,
+    },
 }
 
 
