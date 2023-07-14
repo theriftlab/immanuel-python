@@ -56,12 +56,14 @@ class Coords:
 
 
 class Date:
-    def __init__(self, dt: datetime, armc_lon: float) -> None:
+    def __init__(self, dt: datetime, armc_lon: float = None) -> None:
         self.datetime = dt
         self.timezone = dt.tzname()
         self.julian = date.to_jd(dt)
         self.deltat = eph.deltat(self.julian)
-        self.sidereal_time = convert.dec_to_string(calculate.sidereal_time(armc_lon), convert.FORMAT_TIME)
+
+        if armc_lon is not None:
+            self.sidereal_time = convert.dec_to_string(calculate.sidereal_time(armc_lon), convert.FORMAT_TIME)
 
     def __str__(self) -> str:
         return f'{self.datetime.strftime("%a %b %d %Y %I:%M:%S %p")} {self.timezone}'
@@ -114,6 +116,9 @@ class Object:
         self.index = object['index']
         self.name = object['name']
         self.type = ObjectType(object['type'])
+
+        if 'date' in object:
+            self.date = Date(object['date'])
 
         if 'lat' in object:
             self.latitude = Angle(object['lat'])

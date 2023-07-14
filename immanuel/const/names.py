@@ -24,6 +24,7 @@ OBJECTS = {
     chart.PLANET: 'Planet',
     chart.ASTEROID: 'Asteroid',
     chart.POINT: 'Point',
+    chart.ECLIPSE: 'Eclipse',
     chart.FIXED_STAR: 'Fixed star',
 }
 

@@ -3,7 +3,7 @@
     Author: Robert Davies (robert@theriftlab.com)
 
 
-    TODO
+    A very basic serializer class to use with the stock json module.
 
 """
 

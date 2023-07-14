@@ -57,9 +57,17 @@ class Chart:
                 case data.PARTNER_MOON_PHASE:
                     self.partner_moon_phase = self._partner_moon_phase
                 case data.OBJECTS:
-                    self.objects = {index: wrap.Object(obj, self._objects, self._houses, self._diurnal, self._obliquity) for index, obj in self._objects.items()}
+                    self.objects = {}
+                    for index, object in self._objects.items():
+                        if 'jd' in object:
+                            object['date'] = date.localize(date.from_jd(object['jd']), self._lat, self._lon)
+                        self.objects[index] = wrap.Object(object, self._objects, self._houses, self._diurnal, self._obliquity)
                 case data.PARTNER_OBJECTS:
-                    self.partner_objects = {index: wrap.Object(obj, self._partner_objects, self._partner_houses, self._partner_diurnal, self._partner_obliquity) for index, obj in self._partner_objects.items()}
+                    self.partner_objects = {}
+                    for index, object in self._partner_objects.items():
+                        if 'jd' in object:
+                            object['date'] = date.localize(date.from_jd(object['jd']), self._partner_lat, self._partner_lon)
+                        self.partner_objects['index'] = wrap.Object(object, self._partner_objects, self._partner_houses, self._partner_diurnal, self._partner_obliquity)
                 case data.HOUSES:
                     self.houses = {index: wrap.Object(house) for index, house in self._houses.items()}
                 case data.PARTNER_HOUSES:
