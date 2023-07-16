@@ -142,6 +142,14 @@ ECLIPSES = {
     chart.POST_NATAL_SOLAR_ECLIPSE: 'Post-natal Solar Eclipse',
 }
 
+ECLIPSE_TYPES = {
+    chart.TOTAL: 'Total',
+    chart.ANNULAR: 'Annular',
+    chart.PARTIAL: 'Partial',
+    chart.ANNULAR_TOTAL: 'Annular Total',
+    chart.PENUMBRAL: 'Penumbral',
+}
+
 ASPECTS = {
     calc.CONJUNCTION: 'Conjunction',
     calc.OPPOSITION: 'Opposition',

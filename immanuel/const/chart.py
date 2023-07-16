@@ -14,7 +14,7 @@
 by number, this must be higher than the highest-numbered asteroid. """
 TYPE_MULTIPLIER = 1000000
 
-""" Suppotrted chart types. """
+""" Supported chart types. """
 NATAL = 1
 SOLAR_RETURN = 2
 PROGRESSED = 3
@@ -123,12 +123,19 @@ TRUE_LILITH = POINT + 7
 SYZYGY = POINT + 8
 PARS_FORTUNA = POINT + 9
 
-""" Pre & post-natal eclipses. """
-ECLIPSE = 7 * TYPE_MULTIPLIER
-PRE_NATAL_LUNAR_ECLIPSE = ECLIPSE + 1
-PRE_NATAL_SOLAR_ECLIPSE = ECLIPSE + 2
-POST_NATAL_LUNAR_ECLIPSE = ECLIPSE + 3
-POST_NATAL_SOLAR_ECLIPSE = ECLIPSE + 4
-
 """ Fixed stars. """
-FIXED_STAR = 8 * TYPE_MULTIPLIER
+FIXED_STAR = 7 * TYPE_MULTIPLIER
+
+""" Pre & post-natal eclipses. """
+ECLIPSE = 8 * TYPE_MULTIPLIER
+PRE_NATAL_SOLAR_ECLIPSE = ECLIPSE + 1
+PRE_NATAL_LUNAR_ECLIPSE = ECLIPSE + 2
+POST_NATAL_SOLAR_ECLIPSE = ECLIPSE + 3
+POST_NATAL_LUNAR_ECLIPSE = ECLIPSE + 4
+
+""" Eclipse types. """
+TOTAL = 1
+ANNULAR = 2
+PARTIAL = 3
+ANNULAR_TOTAL = 4
+PENUMBRAL = 5

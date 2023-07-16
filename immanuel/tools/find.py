@@ -33,6 +33,14 @@ from immanuel.tools import eph
 PREVIOUS = 0
 NEXT = 1
 
+_SWE = {
+    swe.ECL_TOTAL: chart.TOTAL,
+    swe.ECL_ANNULAR: chart.ANNULAR,
+    swe.ECL_PARTIAL: chart.PARTIAL,
+    swe.ECL_ANNULAR_TOTAL: chart.ANNULAR_TOTAL,
+    swe.ECL_PENUMBRAL: chart.PENUMBRAL,
+}
+
 
 def previous(first: int, second: int, jd: float, aspect: float) -> float:
     """ Returns the Julian day of the requested transit previous
@@ -82,32 +90,36 @@ def next_full_moon(jd: float) -> float:
     return next(chart.SUN, chart.MOON, jd, calc.OPPOSITION)
 
 
-def previous_solar_eclipse(jd: float) -> float:
-    """ Returns the Julian date of the moment of maximum eclipse for the
-    most recent global total solar eclipse that occurred before the
+def previous_solar_eclipse(jd: float) -> tuple:
+    """ Returns the eclipse type and Julian date of the moment of maximum
+    eclipse for the most recent global solar eclipse that occurred before the
     passed Julian date. """
-    return swe.sol_eclipse_when_glob(jd, swe.FLG_SWIEPH, swe.ECL_TOTAL, True)[1][0]
+    res, tret = swe.sol_eclipse_when_glob(jd, swe.FLG_SWIEPH, swe.ECL_ALLTYPES_SOLAR, True)
+    return _eclipse_type(res), tret[0]
 
 
 def previous_lunar_eclipse(jd: float) -> float:
-    """ Returns the Julian date of the moment of maximum eclipse for the
-    most recent global total lunar eclipse that occurred before the
+    """ Returns the eclipse type and Julian date of the moment of maximum
+    eclipse for the most recent lunar eclipse that occurred before the
     passed Julian date. """
-    return swe.lun_eclipse_when(jd, swe.FLG_SWIEPH, swe.ECL_TOTAL, True)[1][0]
+    res, tret = swe.lun_eclipse_when(jd, swe.FLG_SWIEPH, swe.ECL_ALLTYPES_LUNAR, True)
+    return _eclipse_type(res), tret[0]
 
 
 def next_solar_eclipse(jd: float) -> float:
-    """ Returns the Julian date of the moment of maximum eclipse for the
-    next global total solar eclipse that occurred after the passed
-    Julian date. """
-    return swe.sol_eclipse_when_glob(jd, swe.FLG_SWIEPH, swe.ECL_TOTAL)[1][0]
+    """ Returns the eclipse type and Julian date of the moment of maximum
+    eclipse for the next global solar eclipse that occurred after the
+    passed Julian date. """
+    res, tret = swe.sol_eclipse_when_glob(jd, swe.FLG_SWIEPH, swe.ECL_ALLTYPES_SOLAR)
+    return _eclipse_type(res), tret[0]
 
 
 def next_lunar_eclipse(jd: float) -> float:
-    """ Returns the Julian date of the moment of maximum eclipse for the
-    next global total lunar eclipse that occurred after the passed
-    Julian date. """
-    return swe.lun_eclipse_when(jd, swe.FLG_SWIEPH, swe.ECL_TOTAL)[1][0]
+    """ Returns the eclipse type and Julian date of the moment of maximum
+    eclipse for the next lunar eclipse that occurred after the
+    passed Julian date. """
+    res, tret = swe.lun_eclipse_when(jd, swe.FLG_SWIEPH, swe.ECL_ALLTYPES_LUNAR)
+    return _eclipse_type(res), tret[0]
 
 
 def _find(first: int, second: int, jd: float, aspect: float, direction: int) -> float:
@@ -123,3 +135,10 @@ def _find(first: int, second: int, jd: float, aspect: float, direction: int) -> 
             return jd
 
         jd += (1 if direction == NEXT else -1) / max(180 / diff, 24)
+
+
+def _eclipse_type(swe_index: int) -> int:
+    """ Returns the internal index of an eclipse type based on swisseph's
+    bit flags. This clears the ECL_CENTRAL / ECL_NONCENTRAL bits from the
+    end and maintains the simple eclipse type flag. """
+    return _SWE[(swe_index >> 2) << 2]

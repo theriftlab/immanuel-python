@@ -277,18 +277,18 @@ def eclipse(index: int, jd: float) -> dict:
     """ Returns a calculated object based on the moon's or sun's position
      during a pre or post-natal lunar or solar eclipse. """
     match index:
-        case chart.PRE_NATAL_LUNAR_ECLIPSE:
-            eclipse_jd = find.previous_lunar_eclipse(jd)
-            object = planet(chart.MOON, eclipse_jd)
         case chart.PRE_NATAL_SOLAR_ECLIPSE:
-            eclipse_jd = find.previous_solar_eclipse(jd)
+            eclipse_type, eclipse_jd = find.previous_solar_eclipse(jd)
             object = planet(chart.SUN, eclipse_jd)
-        case chart.POST_NATAL_LUNAR_ECLIPSE:
-            eclipse_jd = find.next_lunar_eclipse(jd)
+        case chart.PRE_NATAL_LUNAR_ECLIPSE:
+            eclipse_type, eclipse_jd = find.previous_lunar_eclipse(jd)
             object = planet(chart.MOON, eclipse_jd)
         case chart.POST_NATAL_SOLAR_ECLIPSE:
-            eclipse_jd = find.next_solar_eclipse(jd)
+            eclipse_type, eclipse_jd = find.next_solar_eclipse(jd)
             object = planet(chart.SUN, eclipse_jd)
+        case chart.POST_NATAL_LUNAR_ECLIPSE:
+            eclipse_type, eclipse_jd = find.next_lunar_eclipse(jd)
+            object = planet(chart.MOON, eclipse_jd)
 
     return {
         **object,
@@ -296,6 +296,7 @@ def eclipse(index: int, jd: float) -> dict:
             'index': index,
             'type': chart.ECLIPSE,
             'name': names.ECLIPSES[index],
+            'eclipse_type': eclipse_type,
             'jd': eclipse_jd,
         },
     }

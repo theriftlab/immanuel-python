@@ -117,6 +117,9 @@ class Object:
         self.name = object['name']
         self.type = ObjectType(object['type'])
 
+        if 'eclipse_type' in object:
+            self.eclipse_type = names.ECLIPSE_TYPES[object['eclipse_type']]
+
         if 'date' in object:
             self.date = Date(object['date'])
 
