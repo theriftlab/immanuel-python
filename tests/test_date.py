@@ -11,7 +11,6 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from pytest import approx, fixture
-import swisseph as swe
 
 from immanuel.tools import date
 
