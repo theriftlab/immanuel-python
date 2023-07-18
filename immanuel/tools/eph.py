@@ -395,7 +395,7 @@ def asteroid(index: int, jd: float) -> dict:
     name = swe.get_planet_name(swe_index)
 
     ec_res = swe.calc_ut(jd, swe_index)[0]
-    eq_res = swe.calc_ut(jd, swe_index, swe.FLG_EQUATORIAL)[0]
+    eq_res = swe.cotrans((ec_res[0], ec_res[1], ec_res[2]), -obliquity(jd))
 
     return {
         'index': index,
