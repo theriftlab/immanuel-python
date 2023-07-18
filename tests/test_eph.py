@@ -144,6 +144,39 @@ def astro():
             'lon': '09°45\'12"',
             'lat': '-04°34\'11"',
         },
+        # eclipses
+        'pre_natal_solar_eclipse': {
+            'lon': '18°20\'59"',
+            'lat': '00°00\'00"',
+            'speed': '00°00\'00"',
+            'dec': '15°19\'40"',
+            'eclipse_type': chart.TOTAL,
+            'date': '11 August',
+        },
+        'pre_natal_lunar_eclipse': {
+            'lon': '05°02\'21"',
+            'lat': '00°43\'35"',
+            'speed': '00°00\'00"',
+            'dec': '-18°18\'03"',
+            'eclipse_type': chart.PARTIAL,
+            'date': '28 July',
+        },
+        'post_natal_solar_eclipse': {
+            'lon': '16°01\'14"',
+            'lat': '00°00\'00"',
+            'speed': '00°00\'00"',
+            'dec': '-16°02\'00"',
+            'eclipse_type': chart.PARTIAL,
+            'date': '05 February',
+        },
+        'post_natal_lunar_eclipse': {
+            'lon': '00°28\'04"',
+            'lat': '-00°17\'53"',
+            'speed': '00°00\'00"',
+            'dec': '19°45\'29"',
+            'eclipse_type': chart.TOTAL,
+            'date': '20 January',
+        },
     }
 
 
@@ -289,6 +322,24 @@ def test_fixed_star(jd):
     assert fixed_star['index'] == 'Antares' and fixed_star['type'] == chart.FIXED_STAR
 
 
+def test_eclipse(jd):
+    pre_solar = eph.eclipse(chart.PRE_NATAL_SOLAR_ECLIPSE, jd)
+    assert pre_solar['type'] == chart.ECLIPSE
+    assert pre_solar['index'] == chart.PRE_NATAL_SOLAR_ECLIPSE
+
+    pre_lunar = eph.eclipse(chart.PRE_NATAL_LUNAR_ECLIPSE, jd)
+    assert pre_lunar['type'] == chart.ECLIPSE
+    assert pre_lunar['index'] == chart.PRE_NATAL_LUNAR_ECLIPSE
+
+    post_solar = eph.eclipse(chart.POST_NATAL_SOLAR_ECLIPSE, jd)
+    assert post_solar['type'] == chart.ECLIPSE
+    assert post_solar['index'] == chart.POST_NATAL_SOLAR_ECLIPSE
+
+    post_lunar = eph.eclipse(chart.POST_NATAL_LUNAR_ECLIPSE, jd)
+    assert post_lunar['type'] == chart.ECLIPSE
+    assert post_lunar['index'] == chart.POST_NATAL_LUNAR_ECLIPSE
+
+
 """ Now we are satisfied the correct chart objects are being returned,
 we can test the accuracy of the module's data. """
 def test_get_data(coords, jd, astro):
@@ -302,6 +353,10 @@ def test_get_data(coords, jd, astro):
         'juno': eph.asteroid(chart.JUNO, jd),    # Included with planets
         'lilith': eph.asteroid(1181, jd),        # From external file
         'antares': eph.fixed_star('Antares', jd),
+        'pre_natal_solar_eclipse': eph.eclipse(chart.PRE_NATAL_SOLAR_ECLIPSE, jd),
+        'pre_natal_lunar_eclipse': eph.eclipse(chart.PRE_NATAL_LUNAR_ECLIPSE, jd),
+        'post_natal_solar_eclipse': eph.eclipse(chart.POST_NATAL_SOLAR_ECLIPSE, jd),
+        'post_natal_lunar_eclipse': eph.eclipse(chart.POST_NATAL_LUNAR_ECLIPSE, jd),
     }
 
     for key, eph_object in data.items():
@@ -313,6 +368,10 @@ def test_get_data(coords, jd, astro):
         for property_key in ('lon', 'lat', 'speed', 'dec'):
             if property_key in object:
                 object[property_key] = convert.dec_to_string(object[property_key])
+
+        # For eclipse dates
+        if 'date' in astro[key]:
+            object['date'] = date.from_jd(object['jd'], *coords).strftime('%d %B')
 
         for property, value in astro[key].items():
             assert object[property] == value

@@ -231,7 +231,7 @@ def house(index: int, jd: float, lat: float, lon: float, house_system: int) -> d
 
 def armc_house(index: int, armc: float, lat: float, obliquity: float, house_system: int) -> dict:
     """ Returns a house cusp & its speed, or all houses if index == ALL,
-     calculated from passed ARMC. """
+    calculated from passed ARMC. """
     return _house(
         index=index,
         jd=None,
@@ -260,7 +260,7 @@ def point(index: int, jd: float, lat: float = None, lon: float = None, house_sys
 
 def armc_point(index: int, jd: float, armc: float, lat: float, obliquity: float, house_system: int = None, pars_fortuna_formula: int = None) -> dict:
     """ Returns a calculated point by Julian date, and additionally by the
-     passed ARMC. """
+    passed ARMC. """
     return _point(
         index=index,
         jd=jd,
@@ -271,35 +271,6 @@ def armc_point(index: int, jd: float, armc: float, lat: float, obliquity: float,
         armc=armc,
         armc_obliquity=obliquity
     )
-
-
-def eclipse(index: int, jd: float) -> dict:
-    """ Returns a calculated object based on the moon's or sun's position
-     during a pre or post-natal lunar or solar eclipse. """
-    match index:
-        case chart.PRE_NATAL_SOLAR_ECLIPSE:
-            eclipse_type, eclipse_jd = find.previous_solar_eclipse(jd)
-            object = planet(chart.SUN, eclipse_jd)
-        case chart.PRE_NATAL_LUNAR_ECLIPSE:
-            eclipse_type, eclipse_jd = find.previous_lunar_eclipse(jd)
-            object = planet(chart.MOON, eclipse_jd)
-        case chart.POST_NATAL_SOLAR_ECLIPSE:
-            eclipse_type, eclipse_jd = find.next_solar_eclipse(jd)
-            object = planet(chart.SUN, eclipse_jd)
-        case chart.POST_NATAL_LUNAR_ECLIPSE:
-            eclipse_type, eclipse_jd = find.next_lunar_eclipse(jd)
-            object = planet(chart.MOON, eclipse_jd)
-
-    return {
-        **object,
-        **{
-            'index': index,
-            'type': chart.ECLIPSE,
-            'name': names.ECLIPSES[index],
-            'eclipse_type': eclipse_type,
-            'jd': eclipse_jd,
-        },
-    }
 
 
 def _objects(object_list: tuple, jd: float, lat: float, lon: float, house_system: int, pars_fortuna_formula: int, armc: float, armc_obliquity: float) -> dict:
@@ -397,7 +368,7 @@ def planet(index: int, jd: float) -> dict:
     return the six major asteroids supported by pyswisseph without using
     a separate ephemeris file. """
     ec_res = swe.calc_ut(jd, _SWE[index])[0]
-    eq_res = swe.calc_ut(jd, _SWE[index], swe.FLG_EQUATORIAL)[0]
+    eq_res = swe.cotrans((ec_res[0], ec_res[1], ec_res[2]), -obliquity(jd))
     asteroid = _type(index) == chart.ASTEROID
 
     return {
@@ -455,6 +426,40 @@ def fixed_star(name: str, jd: float) -> dict:
     }
 
 
+def eclipse(index: int, jd: float) -> dict:
+    """ Returns a calculated object based on the moon's or sun's position
+    during a pre or post-natal lunar or solar eclipse. The declination
+    value is based on the natal date. """
+    match index:
+        case chart.PRE_NATAL_SOLAR_ECLIPSE:
+            eclipse_type, eclipse_jd = find.previous_solar_eclipse(jd)
+            object = planet(chart.SUN, eclipse_jd)
+        case chart.PRE_NATAL_LUNAR_ECLIPSE:
+            eclipse_type, eclipse_jd = find.previous_lunar_eclipse(jd)
+            object = planet(chart.MOON, eclipse_jd)
+        case chart.POST_NATAL_SOLAR_ECLIPSE:
+            eclipse_type, eclipse_jd = find.next_solar_eclipse(jd)
+            object = planet(chart.SUN, eclipse_jd)
+        case chart.POST_NATAL_LUNAR_ECLIPSE:
+            eclipse_type, eclipse_jd = find.next_lunar_eclipse(jd)
+            object = planet(chart.MOON, eclipse_jd)
+
+    eq_res = swe.cotrans((object['lon'], object['lat'], object['dist']), -obliquity(jd))
+
+    return {
+        **object,
+        **{
+            'index': index,
+            'type': chart.ECLIPSE,
+            'name': names.ECLIPSES[index],
+            'speed': 0.0,
+            'dec': eq_res[1],
+            'eclipse_type': eclipse_type,
+            'jd': eclipse_jd,
+        },
+    }
+
+
 @cache
 def moon_phase(jd: float) -> int:
     """ Returns the moon phase at the given Julian date. """
@@ -473,7 +478,7 @@ def obliquity(jd: float, mean: bool = False) -> float:
 
 def deltat(jd: float, seconds: bool = False) -> float:
     """ Return the Delta-T value of the passed Julian date. Optionally it
-     will return this value in seconds. """
+    will return this value in seconds. """
     return swe.deltat(jd) if not seconds else swe.deltat(jd) * 24 * 3600
 
 
