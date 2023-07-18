@@ -426,6 +426,7 @@ def fixed_star(name: str, jd: float) -> dict:
     }
 
 
+@cache
 def eclipse(index: int, jd: float) -> dict:
     """ Returns a calculated object based on the moon's or sun's position
     during a pre or post-natal lunar or solar eclipse. The declination
