@@ -90,6 +90,16 @@ class DignityState:
         return ', '.join(self.formatted)
 
 
+class EclipseType:
+    def __init__(self, eclipse_type: int) -> None:
+        self.total = eclipse_type == chart.TOTAL
+        self.annular = eclipse_type == chart.ANNULAR
+        self.partial = eclipse_type == chart.PARTIAL
+        self.annular_total = eclipse_type == chart.ANNULAR_TOTAL
+        self.penumbral = eclipse_type == chart.PENUMBRAL
+        self.formatted = names.ECLIPSE_TYPES[eclipse_type]
+
+
 class House:
     def __init__(self, house: dict) -> None:
         self.number = house['number']
@@ -118,7 +128,7 @@ class Object:
         self.type = ObjectType(object['type'])
 
         if 'eclipse_type' in object:
-            self.eclipse_type = names.ECLIPSE_TYPES[object['eclipse_type']]
+            self.eclipse_type = EclipseType(object['eclipse_type'])
 
         if 'date' in object:
             self.date = Date(object['date'])
