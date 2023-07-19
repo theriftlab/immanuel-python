@@ -434,30 +434,30 @@ def eclipse(index: int, jd: float) -> dict:
     match index:
         case chart.PRE_NATAL_SOLAR_ECLIPSE:
             eclipse_type, eclipse_jd = find.previous_solar_eclipse(jd)
-            object = planet(chart.SUN, eclipse_jd)
+            ec_res = swe.calc_ut(eclipse_jd, swe.SUN)[0]
         case chart.PRE_NATAL_LUNAR_ECLIPSE:
             eclipse_type, eclipse_jd = find.previous_lunar_eclipse(jd)
-            object = planet(chart.MOON, eclipse_jd)
+            ec_res = swe.calc_ut(eclipse_jd, swe.MOON)[0]
         case chart.POST_NATAL_SOLAR_ECLIPSE:
             eclipse_type, eclipse_jd = find.next_solar_eclipse(jd)
-            object = planet(chart.SUN, eclipse_jd)
+            ec_res = swe.calc_ut(eclipse_jd, swe.SUN)[0]
         case chart.POST_NATAL_LUNAR_ECLIPSE:
             eclipse_type, eclipse_jd = find.next_lunar_eclipse(jd)
-            object = planet(chart.MOON, eclipse_jd)
+            ec_res = swe.calc_ut(eclipse_jd, swe.MOON)[0]
 
-    eq_res = swe.cotrans((object['lon'], object['lat'], object['dist']), -obliquity(jd))
+    eq_res = swe.cotrans((ec_res[0], ec_res[1], ec_res[2]), -obliquity(jd))
 
     return {
-        **object,
-        **{
-            'index': index,
-            'type': chart.ECLIPSE,
-            'name': names.ECLIPSES[index],
-            'speed': 0.0,
-            'dec': eq_res[1],
-            'eclipse_type': eclipse_type,
-            'jd': eclipse_jd,
-        },
+        'index': index,
+        'type': chart.ECLIPSE,
+        'name': names.ECLIPSES[index],
+        'eclipse_type': eclipse_type,
+        'jd': eclipse_jd,
+        'lon': ec_res[0],
+        'lat': ec_res[1],
+        'dist': ec_res[2],
+        'speed': 0.0,
+        'dec': eq_res[1],
     }
 
 
