@@ -182,21 +182,23 @@ _settings['triplicities'] = dignities.PTOLEMAIC_TRIPLICITIES
 
 _settings['terms'] = dignities.EGYPTIAN_TERMS
 
-_settings['peregrine'] = dignities.INCLUDE_MUTUAL_RECEPTIONS
+_settings['include_participatory_triplicities'] = False
+
+_settings['include_mutual_receptions'] = True
 
 _settings['dignity_scores'] = {
     dignities.RULER: 5,
-    dignities.MUTUAL_RECEPTION_RULERSHIP: 5,
-    dignities.MUTUAL_RECEPTION_HOUSE: 5,
     dignities.EXALTED: 4,
-    dignities.MUTUAL_RECEPTION_EXALTATION: 4,
-    dignities.TRIPLICITY_RULER_DAY: 3,
-    dignities.TRIPLICITY_RULER_NIGHT: 3,
-    dignities.TRIPLICITY_RULER_PARTICIPATORY: 3,
+    dignities.TRIPLICITY_RULER: 3,
     dignities.TERM_RULER: 2,
     dignities.FACE_RULER: 1,
-    dignities.FALL: -4,
+    dignities.MUTUAL_RECEPTION_RULER: 5,
+    dignities.MUTUAL_RECEPTION_EXALTED: 4,
+    dignities.MUTUAL_RECEPTION_TRIPLICITY_RULER: 3,
+    dignities.MUTUAL_RECEPTION_TERM_RULER: 2,
+    dignities.MUTUAL_RECEPTION_FACE_RULER: 1,
     dignities.DETRIMENT: -5,
+    dignities.FALL: -4,
     dignities.PEREGRINE: -5,
 }
 
