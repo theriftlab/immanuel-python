@@ -190,10 +190,9 @@ def all(object: dict, objects: dict, is_daytime: bool) -> dict:
     return essential_dignities | mutual_reception_dignities | minor_dignities | debilities
 
 
-def score(object: dict, objects: dict, is_daytime: bool) -> int:
-    """ Calculates the planet's dignity score based on settings. """
-    dignities = all(object, objects, is_daytime)
-    return sum([v for k, v in settings.dignity_scores.items() if k in dignities and dignities[k]])
+def score(dignity_state: dict) -> int:
+    """ Calculates a planet's dignity score based on settings. """
+    return sum([v for k, v in settings.dignity_scores.items() if k in dignity_state and dignity_state[k]])
 
 
 def _planet_signs(object: dict, table: dict) -> tuple:

@@ -71,19 +71,19 @@ class Date:
 
 class DignityState:
     def __init__(self, dignity_state: dict) -> None:
-        self.ruler = dignity_state[dignities.RULER] if dignities.RULER in dignity_state else None
-        self.exalted = dignity_state[dignities.EXALTED] if dignities.EXALTED in dignity_state else None
-        self.detriment = dignity_state[dignities.DETRIMENT] if dignities.DETRIMENT in dignity_state else None
-        self.fall = dignity_state[dignities.FALL] if dignities.FALL in dignity_state else None
-        self.mutual_reception_rulership = dignity_state[dignities.MUTUAL_RECEPTION_RULERSHIP] if dignities.MUTUAL_RECEPTION_RULERSHIP in dignity_state else None
-        self.mutual_reception_exaltation = dignity_state[dignities.MUTUAL_RECEPTION_EXALTATION] if dignities.MUTUAL_RECEPTION_EXALTATION in dignity_state else None
-        self.mutual_reception_house = dignity_state[dignities.MUTUAL_RECEPTION_HOUSE] if dignities.MUTUAL_RECEPTION_HOUSE in dignity_state else None
-        self.triplicity_ruler_day = dignity_state[dignities.TRIPLICITY_RULER_DAY] if dignities.TRIPLICITY_RULER_DAY in dignity_state else None
-        self.triplicity_ruler_night = dignity_state[dignities.TRIPLICITY_RULER_NIGHT] if dignities.TRIPLICITY_RULER_NIGHT in dignity_state else None
-        self.triplicity_ruler_participatory = dignity_state[dignities.TRIPLICITY_RULER_PARTICIPATORY] if dignities.TRIPLICITY_RULER_PARTICIPATORY in dignity_state else None
-        self.term_ruler  = dignity_state[dignities.TERM_RULER ] if dignities.TERM_RULER  in dignity_state else None
-        self.face_ruler  = dignity_state[dignities.FACE_RULER ] if dignities.FACE_RULER  in dignity_state else None
-        self.peregrine  = dignity_state[dignities.PEREGRINE ] if dignities.PEREGRINE  in dignity_state else None
+        self.ruler = dignity_state[dignities.RULER]
+        self.exalted = dignity_state[dignities.EXALTED]
+        self.triplicity_ruler = dignity_state[dignities.TRIPLICITY_RULER]
+        self.term_ruler = dignity_state[dignities.TERM_RULER]
+        self.face_ruler = dignity_state[dignities.FACE_RULER]
+        self.mutual_reception_ruler = dignity_state[dignities.MUTUAL_RECEPTION_RULER]
+        self.mutual_reception_exalted = dignity_state[dignities.MUTUAL_RECEPTION_EXALTED]
+        self.mutual_reception_triplicity_ruler = dignity_state[dignities.MUTUAL_RECEPTION_TRIPLICITY_RULER]
+        self.mutual_reception_term_ruler = dignity_state[dignities.MUTUAL_RECEPTION_TERM_RULER]
+        self.mutual_reception_face_ruler = dignity_state[dignities.MUTUAL_RECEPTION_FACE_RULER]
+        self.detriment = dignity_state[dignities.DETRIMENT]
+        self.fall = dignity_state[dignities.FALL]
+        self.peregrine = dignity_state[dignities.PEREGRINE]
         self.formatted = [names.DIGNITIES[dignity] for dignity, active in dignity_state.items() if active]
 
     def __str__(self) -> str:
@@ -160,9 +160,9 @@ class Object:
             self.size = object['size']
 
         if object['type'] == chart.PLANET:
-            dignities = dignity.all(object, objects=objects, houses=houses, is_daytime=is_daytime)
-            self.dignities = DignityState(dignities)
-            self.score = dignity.score(object, dignities=dignities)
+            dignity_state = dignity.all(object=object, objects=objects, is_daytime=is_daytime)
+            self.dignities = DignityState(dignity_state)
+            self.score = dignity.score(dignity_state)
 
     def __str__(self) -> str:
         str = f'{self.name} {self.sign_longitude} in {self.sign}'
