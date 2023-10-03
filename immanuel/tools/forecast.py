@@ -46,7 +46,7 @@ def progression(jd: float, lat: float, lon: float, pjd: float, house_system: int
             progressed_armc = eph.angle(chart.ARMC, progressed_jd, lat, lon, house_system)['lon']
         case calc.NAIBOD:
             natal_armc = eph.angle(chart.ARMC, jd, lat, lon, house_system)['lon']
-            progressed_armc = swe.degnorm(natal_armc + years * calc.SUN_MEAN_MOTION)
+            progressed_armc = swe.degnorm(natal_armc + years * calc.MEAN_MOTIONS[chart.SUN])
         case calc.SOLAR_ARC:
             natal_mc = eph.angle(chart.MC, jd, lat, lon, house_system)
             natal_sun = eph.planet(chart.SUN, jd)

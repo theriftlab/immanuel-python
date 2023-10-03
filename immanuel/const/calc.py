@@ -3,12 +3,14 @@
     Author: Robert Davies (robert@theriftlab.com)
 
 
-    Defines certain astrological and astronomical constants used for
-    chart calculations. YEAR_DAYS and SUN_MEAN_MOTION are set to the
-    same constants used by astro.com's calculations.
+    Defines certain astrological and astronomical constants used for chart
+    calculations. YEAR_DAYS and the sun's MEAN_MOTION are set to the same
+    constants used by astro.com's calculations.
 
 """
 
+
+from immanuel.const import chart
 
 """ Aspects. """
 CONJUNCTION = 0.0
@@ -31,16 +33,18 @@ YEAR_DAYS = 365.24219893                    # Average days in a solar year (see 
 J2000 = 2451545                             # Julian year 2000
 
 """ Mean daily planetary motions. """
-SUN_MEAN_MOTION = 0.98564733                # See https://www.astro.com/cgi/h.cgi?f=gch&h=gch246&lang=e
-MOON_MEAN_MOTION = 13.176389
-MERCURY_MEAN_MOTION = 1.383333
-VENUS_MEAN_MOTION = 1.2
-MARS_MEAN_MOTION = 0.524167
-JUPITER_MEAN_MOTION = 0.083056
-SATURN_MEAN_MOTION = 0.033611
-URANUS_MEAN_MOTION = 0.011667
-NEPTUNE_MEAN_MOTION = 0.006667
-PLUTO_MEAN_MOTION = 0.004167
+MEAN_MOTIONS = {
+    chart.SUN: 0.98564733,                  # See https://www.astro.com/cgi/h.cgi?f=gch&h=gch246&lang=e
+    chart.MOON: 13.176389,
+    chart.MERCURY: 1.383333,
+    chart.VENUS: 1.2,
+    chart.MARS: 0.524167,
+    chart.JUPITER: 0.083056,
+    chart.SATURN: 0.033611,
+    chart.URANUS: 0.011667,
+    chart.NEPTUNE: 0.006667,
+    chart.PLUTO: 0.004167,
+}
 
 """ Moon phases. """
 NEW_MOON = 45

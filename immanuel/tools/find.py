@@ -59,7 +59,7 @@ def previous_new_moon(jd: float) -> float:
     sun = eph.planet(chart.SUN, jd)
     moon = eph.planet(chart.MOON, jd)
     distance = swe.difdegn(moon['lon'], sun['lon'])
-    jd -= math.floor(distance) / math.ceil(calc.MOON_MEAN_MOTION)
+    jd -= math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
     return previous(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
 
 
@@ -68,7 +68,7 @@ def previous_full_moon(jd: float) -> float:
     sun = eph.planet(chart.SUN, jd)
     moon = eph.planet(chart.MOON, jd)
     distance = swe.difdegn(moon['lon'], sun['lon']+180)
-    jd -= math.floor(distance) / math.ceil(calc.MOON_MEAN_MOTION)
+    jd -= math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
     return previous(chart.SUN, chart.MOON, jd, calc.OPPOSITION)
 
 
@@ -77,7 +77,7 @@ def next_new_moon(jd: float) -> float:
     sun = eph.planet(chart.SUN, jd)
     moon = eph.planet(chart.MOON, jd)
     distance = swe.difdegn(sun['lon'], moon['lon'])
-    jd += math.floor(distance) / math.ceil(calc.MOON_MEAN_MOTION)
+    jd += math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
     return next(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
 
 
@@ -86,7 +86,7 @@ def next_full_moon(jd: float) -> float:
     sun = eph.planet(chart.SUN, jd)
     moon = eph.planet(chart.MOON, jd)
     distance = swe.difdegn(sun['lon']+180, moon['lon'])
-    jd += math.floor(distance) / math.ceil(calc.MOON_MEAN_MOTION)
+    jd += math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
     return next(chart.SUN, chart.MOON, jd, calc.OPPOSITION)
 
 
@@ -124,7 +124,9 @@ def next_lunar_eclipse(jd: float) -> float:
 
 def _find(first: int, second: int, jd: float, aspect: float, direction: int) -> float:
     """ Returns the Julian date of the previous/next requested aspect.
-    Accurate to within one second of a degree. """
+    Accurate to within one arc-second. """
+    multiplier = 1 if direction == NEXT else -1
+
     while True:
         first_object = eph.get(first, jd)
         second_object = eph.get(second, jd)
@@ -134,7 +136,13 @@ def _find(first: int, second: int, jd: float, aspect: float, direction: int) -> 
         if diff <= calc.MAX_ERROR:
             return jd
 
-        jd += (1 if direction == NEXT else -1) / max(180 / diff, 24)
+        add = 1 * multiplier
+        speed = abs(max(first_object['speed'], second_object['speed']) - min(first_object['speed'], second_object['speed']))
+
+        if diff < speed:
+            add *= diff / 180
+
+        jd += add
 
 
 def _eclipse_type(swe_index: int) -> int:
