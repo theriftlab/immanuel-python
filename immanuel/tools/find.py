@@ -27,7 +27,7 @@ import math
 import swisseph as swe
 
 from immanuel.const import calc, chart
-from immanuel.tools import eph
+from immanuel.tools import ephemeris
 
 
 PREVIOUS = 0
@@ -56,8 +56,8 @@ def next(first: int, second: int, jd: float, aspect: float) -> float:
 
 def previous_new_moon(jd: float) -> float:
     """ Fast rewind to approximate conjunction. """
-    sun = eph.planet(chart.SUN, jd)
-    moon = eph.planet(chart.MOON, jd)
+    sun = ephemeris.planet(chart.SUN, jd)
+    moon = ephemeris.planet(chart.MOON, jd)
     distance = swe.difdegn(moon['lon'], sun['lon'])
     jd -= math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
     return previous(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
@@ -65,8 +65,8 @@ def previous_new_moon(jd: float) -> float:
 
 def previous_full_moon(jd: float) -> float:
     """ Fast rewind to approximate opposition. """
-    sun = eph.planet(chart.SUN, jd)
-    moon = eph.planet(chart.MOON, jd)
+    sun = ephemeris.planet(chart.SUN, jd)
+    moon = ephemeris.planet(chart.MOON, jd)
     distance = swe.difdegn(moon['lon'], sun['lon']+180)
     jd -= math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
     return previous(chart.SUN, chart.MOON, jd, calc.OPPOSITION)
@@ -74,8 +74,8 @@ def previous_full_moon(jd: float) -> float:
 
 def next_new_moon(jd: float) -> float:
     """ Fast forward to approximate conjunction. """
-    sun = eph.planet(chart.SUN, jd)
-    moon = eph.planet(chart.MOON, jd)
+    sun = ephemeris.planet(chart.SUN, jd)
+    moon = ephemeris.planet(chart.MOON, jd)
     distance = swe.difdegn(sun['lon'], moon['lon'])
     jd += math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
     return next(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
@@ -83,8 +83,8 @@ def next_new_moon(jd: float) -> float:
 
 def next_full_moon(jd: float) -> float:
     """ Fast forward to approximate opposition. """
-    sun = eph.planet(chart.SUN, jd)
-    moon = eph.planet(chart.MOON, jd)
+    sun = ephemeris.planet(chart.SUN, jd)
+    moon = ephemeris.planet(chart.MOON, jd)
     distance = swe.difdegn(sun['lon']+180, moon['lon'])
     jd += math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
     return next(chart.SUN, chart.MOON, jd, calc.OPPOSITION)
@@ -128,8 +128,8 @@ def _find(first: int, second: int, jd: float, aspect: float, direction: int) -> 
     multiplier = 1 if direction == NEXT else -1
 
     while True:
-        first_object = eph.get(first, jd)
-        second_object = eph.get(second, jd)
+        first_object = ephemeris.get(first, jd)
+        second_object = ephemeris.get(second, jd)
         distance = abs(swe.difdeg2n(first_object['lon'], second_object['lon']))
         diff = abs(aspect - distance)
 

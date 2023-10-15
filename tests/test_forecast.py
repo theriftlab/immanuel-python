@@ -16,7 +16,7 @@ from zoneinfo import ZoneInfo
 from pytest import approx, fixture
 
 from immanuel.const import calc, chart
-from immanuel.tools import convert, date, eph, forecast, position
+from immanuel.tools import convert, date, ephemeris, forecast, position
 
 
 @fixture
@@ -191,8 +191,8 @@ def astro():
 
 def test_solar_return_lon(jd):
     sr_jd = forecast.solar_return(jd, 2030)
-    natal_sun = eph.planet(chart.SUN, jd)
-    sr_sun = eph.planet(chart.SUN, sr_jd)
+    natal_sun = ephemeris.planet(chart.SUN, jd)
+    sr_sun = ephemeris.planet(chart.SUN, sr_jd)
     assert natal_sun['lon'] == approx(sr_sun['lon'])
 
 
@@ -224,7 +224,7 @@ def test_progression(jd, pjd, coords, astro):
         progressed_jd, progressed_armc = forecast.progression(jd, *coords, pjd, chart.PLACIDUS, method)
 
         for index, data in results.items():
-            house = eph.armc_house(index, progressed_armc, coords[0], eph.obliquity(progressed_jd), chart.PLACIDUS)
+            house = ephemeris.armc_house(index, progressed_armc, coords[0], ephemeris.obliquity(progressed_jd), chart.PLACIDUS)
             sign, lon = position.signlon(house['lon'])
             assert sign == data['sign']
             assert convert.dec_to_string(lon) == data['lon']

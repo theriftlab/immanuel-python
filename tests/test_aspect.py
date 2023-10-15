@@ -19,20 +19,20 @@ from pytest import fixture
 from immanuel.const import calc, chart
 from immanuel.reports import aspect
 from immanuel.setup import settings
-from immanuel.tools import convert, date, eph
+from immanuel.tools import convert, date, ephemeris
 
 
 @fixture
 def objects():
     lat, lon = [convert.string_to_dec(v) for v in ('32n43', '117w09')]
     jd = date.to_jd(date.localize(datetime.fromisoformat('2000-01-01 10:00'), lat, lon))
-    return eph.objects(settings.objects, jd, lat, lon, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
+    return ephemeris.objects(settings.objects, jd, lat, lon, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
 
 @fixture
 def partner_objects():
     lat, lon = [convert.string_to_dec(v) for v in ('38n45', '121w30')]
     jd = date.to_jd(date.localize(datetime.fromisoformat('2001-02-16 06:00'), lat, lon))
-    return eph.objects(settings.objects, jd, lat, lon, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
+    return ephemeris.objects(settings.objects, jd, lat, lon, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
 
 
 def test_between(objects):

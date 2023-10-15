@@ -15,7 +15,7 @@ from pytest import fixture
 
 from immanuel.const import calc, chart
 from immanuel.reports import pattern
-from immanuel.tools import convert, date, eph
+from immanuel.tools import convert, date, ephemeris
 
 
 @fixture
@@ -86,5 +86,5 @@ def test_chart_shape(object_indices, birth_data):
         lat, lon = (convert.string_to_dec(v) for v in (data['latitude'], data['longitude']))
         dob_dt = date.localize(datetime.fromisoformat(data['dob']), lat, lon)
         jd = date.to_jd(dob_dt)
-        objects = eph.objects(object_indices, jd, lat, lon, chart.PLACIDUS)
+        objects = ephemeris.objects(object_indices, jd, lat, lon, chart.PLACIDUS)
         assert pattern.chart_shape(objects) == chart_shape

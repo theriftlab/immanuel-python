@@ -11,7 +11,7 @@
 import swisseph as swe
 
 from immanuel.const import calc, chart
-from immanuel.tools import calculate, date, eph
+from immanuel.tools import calculate, date, ephemeris
 
 
 JD = 0
@@ -23,10 +23,10 @@ def solar_return(jd: float, year: int) -> float:
     dt = date.from_jd(jd)
     year_diff = year - dt.year
     sr_jd = jd + year_diff * calc.YEAR_DAYS
-    natal_sun = eph.planet(chart.SUN, jd)
+    natal_sun = ephemeris.planet(chart.SUN, jd)
 
     while True:
-        sr_sun = eph.planet(chart.SUN, sr_jd)
+        sr_sun = ephemeris.planet(chart.SUN, sr_jd)
         distance = swe.difdeg2n(natal_sun['lon'], sr_sun['lon'])
         if abs(distance) <= calc.MAX_ERROR:
             break
@@ -43,16 +43,16 @@ def progression(jd: float, lat: float, lon: float, pjd: float, house_system: int
 
     match method:
         case calc.DAILY_HOUSES:
-            progressed_armc = eph.angle(chart.ARMC, progressed_jd, lat, lon, house_system)['lon']
+            progressed_armc = ephemeris.angle(chart.ARMC, progressed_jd, lat, lon, house_system)['lon']
         case calc.NAIBOD:
-            natal_armc = eph.angle(chart.ARMC, jd, lat, lon, house_system)['lon']
+            natal_armc = ephemeris.angle(chart.ARMC, jd, lat, lon, house_system)['lon']
             progressed_armc = swe.degnorm(natal_armc + years * calc.MEAN_MOTIONS[chart.SUN])
         case calc.SOLAR_ARC:
-            natal_mc = eph.angle(chart.MC, jd, lat, lon, house_system)
-            natal_sun = eph.planet(chart.SUN, jd)
-            progressed_sun = eph.planet(chart.SUN, progressed_jd)
+            natal_mc = ephemeris.angle(chart.MC, jd, lat, lon, house_system)
+            natal_sun = ephemeris.planet(chart.SUN, jd)
+            progressed_sun = ephemeris.planet(chart.SUN, progressed_jd)
             distance = swe.difdeg2n(progressed_sun['lon'], natal_sun['lon'])
-            obliquity = eph.obliquity(progressed_jd)
+            obliquity = ephemeris.obliquity(progressed_jd)
             progressed_armc = swe.cotrans((natal_mc['lon'] + distance, 0, 1), -obliquity)[0]
 
     return progressed_jd, progressed_armc

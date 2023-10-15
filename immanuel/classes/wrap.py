@@ -13,7 +13,7 @@ from datetime import datetime
 
 from immanuel.const import calc, chart, dignities, names
 from immanuel.reports import dignity
-from immanuel.tools import calculate, convert, date, eph, position
+from immanuel.tools import calculate, convert, date, ephemeris, position
 
 
 class Angle:
@@ -60,7 +60,7 @@ class Date:
         self.datetime = dt
         self.timezone = dt.tzname()
         self.julian = date.to_jd(dt)
-        self.deltat = eph.deltat(self.julian)
+        self.deltat = ephemeris.deltat(self.julian)
 
         if armc_lon is not None:
             self.sidereal_time = convert.dec_to_string(calculate.sidereal_time(armc_lon), convert.FORMAT_TIME)

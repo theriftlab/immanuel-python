@@ -14,7 +14,7 @@ from pytest import fixture
 import swisseph as swe
 
 from immanuel.const import calc, chart
-from immanuel.tools import convert, date, eph, midpoint, position
+from immanuel.tools import convert, date, ephemeris, midpoint, position
 
 
 @fixture
@@ -130,8 +130,8 @@ def astro():
 
 
 def test_all(coords, jd1, jd2, obliquity, astro):
-    objects1 = eph.objects(astro.keys(), jd1, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
-    objects2 = eph.objects(astro.keys(), jd2, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
+    objects1 = ephemeris.objects(astro.keys(), jd1, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
+    objects2 = ephemeris.objects(astro.keys(), jd2, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
     composites = midpoint.all(objects1, objects2, obliquity, calc.MIDPOINT, calc.DAY_NIGHT_FORMULA)
 
     for index, composite in composites.items():
@@ -146,8 +146,8 @@ def test_all(coords, jd1, jd2, obliquity, astro):
 
 def test_composite(coords, jd1, jd2, obliquity, astro):
     for index in astro.keys():
-        object1 = eph.get(index, jd1, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
-        object2 = eph.get(index, jd2, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
+        object1 = ephemeris.get(index, jd1, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
+        object2 = ephemeris.get(index, jd2, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
         composite = midpoint.composite(object1, object2, obliquity)
         sign, sign_lon = position.signlon(composite['lon'])
         assert sign == astro[index]['sign']

@@ -10,7 +10,7 @@
 import swisseph as swe
 
 from immanuel.const import calc, chart
-from immanuel.tools import calculate, eph
+from immanuel.tools import calculate, ephemeris
 
 
 def all(objects1: dict, objects2: dict, obliquity: float = None, pars_fortuna: int = calc.MIDPOINT, pars_fortuna_formula: int = None) -> dict:
@@ -46,4 +46,4 @@ def composite(object1: dict, object2: dict, obliquity: float = None) -> dict:
 
 
 def obliquity(jd1: float, jd2: float, mean: bool = False) -> float:
-    return (eph.obliquity(jd1, mean) + eph.obliquity(jd2, mean)) / 2
+    return (ephemeris.obliquity(jd1, mean) + ephemeris.obliquity(jd2, mean)) / 2

@@ -18,7 +18,7 @@ from pytest import fixture
 from immanuel.const import chart, dignities
 from immanuel.reports import dignity
 from immanuel.setup import settings
-from immanuel.tools import convert, date, eph
+from immanuel.tools import convert, date, ephemeris
 
 
 @fixture
@@ -33,11 +33,11 @@ def jd(coords):
 @fixture
 def objects(jd):
     objects = (chart.SUN, chart.MOON, chart.MERCURY, chart.VENUS, chart.MARS, chart.JUPITER, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.PLUTO)
-    return eph.objects(objects, jd)
+    return ephemeris.objects(objects, jd)
 
 @fixture
 def is_daytime(jd, coords):
-    return eph.is_daytime(jd, *coords)
+    return ephemeris.is_daytime(jd, *coords)
 
 
 def teardown_function():

@@ -13,7 +13,7 @@ from pytest import fixture
 
 from immanuel.const import chart
 from immanuel.reports import weighting
-from immanuel.tools import convert, date, eph
+from immanuel.tools import convert, date, ephemeris
 
 
 @fixture
@@ -43,11 +43,11 @@ def objects(coords, jd):
         chart.TRUE_NORTH_NODE,
         chart.CHIRON,
     )
-    return eph.objects(object_indices, jd, *coords, chart.PLACIDUS)
+    return ephemeris.objects(object_indices, jd, *coords, chart.PLACIDUS)
 
 @fixture
 def houses(coords, jd):
-    return eph.houses(jd, *coords, chart.PLACIDUS)
+    return ephemeris.houses(jd, *coords, chart.PLACIDUS)
 
 
 def test_elements(objects):

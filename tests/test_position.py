@@ -18,7 +18,7 @@ from pytest import fixture
 
 from immanuel import setup
 from immanuel.const import calc, chart
-from immanuel.tools import convert, date, eph, position
+from immanuel.tools import convert, date, ephemeris, position
 
 
 @fixture
@@ -35,13 +35,13 @@ def data(jd, coords):
     setup.add_filepath(os.path.dirname(__file__))
 
     return {
-        'asc': eph.angle(chart.ASC, jd, *coords, chart.PLACIDUS),
-        'house_2': eph.house(chart.HOUSE2, jd, *coords, chart.PLACIDUS),
-        'sun': eph.planet(chart.SUN, jd),
-        'pof': eph.point(chart.PARS_FORTUNA, jd, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA),
-        'juno': eph.asteroid(chart.JUNO, jd),       # Included with planets
-        'lilith': eph.asteroid(1181, jd),           # From its own file
-        'antares': eph.fixed_star('Antares', jd),
+        'asc': ephemeris.angle(chart.ASC, jd, *coords, chart.PLACIDUS),
+        'house_2': ephemeris.house(chart.HOUSE2, jd, *coords, chart.PLACIDUS),
+        'sun': ephemeris.planet(chart.SUN, jd),
+        'pof': ephemeris.point(chart.PARS_FORTUNA, jd, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA),
+        'juno': ephemeris.asteroid(chart.JUNO, jd),       # Included with planets
+        'lilith': ephemeris.asteroid(1181, jd),           # From its own file
+        'antares': ephemeris.fixed_star('Antares', jd),
     }
 
 @fixture
@@ -147,14 +147,14 @@ def test_decan(data, astro):
 
 
 def test_house(jd, coords, data, astro):
-    houses = eph.houses(jd, *coords, chart.PLACIDUS)
+    houses = ephemeris.houses(jd, *coords, chart.PLACIDUS)
 
     for key, object in {k: v for k, v in data.items() if 'house' in v}:
         assert position.house(object['lon'], houses) == astro[key]['house']
 
 
 def test_opposite_house(jd, coords, data, astro):
-    houses = eph.houses(jd, *coords, chart.PLACIDUS)
+    houses = ephemeris.houses(jd, *coords, chart.PLACIDUS)
 
     for key, object in {k: v for k, v in data.items() if 'house' in v}:
         assert position.opposite_house(object['lon'], houses) == astro[key]['opposite_house']

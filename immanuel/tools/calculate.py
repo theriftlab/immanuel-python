@@ -15,7 +15,7 @@
 import swisseph as swe
 
 from immanuel.const import calc
-from immanuel.tools import eph
+from immanuel.tools import ephemeris
 
 
 def moon_phase(sun_lon: float, moon_lon: float) -> int:
@@ -60,7 +60,7 @@ def is_out_of_bounds(object: dict, jd: float = None, obliquity: float = None) ->
     Julian date or relative to the passed obliquity. """
     if 'dec' in object:
         if jd is not None:
-            obliquity = eph.obliquity(jd)
+            obliquity = ephemeris.obliquity(jd)
         return not -obliquity < object['dec'] < obliquity
 
     return False

@@ -14,7 +14,7 @@ from datetime import datetime
 from pytest import fixture
 
 from immanuel.const import calc, chart
-from immanuel.tools import calculate, convert, date, eph, position
+from immanuel.tools import calculate, convert, date, ephemeris, position
 
 
 @fixture
@@ -33,18 +33,18 @@ def night_jd(coords):
 
 def test_moon_phase(day_jd):
     # Courtesy of https://stardate.org/nightsky/moon
-    assert eph.moon_phase(day_jd) == calc.THIRD_QUARTER             # third quarter = waning crescent
+    assert ephemeris.moon_phase(day_jd) == calc.THIRD_QUARTER             # third quarter = waning crescent
 
 
 def test_is_daytime(day_jd, night_jd, coords):
-    sun, asc = eph.objects((chart.SUN, chart.ASC), day_jd, *coords, chart.PLACIDUS).values()
+    sun, asc = ephemeris.objects((chart.SUN, chart.ASC), day_jd, *coords, chart.PLACIDUS).values()
     assert calculate.is_daytime(sun['lon'], asc['lon']) == True
-    sun, asc = eph.objects((chart.SUN, chart.ASC), night_jd, *coords, chart.PLACIDUS).values()
+    sun, asc = ephemeris.objects((chart.SUN, chart.ASC), night_jd, *coords, chart.PLACIDUS).values()
     assert calculate.is_daytime(sun['lon'], asc['lon']) == False
 
 
 def test_pars_fortuna_day_formula(day_jd, coords):
-    sun, moon, asc = eph.objects((chart.SUN, chart.MOON, chart.ASC), day_jd, *coords, chart.PLACIDUS).values()
+    sun, moon, asc = ephemeris.objects((chart.SUN, chart.MOON, chart.ASC), day_jd, *coords, chart.PLACIDUS).values()
     pof = calculate.pars_fortuna(sun['lon'], moon['lon'], asc['lon'], calc.DAY_FORMULA)
     sign, lon = position.signlon(pof)
     assert sign == chart.CAPRICORN
@@ -52,7 +52,7 @@ def test_pars_fortuna_day_formula(day_jd, coords):
 
 
 def test_pars_fortuna_night_formula(night_jd, coords):
-    sun, moon, asc = eph.objects((chart.SUN, chart.MOON, chart.ASC), night_jd, *coords, chart.PLACIDUS).values()
+    sun, moon, asc = ephemeris.objects((chart.SUN, chart.MOON, chart.ASC), night_jd, *coords, chart.PLACIDUS).values()
     pof = calculate.pars_fortuna(sun['lon'], moon['lon'], asc['lon'], calc.NIGHT_FORMULA)
     sign, lon = position.signlon(pof)
     assert sign == chart.SAGITTARIUS
@@ -60,13 +60,13 @@ def test_pars_fortuna_night_formula(night_jd, coords):
 
 
 def test_sidereal_time(day_jd, coords):
-    armc = eph.angle(chart.ARMC, day_jd, *coords, chart.PLACIDUS)
+    armc = ephemeris.angle(chart.ARMC, day_jd, *coords, chart.PLACIDUS)
     sidereal_time = calculate.sidereal_time(armc['lon'])
     assert convert.dec_to_string(sidereal_time, convert.FORMAT_TIME) == '16:54:13'
 
 
 def test_object_movement(day_jd, coords):
-    sun, moon, saturn, true_north_node, pars_fortuna = eph.objects((chart.SUN, chart.MOON, chart.SATURN, chart.TRUE_NORTH_NODE, chart.PARS_FORTUNA), day_jd, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA).values()
+    sun, moon, saturn, true_north_node, pars_fortuna = ephemeris.objects((chart.SUN, chart.MOON, chart.SATURN, chart.TRUE_NORTH_NODE, chart.PARS_FORTUNA), day_jd, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA).values()
     assert calculate.object_movement(sun) == calc.DIRECT
     assert calculate.object_movement(moon) == calc.DIRECT
     assert calculate.object_movement(saturn) == calc.RETROGRADE
@@ -75,7 +75,7 @@ def test_object_movement(day_jd, coords):
 
 
 def test_is_out_of_bounds(day_jd, coords):
-    sun, mercury = eph.objects((chart.SUN, chart.MERCURY), day_jd, *coords, chart.PLACIDUS).values()
+    sun, mercury = ephemeris.objects((chart.SUN, chart.MERCURY), day_jd, *coords, chart.PLACIDUS).values()
     assert calculate.is_out_of_bounds(sun, day_jd) == False
     assert calculate.is_out_of_bounds(mercury, day_jd) == True
 
