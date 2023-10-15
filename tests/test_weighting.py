@@ -27,7 +27,7 @@ def jd(coords):
 
 @fixture
 def objects(coords, jd):
-    objects = (
+    object_indices = (
         chart.ASC,
         chart.MC,
         chart.SUN,
@@ -43,7 +43,7 @@ def objects(coords, jd):
         chart.TRUE_NORTH_NODE,
         chart.CHIRON,
     )
-    return eph.objects(objects, jd, *coords, chart.PLACIDUS)
+    return eph.objects(object_indices, jd, *coords, chart.PLACIDUS)
 
 @fixture
 def houses(coords, jd):

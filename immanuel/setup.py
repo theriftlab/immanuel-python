@@ -160,7 +160,7 @@ _settings['orbs'] = {
 
 
 """ Orb for calculating chart shapes. """
-_settings['chart_shape_orb'] = 8
+_settings['chart_shape_orb'] = 5
 
 
 """ MC progression formula for secondary progressions. """
