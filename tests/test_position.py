@@ -5,8 +5,8 @@
 
     The position module's calculations are tested against
     figures from astro.com. The signlon() function will already
-    have been partially tested in the eph module's tests since
-    there is no other way to convert the eph module's longitudes
+    have been partially tested in the ephemeris module's tests since
+    there is no other way to convert the ephemeris module's longitudes
     into sign-specific longitudes.
 
 """

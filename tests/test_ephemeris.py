@@ -3,7 +3,7 @@
     Author: Robert Davies (robert@theriftlab.com)
 
 
-    The eph module's figures are tested against output
+    The ephemeris module's figures are tested against output
     from astro.com with default Placidus house system.
     Additional data courtesy of websites cited in test
     function comments.

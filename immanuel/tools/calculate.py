@@ -6,7 +6,7 @@
     This module contains many of the calculations required to
     parse the raw numbers from pyswisseph into useable data.
 
-    This is used in tandem with the eph module, but is separated out
+    This is used in tandem with the ephemeris module, but is separated out
     so that this data can be accessed without a specific date or location,
     most notably when generating a composite chart.
 

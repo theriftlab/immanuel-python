@@ -6,7 +6,8 @@
     This module calculates aspects between chart objects based on
     the settings provided by the setup module.
 
-    The functions also rely on the object data returned by the eph module.
+    The functions also rely on the object data returned by the
+    ephemeris module.
 
 """
 

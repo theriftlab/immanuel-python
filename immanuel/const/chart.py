@@ -5,7 +5,7 @@
 
     Defines indices for the main chart objects supported by pyswisseph,
     along with custom-calculated objects based on pyswisseph. These
-    constants are mainly used by the eph module.
+    constants are mainly used by the ephemeris module.
 
 """
 

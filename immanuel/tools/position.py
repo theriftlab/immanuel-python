@@ -48,7 +48,7 @@ def decan(lon: float) -> int:
 
 
 def house(lon: float, houses: dict) -> int:
-    """ Given a longitude and a dict of houses from the eph module, this
+    """ Given a longitude and a dict of houses from the ephemeris module, this
     returns which house the longitude is in. Basic dict caching is used. """
     key = json.dumps([lon, houses])
     if key in _house:
@@ -64,7 +64,7 @@ def house(lon: float, houses: dict) -> int:
 
 
 def opposite_house(lon: float, houses: dict) -> int:
-    """ Given a longitude and a dict of houses from the eph
+    """ Given a longitude and a dict of houses from the ephemeris
     module, this returns the house opposite where the longitude is. """
     house_number = house(lon, houses)['number']
     index = chart.HOUSE + house_number + (6 if house_number <= 6 else -6)

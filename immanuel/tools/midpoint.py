@@ -14,9 +14,9 @@ from immanuel.tools import calculate, ephemeris
 
 
 def all(objects1: dict, objects2: dict, obliquity: float = None, pars_fortuna: int = calc.MIDPOINT, pars_fortuna_formula: int = None) -> dict:
-    """ Takes two dicts of chart objects typically returned by the eph
-    module and returns the averaged data for both sets as a third dict
-    of composite objects. """
+    """ Takes two dicts of chart objects typically returned by the
+    ephemeris module and returns the averaged data for both sets as
+    a third dict of composite objects. """
     objects = {}
 
     for index, object1 in objects1.items():
@@ -30,8 +30,8 @@ def all(objects1: dict, objects2: dict, obliquity: float = None, pars_fortuna: i
 
 
 def composite(object1: dict, object2: dict, obliquity: float = None) -> dict:
-    """ Given two chart objects typically returned by the eph module, this
-    function will return a composite object. """
+    """ Given two chart objects typically returned by the ephemeris module,
+    this function will return a composite object. """
     composite_object = object1 | {
         'lon': swe.deg_midp(object1['lon'], object2['lon']),
         'lat': 0.0,

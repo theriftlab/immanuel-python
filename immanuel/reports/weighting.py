@@ -4,7 +4,7 @@
 
 
     Inspects element and quadrant weighting from a dict of chart objects
-    provided by the eph module.
+    provided by the ephemeris module.
 
 """
 
