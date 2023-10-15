@@ -279,14 +279,14 @@ class Composite(Chart):
         partner_objects = eph.objects(settings.objects, partner_jd, self._partner_lat, self._partner_lon, settings.house_system)
 
         armc_lon = midpoint.composite(natal_armc, partner_armc)['lon']
-        self._obliquity = (eph.obliquity(natal_jd) + eph.obliquity(partner_jd)) / 2
+        self._obliquity = midpoint.obliquity(natal_jd, partner_jd)
         self._objects = midpoint.all(objects, partner_objects, settings.composite_pars_fortuna, settings.pars_fortuna)
         self._houses = eph.armc_houses(armc_lon, self._lat, self._obliquity, settings.house_system)
         self._aspects = aspect.all(self._objects)
 
-        sun = midpoint.composite(natal_sun, partner_sun)
-        moon = midpoint.composite(natal_moon, partner_moon)
-        asc = midpoint.composite(natal_asc, partner_asc)
+        sun = midpoint.composite(natal_sun, partner_sun, self._obliquity)
+        moon = midpoint.composite(natal_moon, partner_moon, self._obliquity)
+        asc = midpoint.composite(natal_asc, partner_asc, self._obliquity)
 
         self._diurnal = calculate.is_daytime(sun['lon'], asc['lon'])
         self._moon_phase = names.MOON_PHASES[calculate.moon_phase(sun['lon'], moon['lon'])]
