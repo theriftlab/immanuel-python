@@ -7,6 +7,7 @@
     Where possible, astro.com's aspects table is the preferred source
     of data, but the chart visual is also used to confirm data not in
     the table.
+
 """
 
 import math
@@ -26,7 +27,6 @@ def objects():
     lat, lon = [convert.string_to_dec(v) for v in ('32n43', '117w09')]
     jd = date.to_jd(date.localize(datetime.fromisoformat('2000-01-01 10:00'), lat, lon))
     return eph.objects(settings.objects, jd, lat, lon, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
-
 
 @fixture
 def partner_objects():

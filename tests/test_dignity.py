@@ -7,6 +7,7 @@
     rulerships, terms, and triplicities as well as testing every planet
     in each of them, this is a fairly basic set of tests using the default
     test DOB with a select few planets, and checked against Astro Gold on iOS.
+
 """
 
 import copy
@@ -25,17 +26,14 @@ def coords():
     # San Diego coords as used by Astro Gold
     return [convert.string_to_dec(v) for v in ('32°42\'55"', '-117°09\'23"')]
 
-
 @fixture
 def jd(coords):
     return date.to_jd(date.localize(datetime.fromisoformat('2000-01-01 10:00'), *coords))
-
 
 @fixture
 def objects(jd):
     objects = (chart.SUN, chart.MOON, chart.MERCURY, chart.VENUS, chart.MARS, chart.JUPITER, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.PLUTO)
     return eph.objects(objects, jd)
-
 
 @fixture
 def is_daytime(jd, coords):

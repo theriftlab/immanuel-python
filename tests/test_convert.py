@@ -5,6 +5,7 @@
 
     DMS / decimal tests ran against figures from:
     https://www.rapidtables.com/convert/number/degrees-minutes-seconds-to-degrees.html
+
 """
 
 from immanuel.tools import convert

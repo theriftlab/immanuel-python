@@ -6,6 +6,7 @@
     Courtesy of timeanddate.com.
     Moon phase data: https://www.timeanddate.com/moon/phases
     Eclipse data: https://www.timeanddate.com/eclipse/list.html
+
 """
 
 
@@ -21,7 +22,6 @@ from immanuel.tools import convert, date, find
 def coords():
     # San Diego coords as used by astro.com
     return [convert.string_to_dec(v) for v in ('32n43', '117w09')]
-
 
 @fixture
 def jd(coords):

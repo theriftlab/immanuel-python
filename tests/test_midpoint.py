@@ -3,7 +3,9 @@
     Author: Robert Davies (robert@theriftlab.com)
 
 
-    TODO
+    Test the basic midpoint calculation methods against
+    astro.com's midpoint composite chart.
+
 """
 
 from datetime import datetime
@@ -12,8 +14,7 @@ from pytest import fixture
 import swisseph as swe
 
 from immanuel.const import calc, chart
-from immanuel.setup import settings
-from immanuel.tools import calculate, convert, date, eph, midpoint, position
+from immanuel.tools import convert, date, eph, midpoint, position
 
 
 @fixture

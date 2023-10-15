@@ -6,6 +6,7 @@
     The calculate module's figures are tested against output
     from astro.com and https://stardate.org/nightsky/moon
     for the moon_phase() function.
+
 """
 
 from datetime import datetime
@@ -43,7 +44,6 @@ def test_is_daytime(day_jd, night_jd, coords):
 
 
 def test_pars_fortuna_day_formula(day_jd, coords):
-    # Result copied from astro.com
     sun, moon, asc = eph.objects((chart.SUN, chart.MOON, chart.ASC), day_jd, *coords, chart.PLACIDUS).values()
     pof = calculate.pars_fortuna(sun['lon'], moon['lon'], asc['lon'], calc.DAY_FORMULA)
     sign, lon = position.signlon(pof)
@@ -52,9 +52,36 @@ def test_pars_fortuna_day_formula(day_jd, coords):
 
 
 def test_pars_fortuna_night_formula(night_jd, coords):
-    # Result copied from astro.com
     sun, moon, asc = eph.objects((chart.SUN, chart.MOON, chart.ASC), night_jd, *coords, chart.PLACIDUS).values()
     pof = calculate.pars_fortuna(sun['lon'], moon['lon'], asc['lon'], calc.NIGHT_FORMULA)
     sign, lon = position.signlon(pof)
     assert sign == chart.SAGITTARIUS
     assert convert.dec_to_string(lon) == '10°04\'30"'
+
+
+def test_sidereal_time(day_jd, coords):
+    armc = eph.angle(chart.ARMC, day_jd, *coords, chart.PLACIDUS)
+    sidereal_time = calculate.sidereal_time(armc['lon'])
+    assert convert.dec_to_string(sidereal_time, convert.FORMAT_TIME) == '16:54:13'
+
+
+def test_object_movement(day_jd, coords):
+    sun, moon, saturn, true_north_node, pars_fortuna = eph.objects((chart.SUN, chart.MOON, chart.SATURN, chart.TRUE_NORTH_NODE, chart.PARS_FORTUNA), day_jd, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA).values()
+    assert calculate.object_movement(sun) == calc.DIRECT
+    assert calculate.object_movement(moon) == calc.DIRECT
+    assert calculate.object_movement(saturn) == calc.RETROGRADE
+    assert calculate.object_movement(true_north_node) == calc.RETROGRADE
+    assert calculate.object_movement(pars_fortuna) == calc.STATIONARY
+
+
+def test_is_out_of_bounds(day_jd, coords):
+    sun, mercury = eph.objects((chart.SUN, chart.MERCURY), day_jd, *coords, chart.PLACIDUS).values()
+    assert calculate.is_out_of_bounds(sun, day_jd) == False
+    assert calculate.is_out_of_bounds(mercury, day_jd) == True
+
+
+def test_solar_year_length():
+    """ This one is difficult to test in isolatioon since it's only used for
+    secondary progressions. For now we'll leave it to the forecast module
+    tests to check the correct progressed Julian dates. """
+    pass

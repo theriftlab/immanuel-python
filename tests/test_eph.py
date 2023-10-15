@@ -7,6 +7,7 @@
     from astro.com with default Placidus house system.
     Additional data courtesy of websites cited in test
     function comments.
+
 """
 
 import os

@@ -5,10 +5,9 @@
 
     Test dates compared against astro.com output.
     For solar return dates calculation, astro.com
-    appears to have a wider margin of error. For
-    progressions, astro.com tends to be a one or
-    two arc-seconds ahead so we use approx() on
-    the decimal conversion.
+    appears to have a wider margin of error, so we
+    use approx() on the decimal conversion.
+
 """
 
 from datetime import datetime
@@ -228,4 +227,4 @@ def test_progression(jd, pjd, coords, astro):
             house = eph.armc_house(index, progressed_armc, coords[0], eph.obliquity(progressed_jd), chart.PLACIDUS)
             sign, lon = position.signlon(house['lon'])
             assert sign == data['sign']
-            assert convert.to_string(lon) == data['lon']
+            assert convert.dec_to_string(lon) == data['lon']
