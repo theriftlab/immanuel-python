@@ -14,7 +14,6 @@
 
 """
 
-from decimal import Decimal
 from functools import cache
 
 import swisseph as swe
@@ -548,7 +547,7 @@ def _angles_houses_vertex_from_swe(cusps: tuple, ascmc: tuple, cuspsspeed: tuple
                 'index': index,
                 'type': chart.ANGLE,
                 'name': names.ANGLES[index],
-                'lon': swe.degnorm(Decimal(str(lon)) - 180),
+                'lon': swe.degnorm(lon - 180),
                 'speed': ascmcspeed[_SWE[i]],
             }
 
@@ -628,7 +627,7 @@ def _swisseph_point(index: int, jd: float) -> dict:
         'index': index,
         'type': chart.POINT,
         'name': names.POINTS[index],
-        'lon': res[0] if index not in (chart.SOUTH_NODE, chart.TRUE_SOUTH_NODE) else swe.degnorm(Decimal(str(res[0])) - 180),
+        'lon': res[0] if index not in (chart.SOUTH_NODE, chart.TRUE_SOUTH_NODE) else swe.degnorm(res[0] - 180),
         'speed': res[3],
     }
 
