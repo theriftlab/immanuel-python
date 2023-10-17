@@ -171,8 +171,12 @@ _settings['mc_progression'] = calc.NAIBOD
 _settings['pars_fortuna'] = calc.DAY_NIGHT_FORMULA
 
 
-""" Composite Part of Fortune calcultion. """
-_settings['composite_pars_fortuna'] = calc.COMPOSITE
+""" Composite Part of Fortune calculation. """
+_settings['composite_pars_fortuna'] = calc.MIDPOINT
+
+
+""" Composite house cusp calculation. """
+_settings['composite_houses'] = calc.MIDPOINT
 
 
 """ Dignity settings. """

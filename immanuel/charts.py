@@ -11,7 +11,7 @@
 from datetime import datetime
 
 from immanuel.classes import wrap
-from immanuel.const import chart, data, names
+from immanuel.const import calc, chart, data, names
 from immanuel.reports import aspect, pattern, weighting
 from immanuel.setup import settings
 from immanuel.tools import calculate, date, ephemeris, forecast, midpoint
@@ -278,10 +278,18 @@ class Composite(Chart):
         objects = ephemeris.objects(settings.objects, natal_jd, self._lat, self._lon, settings.house_system)
         partner_objects = ephemeris.objects(settings.objects, partner_jd, self._partner_lat, self._partner_lon, settings.house_system)
 
-        armc_lon = midpoint.composite(natal_armc, partner_armc)['lon']
+        houses = ephemeris.houses(natal_jd, self._lat, self._lon, settings.house_system)
+        partner_houses = ephemeris.houses(partner_jd, self._partner_lat, self._partner_lon, settings.house_system)
+
         self._obliquity = midpoint.obliquity(natal_jd, partner_jd)
+
+        if settings.composite_houses == calc.MIDPOINT:
+            self._houses = midpoint.all(houses, partner_houses, self._obliquity, settings.composite_pars_fortuna, settings.pars_fortuna)
+        else:
+            armc_lon = midpoint.composite(natal_armc, partner_armc, self._obliquity)['lon']
+            self._houses = ephemeris.armc_houses(armc_lon, self._lat, self._obliquity, settings.house_system)
+
         self._objects = midpoint.all(objects, partner_objects, settings.composite_pars_fortuna, settings.pars_fortuna)
-        self._houses = ephemeris.armc_houses(armc_lon, self._lat, self._obliquity, settings.house_system)
         self._aspects = aspect.all(self._objects)
 
         sun = midpoint.composite(natal_sun, partner_sun, self._obliquity)
