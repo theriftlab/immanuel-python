@@ -46,13 +46,14 @@ def decan(object: dict | float) -> int:
 def house(object: dict | float, houses: dict) -> int:
     """ Given a object and a dict of houses from the ephemeris module, this
     returns which house the object is in. Basic dict caching is used. """
-    key = json.dumps([(object['lon'] if isinstance(object, dict) else object), houses])
+    lon = object['lon'] if isinstance(object, dict) else object
+    key = json.dumps([lon, houses])
 
     if key in _house:
         return _house[key]
 
     for house in houses.values():
-        lon_diff = swe.difdeg2n((object['lon'] if isinstance(object, dict) else object), house['lon'])
+        lon_diff = swe.difdeg2n(lon, house['lon'])
         next_cusp_diff = swe.difdeg2n(house['lon'] + house['size'], house['lon'])
 
         if 0 <= lon_diff < next_cusp_diff:
