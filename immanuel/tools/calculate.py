@@ -3,12 +3,8 @@
     Author: Robert Davies (robert@theriftlab.com)
 
 
-    This module contains many of the calculations required to
-    parse the raw numbers from pyswisseph into useable data.
-
-    This is used in tandem with the ephemeris module, but is separated out
-    so that this data can be accessed without a specific date or location,
-    most notably when generating a composite chart.
+    This module contains miscellaneous calculations to ascertain basic chart
+    and object information from the data returned from the ephemeris module.
 
 """
 
@@ -18,33 +14,35 @@ from immanuel.const import calc
 from immanuel.tools import ephemeris
 
 
-def moon_phase(sun_lon: float, moon_lon: float) -> int:
+def moon_phase(sun: dict, moon: dict) -> int:
     """ Returns the moon phase given the positions of the Sun and Moon. """
-    distance = swe.difdegn(moon_lon, sun_lon)
+    distance = swe.difdegn(moon['lon'], sun['lon'])
 
     for angle in range(45, 361, 45):
         if distance < angle:
             return angle
 
 
-def is_daytime(sun_lon: float, asc_lon: float) -> bool:
+def is_daytime(sun: dict, asc: dict) -> bool:
     """ Returns whether the sun is above the ascendant. """
-    return swe.difdeg2n(sun_lon, asc_lon) < 0
+    return swe.difdeg2n(sun['lon'], asc['lon']) < 0
 
 
-def pars_fortuna(sun_lon: float, moon_lon: float, asc_lon: float, formula: int) -> float:
+def pars_fortuna_longitude(sun: dict, moon: dict, asc: dict, formula: int) -> float:
     """ Returns the Part of Fortune longitude. """
-    if formula == calc.NIGHT_FORMULA or (formula == calc.DAY_NIGHT_FORMULA and not is_daytime(sun_lon, asc_lon)):
-        lon = (asc_lon + sun_lon - moon_lon)
+    if formula == calc.NIGHT_FORMULA or (formula == calc.DAY_NIGHT_FORMULA and not is_daytime(sun, asc)):
+        lon = (asc['lon'] + sun['lon'] - moon['lon'])
     else:
-        lon = (asc_lon + moon_lon - sun_lon)
+        lon = (asc['lon'] + moon['lon'] - sun['lon'])
 
     return swe.degnorm(lon)
 
 
-def sidereal_time(armc: float) -> float:
-    """ Returns sidereal time based on ARMC. """
-    return armc / 15
+def sidereal_time(armc: dict | float) -> float:
+    """ Returns sidereal time based on ARMC longitude. Since ARMC can be
+    retrieved as an object or calculated by the forecast module, this function
+    accepts both an object and a float. """
+    return (armc['lon'] if isinstance(armc, dict) else armc) / 15
 
 
 def object_movement(object: dict) -> int:

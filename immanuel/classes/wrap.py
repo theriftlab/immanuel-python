@@ -56,14 +56,14 @@ class Coords:
 
 
 class Date:
-    def __init__(self, dt: datetime, armc_lon: float = None) -> None:
+    def __init__(self, dt: datetime, armc: dict = None) -> None:
         self.datetime = dt
         self.timezone = dt.tzname()
         self.julian = date.to_jd(dt)
         self.deltat = ephemeris.deltat(self.julian)
 
-        if armc_lon is not None:
-            self.sidereal_time = convert.dec_to_string(calculate.sidereal_time(armc_lon), convert.FORMAT_TIME)
+        if armc is not None:
+            self.sidereal_time = convert.dec_to_string(calculate.sidereal_time(armc), convert.FORMAT_TIME)
 
     def __str__(self) -> str:
         return f'{self.datetime.strftime("%a %b %d %Y %I:%M:%S %p")} {self.timezone}'
@@ -137,12 +137,11 @@ class Object:
             self.latitude = Angle(object['lat'])
 
         self.longitude = Angle(object['lon'])
-        signlon = position.signlon(object['lon'])
-        self.sign_longitude = Angle(signlon[position.LON])
-        self.sign = Sign(signlon[position.SIGN])
+        self.sign_longitude = Angle(position.sign_longitude(object))
+        self.sign = Sign(position.sign(object))
 
         if houses is not None:
-            self.house = House(position.house(object['lon'], houses))
+            self.house = House(position.house(object, houses))
 
         if 'dist' in object:
             self.distance = object['dist']

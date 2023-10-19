@@ -363,7 +363,7 @@ def test_get_data(coords, jd, astro):
     for key, eph_object in data.items():
         # Convert ecliptical longitude to sign-based
         object = eph_object.copy()
-        object['lon'] = position.signlon(object['lon'])[position.LON]
+        object['lon'] = position.sign_longitude(object)
 
         # Format properties to string to match astro.com front-end output
         for property_key in ('lon', 'lat', 'speed', 'dec'):
@@ -392,7 +392,7 @@ def test_armc_get_data(coords, jd, astro, armc):
     for key, eph_object in data.items():
         # Convert ecliptical longitude to sign-based
         object = eph_object.copy()
-        object['lon'] = position.signlon(object['lon'])[position.LON]
+        object['lon'] = position.sign_longitude(object)
 
         # Format properties to string to match astro.com front-end output
         for property_key in ('lon', 'lat', 'speed', 'dec'):

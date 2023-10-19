@@ -42,7 +42,7 @@ def between(object1: dict, object2: dict) -> dict:
             # Work out aspect information
             aspect_orb = abs(distance) - aspect
             exact_lon = swe.degnorm(passive['lon'] + (aspect if distance < 0 else -aspect))
-            associate = position.sign(exact_lon) == position.sign(active['lon'])
+            associate = position.sign(exact_lon) == position.sign(active)
             exact = exact_lon-settings.exact_orb <= active['lon'] <= exact_lon+settings.exact_orb
             applicative = not exact and ((aspect_orb < 0 if distance < 0 else aspect_orb > 0) or active['speed'] < -calc.STATION_SPEED)
 

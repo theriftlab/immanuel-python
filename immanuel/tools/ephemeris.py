@@ -465,7 +465,7 @@ def moon_phase(jd: float) -> int:
     """ Returns the moon phase at the given Julian date. """
     sun = planet(chart.SUN, jd)
     moon = planet(chart.MOON, jd)
-    return calculate.moon_phase(sun['lon'], moon['lon'])
+    return calculate.moon_phase(sun, moon)
 
 
 @cache
@@ -511,7 +511,7 @@ def _is_daytime(jd: float, lat: float, lon: float, armc: float, armc_obliquity: 
     """ Function for is_daytime() and armc_is_daytime(). """
     sun = planet(chart.SUN, jd)
     asc = _angle(chart.ASC, jd, lat, lon, chart.PLACIDUS, armc, armc_obliquity)
-    return calculate.is_daytime(sun['lon'], asc['lon'])
+    return calculate.is_daytime(sun, asc)
 
 
 @cache
@@ -607,7 +607,7 @@ def _pars_fortuna(jd: float, lat: float, lon: float, formula: int, armc: float =
     sun = planet(chart.SUN, jd)
     moon = planet(chart.MOON, jd)
     asc = angle(chart.ASC, jd, lat, lon, chart.PLACIDUS) if armc is None else armc_angle(chart.ASC, jd, armc, lat, armc_obliquity, chart.PLACIDUS)
-    lon = calculate.pars_fortuna(sun['lon'], moon['lon'], asc['lon'], formula)
+    lon = calculate.pars_fortuna_longitude(sun, moon, asc, formula)
 
     return {
         'index': chart.PARS_FORTUNA,

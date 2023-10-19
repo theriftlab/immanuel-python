@@ -18,17 +18,17 @@ from immanuel.tools import position
 
 def ruler(object: dict) -> bool:
     """ Returns whether the passed planet is the ruler of its sign. """
-    return object['index'] == settings.rulerships[position.sign(object['lon'])]
+    return object['index'] == settings.rulerships[position.sign(object)]
 
 
 def exalted(object: dict) -> bool:
     """ Returns whether the passed planet is exalted within its sign. """
-    return object['index'] == dignities.EXALTATIONS[position.sign(object['lon'])]
+    return object['index'] == dignities.EXALTATIONS[position.sign(object)]
 
 
 def triplicity_ruler(object: dict, is_daytime: bool) -> bool:
     """ Returns whether the passed planet is any type of triplicity ruler. """
-    triplicities = settings.triplicities[position.sign(object['lon'])]
+    triplicities = settings.triplicities[position.sign(object)]
 
     if settings.include_participatory_triplicities:
         return object['index'] in (triplicities['day' if is_daytime else 'night'], triplicities.get('participatory'))
@@ -39,19 +39,18 @@ def triplicity_ruler(object: dict, is_daytime: bool) -> bool:
 def term_ruler(object: dict) -> bool:
     """ Returns whether the passed planet is the term ruler
     within its sign. """
-    object_sign, object_sign_lon = position.signlon(object['lon'])
-    terms = settings.terms[object_sign]
+    terms = settings.terms[position.sign(object)]
 
     if object['index'] not in terms:
         return False
 
-    return terms[object['index']][0] <= object_sign_lon < terms[object['index']][1]
+    return terms[object['index']][0] <= position.sign_longitude(object) < terms[object['index']][1]
 
 
 def face_ruler(object: dict) -> bool:
     """ Returns whether the passed planet is the decan ruler
     within its sign. """
-    return object['index'] == dignities.FACE_RULERS[position.sign(object['lon'])][position.decan(object['lon'])-1]
+    return object['index'] == dignities.FACE_RULERS[position.sign(object)][position.decan(object)-1]
 
 
 def mutual_reception_ruler(object: dict, objects: dict) -> bool:
@@ -60,10 +59,10 @@ def mutual_reception_ruler(object: dict, objects: dict) -> bool:
     if ruler(object):
         return False
 
-    object_sign = position.sign(object['lon'])
+    object_sign = position.sign(object)
     object_sign_rulership = settings.rulerships[object_sign]
 
-    return position.sign(objects[object_sign_rulership]['lon']) in _planet_signs(object, settings.rulerships)
+    return position.sign(objects[object_sign_rulership]) in _planet_signs(object, settings.rulerships)
 
 
 def mutual_reception_exalted(object: dict, objects: dict) -> bool:
@@ -72,13 +71,13 @@ def mutual_reception_exalted(object: dict, objects: dict) -> bool:
     if exalted(object):
         return False
 
-    object_sign = position.sign(object['lon'])
+    object_sign = position.sign(object)
     object_sign_exaltation = dignities.EXALTATIONS[object_sign]
 
     if object_sign_exaltation is None:
         return False
 
-    return position.sign(objects[object_sign_exaltation]['lon']) in _planet_signs(object, dignities.EXALTATIONS)
+    return position.sign(objects[object_sign_exaltation]) in _planet_signs(object, dignities.EXALTATIONS)
 
 
 def mutual_reception_triplicity_ruler(object: dict, objects: dict, is_daytime: bool) -> bool:
@@ -88,9 +87,9 @@ def mutual_reception_triplicity_ruler(object: dict, objects: dict, is_daytime: b
         return False
 
     key = 'day' if is_daytime else 'night'
-    object_sign = position.sign(object['lon'])
+    object_sign = position.sign(object)
     object_triplicities = settings.triplicities[object_sign]
-    day_night_ruler_triplicities = settings.triplicities[position.sign(objects[object_triplicities[key]]['lon'])]
+    day_night_ruler_triplicities = settings.triplicities[position.sign(objects[object_triplicities[key]])]
 
     if object['index'] == day_night_ruler_triplicities[key]:
         return True
@@ -98,7 +97,7 @@ def mutual_reception_triplicity_ruler(object: dict, objects: dict, is_daytime: b
     if not settings.include_participatory_triplicities or 'participatory' not in object_triplicities:
         return False
 
-    participatory_ruler_triplicities = settings.triplicities[position.sign(objects[object_triplicities['participatory']]['lon'])]
+    participatory_ruler_triplicities = settings.triplicities[position.sign(objects[object_triplicities['participatory']])]
 
     return object['index'] == participatory_ruler_triplicities['participatory']
 
@@ -109,17 +108,15 @@ def mutual_reception_term_ruler(object: dict, objects: dict) -> bool:
     if term_ruler(object):
         return False
 
-    object_sign, object_sign_lon = position.signlon(object['lon'])
-    object_terms = settings.terms[object_sign]
+    object_terms = settings.terms[position.sign(object)]
 
     for index, boundaries in object_terms.items():
-        if boundaries[0] <= object_sign_lon < boundaries[1]:
+        if boundaries[0] <= position.sign_longitude(object) < boundaries[1]:
             break
 
-    term_ruler_sign, term_ruler_sign_lon = position.signlon(objects[index]['lon'])
-    term_ruler_terms = settings.terms[term_ruler_sign]
+    term_ruler_terms = settings.terms[position.sign(objects[index])]
 
-    return object['index'] in term_ruler_terms and term_ruler_terms[object['index']][0] <= term_ruler_sign_lon < term_ruler_terms[object['index']][1]
+    return object['index'] in term_ruler_terms and term_ruler_terms[object['index']][0] <= position.sign_longitude(objects[index]) < term_ruler_terms[object['index']][1]
 
 
 def mutual_reception_face_ruler(object: dict, objects: dict) -> bool:
@@ -128,11 +125,9 @@ def mutual_reception_face_ruler(object: dict, objects: dict) -> bool:
     if face_ruler(object):
         return False
 
-    object_sign = position.sign(object['lon'])
-    object_decan = position.decan(object['lon'])
-    face_ruler_object = dignities.FACE_RULERS[object_sign][object_decan-1]
+    face_ruler_object = dignities.FACE_RULERS[position.sign(object)][position.decan(object)-1]
 
-    return object['index'] == dignities.FACE_RULERS[position.sign(objects[face_ruler_object]['lon'])][position.decan(objects[face_ruler_object]['lon'])-1]
+    return object['index'] == dignities.FACE_RULERS[position.sign(objects[face_ruler_object])][position.decan(objects[face_ruler_object])-1]
 
 
 def in_rulership_element(object: dict) -> bool:
@@ -141,17 +136,17 @@ def in_rulership_element(object: dict) -> bool:
     if object['index'] not in settings.rulerships.values():
         return False
 
-    return position.element(_planet_signs(object, settings.rulerships)[0]*30-1) == position.element(object['lon'])
+    return position.element(_planet_signs(object, settings.rulerships)[0]*30-1) == position.element(object)
 
 
 def detriment(object: dict) -> bool:
     """ Returns whether the passed planet is in detriment within its sign. """
-    return position.opposite_sign(object['lon']) in _planet_signs(object, settings.rulerships)
+    return position.opposite_sign(object) in _planet_signs(object, settings.rulerships)
 
 
 def fall(object: dict) -> bool:
     """ Returns whether the passed planet is in fall within its sign. """
-    return position.opposite_sign(object['lon']) in _planet_signs(object, dignities.EXALTATIONS)
+    return position.opposite_sign(object) in _planet_signs(object, dignities.EXALTATIONS)
 
 
 def all(object: dict, objects: dict, is_daytime: bool) -> dict:

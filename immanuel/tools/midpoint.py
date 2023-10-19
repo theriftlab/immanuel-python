@@ -24,7 +24,7 @@ def all(objects1: dict, objects2: dict, obliquity: float = None, pars_fortuna: i
 
     # If we have composite Sun/Moon/Asc, calculate Part of Fortune
     if pars_fortuna == calc.COMPOSITE and objects.keys() >= {chart.PARS_FORTUNA, chart.SUN, chart.MOON, chart.ASC}:
-        objects[chart.PARS_FORTUNA]['lon'] = calculate.pars_fortuna(objects[chart.SUN]['lon'], objects[chart.MOON]['lon'], objects[chart.ASC]['lon'], pars_fortuna_formula)
+        objects[chart.PARS_FORTUNA]['lon'] = calculate.pars_fortuna_longitude(objects[chart.SUN], objects[chart.MOON], objects[chart.ASC], pars_fortuna_formula)
 
     return objects
 

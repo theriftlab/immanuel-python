@@ -135,7 +135,8 @@ def test_all(coords, jd1, jd2, obliquity, astro):
     composites = midpoint.all(objects1, objects2, obliquity, calc.MIDPOINT, calc.DAY_NIGHT_FORMULA)
 
     for index, composite in composites.items():
-        sign, sign_lon = position.signlon(composite['lon'])
+        sign = position.sign(composite)
+        sign_lon = position.sign_longitude(composite)
         assert sign == astro[index]['sign']
         assert convert.dec_to_string(sign_lon) == astro[index]['lon']
 
@@ -149,7 +150,8 @@ def test_composite(coords, jd1, jd2, obliquity, astro):
         object1 = ephemeris.get(index, jd1, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
         object2 = ephemeris.get(index, jd2, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
         composite = midpoint.composite(object1, object2, obliquity)
-        sign, sign_lon = position.signlon(composite['lon'])
+        sign = position.sign(composite)
+        sign_lon = position.sign_longitude(composite)
         assert sign == astro[index]['sign']
         assert convert.dec_to_string(sign_lon) == astro[index]['lon']
 

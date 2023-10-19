@@ -4,7 +4,7 @@
 
 
     The position module's calculations are tested against
-    figures from astro.com. The signlon() function will already
+    figures from astro.com. The sign_longitude() function will already
     have been partially tested in the ephemeris module's tests since
     there is no other way to convert the ephemeris module's longitudes
     into sign-specific longitudes.
@@ -126,45 +126,44 @@ def astro():
 
 def test_sign(data, astro):
     for key, object in data.items():
-        assert position.sign(object['lon']) == astro[key]['sign']
+        assert position.sign(object) == astro[key]['sign']
 
 
-def test_signlon(data, astro):
+def test_sign_longitude(data, astro):
     for key, object in data.items():
-        sign, lon = position.signlon(object['lon'])
-        assert sign == astro[key]['sign']
+        lon = position.sign_longitude(object)
         assert convert.dec_to_string(lon) == astro[key]['lon']
 
 
 def test_opposite_sign(data, astro):
     for key, object in data.items():
-        assert position.opposite_sign(object['lon']) == astro[key]['opposite_sign']
+        assert position.opposite_sign(object) == astro[key]['opposite_sign']
 
 
 def test_decan(data, astro):
     for key, object in data.items():
-        assert position.decan(object['lon']) == astro[key]['decan']
+        assert position.decan(object) == astro[key]['decan']
 
 
 def test_house(jd, coords, data, astro):
     houses = ephemeris.houses(jd, *coords, chart.PLACIDUS)
 
     for key, object in {k: v for k, v in data.items() if 'house' in v}:
-        assert position.house(object['lon'], houses) == astro[key]['house']
+        assert position.house(object, houses) == astro[key]['house']
 
 
 def test_opposite_house(jd, coords, data, astro):
     houses = ephemeris.houses(jd, *coords, chart.PLACIDUS)
 
     for key, object in {k: v for k, v in data.items() if 'house' in v}:
-        assert position.opposite_house(object['lon'], houses) == astro[key]['opposite_house']
+        assert position.opposite_house(object, houses) == astro[key]['opposite_house']
 
 
 def test_element(data, astro):
     for key, object in data.items():
-        assert position.element(object['lon']) == astro[key]['element']
+        assert position.element(object) == astro[key]['element']
 
 
 def test_modality(data, astro):
     for key, object in data.items():
-        assert position.modality(object['lon']) == astro[key]['modality']
+        assert position.modality(object) == astro[key]['modality']

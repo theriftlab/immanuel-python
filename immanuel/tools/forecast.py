@@ -3,8 +3,7 @@
     Author: Robert Davies (robert@theriftlab.com)
 
 
-    This module calculates dates for forecast methods such as
-    solar returns and secondary progressions.
+    This module calculates solar returns and secondary progressions.
 
 """
 
@@ -43,16 +42,16 @@ def progression(jd: float, lat: float, lon: float, pjd: float, house_system: int
 
     match method:
         case calc.DAILY_HOUSES:
-            progressed_armc = ephemeris.angle(chart.ARMC, progressed_jd, lat, lon, house_system)['lon']
+            progressed_armc_lon = ephemeris.angle(chart.ARMC, progressed_jd, lat, lon, house_system)['lon']
         case calc.NAIBOD:
             natal_armc = ephemeris.angle(chart.ARMC, jd, lat, lon, house_system)['lon']
-            progressed_armc = swe.degnorm(natal_armc + years * calc.MEAN_MOTIONS[chart.SUN])
+            progressed_armc_lon = swe.degnorm(natal_armc + years * calc.MEAN_MOTIONS[chart.SUN])
         case calc.SOLAR_ARC:
             natal_mc = ephemeris.angle(chart.MC, jd, lat, lon, house_system)
             natal_sun = ephemeris.planet(chart.SUN, jd)
             progressed_sun = ephemeris.planet(chart.SUN, progressed_jd)
             distance = swe.difdeg2n(progressed_sun['lon'], natal_sun['lon'])
             obliquity = ephemeris.obliquity(progressed_jd)
-            progressed_armc = swe.cotrans((natal_mc['lon'] + distance, 0, 1), -obliquity)[0]
+            progressed_armc_lon = swe.cotrans((natal_mc['lon'] + distance, 0, 1), -obliquity)[0]
 
-    return progressed_jd, progressed_armc
+    return progressed_jd, progressed_armc_lon
