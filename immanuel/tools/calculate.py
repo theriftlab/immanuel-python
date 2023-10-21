@@ -5,6 +5,7 @@
 
     This module contains miscellaneous calculations to ascertain basic chart
     and object information from the data returned from the ephemeris module.
+    These functions will accept both an object and a float.
 
 """
 
@@ -14,54 +15,65 @@ from immanuel.const import calc
 from immanuel.tools import ephemeris
 
 
-def moon_phase(sun: dict, moon: dict) -> int:
+def moon_phase(sun: dict | float, moon: dict | float) -> int:
     """ Returns the moon phase given the positions of the Sun and Moon. """
-    distance = swe.difdegn(moon['lon'], sun['lon'])
+    sun_lon, moon_lon = (object['lon'] if isinstance(object, dict) else object for object in (sun, moon))
+    distance = swe.difdegn(moon_lon, sun_lon)
 
     for angle in range(45, 361, 45):
         if distance < angle:
             return angle
 
 
-def is_daytime(sun: dict, asc: dict) -> bool:
+def is_daytime(sun: dict | float, asc: dict | float) -> bool:
     """ Returns whether the sun is above the ascendant. """
-    return swe.difdeg2n(sun['lon'], asc['lon']) < 0
+    sun_lon, asc_lon = (object['lon'] if isinstance(object, dict) else object for object in (sun, asc))
+    return swe.difdeg2n(sun_lon, asc_lon) < 0
 
 
-def pars_fortuna_longitude(sun: dict, moon: dict, asc: dict, formula: int) -> float:
+def pars_fortuna_longitude(sun: dict | float, moon: dict | float, asc: dict | float, formula: int) -> float:
     """ Returns the Part of Fortune longitude. """
-    if formula == calc.NIGHT_FORMULA or (formula == calc.DAY_NIGHT_FORMULA and not is_daytime(sun, asc)):
-        lon = (asc['lon'] + sun['lon'] - moon['lon'])
+    sun_lon, moon_lon, asc_lon = (object['lon'] if isinstance(object, dict) else object for object in (sun, moon, asc))
+
+    if formula == calc.NIGHT_FORMULA or (formula == calc.DAY_NIGHT_FORMULA and not is_daytime(sun_lon, asc_lon)):
+        lon = asc_lon + sun_lon - moon_lon
     else:
-        lon = (asc['lon'] + moon['lon'] - sun['lon'])
+        lon = asc_lon + moon_lon - sun_lon
 
     return swe.degnorm(lon)
 
 
 def sidereal_time(armc: dict | float) -> float:
-    """ Returns sidereal time based on ARMC longitude. Since ARMC can be
-    retrieved as an object or calculated by the forecast module, this function
-    accepts both an object and a float. """
+    """ Returns sidereal time based on ARMC longitude. """
     return (armc['lon'] if isinstance(armc, dict) else armc) / 15
 
 
-def object_movement(object: dict) -> int:
+def object_movement(object: dict | float) -> int:
     """ Returns whether a chart object is direct, stationary or retrograde. """
-    if -calc.STATION_SPEED <= object['speed'] <= calc.STATION_SPEED:
+    speed = object['speed'] if isinstance(object, dict) else object
+
+    if -calc.STATION_SPEED <= speed <= calc.STATION_SPEED:
         return calc.STATIONARY
 
-    return calc.DIRECT if object['speed'] > calc.STATION_SPEED else calc.RETROGRADE
+    return calc.DIRECT if speed > calc.STATION_SPEED else calc.RETROGRADE
 
 
-def is_out_of_bounds(object: dict, jd: float = None, obliquity: float = None) -> bool:
+def is_out_of_bounds(object: dict | float, jd: float = None, obliquity: float = None) -> bool:
     """ Returns whether the passed object is out of bounds either on the passed
     Julian date or relative to the passed obliquity. """
-    if 'dec' in object:
-        if jd is not None:
-            obliquity = ephemeris.obliquity(jd)
-        return not -obliquity < object['dec'] < obliquity
+    if isinstance(object, dict):
+        if 'dec' not in object:
+            return None
+        dec = object['dec']
+    else:
+        dec = object
 
-    return False
+    if jd is not None:
+        obliquity = ephemeris.obliquity(jd)
+    elif obliquity is None:
+        return None
+
+    return not -obliquity < dec < obliquity
 
 
 def solar_year_length(jd) -> float:
