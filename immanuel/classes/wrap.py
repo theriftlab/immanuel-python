@@ -121,6 +121,19 @@ class Movement:
         return self.formatted
 
 
+class MoonPhase:
+    def __init__(self, moon_phase: int) -> None:
+        self.new_moon = moon_phase == calc.NEW_MOON
+        self.waxing_crescent = moon_phase == calc.WAXING_CRESCENT
+        self.first_quarter = moon_phase == calc.FIRST_QUARTER
+        self.waxing_gibbous = moon_phase == calc.WAXING_GIBBOUS
+        self.full_moon = moon_phase == calc.FULL_MOON
+        self.disseminating = moon_phase == calc.DISSEMINATING
+        self.third_quarter = moon_phase == calc.THIRD_QUARTER
+        self.balsamic = moon_phase == calc.BALSAMIC
+        self.formatted = names.MOON_PHASES[moon_phase]
+
+
 class Object:
     def __init__(self, object: dict, objects: dict = None, houses: dict = None, is_daytime: bool = None, obliquity: float = None) -> None:
         self.index = object['index']

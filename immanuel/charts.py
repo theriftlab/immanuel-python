@@ -53,9 +53,9 @@ class Chart:
                 case data.PARTNER_DIURNAL:
                     self.partner_diurnal = self._partner_diurnal
                 case data.MOON_PHASE:
-                    self.moon_phase = self._moon_phase
+                    self.moon_phase = wrap.MoonPhase(self._moon_phase)
                 case data.PARTNER_MOON_PHASE:
-                    self.partner_moon_phase = self._partner_moon_phase
+                    self.partner_moon_phase = wrap.MoonPhase(self._partner_moon_phase)
                 case data.OBJECTS:
                     self.objects = {}
                     for index, object in self._objects.items():
@@ -136,7 +136,7 @@ class Natal(Chart):
         asc = ephemeris.angle(chart.ASC, natal_jd, self._lat, self._lon, settings.house_system)
 
         self._diurnal = calculate.is_daytime(sun, asc)
-        self._moon_phase = names.MOON_PHASES[calculate.moon_phase(sun, moon)]
+        self._moon_phase = calculate.moon_phase(sun, moon)
         self._objects = ephemeris.objects(settings.objects, natal_jd, self._lat, self._lon, settings.house_system)
         self._houses = ephemeris.houses(natal_jd, self._lat, self._lon, settings.house_system)
         self._aspects = aspect.all(self._objects)
@@ -165,7 +165,7 @@ class SolarReturn(Chart):
         asc = ephemeris.angle(chart.ASC, solar_return_jd, self._lat, self._lon, settings.house_system)
 
         self._diurnal = calculate.is_daytime(sun, asc)
-        self._moon_phase = names.MOON_PHASES[calculate.moon_phase(sun, moon)]
+        self._moon_phase = calculate.moon_phase(sun, moon)
         self._objects = ephemeris.objects(settings.objects, solar_return_jd, self._lat, self._lon, settings.house_system)
         self._houses = ephemeris.houses(solar_return_jd, self._lat, self._lon, settings.house_system)
         self._aspects = aspect.all(self._objects)
@@ -203,7 +203,7 @@ class Progressed(Chart):
         asc = self._houses[chart.HOUSE1]
 
         self._diurnal = calculate.is_daytime(sun, asc)
-        self._moon_phase = names.MOON_PHASES[calculate.moon_phase(sun, moon)]
+        self._moon_phase = calculate.moon_phase(sun, moon)
 
 
 class Synastry(Chart):
@@ -229,7 +229,7 @@ class Synastry(Chart):
         asc = ephemeris.angle(chart.ASC, natal_jd, self._lat, self._lon, settings.house_system)
 
         self._diurnal = calculate.is_daytime(sun, asc)
-        self._moon_phase = names.MOON_PHASES[calculate.moon_phase(sun, moon)]
+        self._moon_phase = calculate.moon_phase(sun, moon)
         self._objects = ephemeris.objects(settings.objects, natal_jd, self._lat, self._lon, settings.house_system)
         self._houses = ephemeris.houses(natal_jd, self._lat, self._lon, settings.house_system)
 
@@ -243,7 +243,7 @@ class Synastry(Chart):
         partner_asc = ephemeris.angle(chart.ASC, partner_jd, self._partner_lat, self._partner_lon, settings.house_system)
 
         self._partner_diurnal = calculate.is_daytime(partner_sun, partner_asc)
-        self._partner_moon_phase = names.MOON_PHASES[calculate.moon_phase(partner_sun, partner_moon)]
+        self._partner_moon_phase = calculate.moon_phase(partner_sun, partner_moon)
         self._partner_objects = ephemeris.objects(settings.objects, partner_jd, self._partner_lat, self._partner_lon, settings.house_system)
         self._partner_houses = ephemeris.houses(partner_jd, self._partner_lat, self._partner_lon, settings.house_system)
 
@@ -298,4 +298,4 @@ class Composite(Chart):
         asc = self._houses[chart.HOUSE1]
 
         self._diurnal = calculate.is_daytime(sun, asc)
-        self._moon_phase = names.MOON_PHASES[calculate.moon_phase(sun, moon)]
+        self._moon_phase = calculate.moon_phase(sun, moon)
