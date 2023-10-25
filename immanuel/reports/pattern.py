@@ -15,6 +15,9 @@ from immanuel.setup import settings
 
 
 def chart_shape(objects: dict) -> int:
+    # Filter objects
+    objects = { k: v for k, v in objects.items() if k in settings.report_objects }
+
     # Sort objects by longitude
     longitudes = sorted([v['lon'] for v in objects.values()])
     diffs = [swe.difdegn(_next(longitudes, k), v) for k, v in enumerate(longitudes)]
