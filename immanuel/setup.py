@@ -39,7 +39,6 @@ pattern & report calculations. """
 _settings['report_objects'] = (
     chart.SUN, chart.MOON, chart.MERCURY, chart.VENUS, chart.MARS,
     chart.JUPITER, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.PLUTO,
-    chart.CHIRON,
 )
 
 """ Which aspects to calculate. """

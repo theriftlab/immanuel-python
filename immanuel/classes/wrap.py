@@ -20,6 +20,10 @@ class Angle:
     def __init__(self, angle: float) -> None:
         self.raw = angle
         self.formatted = convert.dec_to_string(angle)
+        self.direction = None
+        self.degrees = None
+        self.minutes = None
+        self.seconds = None
         self.__dict__.update(dict(zip(('direction', 'degrees', 'minutes', 'seconds'), convert.dec_to_dms(self.raw))))
 
     def __str__(self) -> str:
