@@ -60,10 +60,10 @@ class Coords:
 
 
 class Date:
-    def __init__(self, dt: datetime, armc: dict = None) -> None:
-        self.datetime = dt
-        self.timezone = dt.tzname()
-        self.julian = date.to_jd(dt)
+    def __init__(self, dt: datetime | float, armc: dict = None, lat: float = None, lon: float = None) -> None:
+        self.datetime = dt if isinstance(dt, datetime) else date.from_jd(dt, lat, lon)
+        self.timezone = self.datetime.tzname()
+        self.julian = date.to_jd(dt) if isinstance(dt, datetime) else dt
         self.deltat = ephemeris.deltat(self.julian)
 
         if armc is not None:
