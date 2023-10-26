@@ -531,9 +531,12 @@ def _angles_houses_vertex_armc(armc: float, lat: float, obliquity: float, house_
 
 
 def _angles_houses_vertex_from_swe(cusps: tuple, ascmc: tuple, cuspsspeed: tuple, ascmcspeed: tuple) -> dict:
+    """ Get houses, angles & vertex direct from pyswisseph. """
     angles = {}
+
     for i in (chart.ASC, chart.MC, chart.ARMC):
         lon = ascmc[_SWE[i]]
+
         angles[i] = {
             'index': i,
             'type': chart.ANGLE,
@@ -541,8 +544,10 @@ def _angles_houses_vertex_from_swe(cusps: tuple, ascmc: tuple, cuspsspeed: tuple
             'lon': lon,
             'speed': ascmcspeed[_SWE[i]],
         }
+
         if i in (chart.ASC, chart.MC):
             index = chart.DESC if i == chart.ASC else chart.IC
+
             angles[index] = {
                 'index': index,
                 'type': chart.ANGLE,
@@ -552,9 +557,11 @@ def _angles_houses_vertex_from_swe(cusps: tuple, ascmc: tuple, cuspsspeed: tuple
             }
 
     houses = {}
+
     for i, lon in enumerate(cusps, start=1):
         index = chart.HOUSE + i
         size = swe.difdeg2n(cusps[i if i < 12 else 0], lon)
+
         houses[index] = {
             'index': index,
             'type': chart.HOUSE,
@@ -601,9 +608,9 @@ def _syzygy(jd: float) -> dict:
 
 @cache
 def _pars_fortuna(jd: float, lat: float, lon: float, formula: int, armc: float = None, armc_obliquity: float = None) -> dict:
-    """ Calculate Part of Fortune - this only relies on the ascendant
-    which will be consistent across all supported systems, so it is safe
-    to pass Placidus as the default. """
+    """ Calculate Part of Fortune - this relies on the ascendant which will be
+    consistent across all supported systems, so it is safe to pass Placidus as
+    the default. """
     sun = planet(chart.SUN, jd)
     moon = planet(chart.MOON, jd)
     asc = angle(chart.ASC, jd, lat, lon, chart.PLACIDUS) if armc is None else armc_angle(chart.ASC, jd, armc, lat, armc_obliquity, chart.PLACIDUS)
@@ -620,7 +627,7 @@ def _pars_fortuna(jd: float, lat: float, lon: float, formula: int, armc: float =
 
 @cache
 def _swisseph_point(index: int, jd: float) -> dict:
-    """ Pull any remaining non-calculated points straight from swisseph. """
+    """ Pull any remaining non-calculated points straight from pyswisseph. """
     res = swe.calc_ut(jd, _SWE[index])[0]
 
     return {
@@ -633,5 +640,5 @@ def _swisseph_point(index: int, jd: float) -> dict:
 
 
 def _type(index: int) -> int:
-    """ Return the type index of a give object's index. """
+    """ Return the type index of a given object's index. """
     return round(index, -2)
