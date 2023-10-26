@@ -4,9 +4,6 @@
 
 
     Test dates compared against astro.com output.
-    For solar return dates calculation, astro.com
-    appears to have a wider margin of error, so we
-    use approx() on the decimal conversion.
 
 """
 
@@ -190,17 +187,18 @@ def astro():
 
 
 def test_solar_return_lon(jd):
+    """ We use approx() here since the longitudes match
+    to ~8 decimal places, but the longitudes maintain 13 places. """
     sr_jd = forecast.solar_return(jd, 2030)
     natal_sun = ephemeris.planet(chart.SUN, jd)
     sr_sun = ephemeris.planet(chart.SUN, sr_jd)
     assert natal_sun['lon'] == approx(sr_sun['lon'])
 
 
-def test_solar_return_date(jd, coords):
+def test_solar_return_date(jd):
     """ Solar return date copied from astro.com """
     sr_jd = forecast.solar_return(jd, 2030)
-    astro_jd = date.to_jd(date.localize(datetime.fromisoformat('2029-12-31 16:30:16'), *coords))
-    assert sr_jd == approx(astro_jd)
+    assert round(sr_jd + ephemeris.deltat(sr_jd), 6) == 2462502.521823
 
 
 def test_progression_date(jd, pjd, coords):
@@ -208,14 +206,8 @@ def test_progression_date(jd, pjd, coords):
     Since the progressed date is always the same whatever method we
     use to calculate the houses, we can use any available method
     for this test. """
-    progressed_dt = date.from_jd(forecast.progression(jd, *coords, pjd, chart.PLACIDUS, calc.NAIBOD)[forecast.JD])
-    astro_dt = datetime(2000, 1, 27, 5, 14, 57, tzinfo=ZoneInfo('UTC'))
-    assert progressed_dt.year == astro_dt.year
-    assert progressed_dt.month == astro_dt.month
-    assert progressed_dt.day == astro_dt.day
-    assert progressed_dt.hour == astro_dt.hour
-    assert progressed_dt.minute == astro_dt.minute
-    assert progressed_dt.second == astro_dt.second
+    progressed_jd = forecast.progression(jd, *coords, pjd, chart.PLACIDUS, calc.NAIBOD)[forecast.JD]
+    assert round(progressed_jd + ephemeris.deltat(progressed_jd), 6) == 2451570.719456
 
 
 def test_progression(jd, pjd, coords, astro):
