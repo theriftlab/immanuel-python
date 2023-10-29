@@ -37,11 +37,11 @@ class Chart:
                 case data.SOLAR_RETURN_YEAR:
                     self.solar_return_year = self._solar_return_year
                 case data.SOLAR_RETURN_DATE:
-                    self.solar_return_date = wrap.Date(self._solar_return_date, self._solar_return_armc)
+                    self.solar_return_date = wrap.Date(self._solar_return_jd, self._solar_return_armc, self._latitude, self._longitude)
                 case data.PROGRESSION_DATE:
                     self.progression_date = wrap.Date(self._progression_date, self._progression_armc)
                 case data.PROGRESSED_DATE:
-                    self.progressed_date = wrap.Date(self._progressed_date, self._progressed_armc_lon)
+                    self.progressed_date = wrap.Date(self._progressed_jd, self._progressed_armc_lon, self._latitude, self._longitude)
                 case data.HOUSE_SYSTEM:
                     self.house_system = names.HOUSE_SYSTEMS[settings.house_system]
                 case data.SHAPE:
@@ -92,14 +92,17 @@ class Chart:
         self._partner_obliquity = None
         self._natal_date = None
         self._partner_date = None
+        self._natal_jd = None
+        self._partner_jd = None
         self._natal_armc = None
         self._partner_armc = None
         self._solar_return_year = None
-        self._solar_return_date = None
+        self._solar_return_jd = None
         self._solar_return_armc = None
         self._progression_date = None
+        self._progression_jd = None
         self._progression_armc = None
-        self._progressed_date = None
+        self._progressed_jd = None
         self._progressed_armc_lon = None
         self._lat = None
         self._latitude = None
@@ -132,18 +135,18 @@ class Natal(Chart):
     def set_data(self) -> None:
         self._latitude, self._longitude = (convert.to_dec(v) for v in (self._lat, self._lon))
         self._natal_date = date.localize(datetime.fromisoformat(self._dob), self._latitude, self._longitude)
-        natal_jd = date.to_jd(self._natal_date)
-        self._obliquity = ephemeris.obliquity(natal_jd)
-        self._natal_armc = ephemeris.angle(chart.ARMC, natal_jd, self._latitude, self._longitude, settings.house_system)['lon']
+        self._natal_jd = date.to_jd(self._natal_date)
+        self._obliquity = ephemeris.obliquity(self._natal_jd)
+        self._natal_armc = ephemeris.angle(chart.ARMC, self._natal_jd, self._latitude, self._longitude, settings.house_system)['lon']
 
-        sun = ephemeris.planet(chart.SUN, natal_jd)
-        moon = ephemeris.planet(chart.MOON, natal_jd)
-        asc = ephemeris.angle(chart.ASC, natal_jd, self._latitude, self._longitude, settings.house_system)
+        sun = ephemeris.planet(chart.SUN, self._natal_jd)
+        moon = ephemeris.planet(chart.MOON, self._natal_jd)
+        asc = ephemeris.angle(chart.ASC, self._natal_jd, self._latitude, self._longitude, settings.house_system)
 
         self._diurnal = calculate.is_daytime(sun, asc)
         self._moon_phase = calculate.moon_phase(sun, moon)
-        self._objects = ephemeris.objects(settings.objects, natal_jd, self._latitude, self._longitude, settings.house_system)
-        self._houses = ephemeris.houses(natal_jd, self._latitude, self._longitude, settings.house_system)
+        self._objects = ephemeris.objects(settings.objects, self._natal_jd, self._latitude, self._longitude, settings.house_system, settings.pars_fortuna)
+        self._houses = ephemeris.houses(self._natal_jd, self._latitude, self._longitude, settings.house_system)
         self._aspects = aspect.all(self._objects)
 
 
@@ -159,21 +162,20 @@ class SolarReturn(Chart):
     def set_data(self) -> None:
         self._latitude, self._longitude = (convert.to_dec(v) for v in (self._lat, self._lon))
         self._natal_date = date.localize(datetime.fromisoformat(self._dob), self._latitude, self._longitude)
-        natal_jd = date.to_jd(self._natal_date)
-        solar_return_jd = forecast.solar_return(natal_jd, self._solar_return_year)
-        self._obliquity = ephemeris.obliquity(solar_return_jd)
-        self._solar_return_date = date.from_jd(solar_return_jd)
-        self._natal_armc = ephemeris.angle(chart.ARMC, natal_jd, self._latitude, self._longitude, settings.house_system)['lon']
-        self._solar_return_armc = ephemeris.angle(chart.ARMC, solar_return_jd, self._latitude, self._longitude, settings.house_system)
+        self._natal_jd = date.to_jd(self._natal_date)
+        self._solar_return_jd = forecast.solar_return(self._natal_jd, self._solar_return_year)
+        self._obliquity = ephemeris.obliquity(self._solar_return_jd)
+        self._natal_armc = ephemeris.angle(chart.ARMC, self._natal_jd, self._latitude, self._longitude, settings.house_system)['lon']
+        self._solar_return_armc = ephemeris.angle(chart.ARMC, self._solar_return_jd, self._latitude, self._longitude, settings.house_system)
 
-        sun = ephemeris.planet(chart.SUN, solar_return_jd)
-        moon = ephemeris.planet(chart.MOON, solar_return_jd)
-        asc = ephemeris.angle(chart.ASC, solar_return_jd, self._latitude, self._longitude, settings.house_system)
+        sun = ephemeris.planet(chart.SUN, self._solar_return_jd)
+        moon = ephemeris.planet(chart.MOON, self._solar_return_jd)
+        asc = ephemeris.angle(chart.ASC, self._solar_return_jd, self._latitude, self._longitude, settings.house_system)
 
         self._diurnal = calculate.is_daytime(sun, asc)
         self._moon_phase = calculate.moon_phase(sun, moon)
-        self._objects = ephemeris.objects(settings.objects, solar_return_jd, self._latitude, self._longitude, settings.house_system)
-        self._houses = ephemeris.houses(solar_return_jd, self._latitude, self._longitude, settings.house_system)
+        self._objects = ephemeris.objects(settings.objects, self._solar_return_jd, self._latitude, self._longitude, settings.house_system, settings.pars_fortuna)
+        self._houses = ephemeris.houses(self._solar_return_jd, self._latitude, self._longitude, settings.house_system)
         self._aspects = aspect.all(self._objects)
 
 
@@ -197,16 +199,15 @@ class Progressed(Chart):
         progression_jd = date.to_jd(self._progression_date)
         self._progression_armc = ephemeris.angle(chart.ARMC, progression_jd, self._latitude, self._longitude, settings.house_system)
 
-        progressed_jd, self._progressed_armc_lon = forecast.progression(natal_jd, self._latitude, self._longitude, progression_jd, settings.house_system, settings.mc_progression)
-        self._progressed_date = date.from_jd(progressed_jd)
-        self._obliquity = ephemeris.obliquity(progressed_jd)
+        self._progressed_jd, self._progressed_armc_lon = forecast.progression(natal_jd, self._latitude, self._longitude, progression_jd, settings.house_system, settings.mc_progression)
+        self._obliquity = ephemeris.obliquity(self._progressed_jd)
 
-        self._objects = ephemeris.objects(settings.objects, progressed_jd, self._latitude, self._longitude, settings.house_system)
+        self._objects = ephemeris.armc_objects(settings.objects, self._progressed_jd, self._progressed_armc_lon, self._latitude, self._longitude, self._obliquity, settings.house_system, settings.pars_fortuna)
         self._houses = ephemeris.armc_houses(self._progressed_armc_lon, self._latitude, self._obliquity, settings.house_system)
         self._aspects = aspect.all(self._objects)
 
-        sun = ephemeris.planet(chart.SUN, progressed_jd)
-        moon = ephemeris.planet(chart.MOON, progressed_jd)
+        sun = ephemeris.planet(chart.SUN, self._progressed_jd)
+        moon = ephemeris.planet(chart.MOON, self._progressed_jd)
         asc = self._houses[chart.HOUSE1]
 
         self._diurnal = calculate.is_daytime(sun, asc)
