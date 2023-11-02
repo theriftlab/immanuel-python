@@ -30,7 +30,7 @@ def objects():
 
 @fixture
 def partner_objects():
-    lat, lon = [convert.string_to_dec(v) for v in ('38n45', '121w30')]
+    lat, lon = [convert.string_to_dec(v) for v in ('38n35', '121w30')]
     jd = date.to_jd(date.localize(datetime.fromisoformat('2001-02-16 06:00'), lat, lon))
     return ephemeris.objects(settings.objects, jd, lat, lon, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
 

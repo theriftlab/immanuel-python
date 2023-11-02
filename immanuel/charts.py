@@ -67,13 +67,15 @@ class Chart:
                     for index, object in self._partner_objects.items():
                         if 'jd' in object:
                             object['date'] = date.localize(date.from_jd(object['jd']), self._partner_lat, self._partner_lon)
-                        self.partner_objects['index'] = wrap.Object(object, self._partner_objects, self._partner_houses, self._partner_diurnal, self._partner_obliquity)
+                        self.partner_objects[index] = wrap.Object(object, self._partner_objects, self._partner_houses, self._partner_diurnal, self._partner_obliquity)
                 case data.HOUSES:
                     self.houses = {index: wrap.Object(house) for index, house in self._houses.items()}
                 case data.PARTNER_HOUSES:
                     self.partner_houses = {index: wrap.Object(house) for index, house in self._partner_houses.items()}
                 case data.ASPECTS:
                     self.aspects = {index: {object_index: wrap.Aspect(object_aspect, self._objects) for object_index, object_aspect in aspect_list.items()} for index, aspect_list in self._aspects.items()}
+                case data.PARTNER_ASPECTS:
+                    self.partner_aspects = {index: {object_index: wrap.Aspect(object_aspect, self._partner_objects) for object_index, object_aspect in aspect_list.items()} for index, aspect_list in self._partner_aspects.items()}
                 case data.WEIGHTINGS:
                     self.weightings = {
                         'elements': wrap.Elements(weighting.elements(self._objects)),
@@ -121,6 +123,7 @@ class Chart:
         self._houses = {}
         self._partner_houses = {}
         self._aspects = {}
+        self._partner_aspects = {}
 
 
 class Natal(Chart):
@@ -145,7 +148,7 @@ class Natal(Chart):
 
         self._diurnal = calculate.is_daytime(sun, asc)
         self._moon_phase = calculate.moon_phase(sun, moon)
-        self._objects = ephemeris.objects(settings.objects, self._natal_jd, self._latitude, self._longitude, settings.house_system, settings.pars_fortuna)
+        self._objects = ephemeris.objects(settings.objects, self._natal_jd, self._latitude, self._longitude, settings.house_system, settings.pars_fortuna_formula)
         self._houses = ephemeris.houses(self._natal_jd, self._latitude, self._longitude, settings.house_system)
         self._aspects = aspect.all(self._objects)
 
@@ -174,7 +177,7 @@ class SolarReturn(Chart):
 
         self._diurnal = calculate.is_daytime(sun, asc)
         self._moon_phase = calculate.moon_phase(sun, moon)
-        self._objects = ephemeris.objects(settings.objects, self._solar_return_jd, self._latitude, self._longitude, settings.house_system, settings.pars_fortuna)
+        self._objects = ephemeris.objects(settings.objects, self._solar_return_jd, self._latitude, self._longitude, settings.house_system, settings.pars_fortuna_formula)
         self._houses = ephemeris.houses(self._solar_return_jd, self._latitude, self._longitude, settings.house_system)
         self._aspects = aspect.all(self._objects)
 
@@ -202,7 +205,7 @@ class Progressed(Chart):
         self._progressed_jd, self._progressed_armc_lon = forecast.progression(natal_jd, self._latitude, self._longitude, progression_jd, settings.house_system, settings.mc_progression)
         self._obliquity = ephemeris.obliquity(self._progressed_jd)
 
-        self._objects = ephemeris.armc_objects(settings.objects, self._progressed_jd, self._progressed_armc_lon, self._latitude, self._longitude, self._obliquity, settings.house_system, settings.pars_fortuna)
+        self._objects = ephemeris.armc_objects(settings.objects, self._progressed_jd, self._progressed_armc_lon, self._latitude, self._longitude, self._obliquity, settings.house_system, settings.pars_fortuna_formula)
         self._houses = ephemeris.armc_houses(self._progressed_armc_lon, self._latitude, self._obliquity, settings.house_system)
         self._aspects = aspect.all(self._objects)
 
@@ -228,7 +231,6 @@ class Synastry(Chart):
 
     def set_data(self) -> None:
         self._latitude, self._longitude = (convert.to_dec(v) for v in (self._lat, self._lon))
-        self._partner_latitude, self._partner_longitude = (convert.to_dec(v) for v in (self._partner_lat, self._partner_lon))
         self._natal_date = date.localize(datetime.fromisoformat(self._dob), self._latitude, self._longitude)
         natal_jd = date.to_jd(self._natal_date)
         self._obliquity = ephemeris.obliquity(natal_jd)
@@ -240,9 +242,10 @@ class Synastry(Chart):
 
         self._diurnal = calculate.is_daytime(sun, asc)
         self._moon_phase = calculate.moon_phase(sun, moon)
-        self._objects = ephemeris.objects(settings.objects, natal_jd, self._latitude, self._longitude, settings.house_system)
+        self._objects = ephemeris.objects(settings.objects, natal_jd, self._latitude, self._longitude, settings.house_system, settings.pars_fortuna_formula)
         self._houses = ephemeris.houses(natal_jd, self._latitude, self._longitude, settings.house_system)
 
+        self._partner_latitude, self._partner_longitude = (convert.to_dec(v) for v in (self._partner_lat, self._partner_lon))
         self._partner_date = date.localize(datetime.fromisoformat(self._partner_dob), self._partner_latitude, self._partner_longitude)
         partner_jd = date.to_jd(self._partner_date)
         self._partner_obliquity = ephemeris.obliquity(partner_jd)
@@ -254,10 +257,11 @@ class Synastry(Chart):
 
         self._partner_diurnal = calculate.is_daytime(partner_sun, partner_asc)
         self._partner_moon_phase = calculate.moon_phase(partner_sun, partner_moon)
-        self._partner_objects = ephemeris.objects(settings.objects, partner_jd, self._partner_latitude, self._partner_longitude, settings.house_system)
+        self._partner_objects = ephemeris.objects(settings.objects, partner_jd, self._partner_latitude, self._partner_longitude, settings.house_system, settings.pars_fortuna_formula)
         self._partner_houses = ephemeris.houses(partner_jd, self._partner_latitude, self._partner_longitude, settings.house_system)
 
         self._aspects = aspect.synastry(self._objects, self._partner_objects)
+        self._partner_aspects = aspect.synastry(self._partner_objects, self._objects)
 
 
 class Composite(Chart):
@@ -288,8 +292,8 @@ class Composite(Chart):
         partner_sun = ephemeris.planet(chart.SUN, partner_jd)
         partner_moon = ephemeris.planet(chart.MOON, partner_jd)
 
-        objects = ephemeris.objects(settings.objects, natal_jd, self._latitude, self._longitude, settings.house_system)
-        partner_objects = ephemeris.objects(settings.objects, partner_jd, self._partner_latitude, self._partner_longitude, settings.house_system)
+        objects = ephemeris.objects(settings.objects, natal_jd, self._latitude, self._longitude, settings.house_system, settings.pars_fortuna_formula)
+        partner_objects = ephemeris.objects(settings.objects, partner_jd, self._partner_latitude, self._partner_longitude, settings.house_system, settings.pars_fortuna_formula)
 
         houses = ephemeris.houses(natal_jd, self._latitude, self._longitude, settings.house_system)
         partner_houses = ephemeris.houses(partner_jd, self._partner_latitude, self._partner_longitude, settings.house_system)
@@ -297,12 +301,12 @@ class Composite(Chart):
         self._obliquity = midpoint.obliquity(natal_jd, partner_jd)
 
         if settings.composite_houses == calc.MIDPOINT:
-            self._houses = midpoint.all(houses, partner_houses, self._obliquity, settings.composite_pars_fortuna, settings.pars_fortuna)
+            self._houses = midpoint.all(houses, partner_houses, self._obliquity, settings.composite_pars_fortuna, settings.pars_fortuna_formula)
         else:
             armc_lon = midpoint.composite(self._natal_armc, self._partner_armc, self._obliquity)['lon']
             self._houses = ephemeris.armc_houses(armc_lon, self._latitude, self._obliquity, settings.house_system)
 
-        self._objects = midpoint.all(objects, partner_objects, self._obliquity, settings.composite_pars_fortuna, settings.pars_fortuna)
+        self._objects = midpoint.all(objects, partner_objects, self._obliquity, settings.composite_pars_fortuna, settings.pars_fortuna_formula)
         self._aspects = aspect.all(self._objects)
 
         sun = midpoint.composite(natal_sun, partner_sun, self._obliquity)

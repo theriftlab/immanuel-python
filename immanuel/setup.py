@@ -167,7 +167,7 @@ _settings['mc_progression'] = calc.NAIBOD
 
 
 """ Part of Fortune formula. """
-_settings['pars_fortuna'] = calc.DAY_NIGHT_FORMULA
+_settings['pars_fortuna_formula'] = calc.DAY_NIGHT_FORMULA
 
 
 """ Composite Part of Fortune calculation. """
@@ -265,6 +265,7 @@ _settings['chart_data'] = {
         data.HOUSES,
         data.PARTNER_HOUSES,
         data.ASPECTS,
+        data.PARTNER_ASPECTS,
         data.WEIGHTINGS,
         data.PARTNER_WEIGHTINGS,
     },
