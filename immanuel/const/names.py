@@ -219,3 +219,9 @@ CHART_SHAPES = {
     calc.SPLAY: 'Splay',
     calc.SPLASH: 'Splash',
 }
+
+PROGRESSION_METHODS = {
+    calc.NAIBOD: 'Naibod',
+    calc.SOLAR_ARC: 'Solar Arc',
+    calc.DAILY_HOUSES: 'Daily Houses',
+}

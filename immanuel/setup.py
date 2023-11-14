@@ -235,6 +235,7 @@ _settings['chart_data'] = {
         data.WEIGHTINGS,
     ),
     chart.PROGRESSED: {
+        data.PROGRESSION_METHOD,
         data.NATAL_DATE,
         data.PROGRESSION_DATE,
         data.PROGRESSED_DATE,

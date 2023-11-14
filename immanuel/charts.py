@@ -42,6 +42,8 @@ class Chart:
                     self.progression_date = wrap.Date(self._progression_date, self._progression_armc)
                 case data.PROGRESSED_DATE:
                     self.progressed_date = wrap.Date(self._progressed_jd, self._progressed_armc_lon, self._latitude, self._longitude)
+                case data.PROGRESSION_METHOD:
+                    self.progression_method = names.PROGRESSION_METHODS[settings.mc_progression]
                 case data.HOUSE_SYSTEM:
                     self.house_system = names.HOUSE_SYSTEMS[settings.house_system]
                 case data.SHAPE:
@@ -220,13 +222,13 @@ class Progressed(Chart):
 class Synastry(Chart):
     """ Synastry chart is a special case - there are two sets of objects
     and houses, with aspects between them. """
-    def __init__(self, dob: str, lat: float, lon: float, partner_dob: str, partner_lat: float, partner_lon: float) -> None:
+    def __init__(self, dob: str, lat: float, lon: float, partner_dob: str, partner_lat: float = None, partner_lon: float = None) -> None:
         self._dob = dob
         self._lat = lat
         self._lon = lon
         self._partner_dob = partner_dob
-        self._partner_lat = partner_lat
-        self._partner_lon = partner_lon
+        self._partner_lat = partner_lat if partner_lat is not None else lat
+        self._partner_lon = partner_lon if partner_lon is not None else lon
         super().__init__(chart.SYNASTRY)
 
     def set_data(self) -> None:
@@ -266,13 +268,13 @@ class Synastry(Chart):
 
 class Composite(Chart):
     """ Generates a midpoint chart based on the two passed sets of data. """
-    def __init__(self, dob: str, lat: float, lon: float, partner_dob: str, partner_lat: float, partner_lon: float) -> None:
+    def __init__(self, dob: str, lat: float, lon: float, partner_dob: str, partner_lat: float = None, partner_lon: float = None) -> None:
         self._dob = dob
         self._lat = lat
         self._lon = lon
         self._partner_dob = partner_dob
-        self._partner_lat = partner_lat
-        self._partner_lon = partner_lon
+        self._partner_lat = partner_lat if partner_lat is not None else lat
+        self._partner_lon = partner_lon if partner_lon is not None else lon
         super().__init__(chart.COMPOSITE)
 
     def set_data(self) -> None:

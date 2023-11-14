@@ -212,6 +212,7 @@ def test_progressed(dob, lat, lon, pdt):
     progressed_chart = charts.Progressed(dob, lat, lon, pdt)
 
     assert progressed_chart.type == names.CHART_TYPES[chart.PROGRESSED]
+    assert progressed_chart.progression_method == names.PROGRESSION_METHODS[settings.mc_progression]
 
     # Birth date tested against astro.com's JD
     assert round(progressed_chart.natal_date.julian + progressed_chart.natal_date.deltat, 6) == 2451545.250739
@@ -290,6 +291,13 @@ def test_progressed(dob, lat, lon, pdt):
 
 
 def test_synastry(dob, lat, lon, partner_dob, partner_lat, partner_lon):
+    # Test for partner coordinates being copied to that of main chart
+    synastry_chart = charts.Synastry(dob, lat, lon, partner_dob)
+
+    assert synastry_chart.partner_coords.lat == synastry_chart.coords.lat
+    assert synastry_chart.partner_coords.lon == synastry_chart.coords.lon
+
+    # Now continue with the rest of the tests
     synastry_chart = charts.Synastry(dob, lat, lon, partner_dob, partner_lat, partner_lon)
 
     assert synastry_chart.type == names.CHART_TYPES[chart.SYNASTRY]
@@ -425,6 +433,13 @@ def test_synastry(dob, lat, lon, partner_dob, partner_lat, partner_lon):
 
 
 def test_composite(dob, lat, lon, partner_dob, partner_lat, partner_lon):
+    # Test for partner coordinates being copied to that of main chart
+    composite_chart = charts.Synastry(dob, lat, lon, partner_dob)
+
+    assert composite_chart.partner_coords.lat == composite_chart.coords.lat
+    assert composite_chart.partner_coords.lon == composite_chart.coords.lon
+
+    # Now continue with the rest of the tests
     composite_chart = charts.Composite(dob, lat, lon, partner_dob, partner_lat, partner_lon)
 
     assert composite_chart.type == names.CHART_TYPES[chart.COMPOSITE]
