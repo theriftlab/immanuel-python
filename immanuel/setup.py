@@ -163,7 +163,7 @@ _settings['chart_shape_orb'] = 5
 
 
 """ MC progression formula for secondary progressions. """
-_settings['mc_progression'] = calc.NAIBOD
+_settings['mc_progression_method'] = calc.NAIBOD
 
 
 """ Part of Fortune formula. """

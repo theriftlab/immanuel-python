@@ -208,11 +208,11 @@ def test_solar_return(dob, lat, lon, solar_return_year):
 
 
 def test_progressed(dob, lat, lon, pdt):
-    settings.mc_progression = calc.NAIBOD
+    settings.mc_progression_method = calc.NAIBOD
     progressed_chart = charts.Progressed(dob, lat, lon, pdt)
 
     assert progressed_chart.type == names.CHART_TYPES[chart.PROGRESSED]
-    assert progressed_chart.progression_method == names.PROGRESSION_METHODS[settings.mc_progression]
+    assert progressed_chart.progression_method == names.PROGRESSION_METHODS[settings.mc_progression_method]
 
     # Birth date tested against astro.com's JD
     assert round(progressed_chart.natal_date.julian + progressed_chart.natal_date.deltat, 6) == 2451545.250739

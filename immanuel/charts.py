@@ -43,7 +43,7 @@ class Chart:
                 case data.PROGRESSED_DATE:
                     self.progressed_date = wrap.Date(self._progressed_jd, self._progressed_armc_lon, self._latitude, self._longitude)
                 case data.PROGRESSION_METHOD:
-                    self.progression_method = names.PROGRESSION_METHODS[settings.mc_progression]
+                    self.progression_method = names.PROGRESSION_METHODS[settings.mc_progression_method]
                 case data.HOUSE_SYSTEM:
                     self.house_system = names.HOUSE_SYSTEMS[settings.house_system]
                 case data.SHAPE:
@@ -204,7 +204,7 @@ class Progressed(Chart):
         progression_jd = date.to_jd(self._progression_date)
         self._progression_armc = ephemeris.angle(chart.ARMC, progression_jd, self._latitude, self._longitude, settings.house_system)
 
-        self._progressed_jd, self._progressed_armc_lon = forecast.progression(natal_jd, self._latitude, self._longitude, progression_jd, settings.house_system, settings.mc_progression)
+        self._progressed_jd, self._progressed_armc_lon = forecast.progression(natal_jd, self._latitude, self._longitude, progression_jd, settings.house_system, settings.mc_progression_method)
         self._obliquity = ephemeris.obliquity(self._progressed_jd)
 
         self._objects = ephemeris.armc_objects(settings.objects, self._progressed_jd, self._progressed_armc_lon, self._latitude, self._longitude, self._obliquity, settings.house_system, settings.pars_fortuna_formula)
