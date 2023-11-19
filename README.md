@@ -4,6 +4,10 @@ Immanuel aims to be a Python >= 3.10 module for painlessly producing simple, rea
 
 More in-depth documentation will come with the first official release; for now this is intended as an overview of what Immanuel is capable of.
 
+## Installation
+
+Immanuel is not yet properly packaged as a PyPi module. To use it, you will need to `git clone` this repo and ensure the required modules listed below are installed.
+
 ## Required Modules
 
 * pyswisseph
