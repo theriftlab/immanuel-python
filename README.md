@@ -1,14 +1,14 @@
 # Immanuel
 
-Immanuel aims to be a Python >= 3.10 module for painlessly producing simple, readable, chart-centred astrology data from [pyswisseph](https://github.com/astrorigin/pyswisseph) with extra calculations modelled on those of astro.com and Astro Gold. Simple chart classes take date, time, and location data and return an object which can be output as either human-friendly text or easily serialised into JSON.
+Immanuel aims to be a Python >= 3.10 package for painlessly producing simple, readable, chart-centred astrology data from [pyswisseph](https://github.com/astrorigin/pyswisseph) with extra calculations modelled on those of astro.com and Astro Gold. Simple chart classes take date, time, and location data and return an object which can be output as either human-friendly text or easily serialised into JSON.
 
 More in-depth documentation will come with the first official release; for now this is intended as an overview of what Immanuel is capable of.
 
 ## Installation
 
-Immanuel is not yet properly packaged as a PyPi module. To use it, you will need to `git clone` this repo and ensure the required modules listed below are installed.
+Immanuel is not yet properly packaged for Pip. To use it, you will need to `git clone` this repo and ensure the required packages listed below are installed.
 
-## Required Modules
+## Required Packages
 
 * pyswisseph
 * python-dateutil
@@ -251,7 +251,7 @@ There are many detailed customisations for chart data, especially for aspects, a
 
 ## Extra Objects
 
-Fixed stars are included in Immanuel's data, but to include extra objects such as asteroids, you will need to download the relevant ephemeris file(s) and tell Immanuel where to find them with the setup module, then add it to the settings for returned objects. For example, to include asteroid Lilith (1181), download its ephemeris file `se01181s.se1` (currently available [here](https://www.dropbox.com/scl/fo/y3naz62gy6f6qfrhquu7u/h/all_ast/ast1?dl=0)) and use the `add_filepath()` function, then add `1181` to the `settings.objects` list:
+Fixed stars are included in Immanuel's data, but to include extra objects such as asteroids, you will need to download the relevant ephemeris file(s) and tell Immanuel where to find them with the `setup` module, then add it to the settings for returned objects. For example, to include asteroid Lilith (1181), download its ephemeris file `se01181s.se1` (currently available [here](https://www.dropbox.com/scl/fo/y3naz62gy6f6qfrhquu7u/h/all_ast/ast1?dl=0)) and use the `add_filepath()` function, then add `1181` to the `settings.objects` list:
 
 ```python
 import json
