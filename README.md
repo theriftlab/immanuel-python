@@ -49,10 +49,10 @@ The various chart types return their own sets of data, but for a basic natal cha
 * Chart date
 * Chart coordinates
 * House system
-* Chart shape type
+* Chart shape type (eg. bowl, splash etc.)
 * Whether the chart is diurnal (ie. daytime)
 * Moon phase
-* All chart objects (eg. planets, asteroids, angles etc.)
+* All chart objects (eg. planets, asteroids, primary angles etc.) and their positions & dignities if applicable
 * Houses
 * Aspects
 * Weightings (ie. which objects are in which elements / modalities etc.)
@@ -357,6 +357,6 @@ Tests are available via Pytest. Simply run this from the root:
 python -m pytest
 ```
 
-### Credits
+## Credits
 
 Immanuel is forever indebted to the pioneering work of Alois Treindl and Dieter Koch at Astrodienst, and to João Ventura for the incredibly detailed [flatlib](https://github.com/flatangle/flatlib) which first inspired the development of this package.
