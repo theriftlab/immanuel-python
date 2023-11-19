@@ -24,7 +24,7 @@ _settings = {}
 _settings['house_system'] = chart.PLACIDUS
 
 """ Which planets, points etc. to show. """
-_settings['objects'] = (
+_settings['objects'] = [
     chart.ASC, chart.DESC, chart.MC, chart.IC,
     chart.TRUE_NORTH_NODE, chart.TRUE_SOUTH_NODE,
     chart.VERTEX, chart.PARS_FORTUNA,
@@ -32,20 +32,20 @@ _settings['objects'] = (
     chart.SUN, chart.MOON, chart.MERCURY, chart.VENUS, chart.MARS,
     chart.JUPITER, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.PLUTO,
     chart.CHIRON,
-)
+]
 
 """ Which planets, points etc. to use in chart
 pattern & report calculations. """
-_settings['report_objects'] = (
+_settings['report_objects'] = [
     chart.SUN, chart.MOON, chart.MERCURY, chart.VENUS, chart.MARS,
     chart.JUPITER, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.PLUTO,
-)
+]
 
 """ Which aspects to calculate. """
-_settings['aspects'] = (
+_settings['aspects'] = [
     calc.CONJUNCTION, calc.OPPOSITION, calc.SQUARE, calc.TRINE, calc.SEXTILE,
     calc.QUINCUNX,
-)
+]
 
 """ Rules for what chart objects can initiate or receive which aspects. """
 _settings['default_aspect_rule'] = {
