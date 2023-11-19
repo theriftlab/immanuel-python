@@ -173,6 +173,12 @@ Which will output the following:
 }
 ```
 
+Note that the entire chart object can be serialized to JSON, not just its properties, eg.:
+
+```python
+print(json.dumps(natal, cls=ToJSON, indent=4))
+```
+
 Each returned chart object has its own numerical index - for example, the Sun has an index of `4000001`. For common objects, the `chart` module contains constants (in this case `chart.SUN`). It is useful to index chart objects numerically rather than by name so that extra objects may be easily added from ephemeris files by their index. Asteroid Lilith has an index of `1181` in the ephemeris, so if this is added to the requested chart objects then it will be returned with this index. Anywhere else this index appears in the data can then be cross-referenced with its entry in the `objects` property to retrieve its information.
 
 A good example of this is in the `aspects` property. All aspects will reference objects by their index. To see aspect data between the Sun and Moon, we could do this:
