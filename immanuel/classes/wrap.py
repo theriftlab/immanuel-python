@@ -41,11 +41,32 @@ class Aspect:
         self.orb = aspect['orb']
         self.distance = Angle(aspect['distance'])
         self.difference = Angle(aspect['difference'])
-        self.movement = names.ASPECT_MOVEMENTS[aspect['movement']]
-        self.condition = names.ASPECT_CONDITIONS[aspect['condition']]
+        self.movement = AspectMovement(aspect['movement'])
+        self.condition = AspectCondition(aspect['condition'])
 
     def __str__(self) -> str:
         return f'{self._active_name} {self._passive_name} {self.type} within {self.difference} ({self.movement}, {self.condition})'
+
+
+class AspectMovement:
+    def __init__(self, movement: int) -> None:
+        self.applicative = movement == calc.APPLICATIVE
+        self.exact = movement == calc.EXACT
+        self.separative = movement == calc.SEPARATIVE
+        self.formatted = names.ASPECT_MOVEMENTS[movement]
+
+    def __str___(self) -> str:
+        return self.formatted
+
+
+class AspectCondition:
+    def __init__(self, condition: int) -> None:
+        self.associate = condition == calc.ASSOCIATE
+        self.dissociate = condition == calc.DISSOCIATE
+        self.formatted = names.ASPECT_CONDITIONS[condition]
+
+    def __str___(self) -> str:
+        return self.formatted
 
 
 class Coords:
@@ -103,6 +124,9 @@ class EclipseType:
         self.penumbral = eclipse_type == chart.PENUMBRAL
         self.formatted = names.ECLIPSE_TYPES[eclipse_type]
 
+    def __str___(self) -> str:
+        return self.formatted
+
 
 class House:
     def __init__(self, house: dict) -> None:
@@ -113,7 +137,7 @@ class House:
         return self.name
 
 
-class Movement:
+class ObjectMovement:
     def __init__(self, object: dict) -> None:
         self._movement = calculate.object_movement(object)
         self.direct = self._movement == calc.DIRECT
@@ -136,6 +160,9 @@ class MoonPhase:
         self.third_quarter = moon_phase == calc.THIRD_QUARTER
         self.balsamic = moon_phase == calc.BALSAMIC
         self.formatted = names.MOON_PHASES[moon_phase]
+
+    def __str___(self) -> str:
+        return self.formatted
 
 
 class Object:
@@ -166,7 +193,7 @@ class Object:
         self.speed = object['speed']
 
         if object['type'] not in (chart.HOUSE, chart.FIXED_STAR, chart.ANGLE):
-            self.movement = Movement(object)
+            self.movement = ObjectMovement(object)
 
         if 'dec' in object:
             self.declination = Angle(object['dec'])

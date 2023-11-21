@@ -212,8 +212,17 @@ Which would give us this data:
         "minutes": 42,
         "seconds": 3
     },
-    "movement": "Separative",
-    "condition": "Associate"
+    "movement": {
+        "applicative": false,
+        "exact": false,
+        "separative": true,
+        "formatted": "Separative"
+    },
+    "condition": {
+        "associate": true,
+        "dissociate": false,
+        "formatted": "Associate"
+    }
 }
 ```
 
