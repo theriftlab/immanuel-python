@@ -232,9 +232,9 @@ The active object is the Moon, index `4000002`, while the passive is the Sun, in
 
 Calculations for the secondary progressions are based on those of astro.com. The same 3 methods for MC progression are available and will produce the same progressed date, sidereal time, and house positions as astro.com:
 
-* Daily Houses - equivalent to astro.com's "ARMC 361°/prog.day"
-* Naibod - equivalent to astro.com's "ARMC 1 Naibod/prog.day"
-* Solar Arc - equivalent to astro.com's "MC from solar arc"
+* **Daily Houses** - equivalent to astro.com's `ARMC 361°/prog.day`
+* **Naibod** (default) - equivalent to astro.com's `ARMC 1 Naibod/prog.day`
+* **Solar Arc** - equivalent to astro.com's `MC from solar arc`
 
 Planetary dignity scores are based on those of Astro Gold, although these are somewhat flexible via the settings.
 
@@ -256,11 +256,11 @@ settings.mc_progression_method = calc.DAILY_HOUSES
 progressed = charts.Progressed(dob='2000-01-01 10:00', lat='32n43', lon='117w09', pd='2025-06-20 17:00')
 ```
 
-There are many detailed customisations for chart data, especially for aspects, and a look through the defaults in `setup.py` will give you a good idea of what is available to customise and how.
+There are many detailed customisations for chart data, especially for aspect rules, and a look through the defaults in `setup.py` will give you a good idea of what is available to customise and how.
 
 ## Extra Objects
 
-Fixed stars are included in Immanuel's data, but to include extra objects such as asteroids, you will need to download the relevant ephemeris file(s) and tell Immanuel where to find them with the `setup` module, then add it to the settings for returned objects. For example, to include asteroid Lilith (1181), download its ephemeris file `se01181s.se1` (currently available [here](https://www.dropbox.com/scl/fo/y3naz62gy6f6qfrhquu7u/h/all_ast/ast1?dl=0)) and use the `add_filepath()` function, then add `1181` to the `settings.objects` list:
+Fixed stars are included in Immanuel's data, but to include extra objects such as asteroids, you will need to download the relevant ephemeris file(s) and tell Immanuel where to find them with the `setup` module, then add it to the settings for returned objects. For example, to include asteroid Lilith (`1181`), download its ephemeris file `se01181s.se1` (currently available [here](https://www.dropbox.com/scl/fo/y3naz62gy6f6qfrhquu7u/h/all_ast/ast1?dl=0)) and use the `add_filepath()` function, then add `1181` to the `settings.objects` list:
 
 ```python
 import json
