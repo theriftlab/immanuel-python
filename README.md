@@ -131,6 +131,7 @@ Which will output the following:
         "name": "Capricorn"
     },
     "house": {
+        "index": 2000011,
         "number": 11,
         "name": "11th House"
     },
@@ -316,6 +317,7 @@ This will return a standard asteroid object:
         "name": "Pisces"
     },
     "house": {
+        "index": 2000001,
         "number": 1,
         "name": "1st House"
     },

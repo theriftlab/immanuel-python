@@ -130,6 +130,7 @@ class EclipseType:
 
 class House:
     def __init__(self, house: dict) -> None:
+        self.index = house['index']
         self.number = house['number']
         self.name = house['name']
 
