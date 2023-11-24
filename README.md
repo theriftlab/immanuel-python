@@ -359,13 +359,13 @@ The chart classes are built on various submodules which are used to collect char
 
 The `tools` submodules contain functions to extract and standardise useful data from swisseph and perform common calculations on it such as progressions, transits, midpoints etc. There are also functions for date conversion and formatting data. All modules here are agnostic of any settings in the `setup` module.
 
-### objects
+### reports
 
-The `objects` submodules contain functions for extrapolating chart-specific data from pure ephemeris data based on the settings in the `setup` module. These include calculating aspects, dignity scores, chart shapes etc.
+The `reports` submodules contain functions for extrapolating more chart-specific data from pure ephemeris data based on the settings in the `setup` module. These include calculating aspects, dignity scores, chart shapes etc.
 
 ## Tests
 
-Tests are available via Pytest. Simply run this from the root:
+Tests are available via pytest. If you have cloned the repo, simply run pytest from the root:
 
 ```bash
 python -m pytest
