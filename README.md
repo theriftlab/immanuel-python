@@ -1,21 +1,14 @@
 # Immanuel
 
-Immanuel aims to be a Python >= 3.10 package for painlessly producing simple, readable, chart-centred astrology data from [pyswisseph](https://github.com/astrorigin/pyswisseph) with extra calculations modelled on those of astro.com and Astro Gold. Simple chart classes take date, time, and location data and return an object which can be output as either human-friendly text or easily serialised into JSON.
-
-More in-depth documentation will come with the first official release; for now this is intended as an overview of what Immanuel is capable of.
+Immanuel is a Python >= 3.10 package for painlessly producing simple, readable, chart-centred astrology data from [pyswisseph](https://github.com/astrorigin/pyswisseph) with extra calculations modelled on those of astro.com and Astro Gold. Simple chart classes take date, time, and location data and return an object which can be output as either human-friendly text or easily serialised into JSON.
 
 ## Installation
 
-Immanuel is not yet properly packaged for Pip. To use it, you will need to `git clone` this repo and ensure the required packages listed below are installed.
+```bash
+pip install immanuel
+```
 
-## Required Packages
-
-* pyswisseph
-* python-dateutil
-* timezonefinder
-* pytest
-
-Version >= 6.0.0 of `timezonefinder` requires a C compiler present on installation in order to run with any degree of efficiency. Without one it will revert to a pure-Python library which is painfully slow by comparison. Version 5.2.0 will run much faster if a C compiler is not available, but it is unclear how big an impact on accuracy this will have.
+**NOTE:** The package requirements have locked in version 5.2.0 of `timezonefinder` - version >= 6.0.0 requires a C compiler present on installation in order to run with any degree of efficiency. Without one it will revert to a pure-Python library which is painfully slow by comparison. Version 5.2.0 will run much faster if a C compiler is not available, but it is unclear how big an impact on accuracy this will have.
 
 ## Chart Types
 

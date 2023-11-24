@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "immanuel"
+version = "1.0.0"
+description = "Painlessly produce both readable and JSON astrology chart data from pyswisseph."
+authors = [
+  { name = "Robert Davies", email = "robert@theriftlab.com" },
+]
+license = { file = "LICENSE.md" }
+readme = "README.md"
+keywords = ["astrology", "api", "pyswisseph", "swisseph", "astro.com"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "pyswisseph~=2.10",
+    "python-dateutil",
+    "timezonefinder~=5.2",
+    "pytest",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/theriftlab/immanuel-python"
+"Bug Tracker" = "https://github.com/theriftlab/immanuel-python/issues"
