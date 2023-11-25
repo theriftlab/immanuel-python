@@ -32,7 +32,7 @@ natal = charts.Natal(dob='2000-01-01 10:00', lat='32n43', lon='117w09')
 
 solar_return = charts.SolarReturn(dob='2000-01-01 10:00', lat='32n43', lon='117w09', year=2025)
 
-progressed = charts.Progressed(dob='2000-01-01 10:00', lat='32n43', lon='117w09', pd='2025-06-20 17:00')
+progressed = charts.Progressed(dob='2000-01-01 10:00', lat='32n43', lon='117w09', pdt='2025-06-20 17:00')
 
 synastry = charts.Synastry(dob='2000-01-01 10:00', lat='32n43', lon='117w09', partner_dob='2001-02-03 15:45', partner_lat='38n35', partner_lon='121w30')
 
