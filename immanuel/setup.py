@@ -208,7 +208,7 @@ _settings['dignity_scores'] = {
 
 """ Data that should be included for each chart type's output. """
 _settings['chart_data'] = {
-    chart.NATAL: (
+    chart.NATAL: [
         data.NATAL_DATE,
         data.NATAL_COORDS,
         data.HOUSE_SYSTEM,
@@ -219,8 +219,8 @@ _settings['chart_data'] = {
         data.HOUSES,
         data.ASPECTS,
         data.WEIGHTINGS,
-    ),
-    chart.SOLAR_RETURN: (
+    ],
+    chart.SOLAR_RETURN: [
         data.NATAL_DATE,
         data.SOLAR_RETURN_YEAR,
         data.SOLAR_RETURN_DATE,
@@ -233,8 +233,8 @@ _settings['chart_data'] = {
         data.HOUSES,
         data.ASPECTS,
         data.WEIGHTINGS,
-    ),
-    chart.PROGRESSED: {
+    ],
+    chart.PROGRESSED: [
         data.PROGRESSION_METHOD,
         data.NATAL_DATE,
         data.PROGRESSION_DATE,
@@ -248,8 +248,8 @@ _settings['chart_data'] = {
         data.HOUSES,
         data.ASPECTS,
         data.WEIGHTINGS,
-    },
-    chart.SYNASTRY: {
+    ],
+    chart.SYNASTRY: [
         data.NATAL_DATE,
         data.NATAL_COORDS,
         data.PARTNER_DATE,
@@ -269,8 +269,8 @@ _settings['chart_data'] = {
         data.PARTNER_ASPECTS,
         data.WEIGHTINGS,
         data.PARTNER_WEIGHTINGS,
-    },
-    chart.COMPOSITE: {
+    ],
+    chart.COMPOSITE: [
         data.NATAL_DATE,
         data.NATAL_COORDS,
         data.PARTNER_DATE,
@@ -283,7 +283,7 @@ _settings['chart_data'] = {
         data.HOUSES,
         data.ASPECTS,
         data.WEIGHTINGS,
-    },
+    ],
 }
 
 
