@@ -76,7 +76,7 @@ def is_out_of_bounds(object: dict | float, jd: float = None, obliquity: float = 
     return not -obliquity < dec < obliquity
 
 
-def solar_year_length(jd) -> float:
+def solar_year_length(jd: float) -> float:
     """ Returns the length in days of the year passed in the given
     Julian date. This is a direct copy of astro.com's calculations. """
     t = (jd - calc.J2000) / 365250
