@@ -55,7 +55,7 @@ class AspectMovement:
         self.separative = movement == calc.SEPARATIVE
         self.formatted = names.ASPECT_MOVEMENTS[movement]
 
-    def __str___(self) -> str:
+    def __str__(self) -> str:
         return self.formatted
 
 
@@ -65,7 +65,7 @@ class AspectCondition:
         self.dissociate = condition == calc.DISSOCIATE
         self.formatted = names.ASPECT_CONDITIONS[condition]
 
-    def __str___(self) -> str:
+    def __str__(self) -> str:
         return self.formatted
 
 
@@ -124,7 +124,7 @@ class EclipseType:
         self.penumbral = eclipse_type == chart.PENUMBRAL
         self.formatted = names.ECLIPSE_TYPES[eclipse_type]
 
-    def __str___(self) -> str:
+    def __str__(self) -> str:
         return self.formatted
 
 
@@ -162,7 +162,7 @@ class MoonPhase:
         self.balsamic = moon_phase == calc.BALSAMIC
         self.formatted = names.MOON_PHASES[moon_phase]
 
-    def __str___(self) -> str:
+    def __str__(self) -> str:
         return self.formatted
 
 
