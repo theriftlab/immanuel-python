@@ -39,6 +39,9 @@ def composite(object1: dict, object2: dict, obliquity: float = None) -> dict:
         'speed': (object1['speed'] + object2['speed']) / 2,
     }
 
+    if 'size' in object1 and 'size' in object2:
+        composite_object['size'] = (object1['size'] + object2['size']) / 2
+
     if 'dec' in object1 and obliquity is not None:
         composite_object['dec'] = swe.cotrans((composite_object['lon'], 0, 1), -obliquity)[1]
 
