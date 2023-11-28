@@ -17,9 +17,9 @@ from immanuel.tools import calculate, convert, date, ephemeris, position
 
 
 class Angle:
-    def __init__(self, angle: float) -> None:
+    def __init__(self, angle: float, format: int = convert.FORMAT_DMS) -> None:
         self.raw = angle
-        self.formatted = convert.dec_to_string(angle)
+        self.formatted = convert.dec_to_string(angle, format)
         self.direction = None
         self.degrees = None
         self.minutes = None
@@ -69,15 +69,13 @@ class AspectCondition:
         return self.formatted
 
 
-class Coords:
-    def __init__(self, lat: float, lon: float) -> None:
-        self.lat = lat
-        self.lon = lon
-        self.lat_formatted = convert.dec_to_string(self.lat, convert.FORMAT_LAT)
-        self.lon_formatted = convert.dec_to_string(self.lon, convert.FORMAT_LON)
+class Coordinates:
+    def __init__(self, latitude: float, longitude: float) -> None:
+        self.latitude = Angle(latitude, convert.FORMAT_LAT)
+        self.longitude = Angle(longitude, convert.FORMAT_LON)
 
     def __str__(self) -> str:
-        return f'{self.lat_formatted}, {self.lon_formatted}'
+        return f'{self.latitude}, {self.longitude}'
 
 
 class Date:

@@ -28,12 +28,12 @@ class Chart:
             match index:
                 case data.NATAL_DATE:
                     self.natal_date = wrap.Date(self._natal_date, self._natal_armc)
-                case data.NATAL_COORDS:
-                    self.coords = wrap.Coords(self._latitude, self._longitude)
+                case data.NATAL_COORDINATES:
+                    self.coordinates = wrap.Coordinates(self._latitude, self._longitude)
                 case data.PARTNER_DATE:
                     self.partner_date = wrap.Date(self._partner_date, self._partner_armc)
-                case data.PARTNER_COORDS:
-                    self.partner_coords = wrap.Coords(self._partner_latitude, self._partner_longitude)
+                case data.PARTNER_COORDINATES:
+                    self.partner_coordinates = wrap.Coordinates(self._partner_latitude, self._partner_longitude)
                 case data.SOLAR_RETURN_YEAR:
                     self.solar_return_year = self._solar_return_year
                 case data.SOLAR_RETURN_DATE:

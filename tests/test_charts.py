@@ -69,8 +69,8 @@ def test_natal(dob, lat, lon):
     assert natal_chart.natal_date.timezone == 'PST'
 
     # Ensure coords have been converted back into correct string
-    assert natal_chart.coords.lat_formatted == lat
-    assert natal_chart.coords.lon_formatted == lon
+    assert natal_chart.coordinates.latitude.formatted == lat
+    assert natal_chart.coordinates.longitude.formatted == lon
 
     # Default house system
     assert natal_chart.house_system == names.HOUSE_SYSTEMS[settings.house_system]
@@ -145,8 +145,8 @@ def test_solar_return(dob, lat, lon, solar_return_year):
     assert solar_return_chart.solar_return_date.timezone == 'PST'
 
     # Ensure coords have been converted back into correct string
-    assert solar_return_chart.coords.lat_formatted == lat
-    assert solar_return_chart.coords.lon_formatted == lon
+    assert solar_return_chart.coordinates.latitude.formatted == lat
+    assert solar_return_chart.coordinates.longitude.formatted == lon
 
     # Default house system
     assert solar_return_chart.house_system == names.HOUSE_SYSTEMS[settings.house_system]
@@ -228,8 +228,8 @@ def test_progressed(dob, lat, lon, pdt):
     assert progressed_chart.progressed_date.timezone == 'PST'
 
     # Ensure coords have been converted back into correct string
-    assert progressed_chart.coords.lat_formatted == lat
-    assert progressed_chart.coords.lon_formatted == lon
+    assert progressed_chart.coordinates.latitude.formatted == lat
+    assert progressed_chart.coordinates.longitude.formatted == lon
 
     # Default house system
     assert progressed_chart.house_system == names.HOUSE_SYSTEMS[settings.house_system]
@@ -294,8 +294,8 @@ def test_synastry(dob, lat, lon, partner_dob, partner_lat, partner_lon):
     # Test for partner coordinates being copied to that of main chart
     synastry_chart = charts.Synastry(dob, lat, lon, partner_dob)
 
-    assert synastry_chart.partner_coords.lat == synastry_chart.coords.lat
-    assert synastry_chart.partner_coords.lon == synastry_chart.coords.lon
+    assert synastry_chart.partner_coordinates.latitude.raw == synastry_chart.coordinates.latitude.raw
+    assert synastry_chart.partner_coordinates.longitude.raw == synastry_chart.coordinates.longitude.raw
 
     # Now continue with the rest of the tests
     synastry_chart = charts.Synastry(dob, lat, lon, partner_dob, partner_lat, partner_lon)
@@ -311,12 +311,12 @@ def test_synastry(dob, lat, lon, partner_dob, partner_lat, partner_lon):
     assert synastry_chart.partner_date.timezone == 'PST'
 
     # Ensure natal coords have been converted back into correct string
-    assert synastry_chart.coords.lat_formatted == lat
-    assert synastry_chart.coords.lon_formatted == lon
+    assert synastry_chart.coordinates.latitude.formatted == lat
+    assert synastry_chart.coordinates.longitude.formatted == lon
 
     # Ensure partner coords have been converted back into correct string
-    assert synastry_chart.partner_coords.lat_formatted == partner_lat
-    assert synastry_chart.partner_coords.lon_formatted == partner_lon
+    assert synastry_chart.partner_coordinates.latitude.formatted == partner_lat
+    assert synastry_chart.partner_coordinates.longitude.formatted == partner_lon
 
     # Default house system
     assert synastry_chart.house_system == names.HOUSE_SYSTEMS[settings.house_system]
@@ -436,8 +436,8 @@ def test_composite(dob, lat, lon, partner_dob, partner_lat, partner_lon):
     # Test for partner coordinates being copied to that of main chart
     composite_chart = charts.Synastry(dob, lat, lon, partner_dob)
 
-    assert composite_chart.partner_coords.lat == composite_chart.coords.lat
-    assert composite_chart.partner_coords.lon == composite_chart.coords.lon
+    assert composite_chart.partner_coordinates.latitude.raw == composite_chart.coordinates.latitude.raw
+    assert composite_chart.partner_coordinates.longitude.raw == composite_chart.coordinates.longitude.raw
 
     # Now continue with the rest of the tests
     composite_chart = charts.Composite(dob, lat, lon, partner_dob, partner_lat, partner_lon)
@@ -453,12 +453,12 @@ def test_composite(dob, lat, lon, partner_dob, partner_lat, partner_lon):
     assert composite_chart.partner_date.timezone == 'PST'
 
     # Ensure natal coords have been converted back into correct string
-    assert composite_chart.coords.lat_formatted == lat
-    assert composite_chart.coords.lon_formatted == lon
+    assert composite_chart.coordinates.latitude.formatted == lat
+    assert composite_chart.coordinates.longitude.formatted == lon
 
     # Ensure partner coords have been converted back into correct string
-    assert composite_chart.partner_coords.lat_formatted == partner_lat
-    assert composite_chart.partner_coords.lon_formatted == partner_lon
+    assert composite_chart.partner_coordinates.latitude.formatted == partner_lat
+    assert composite_chart.partner_coordinates.longitude.formatted == partner_lon
 
     # Default house system
     assert composite_chart.house_system == names.HOUSE_SYSTEMS[settings.house_system]
