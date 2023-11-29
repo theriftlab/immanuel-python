@@ -34,9 +34,8 @@ _settings['objects'] = [
     chart.CHIRON,
 ]
 
-""" Which planets, points etc. to use in chart
-pattern & report calculations. """
-_settings['report_objects'] = [
+""" Which planets, points etc. to use in chart shape calculations. """
+_settings['chart_shape_objects'] = [
     chart.SUN, chart.MOON, chart.MERCURY, chart.VENUS, chart.MARS,
     chart.JUPITER, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.PLUTO,
 ]
@@ -210,7 +209,7 @@ _settings['dignity_scores'] = {
 _settings['chart_data'] = {
     chart.NATAL: [
         data.NATAL_DATE,
-        data.NATAL_COORDINATES,
+        data.COORDINATES,
         data.HOUSE_SYSTEM,
         data.SHAPE,
         data.DIURNAL,
@@ -224,7 +223,7 @@ _settings['chart_data'] = {
         data.NATAL_DATE,
         data.SOLAR_RETURN_YEAR,
         data.SOLAR_RETURN_DATE,
-        data.NATAL_COORDINATES,
+        data.COORDINATES,
         data.HOUSE_SYSTEM,
         data.SHAPE,
         data.DIURNAL,
@@ -235,11 +234,11 @@ _settings['chart_data'] = {
         data.WEIGHTINGS,
     ],
     chart.PROGRESSED: [
-        data.PROGRESSION_METHOD,
         data.NATAL_DATE,
         data.PROGRESSION_DATE,
         data.PROGRESSED_DATE,
-        data.NATAL_COORDINATES,
+        data.PROGRESSION_METHOD,
+        data.COORDINATES,
         data.HOUSE_SYSTEM,
         data.SHAPE,
         data.DIURNAL,
@@ -251,7 +250,7 @@ _settings['chart_data'] = {
     ],
     chart.SYNASTRY: [
         data.NATAL_DATE,
-        data.NATAL_COORDINATES,
+        data.COORDINATES,
         data.PARTNER_DATE,
         data.PARTNER_COORDINATES,
         data.HOUSE_SYSTEM,
@@ -272,7 +271,7 @@ _settings['chart_data'] = {
     ],
     chart.COMPOSITE: [
         data.NATAL_DATE,
-        data.NATAL_COORDINATES,
+        data.COORDINATES,
         data.PARTNER_DATE,
         data.PARTNER_COORDINATES,
         data.HOUSE_SYSTEM,

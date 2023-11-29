@@ -28,7 +28,7 @@ class Chart:
             match index:
                 case data.NATAL_DATE:
                     self.natal_date = wrap.Date(self._natal_date, self._natal_armc)
-                case data.NATAL_COORDINATES:
+                case data.COORDINATES:
                     self.coordinates = wrap.Coordinates(self._latitude, self._longitude)
                 case data.PARTNER_DATE:
                     self.partner_date = wrap.Date(self._partner_date, self._partner_armc)
