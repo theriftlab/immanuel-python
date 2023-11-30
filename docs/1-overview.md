@@ -4,7 +4,7 @@
 
 > Now is heaven the readier to favour those who search out its secrets.
 
-*-Marcus Manilius*
+*- Marcus Manilius*
 
 Immanuel is an ancient name that means *God is with us*. Since astrology was onced revered as a study of the gods in their realm to make sense of their whims and seemingly-erratic movements, it seems an appropriate name for a package which aims to translate complex astronomical data into simple astrology chart data.
 
