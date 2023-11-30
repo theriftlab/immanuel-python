@@ -600,3 +600,13 @@ To demonstrate, asteroid Lilith is number 1181 as designated by the Internationa
 Once you have the correct ephemeris file and have pointed Immanuel at it, you only need to  add the number `1181` to the requested chart objects in Immanuel's [settings](6-settings.md#extra-objects) for the asteroid object to be returned with an index of `1181` in the `objects` property. Anywhere else this index appears in the chart's data can then be cross-referenced with its entry in `objects` to retrieve Lilith's information.
 
 Fixed stars (which are included without you having to bring your own ephemeris files) are an exception as they are indexed by their name, which will be a string (eg. `Antares`) rather than a number. Any object whose index is a string will be assumed to be a fixed star.
+
+---
+
+1. [Overview](1-overview.md)
+2. [Installation](2-installation.md)
+3. [Examples](3-examples.md)
+4. Returned Data
+5. [Calculations](5-calculations.md)
+6. [Settings](6-settings.md)
+7. [Submodules](7-submodules.md)

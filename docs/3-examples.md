@@ -101,4 +101,14 @@ print(json.dumps(natal.objects, cls=ToJSON, indent=4))
 print(json.dumps(natal, cls=ToJSON, indent=4))
 ```
 
-This makes Immanuel ideal for powering APIs and other applications. For a deeper dive into the actual data returned, see [the next section](4-data.md).
+This makes Immanuel ideal for powering APIs and other applications. For a deeper dive into the actual data returned, see the next section.
+
+---
+
+1. [Overview](1-overview.md)
+2. [Installation](2-installation.md)
+3. Examples
+4. [Returned Data](4-data.md)
+5. [Calculations](5-calculations.md)
+6. [Settings](6-settings.md)
+7. [Submodules](7-submodules.md)

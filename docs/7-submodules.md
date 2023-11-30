@@ -25,3 +25,13 @@ These submodules represent Immanuel's backbone and therefore contain far too muc
 | dignity | Calculates a chart object's dignity state, and assigns it an Astro Gold-style score based on the settings. |
 | pattern | Currently just finds which pattern a chart's objects make. |
 | weighting | Provides breakdowns of a chart's objects between element, modality, and house quadrants. |
+
+---
+
+1. [Overview](1-overview.md)
+2. [Installation](2-installation.md)
+3. [Examples](3-examples.md)
+4. [Returned Data](4-data.md)
+5. [Calculations](5-calculations.md)
+6. [Settings](6-settings.md)
+7. Submodules

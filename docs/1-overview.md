@@ -21,3 +21,13 @@ Although Immanuel generates human-friendly output, all of its data is JSON-seria
 ## What's with all the objects?
 
 Some confusion might arise with the word "object" - since an astrological chart can contain much more than just planets, anything that can appear within the chart and make aspects is referred to as a "chart object". However, since Python is indeed an object-oriented language, the code itself generates Python objects. The documentation therefore makes an effort to spell out "chart object" vs "Python object" to avoid confusion (and to avoid trying to explain why you'll have a chart object full of chart objects which are object objects).
+
+---
+
+1. Overview
+2. [Installation](2-installation.md)
+3. [Examples](3-examples.md)
+4. [Returned Data](4-data.md)
+5. [Calculations](5-calculations.md)
+6. [Settings](6-settings.md)
+7. [Submodules](7-submodules.md)
