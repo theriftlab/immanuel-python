@@ -10,8 +10,8 @@
 
 from datetime import datetime
 
-from pytest import fixture
 import swisseph as swe
+from pytest import fixture
 
 from immanuel.const import calc, chart
 from immanuel.tools import convert, date, ephemeris, midpoint, position
