@@ -426,7 +426,7 @@ The orb used when checking various gap sizes between planets to calculate the ch
 
 Which of the three available methods to use to progress the MC in a progressed chart.
 
-| Option | Equivalent on astro.com | Description |
+| Option | Astro.com Equivalent | Description |
 | --- | --- | --- |
 | `calc.NAIBOD` | ARMC 1 Naibod/prog.day | Progresses the ARMC by the number of day/years multiplied by the Sun's mean yearly motion. |
 | `calc.SOLAR_ARC` | MC from solar arc | Directly progresses the MC itself by the amount the sun has moved between the natal and progressed dates. |
