@@ -20,6 +20,88 @@ _file_path = None
 
 _settings = {}
 
+
+""" Data that should be included for each chart type's output. """
+_settings['chart_data'] = {
+    chart.NATAL: [
+        data.NATAL_DATE,
+        data.COORDINATES,
+        data.HOUSE_SYSTEM,
+        data.SHAPE,
+        data.DIURNAL,
+        data.MOON_PHASE,
+        data.OBJECTS,
+        data.HOUSES,
+        data.ASPECTS,
+        data.WEIGHTINGS,
+    ],
+    chart.SOLAR_RETURN: [
+        data.NATAL_DATE,
+        data.SOLAR_RETURN_YEAR,
+        data.SOLAR_RETURN_DATE,
+        data.COORDINATES,
+        data.HOUSE_SYSTEM,
+        data.SHAPE,
+        data.DIURNAL,
+        data.MOON_PHASE,
+        data.OBJECTS,
+        data.HOUSES,
+        data.ASPECTS,
+        data.WEIGHTINGS,
+    ],
+    chart.PROGRESSED: [
+        data.NATAL_DATE,
+        data.PROGRESSION_DATE,
+        data.PROGRESSED_DATE,
+        data.PROGRESSION_METHOD,
+        data.COORDINATES,
+        data.HOUSE_SYSTEM,
+        data.SHAPE,
+        data.DIURNAL,
+        data.MOON_PHASE,
+        data.OBJECTS,
+        data.HOUSES,
+        data.ASPECTS,
+        data.WEIGHTINGS,
+    ],
+    chart.SYNASTRY: [
+        data.NATAL_DATE,
+        data.COORDINATES,
+        data.PARTNER_DATE,
+        data.PARTNER_COORDINATES,
+        data.HOUSE_SYSTEM,
+        data.SHAPE,
+        data.PARTNER_SHAPE,
+        data.DIURNAL,
+        data.PARTNER_DIURNAL,
+        data.MOON_PHASE,
+        data.PARTNER_MOON_PHASE,
+        data.OBJECTS,
+        data.PARTNER_OBJECTS,
+        data.HOUSES,
+        data.PARTNER_HOUSES,
+        data.ASPECTS,
+        data.PARTNER_ASPECTS,
+        data.WEIGHTINGS,
+        data.PARTNER_WEIGHTINGS,
+    ],
+    chart.COMPOSITE: [
+        data.NATAL_DATE,
+        data.COORDINATES,
+        data.PARTNER_DATE,
+        data.PARTNER_COORDINATES,
+        data.HOUSE_SYSTEM,
+        data.SHAPE,
+        data.DIURNAL,
+        data.MOON_PHASE,
+        data.OBJECTS,
+        data.HOUSES,
+        data.ASPECTS,
+        data.WEIGHTINGS,
+    ],
+}
+
+
 """ House system as supported by pyswisseph. """
 _settings['house_system'] = chart.PLACIDUS
 
@@ -158,7 +240,7 @@ _settings['orbs'] = {
 
 
 """ Orb for calculating chart shapes. """
-_settings['chart_shape_orb'] = 5
+_settings['chart_shape_orb'] = 5.0
 
 
 """ MC progression formula for secondary progressions. """
@@ -202,87 +284,6 @@ _settings['dignity_scores'] = {
     dignities.DETRIMENT: -5,
     dignities.FALL: -4,
     dignities.PEREGRINE: -5,
-}
-
-
-""" Data that should be included for each chart type's output. """
-_settings['chart_data'] = {
-    chart.NATAL: [
-        data.NATAL_DATE,
-        data.COORDINATES,
-        data.HOUSE_SYSTEM,
-        data.SHAPE,
-        data.DIURNAL,
-        data.MOON_PHASE,
-        data.OBJECTS,
-        data.HOUSES,
-        data.ASPECTS,
-        data.WEIGHTINGS,
-    ],
-    chart.SOLAR_RETURN: [
-        data.NATAL_DATE,
-        data.SOLAR_RETURN_YEAR,
-        data.SOLAR_RETURN_DATE,
-        data.COORDINATES,
-        data.HOUSE_SYSTEM,
-        data.SHAPE,
-        data.DIURNAL,
-        data.MOON_PHASE,
-        data.OBJECTS,
-        data.HOUSES,
-        data.ASPECTS,
-        data.WEIGHTINGS,
-    ],
-    chart.PROGRESSED: [
-        data.NATAL_DATE,
-        data.PROGRESSION_DATE,
-        data.PROGRESSED_DATE,
-        data.PROGRESSION_METHOD,
-        data.COORDINATES,
-        data.HOUSE_SYSTEM,
-        data.SHAPE,
-        data.DIURNAL,
-        data.MOON_PHASE,
-        data.OBJECTS,
-        data.HOUSES,
-        data.ASPECTS,
-        data.WEIGHTINGS,
-    ],
-    chart.SYNASTRY: [
-        data.NATAL_DATE,
-        data.COORDINATES,
-        data.PARTNER_DATE,
-        data.PARTNER_COORDINATES,
-        data.HOUSE_SYSTEM,
-        data.SHAPE,
-        data.PARTNER_SHAPE,
-        data.DIURNAL,
-        data.PARTNER_DIURNAL,
-        data.MOON_PHASE,
-        data.PARTNER_MOON_PHASE,
-        data.OBJECTS,
-        data.PARTNER_OBJECTS,
-        data.HOUSES,
-        data.PARTNER_HOUSES,
-        data.ASPECTS,
-        data.PARTNER_ASPECTS,
-        data.WEIGHTINGS,
-        data.PARTNER_WEIGHTINGS,
-    ],
-    chart.COMPOSITE: [
-        data.NATAL_DATE,
-        data.COORDINATES,
-        data.PARTNER_DATE,
-        data.PARTNER_COORDINATES,
-        data.HOUSE_SYSTEM,
-        data.SHAPE,
-        data.DIURNAL,
-        data.MOON_PHASE,
-        data.OBJECTS,
-        data.HOUSES,
-        data.ASPECTS,
-        data.WEIGHTINGS,
-    ],
 }
 
 
