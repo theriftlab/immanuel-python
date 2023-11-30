@@ -4,7 +4,7 @@ Immanuel is a Python >= 3.10 package to allow your applications to painlessly pr
 
 ## Documentation
 
-Full markdown documentation is available [here](docs/1-overview.md).
+Full markdown documentation is available [here](https://github.com/theriftlab/immanuel-python/blob/master/docs/1-overview.md).
 
 ## Quick Start
 
