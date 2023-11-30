@@ -204,6 +204,8 @@ All fixed stars are included - simply add the name as a string to this list, eg.
 settings.objects.append('Antares')
 ```
 
+Extra objects from external ephemeris files can also be added to this list by their number. See the [Extra Objects](#extra-objects) section below for details how.
+
 ### `chart_shape_objects`
 
 A list of which chart objects should be included in the calculations for determining a chart's shape. Default:
