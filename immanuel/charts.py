@@ -27,11 +27,11 @@ class Chart:
         for index in settings.chart_data[type]:
             match index:
                 case data.NATAL_DATE:
-                    self.natal_date = wrap.Date(self._natal_date, self._natal_armc)
+                    self.natal_date = wrap.Date(self._natal_date, self._natal_armc, is_dst=self._is_dst)
                 case data.COORDINATES:
                     self.coordinates = wrap.Coordinates(self._latitude, self._longitude)
                 case data.PARTNER_DATE:
-                    self.partner_date = wrap.Date(self._partner_date, self._partner_armc)
+                    self.partner_date = wrap.Date(self._partner_date, self._partner_armc, is_dst=self._partner_is_dst)
                 case data.PARTNER_COORDINATES:
                     self.partner_coordinates = wrap.Coordinates(self._partner_latitude, self._partner_longitude)
                 case data.SOLAR_RETURN_YEAR:
@@ -92,6 +92,8 @@ class Chart:
                     }
 
     def set_data(self) -> None:
+        self._is_dst = None
+        self._partner_is_dst = None
         self._obliquity = None
         self._partner_obliquity = None
         self._natal_date = None
@@ -131,15 +133,16 @@ class Chart:
 class Natal(Chart):
     """ Standard natal chart generates data straight from the passed date and
     coordinates. """
-    def __init__(self, dob: str, lat: float, lon: float) -> None:
+    def __init__(self, dob: str, lat: float, lon: float, is_dst: bool = None) -> None:
         self._dob = dob
         self._lat = lat
         self._lon = lon
+        self._is_dst = is_dst
         super().__init__(chart.NATAL)
 
     def set_data(self) -> None:
         self._latitude, self._longitude = (convert.to_dec(v) for v in (self._lat, self._lon))
-        self._natal_date = date.localize(datetime.fromisoformat(self._dob), self._latitude, self._longitude)
+        self._natal_date = date.localize(datetime.fromisoformat(self._dob), self._latitude, self._longitude, self._is_dst)
         self._natal_jd = date.to_jd(self._natal_date)
         self._obliquity = ephemeris.obliquity(self._natal_jd)
         self._natal_armc = ephemeris.angle(chart.ARMC, self._natal_jd, self._latitude, self._longitude, settings.house_system)['lon']
@@ -157,16 +160,17 @@ class Natal(Chart):
 
 class SolarReturn(Chart):
     """ Solar return chart for the given year. """
-    def __init__(self, dob: str, lat: float, lon: float, year: int) -> None:
+    def __init__(self, dob: str, lat: float, lon: float, year: int, is_dst: bool = None) -> None:
         self._dob = dob
         self._lat = lat
         self._lon = lon
         self._solar_return_year = year
+        self._is_dst = is_dst
         super().__init__(chart.SOLAR_RETURN)
 
     def set_data(self) -> None:
         self._latitude, self._longitude = (convert.to_dec(v) for v in (self._lat, self._lon))
-        self._natal_date = date.localize(datetime.fromisoformat(self._dob), self._latitude, self._longitude)
+        self._natal_date = date.localize(datetime.fromisoformat(self._dob), self._latitude, self._longitude, self._is_dst)
         self._natal_jd = date.to_jd(self._natal_date)
         self._solar_return_jd = forecast.solar_return(self._natal_jd, self._solar_return_year)
         self._obliquity = ephemeris.obliquity(self._solar_return_jd)
@@ -187,16 +191,17 @@ class SolarReturn(Chart):
 class Progressed(Chart):
     """ Secondary progression chart uses the MC progression method from
     settings. """
-    def __init__(self, dob: str, lat: float, lon: float, pdt: str) -> None:
+    def __init__(self, dob: str, lat: float, lon: float, pdt: str, is_dst: bool = None) -> None:
         self._dob = dob
         self._lat = lat
         self._lon = lon
         self._pdt = pdt
+        self._is_dst = is_dst
         super().__init__(chart.PROGRESSED)
 
     def set_data(self) -> None:
         self._latitude, self._longitude = (convert.to_dec(v) for v in (self._lat, self._lon))
-        self._natal_date = date.localize(datetime.fromisoformat(self._dob), self._latitude, self._longitude)
+        self._natal_date = date.localize(datetime.fromisoformat(self._dob), self._latitude, self._longitude, self._is_dst)
         natal_jd = date.to_jd(self._natal_date)
         self._natal_armc = ephemeris.angle(chart.ARMC, natal_jd, self._latitude, self._longitude, settings.house_system)['lon']
 
@@ -222,18 +227,20 @@ class Progressed(Chart):
 class Synastry(Chart):
     """ Synastry chart is a special case - there are two sets of objects
     and houses, with aspects between them. """
-    def __init__(self, dob: str, lat: float, lon: float, partner_dob: str, partner_lat: float = None, partner_lon: float = None) -> None:
+    def __init__(self, dob: str, lat: float, lon: float, partner_dob: str, partner_lat: float = None, partner_lon: float = None, is_dst: bool = None, partner_is_dst: bool = None) -> None:
         self._dob = dob
         self._lat = lat
         self._lon = lon
         self._partner_dob = partner_dob
         self._partner_lat = partner_lat if partner_lat is not None else lat
         self._partner_lon = partner_lon if partner_lon is not None else lon
+        self._is_dst = is_dst
+        self._partner_is_dst = partner_is_dst
         super().__init__(chart.SYNASTRY)
 
     def set_data(self) -> None:
         self._latitude, self._longitude = (convert.to_dec(v) for v in (self._lat, self._lon))
-        self._natal_date = date.localize(datetime.fromisoformat(self._dob), self._latitude, self._longitude)
+        self._natal_date = date.localize(datetime.fromisoformat(self._dob), self._latitude, self._longitude, self._is_dst)
         natal_jd = date.to_jd(self._natal_date)
         self._obliquity = ephemeris.obliquity(natal_jd)
         self._natal_armc = ephemeris.angle(chart.ARMC, natal_jd, self._latitude, self._longitude, settings.house_system)['lon']
@@ -248,7 +255,7 @@ class Synastry(Chart):
         self._houses = ephemeris.houses(natal_jd, self._latitude, self._longitude, settings.house_system)
 
         self._partner_latitude, self._partner_longitude = (convert.to_dec(v) for v in (self._partner_lat, self._partner_lon))
-        self._partner_date = date.localize(datetime.fromisoformat(self._partner_dob), self._partner_latitude, self._partner_longitude)
+        self._partner_date = date.localize(datetime.fromisoformat(self._partner_dob), self._partner_latitude, self._partner_longitude, self._partner_is_dst)
         partner_jd = date.to_jd(self._partner_date)
         self._partner_obliquity = ephemeris.obliquity(partner_jd)
         self._partner_armc = ephemeris.angle(chart.ARMC, partner_jd, self._partner_latitude, self._partner_longitude, settings.house_system)
@@ -268,26 +275,28 @@ class Synastry(Chart):
 
 class Composite(Chart):
     """ Generates a midpoint chart based on the two passed sets of data. """
-    def __init__(self, dob: str, lat: float, lon: float, partner_dob: str, partner_lat: float = None, partner_lon: float = None) -> None:
+    def __init__(self, dob: str, lat: float, lon: float, partner_dob: str, partner_lat: float = None, partner_lon: float = None, is_dst: bool = None, partner_is_dst: bool = None) -> None:
         self._dob = dob
         self._lat = lat
         self._lon = lon
         self._partner_dob = partner_dob
         self._partner_lat = partner_lat if partner_lat is not None else lat
         self._partner_lon = partner_lon if partner_lon is not None else lon
+        self._is_dst = is_dst
+        self._partner_is_dst = partner_is_dst
         super().__init__(chart.COMPOSITE)
 
     def set_data(self) -> None:
         self._latitude, self._longitude = (convert.to_dec(v) for v in (self._lat, self._lon))
         self._partner_latitude, self._partner_longitude = (convert.to_dec(v) for v in (self._partner_lat, self._partner_lon))
-        self._natal_date = date.localize(datetime.fromisoformat(self._dob), self._latitude, self._longitude)
+        self._natal_date = date.localize(datetime.fromisoformat(self._dob), self._latitude, self._longitude, self._is_dst)
         natal_jd = date.to_jd(self._natal_date)
         self._natal_armc = ephemeris.angle(chart.ARMC, natal_jd, self._latitude, self._longitude, settings.house_system)
 
         natal_sun = ephemeris.planet(chart.SUN, natal_jd)
         natal_moon = ephemeris.planet(chart.MOON, natal_jd)
 
-        self._partner_date = date.localize(datetime.fromisoformat(self._partner_dob), self._partner_latitude, self._partner_longitude)
+        self._partner_date = date.localize(datetime.fromisoformat(self._partner_dob), self._partner_latitude, self._partner_longitude, self._partner_is_dst)
         partner_jd = date.to_jd(self._partner_date)
         self._partner_armc = ephemeris.angle(chart.ARMC, partner_jd, self._partner_latitude, self._partner_longitude, settings.house_system)
 

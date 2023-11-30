@@ -2,7 +2,11 @@
 
 All the chart data generation happens in the chart classes in Immanuel's `charts` module. Once imported, data for any given chart can be generated with one line of code by passing the relevant dates and coordinates.
 
-The constructors take date/times in standard timezone-naive ISO format (YYYY-MM-DD HH:MM:SS), and coordinates in either standard text format (as in the following examples) or decimal. To generate one of each type of supported chart, you could do the following:
+The constructors take date/times in standard timezone-naive ISO format (YYYY-MM-DD HH:MM:SS), and coordinates in either standard text format (as in the following examples) or decimal.
+
+Some times can be ambiguous, for example 1:30am on a night when switching to daylight savings. This time could be in either timezone. To specify which one, you can pass in an additional `is_dst` boolean to tell Immanuel whether or not the `dob` time belongs in the daylight savings zone. For partner charts, there will be an additional `partner_is_dst` for the `partner_dob`.
+
+To generate one of each type of supported chart, you could do the following:
 
 ```python
 from immanuel import charts
@@ -11,6 +15,8 @@ from immanuel import charts
 natal = charts.Natal(dob='2000-01-01 10:00', lat='32n43', lon='117w09')
 # or...
 natal = charts.Natal(dob='2000-01-01 10:00', lat=32.71667, lon=-117.15)
+# and if you were born in DST during a switchover...
+natal = charts.Natal(dob='2023-11-05 01:30', lat=32.71667, lon=-117.15, is_dst=True)
 
 solar_return = charts.SolarReturn(dob='2000-01-01 10:00', lat='32n43', lon='117w09', year=2025)
 

@@ -79,9 +79,10 @@ class Coordinates:
 
 
 class Date:
-    def __init__(self, dt: datetime | float, armc: dict = None, lat: float = None, lon: float = None) -> None:
-        self.datetime = dt if isinstance(dt, datetime) else date.from_jd(dt, lat, lon)
+    def __init__(self, dt: datetime | float, armc: dict = None, latitude: float = None, longitude: float = None, is_dst: bool = None) -> None:
+        self.datetime = dt if isinstance(dt, datetime) else date.from_jd(dt, latitude, longitude)
         self.timezone = self.datetime.tzname()
+        self.ambiguous = date.ambiguous(self.datetime) and is_dst is None
         self.julian = date.to_jd(dt) if isinstance(dt, datetime) else dt
         self.deltat = ephemeris.deltat(self.julian)
 
@@ -89,7 +90,12 @@ class Date:
             self.sidereal_time = convert.dec_to_string(calculate.sidereal_time(armc), convert.FORMAT_TIME)
 
     def __str__(self) -> str:
-        return f'{self.datetime.strftime("%a %b %d %Y %I:%M:%S %p")} {self.timezone}'
+        str = f'{self.datetime.strftime("%a %b %d %Y %I:%M:%S %p")} {self.timezone}'
+
+        if self.ambiguous:
+            str += ' (ambiguous)'
+
+        return str
 
 
 class DignityState:
@@ -209,7 +215,7 @@ class Object:
     def __str__(self) -> str:
         str = f'{self.name} {self.sign_longitude} in {self.sign}'
 
-        if (hasattr(self, 'house')):
+        if hasattr(self, 'house'):
             str += f', {self.house.name}'
 
         return str

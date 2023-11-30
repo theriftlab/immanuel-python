@@ -16,11 +16,14 @@ This has a fairly straightforward structure.
 {
     "datetime": "2000-01-01 10:00:00-08:00",
     "timezone": "PST",
+    "ambiguous": false,
     "julian": 2451545.25,
     "deltat": 0.0007387629899254968,
     "sidereal_time": "16:54:13"
 }
 ```
+
+Note that the `ambiguous` flag is set to `true` when a time during the daylight savings switchover is passed, and no `is_dst` is passed. For example, `2023-11-05 01:30` on the USA's west coast could be either PDT or PST. By specifying an `is_dst` argument when constructing the chart, the `ambiguous` flag will be `false`.
 
 ### `natal.coordinates`
 

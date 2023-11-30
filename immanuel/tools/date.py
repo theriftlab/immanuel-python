@@ -34,7 +34,7 @@ def timezone(lat: float, lon: float) -> str:
     return TimezoneFinder().timezone_at(lat=lat, lng=lon)
 
 
-def localize(dt: datetime, lat: float, lon: float, is_dst = None) -> datetime:
+def localize(dt: datetime, lat: float, lon: float, is_dst: bool = None) -> datetime:
     """ Localizes a naive datetime based on decimal lat/lon coordinates. """
     return dt.replace(tzinfo=ZoneInfo(timezone(lat, lon)), fold=1 if is_dst == False else 0)
 
