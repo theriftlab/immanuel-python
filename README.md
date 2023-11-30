@@ -1,12 +1,16 @@
 # Immanuel
 
-Immanuel is a Python >= 3.10 package for painlessly producing simple, readable, chart-centred astrology data from [pyswisseph](https://github.com/astrorigin/pyswisseph) with extra calculations modelled on those of [astro.com](https://astro.com) and [Astro Gold](https://www.astrogold.io). Simple chart classes take date, time, and location data and return an object which can be output as either human-friendly text or easily serialised into JSON.
+Immanuel is a Python >= 3.10 package to allow your applications to painlessly produce simple, readable, chart-centred astrology data from [pyswisseph](https://github.com/astrorigin/pyswisseph), with extra calculations modelled on those of [astro.com](https://astro.com) and [Astro Gold](https://www.astrogold.io). Easy-to-use chart classes take date, time, and location data and return an object which can be output as either human-friendly text or easily serialised into JSON.
 
 ## Documentation
 
 Full markdown documentation is available [here](docs/1-overview.md).
 
 ## Quick Start
+
+If all that documentation looks boring, you can get started generating chart data in minutes. Simply install Immanuel, import the chart classes into your project, and with one line of code you can produce all the data you need to construct a full chart.
+
+## Installation
 
 ```bash
 pip install immanuel
