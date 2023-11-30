@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "immanuel"
-version = "1.0.8"
-description = "Painlessly produce both readable and JSON astrology chart data from pyswisseph."
+version = "1.0.9"
+description = "Painlessly produce both human-readable and JSON-formatted astrology chart data based on pyswisseph and astro.com."
 authors = [
   { name = "Robert Davies", email = "robert@theriftlab.com" },
 ]
@@ -27,4 +27,5 @@ dependencies = [
 
 [project.urls]
 "Homepage" = "https://github.com/theriftlab/immanuel-python"
+"Documentation" = "https://github.com/theriftlab/immanuel-python/blob/master/docs/1-overview.md"
 "Bug Tracker" = "https://github.com/theriftlab/immanuel-python/issues"
