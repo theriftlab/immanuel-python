@@ -47,15 +47,37 @@ for index, aspects in natal.aspects.items():
         print(f' - {aspect}')
 ```
 
+The (abridged) output will look something like this:
+
+```
+Daytime: True
+Moon phase: Third Quarter
+
+Sun 10°37'26" in Capricorn, 11th House
+Moon 16°19'29" in Scorpio, 8th House
+... (all the others)
+
+Aspects for Sun:
+ - Sun Part of Fortune Conjunction within 00°41'15" (Applicative, Associate)
+ - Moon Sun Sextile within -05°42'03" (Separative, Associate)
+ - Mercury Sun Conjunction within 08°20'43" (Applicative, Associate)
+ - Sun Saturn Trine within -00°13'59" (Exact, Associate)
+Aspects for Moon:
+ - Moon Sun Sextile within -05°42'03" (Separative, Associate)
+ - Moon Saturn Opposition within -05°56'02" (Separative, Associate)
+ - Moon Uranus Square within -01°30'10" (Separative, Associate)
+... (all the others)
+```
+
 Many of the properties are nested, eg.:
 
 ```python
 print(natal.coordinates)
-# 32N43.0, 117W9.0
+# output: 32N43.0, 117W9.0
 print(natal.coordinates.latitude)
-# 32N43.0
+# output: 32N43.0
 print(natal.coordinates.latitude.raw)
-# 32.71666666666667
+# output: 32.71666666666667
 ```
 
 ## JSON
