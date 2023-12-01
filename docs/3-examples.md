@@ -55,7 +55,7 @@ Moon phase: Third Quarter
 
 Sun 10°37'26" in Capricorn, 11th House
 Moon 16°19'29" in Scorpio, 8th House
-... (all the others)
+... etc.
 
 Aspects for Sun:
  - Sun Part of Fortune Conjunction within 00°41'15" (Applicative, Associate)
@@ -66,18 +66,23 @@ Aspects for Moon:
  - Moon Sun Sextile within -05°42'03" (Separative, Associate)
  - Moon Saturn Opposition within -05°56'02" (Separative, Associate)
  - Moon Uranus Square within -01°30'10" (Separative, Associate)
-... (all the others)
+... etc.
 ```
 
 Many of the properties are nested, eg.:
 
 ```python
 print(natal.coordinates)
-# output: 32N43.0, 117W9.0
 print(natal.coordinates.latitude)
-# output: 32N43.0
 print(natal.coordinates.latitude.raw)
-# output: 32.71666666666667
+```
+
+Will look like this:
+
+```
+32N43.0, 117W9.0
+32N43.0
+32.71666666666667
 ```
 
 ## JSON
