@@ -197,4 +197,4 @@ Immanuel is forever indebted to the pioneering work of Alois Treindl and Dieter 
 
 ## Contact
 
-Please post any issues, feature requests, PRs etc. GitHub. For anything else email robert@theriftlab.com.
+Please post any issues, feature requests, PRs etc. on GitHub. For anything else email robert@theriftlab.com.
