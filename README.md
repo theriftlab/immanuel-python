@@ -2,64 +2,31 @@
 
 Immanuel is a Python >= 3.10 package to allow your applications to painlessly produce simple, readable, chart-centred astrology data from [pyswisseph](https://github.com/astrorigin/pyswisseph), with extra calculations modelled on those of [astro.com](https://astro.com) and [Astro Gold](https://www.astrogold.io). Easy-to-use chart classes take date, time, and location data and return an object which can be output as either human-friendly text or easily serialised into JSON.
 
-## Documentation
 
-Full markdown documentation is available [here](https://github.com/theriftlab/immanuel-python/blob/master/docs/0-contents.md).
+
+Full markdown documentation is available [here](https://github.com/theriftlab/immanuel-python/tree/v1.0.11/docs/0-contents.md).
 
 ## Quick Start
 
-If all that documentation looks boring, you can get started generating chart data in minutes. Simply install Immanuel, import the chart classes into your project, and with one line of code you can produce all the data you need to construct a full chart.
-
-## Installation
+You can get started generating chart data in minutes. Simply install Immanuel:
 
 ```bash
 pip install immanuel
 ```
 
-## Chart Types
-
-Currently Immanuel supports the following chart types:
-
-* Natal
-* Solar return
-* Progressed
-* Synastry
-* Composite
-
-## Example
-
-Chart class constructors take dates in standard timezone-naive ISO format (YYYY-MM-DD HH:MM:SS), and coordinates in either standard text format (as in the following examples) or decimal. To generate data for a natal chart, you could use something like this:
+Now import Immanuel's chart classes and generate a natal chart from a date & coordinates:
 
 ```python
 from immanuel import charts
 
 
 natal = charts.Natal(dob='2000-01-01 10:00', lat='32n43', lon='117w09')
-```
 
-## Returned Chart Data
-
-The various chart types return their own sets of data, but for a basic natal chart you can expect to receive the following:
-
-* Chart date
-* Chart coordinates
-* House system
-* Chart shape type (eg. bowl, splash etc.)
-* Whether the chart is diurnal (ie. daytime)
-* Moon phase
-* All chart objects (eg. planets, asteroids, primary angles etc.) and their positions & dignities if applicable
-* Houses
-* Aspects
-* Weightings (ie. which objects are in which elements / modalities etc.)
-
-The data is available in both human-readable and JSON format. To see the human-readable planets & angles in the above natal chart:
-
-```python
 for object in natal.objects.values():
     print(object)
 ```
 
-This will output all the chart objects in this format:
+This will output all the chart objects (planets, points, asteroids etc.) in this format:
 
 ```
 Sun 10°37'26" in Capricorn, 11th House
@@ -67,19 +34,21 @@ Moon 16°19'29" in Scorpio, 8th House
 ...
 ```
 
-We can get much more data from the JSON output like this:
+We can see much more data by serializing the chart's `objects` property to JSON like this:
 
 ```python
-# Add these extra imports at the top...
 import json
-from immanuel.classes.serialize import ToJSON
 
-# ...and try this after you've generated your chart
+from immanuel.classes.serialize import ToJSON
+from immanuel import charts
+
+
+natal = charts.Natal(dob='2000-01-01 10:00', lat='32n43', lon='117w09')
 
 print(json.dumps(natal.objects, cls=ToJSON, indent=4))
 ```
 
-Which will output all the chart objects in this format:
+Which will output each of the chart's objects in this format:
 
 ```json
 {
@@ -167,15 +136,42 @@ Note that the entire chart can also be serialized to JSON, eg.:
 print(json.dumps(natal, cls=ToJSON, indent=4))
 ```
 
+## Chart Types
+
+Currently Immanuel supports the following chart types:
+
+* Natal
+* Solar return
+* Progressed
+* Synastry
+* Composite
+
+## Returned Chart Data
+
+The various chart types return their own sets of data, but for a basic natal chart you can expect to receive the following:
+
+* Chart date
+* Chart coordinates
+* House system
+* Chart shape type (eg. bowl, splash etc.)
+* Whether the chart is diurnal (ie. daytime)
+* Moon phase
+* All chart objects (eg. planets, asteroids, primary angles etc.) and their positions & dignities if applicable
+* Houses
+* Aspects
+* Weightings (ie. which objects are in which elements / modalities etc.)
+
+All properties are available in both human-readable and JSON format as demonstrated above.
+
 ## Calculations
 
-Calculations for the secondary progressions are based on those of astro.com. The same three methods for MC progression are available and will produce the same progressed date, sidereal time, and house positions as astro.com.
+Immanuel offers the same three methods for MC progression as astro.com, and will produce the same progressed date, sidereal time, and house positions.
 
 Planetary dignity scores are based on those of Astro Gold, although these are somewhat flexible via the settings.
 
 ## Settings
 
-The full documentation covers [settings](docs/6-settings.md) in more detail, but much of the output can be customised. The settings module allows you specify what data each chart returns, what planets etc. to include, and to fine-tune many intricate details of the aspect calculations.
+The full documentation covers [settings](https://github.com/theriftlab/immanuel-python/tree/v1.0.11/docs/6-settings.md) in more detail, but much of the output can be customised. The settings module allows you specify what data each chart returns, what planets etc. to include, and to fine-tune many intricate details of the aspect calculations.
 
 ## Tests
 
