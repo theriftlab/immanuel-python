@@ -520,7 +520,7 @@ Fire: 7, Earth: 6, Air: 5, Water: 2
 
 When outputting JSON-serialized properties or charts, you will notice that some are returned as simple data and others are returned as an object containing each state as a boolean, plus a human-readable `formatted` property. This distinction was made mainly with front-end developers in mind, where a user-facing application powered by Immanuel might need to quickly determine the state of something in order to display some kind of indicator.
 
-For example, if a chart needs to show a full or new moon symbol when the chart's moon is full or new, then it can check the `moon_phase.full_moon` and/or `moon_phase.new_moon` properties rather than check a returned string for "Full". It can also provide its own mapping to more localised text if needed. Similarly with a chart object's dignity state, if certain dignities need to be quickly determined (eg. exaltation or detriment).
+For example, if a chart needs to show a full or new moon symbol when the chart's moon is full or new, then it can check the `moon_phase.full_moon` and/or `moon_phase.new_moon` properties rather than check a returned string for "Full". It can also provide its own mapping to more localized text if needed. Similarly with a chart object's dignity state, if certain dignities need to be quickly determined (eg. exaltation or detriment).
 
 A house system or chart shape, on the other hand, will always simply be information and is very unlikely to be needed as actual data to perform any kind of calculation - they are instead best suited to being passed straight to the user.
 

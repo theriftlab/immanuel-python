@@ -1,10 +1,8 @@
 # Immanuel
 
-Immanuel is a Python >= 3.10 package to allow your applications to painlessly produce simple, readable, chart-centred astrology data from [pyswisseph](https://github.com/astrorigin/pyswisseph), with extra calculations modelled on those of [astro.com](https://astro.com) and [Astro Gold](https://www.astrogold.io). Easy-to-use chart classes take date, time, and location data and return an object which can be output as either human-friendly text or easily serialised into JSON.
+Immanuel is a Python >= 3.10 package to allow your applications to painlessly produce simple, readable, chart-centred astrology data from [pyswisseph](https://github.com/astrorigin/pyswisseph), with extra calculations modeled on those of [astro.com](https://astro.com) and [Astro Gold](https://www.astrogold.io). Easy-to-use chart classes take date, time, and location data and return an object which can be output as either human-friendly text or easily serialized into JSON.
 
-
-
-Full markdown documentation is available [here](https://github.com/theriftlab/immanuel-python/tree/v1.0.11/docs/0-contents.md).
+Full documentation is available [here](https://github.com/theriftlab/immanuel-python/tree/v1.0.11/docs/0-contents.md).
 
 ## Quick Start
 
@@ -148,7 +146,7 @@ Currently Immanuel supports the following chart types:
 
 ## Returned Chart Data
 
-The various chart types return their own sets of data, but for a basic natal chart you can expect to receive the following:
+The various chart types return their own sets of data, but you can expect to receive at least the following in all of them:
 
 * Chart date
 * Chart coordinates
@@ -171,7 +169,7 @@ Planetary dignity scores are based on those of Astro Gold, although these are so
 
 ## Settings
 
-The full documentation covers [settings](https://github.com/theriftlab/immanuel-python/tree/v1.0.11/docs/6-settings.md) in more detail, but much of the output can be customised. The settings module allows you specify what data each chart returns, what planets etc. to include, and to fine-tune many intricate details of the aspect calculations.
+The full documentation covers settings in detail, but much of the output can be customized. The settings module allows you specify what data each chart returns, what planets etc. to include, and to fine-tune many intricate details of the aspect calculations.
 
 ## Tests
 

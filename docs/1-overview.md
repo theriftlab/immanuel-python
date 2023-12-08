@@ -2,7 +2,7 @@
 
 ## Why Immanuel?
 
-> Now is heaven the readier to favour those who search out its secrets.
+> Now is heaven the readier to favor those who search out its secrets.
 
 *- Marcus Manilius*
 
@@ -12,7 +12,7 @@ Immanuel is an ancient name that means *God is with us*. Since astrology was onc
 
 Immanuel sets out to make it a breeze to generate simple, chart-centred data based on the Swiss Ephemeris from within your Python application. While [pyswisseph](https://github.com/astrorigin/pyswisseph) does an excellent job of providing detailed astronomical and house data, there are many steps to translating this into meaningful chart data. This is where Immanuel comes in.
 
-Not only are the basics covered (planets and houses, which signs and houses the planets are in, etc.) but more complex calculations such as aspects, composites and secondary progressions are also taken care of, with many options to customise them.
+Not only are the basics covered (planets and houses, which signs and houses the planets are in, etc.) but more complex calculations such as aspects, composites and secondary progressions are also taken care of, with many options to customize them.
 
 Since there are seemingly infinite ways to interpret astronomical data into astrological, Immanuel seeks to align much of its output with that of [astro.com](https://astro.com) as this is arguably the most popular free go-to for many amateur and even professional astrologers.
 

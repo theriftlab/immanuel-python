@@ -87,7 +87,7 @@ Will look like this:
 
 ## JSON
 
-A property's structure is easier to visualise by serializing it with the bundled `ToJSON` class. In the above `coordinates` case:
+A property's structure is easier to visualize by serializing it with the bundled `ToJSON` class. In the above `coordinates` case:
 
 ```python
 import json

@@ -28,7 +28,7 @@ Just bear in mind that every top-level object keyed in the `aspects` property be
 
 ## Dignity Scores
 
-The planets all feature diginity scores based on [Astro Gold's scoring system](https://www.astrogold.io/AG-MacOS-Help/essential_dignities.html). Dignities and their scores can all be customised quite heavily via Immanuel's [settings](6-settings.md#rulerships), however; various rulership, triplicity, and term tables are available, and the actual scores and some of the dignity calculations can also be modified.
+The planets all feature diginity scores based on [Astro Gold's scoring system](https://www.astrogold.io/AG-MacOS-Help/essential_dignities.html). Dignities and their scores can all be customized quite heavily via Immanuel's [settings](6-settings.md#rulerships), however; various rulership, triplicity, and term tables are available, and the actual scores and some of the dignity calculations can also be modified.
 
 ---
 

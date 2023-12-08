@@ -249,7 +249,7 @@ Available options:
 
 ### `default_aspect_rule`
 
-A dict which specifies a chart object's default aspect behaviour. If a chart object does not have specific rules assigned to it (described below) then Immanuel will fall back to this setting. It has two entries:
+A dict which specifies a chart object's default aspect behavior. If a chart object does not have specific rules assigned to it (described below) then Immanuel will fall back to this setting. It has two entries:
 
 | Key | Value |
 | --- | --- |
