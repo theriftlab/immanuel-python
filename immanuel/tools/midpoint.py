@@ -34,10 +34,14 @@ def composite(object1: dict, object2: dict, obliquity: float = None) -> dict:
     this function will return a composite object. """
     composite_object = object1 | {
         'lon': swe.deg_midp(object1['lon'], object2['lon']),
-        'lat': 0.0,
-        'dist': 0.0,
         'speed': (object1['speed'] + object2['speed']) / 2,
     }
+
+    if 'lat' in object1 and 'lat' in object2:
+        composite_object['lat'] = 0.0
+
+    if 'dist' in object1 and 'dist' in object2:
+        composite_object['dist'] = 0.0
 
     if 'size' in object1 and 'size' in object2:
         composite_object['size'] = (object1['size'] + object2['size']) / 2
