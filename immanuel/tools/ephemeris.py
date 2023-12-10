@@ -519,7 +519,7 @@ def _angles_houses_vertex(jd: float, lat: float, lon: float, house_system: int) 
     """ Returns ecliptic longitudes for the houses, main angles,
     and the vertex, along with their speeds. Based on Julian
     date and lat / lon coordinates. """
-    return _angles_houses_vertex_from_swe(*swe.houses_ex2(jd, lat, lon, _SWE[house_system]))
+    return _angles_houses_vertex_from_swe(obliquity(jd), *swe.houses_ex2(jd, lat, lon, _SWE[house_system]))
 
 
 @cache
@@ -527,15 +527,16 @@ def _angles_houses_vertex_armc(armc: float, lat: float, obliquity: float, house_
     """ Returns ecliptic longitudes for the houses, main angles,
     and the vertex, along with their speeds. Based on ARMC, latitude
     and ecliptic obliquity. """
-    return _angles_houses_vertex_from_swe(*swe.houses_armc_ex2(armc, lat, obliquity, _SWE[house_system]))
+    return _angles_houses_vertex_from_swe(obliquity, *swe.houses_armc_ex2(armc, lat, obliquity, _SWE[house_system]))
 
 
-def _angles_houses_vertex_from_swe(cusps: tuple, ascmc: tuple, cuspsspeed: tuple, ascmcspeed: tuple) -> dict:
+def _angles_houses_vertex_from_swe(obliquity: float, cusps: tuple, ascmc: tuple, cuspsspeed: tuple, ascmcspeed: tuple) -> dict:
     """ Get houses, angles & vertex direct from pyswisseph. """
     angles = {}
 
     for i in (chart.ASC, chart.MC, chart.ARMC):
         lon = ascmc[_SWE[i]]
+        dec = swe.cotrans((lon, 0, 0), -obliquity)[1]
 
         angles[i] = {
             'index': i,
@@ -543,6 +544,7 @@ def _angles_houses_vertex_from_swe(cusps: tuple, ascmc: tuple, cuspsspeed: tuple
             'name': names.ANGLES[i],
             'lon': lon,
             'speed': ascmcspeed[_SWE[i]],
+            'dec': dec,
         }
 
         if i in (chart.ASC, chart.MC):
@@ -554,6 +556,7 @@ def _angles_houses_vertex_from_swe(cusps: tuple, ascmc: tuple, cuspsspeed: tuple
                 'name': names.ANGLES[index],
                 'lon': swe.degnorm(lon - 180),
                 'speed': ascmcspeed[_SWE[i]],
+                'dec': dec * -1,
             }
 
     houses = {}
@@ -561,6 +564,7 @@ def _angles_houses_vertex_from_swe(cusps: tuple, ascmc: tuple, cuspsspeed: tuple
     for i, lon in enumerate(cusps, start=1):
         index = chart.HOUSE + i
         size = swe.difdeg2n(cusps[i if i < 12 else 0], lon)
+        dec = swe.cotrans((lon, 0, 0), -obliquity)[1]
 
         houses[index] = {
             'index': index,
@@ -570,14 +574,20 @@ def _angles_houses_vertex_from_swe(cusps: tuple, ascmc: tuple, cuspsspeed: tuple
             'lon': lon,
             'size': size,
             'speed': cuspsspeed[i-1],
+            'dec': dec,
         }
+
+    vertex_lon = ascmc[_SWE[chart.VERTEX]]
+    vertex_speed = ascmcspeed[_SWE[chart.VERTEX]]
+    vertex_dec = swe.cotrans((vertex_lon, 0, 0), -obliquity)[1]
 
     vertex = {
         'index': chart.VERTEX,
         'type': chart.POINT,
         'name': names.POINTS[chart.VERTEX],
-        'lon': ascmc[_SWE[chart.VERTEX]],
-        'speed': ascmcspeed[_SWE[chart.VERTEX]],
+        'lon': vertex_lon,
+        'speed': vertex_speed,
+        'dec': vertex_dec,
     }
 
     return {
@@ -602,7 +612,9 @@ def _syzygy(jd: float) -> dict:
         'type': chart.POINT,
         'name': names.POINTS[chart.SYZYGY],
         'lon': syzygy_moon['lon'],
+        'lat': syzygy_moon['lat'],
         'speed': syzygy_moon['speed'],
+        'dec': syzygy_moon['dec'],
     }
 
 
@@ -615,13 +627,16 @@ def _pars_fortuna(jd: float, lat: float, lon: float, formula: int, armc: float =
     moon = planet(chart.MOON, jd)
     asc = angle(chart.ASC, jd, lat, lon, chart.PLACIDUS) if armc is None else armc_angle(chart.ASC, jd, armc, lat, armc_obliquity, chart.PLACIDUS)
     lon = calculate.pars_fortuna_longitude(sun, moon, asc, formula)
+    dec = swe.cotrans((lon, 0, 0), -obliquity(jd))[1]
 
     return {
         'index': chart.PARS_FORTUNA,
         'type': chart.POINT,
         'name': names.POINTS[chart.PARS_FORTUNA],
         'lon': lon,
+        'lat': 0.0,
         'speed': 0.0,
+        'dec': dec,
     }
 
 
@@ -629,13 +644,18 @@ def _pars_fortuna(jd: float, lat: float, lon: float, formula: int, armc: float =
 def _swisseph_point(index: int, jd: float) -> dict:
     """ Pull any remaining non-calculated points straight from pyswisseph. """
     res = swe.calc_ut(jd, _SWE[index])[0]
+    lon = res[0] if index not in (chart.SOUTH_NODE, chart.TRUE_SOUTH_NODE) else swe.degnorm(res[0] - 180)
+    lat = res[1] if index not in (chart.NORTH_NODE, chart.TRUE_NORTH_NODE, chart.SOUTH_NODE, chart.TRUE_SOUTH_NODE) else 0.0
+    dec = swe.cotrans((lon, lat, 0), -obliquity(jd))[1]
 
     return {
         'index': index,
         'type': chart.POINT,
         'name': names.POINTS[index],
-        'lon': res[0] if index not in (chart.SOUTH_NODE, chart.TRUE_SOUTH_NODE) else swe.degnorm(res[0] - 180),
+        'lon': lon,
+        'lat': lat,
         'speed': res[3],
+        'dec': dec,
     }
 
 
