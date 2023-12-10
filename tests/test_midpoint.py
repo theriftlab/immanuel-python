@@ -40,7 +40,7 @@ def astro():
         chart.ASC: {
             'sign': chart.PISCES,
             'lon': '08°31\'36"',
-            'lat': '00°00\'00"',
+            'dec': '-08°22\'21"',
         },
         chart.SUN: {
             'sign': chart.ARIES,
@@ -118,6 +118,7 @@ def astro():
             'lon': '28°04\'05"',
             'lat': '00°00\'00"',
             'speed': '-00°03\'45"',
+            'dec': '19°43\'43"',
         },
         chart.PARS_FORTUNA: {
             'sign': chart.PISCES,

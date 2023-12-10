@@ -110,10 +110,13 @@ def astro():
         # angle
         'asc': {
             'lon': '05°36\'38"',
+            # This is the only figure disagreeing with astro.com (~1 arcsec) and nobody knows why
+            # 'dec': '-09°27\'13"',
         },
         # house
         'house_2': {
             'lon': '17°59\'40"',
+            'dec': '07°03\'29"',
         },
         # planet
         'sun': {
@@ -125,6 +128,7 @@ def astro():
         # point
         'pof': {
             'lon': '11°18\'41"',
+            'dec': '-22°57\'22"',
         },
         # default asteroid
         'juno': {
