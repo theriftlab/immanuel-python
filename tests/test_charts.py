@@ -434,7 +434,7 @@ def test_synastry(dob, lat, lon, partner_dob, partner_lat, partner_lon):
 
 def test_composite(dob, lat, lon, partner_dob, partner_lat, partner_lon):
     # Test for partner coordinates being copied to that of main chart
-    composite_chart = charts.Synastry(dob, lat, lon, partner_dob)
+    composite_chart = charts.Composite(dob, lat, lon, partner_dob)
 
     assert composite_chart.partner_coordinates.latitude.raw == composite_chart.coordinates.latitude.raw
     assert composite_chart.partner_coordinates.longitude.raw == composite_chart.coordinates.longitude.raw
