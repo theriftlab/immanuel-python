@@ -536,6 +536,7 @@ def _angles_houses_vertex_from_swe(obliquity: float, cusps: tuple, ascmc: tuple,
 
     for i in (chart.ASC, chart.MC, chart.ARMC):
         lon = ascmc[_SWE[i]]
+        speed = ascmcspeed[_SWE[i]]
         dec = swe.cotrans((lon, 0, 0), -obliquity)[1]
 
         angles[i] = {
@@ -543,7 +544,7 @@ def _angles_houses_vertex_from_swe(obliquity: float, cusps: tuple, ascmc: tuple,
             'type': chart.ANGLE,
             'name': names.ANGLES[i],
             'lon': lon,
-            'speed': ascmcspeed[_SWE[i]],
+            'speed': speed,
             'dec': dec,
         }
 
@@ -555,7 +556,7 @@ def _angles_houses_vertex_from_swe(obliquity: float, cusps: tuple, ascmc: tuple,
                 'type': chart.ANGLE,
                 'name': names.ANGLES[index],
                 'lon': swe.degnorm(lon - 180),
-                'speed': ascmcspeed[_SWE[i]],
+                'speed': speed,
                 'dec': dec * -1,
             }
 
@@ -564,6 +565,7 @@ def _angles_houses_vertex_from_swe(obliquity: float, cusps: tuple, ascmc: tuple,
     for i, lon in enumerate(cusps, start=1):
         index = chart.HOUSE + i
         size = swe.difdeg2n(cusps[i if i < 12 else 0], lon)
+        speed = cuspsspeed[i-1]
         dec = swe.cotrans((lon, 0, 0), -obliquity)[1]
 
         houses[index] = {
@@ -573,7 +575,7 @@ def _angles_houses_vertex_from_swe(obliquity: float, cusps: tuple, ascmc: tuple,
             'number': i,
             'lon': lon,
             'size': size,
-            'speed': cuspsspeed[i-1],
+            'speed': speed,
             'dec': dec,
         }
 
@@ -646,6 +648,7 @@ def _swisseph_point(index: int, jd: float) -> dict:
     res = swe.calc_ut(jd, _SWE[index])[0]
     lon = res[0] if index not in (chart.SOUTH_NODE, chart.TRUE_SOUTH_NODE) else swe.degnorm(res[0] - 180)
     lat = res[1] if index not in (chart.NORTH_NODE, chart.TRUE_NORTH_NODE, chart.SOUTH_NODE, chart.TRUE_SOUTH_NODE) else 0.0
+    speed = res[3]
     dec = swe.cotrans((lon, lat, 0), -obliquity(jd))[1]
 
     return {
@@ -654,7 +657,7 @@ def _swisseph_point(index: int, jd: float) -> dict:
         'name': names.POINTS[index],
         'lon': lon,
         'lat': lat,
-        'speed': res[3],
+        'speed': speed,
         'dec': dec,
     }
 
