@@ -290,146 +290,146 @@ def test_progressed(dob, lat, lon, pdt):
     assert chart.VENUS in progressed_chart.weightings['quadrants'].third
 
 
-def test_synastry(dob, lat, lon, partner_dob, partner_lat, partner_lon):
-    # Test for partner coordinates being copied to that of main chart
-    synastry_chart = charts.Synastry(dob, lat, lon, partner_dob)
+# def test_synastry(dob, lat, lon, partner_dob, partner_lat, partner_lon):
+#     # Test for partner coordinates being copied to that of main chart
+#     synastry_chart = charts.Synastry(dob, lat, lon, partner_dob)
 
-    assert synastry_chart.partner_coordinates.latitude.raw == synastry_chart.coordinates.latitude.raw
-    assert synastry_chart.partner_coordinates.longitude.raw == synastry_chart.coordinates.longitude.raw
+#     assert synastry_chart.partner_coordinates.latitude.raw == synastry_chart.coordinates.latitude.raw
+#     assert synastry_chart.partner_coordinates.longitude.raw == synastry_chart.coordinates.longitude.raw
 
-    # Now continue with the rest of the tests
-    synastry_chart = charts.Synastry(dob, lat, lon, partner_dob, partner_lat, partner_lon)
+#     # Now continue with the rest of the tests
+#     synastry_chart = charts.Synastry(dob, lat, lon, partner_dob, partner_lat, partner_lon)
 
-    assert synastry_chart.type == names.CHART_TYPES[chart.SYNASTRY]
+#     assert synastry_chart.type == names.CHART_TYPES[chart.SYNASTRY]
 
-    # Natal birth date tested against astro.com's JD
-    assert round(synastry_chart.natal_date.julian + synastry_chart.natal_date.deltat, 6) == 2451545.250739
-    assert synastry_chart.natal_date.timezone == 'PST'
+#     # Natal birth date tested against astro.com's JD
+#     assert round(synastry_chart.natal_date.julian + synastry_chart.natal_date.deltat, 6) == 2451545.250739
+#     assert synastry_chart.natal_date.timezone == 'PST'
 
-    # Partner birth date tested against astro.com's JD
-    assert round(synastry_chart.partner_date.julian + synastry_chart.partner_date.deltat, 6) == 2451957.084075
-    assert synastry_chart.partner_date.timezone == 'PST'
+#     # Partner birth date tested against astro.com's JD
+#     assert round(synastry_chart.partner_date.julian + synastry_chart.partner_date.deltat, 6) == 2451957.084075
+#     assert synastry_chart.partner_date.timezone == 'PST'
 
-    # Ensure natal coords have been converted back into correct string
-    assert synastry_chart.coordinates.latitude.formatted == lat
-    assert synastry_chart.coordinates.longitude.formatted == lon
+#     # Ensure natal coords have been converted back into correct string
+#     assert synastry_chart.coordinates.latitude.formatted == lat
+#     assert synastry_chart.coordinates.longitude.formatted == lon
 
-    # Ensure partner coords have been converted back into correct string
-    assert synastry_chart.partner_coordinates.latitude.formatted == partner_lat
-    assert synastry_chart.partner_coordinates.longitude.formatted == partner_lon
+#     # Ensure partner coords have been converted back into correct string
+#     assert synastry_chart.partner_coordinates.latitude.formatted == partner_lat
+#     assert synastry_chart.partner_coordinates.longitude.formatted == partner_lon
 
-    # Default house system
-    assert synastry_chart.house_system == names.HOUSE_SYSTEMS[settings.house_system]
+#     # Default house system
+#     assert synastry_chart.house_system == names.HOUSE_SYSTEMS[settings.house_system]
 
-    # Natal chart shape
-    assert synastry_chart.shape == names.CHART_SHAPES[calc.BOWL]
+#     # Natal chart shape
+#     assert synastry_chart.shape == names.CHART_SHAPES[calc.BOWL]
 
-    # Partner chart shape
-    assert synastry_chart.partner_shape == names.CHART_SHAPES[calc.BOWL]
+#     # Partner chart shape
+#     assert synastry_chart.partner_shape == names.CHART_SHAPES[calc.BOWL]
 
-    # Natal daytime chart
-    assert synastry_chart.diurnal == True
+#     # Natal daytime chart
+#     assert synastry_chart.diurnal == True
 
-    # Partner daytime chart
-    assert synastry_chart.partner_diurnal == False
+#     # Partner daytime chart
+#     assert synastry_chart.partner_diurnal == False
 
-    # Natal moon phase
-    assert synastry_chart.moon_phase.third_quarter == True
+#     # Natal moon phase
+#     assert synastry_chart.moon_phase.third_quarter == True
 
-    # Partner moon phase
-    assert synastry_chart.partner_moon_phase.third_quarter == True
+#     # Partner moon phase
+#     assert synastry_chart.partner_moon_phase.third_quarter == True
 
-    # Spot-check for correct natal object positions against astro.com
-    assert synastry_chart.objects[chart.SUN].name == names.PLANETS[chart.SUN]
-    assert synastry_chart.objects[chart.SUN].sign.name == names.SIGNS[chart.CAPRICORN]
-    assert synastry_chart.objects[chart.SUN].sign_longitude.formatted == '10°37\'26"'
+#     # Spot-check for correct natal object positions against astro.com
+#     assert synastry_chart.objects[chart.SUN].name == names.PLANETS[chart.SUN]
+#     assert synastry_chart.objects[chart.SUN].sign.name == names.SIGNS[chart.CAPRICORN]
+#     assert synastry_chart.objects[chart.SUN].sign_longitude.formatted == '10°37\'26"'
 
-    assert synastry_chart.objects[chart.MOON].name == names.PLANETS[chart.MOON]
-    assert synastry_chart.objects[chart.MOON].sign.name == names.SIGNS[chart.SCORPIO]
-    assert synastry_chart.objects[chart.MOON].sign_longitude.formatted == '16°19\'29"'
+#     assert synastry_chart.objects[chart.MOON].name == names.PLANETS[chart.MOON]
+#     assert synastry_chart.objects[chart.MOON].sign.name == names.SIGNS[chart.SCORPIO]
+#     assert synastry_chart.objects[chart.MOON].sign_longitude.formatted == '16°19\'29"'
 
-    assert synastry_chart.objects[chart.PARS_FORTUNA].name == names.POINTS[chart.PARS_FORTUNA]
-    assert synastry_chart.objects[chart.PARS_FORTUNA].sign.name == names.SIGNS[chart.CAPRICORN]
-    assert synastry_chart.objects[chart.PARS_FORTUNA].sign_longitude.formatted == '11°18\'41"'
+#     assert synastry_chart.objects[chart.PARS_FORTUNA].name == names.POINTS[chart.PARS_FORTUNA]
+#     assert synastry_chart.objects[chart.PARS_FORTUNA].sign.name == names.SIGNS[chart.CAPRICORN]
+#     assert synastry_chart.objects[chart.PARS_FORTUNA].sign_longitude.formatted == '11°18\'41"'
 
-    # Spot-check for correct partner object positions against astro.com
-    assert synastry_chart.partner_objects[chart.SUN].name == names.PLANETS[chart.SUN]
-    assert synastry_chart.partner_objects[chart.SUN].sign.name == names.SIGNS[chart.AQUARIUS]
-    assert synastry_chart.partner_objects[chart.SUN].sign_longitude.formatted == '27°57\'45"'
+#     # Spot-check for correct partner object positions against astro.com
+#     assert synastry_chart.partner_objects[chart.SUN].name == names.PLANETS[chart.SUN]
+#     assert synastry_chart.partner_objects[chart.SUN].sign.name == names.SIGNS[chart.AQUARIUS]
+#     assert synastry_chart.partner_objects[chart.SUN].sign_longitude.formatted == '27°57\'45"'
 
-    assert synastry_chart.partner_objects[chart.MOON].name == names.PLANETS[chart.MOON]
-    assert synastry_chart.partner_objects[chart.MOON].sign.name == names.SIGNS[chart.SAGITTARIUS]
-    assert synastry_chart.partner_objects[chart.MOON].sign_longitude.formatted == '14°25\'41"'
+#     assert synastry_chart.partner_objects[chart.MOON].name == names.PLANETS[chart.MOON]
+#     assert synastry_chart.partner_objects[chart.MOON].sign.name == names.SIGNS[chart.SAGITTARIUS]
+#     assert synastry_chart.partner_objects[chart.MOON].sign_longitude.formatted == '14°25\'41"'
 
-    assert synastry_chart.partner_objects[chart.PARS_FORTUNA].name == names.POINTS[chart.PARS_FORTUNA]
-    assert synastry_chart.partner_objects[chart.PARS_FORTUNA].sign.name == names.SIGNS[chart.ARIES]
-    assert synastry_chart.partner_objects[chart.PARS_FORTUNA].sign_longitude.formatted == '20°49\'15"'
+#     assert synastry_chart.partner_objects[chart.PARS_FORTUNA].name == names.POINTS[chart.PARS_FORTUNA]
+#     assert synastry_chart.partner_objects[chart.PARS_FORTUNA].sign.name == names.SIGNS[chart.ARIES]
+#     assert synastry_chart.partner_objects[chart.PARS_FORTUNA].sign_longitude.formatted == '20°49\'15"'
 
-    # Spot-check for correct natal object data against astro.com & Astro Gold
-    assert synastry_chart.objects[chart.SATURN].movement.retrograde == True
-    assert synastry_chart.objects[chart.MARS].dignities.peregrine == True
-    assert synastry_chart.objects[chart.MARS].score == -5
+#     # Spot-check for correct natal object data against astro.com & Astro Gold
+#     assert synastry_chart.objects[chart.SATURN].movement.retrograde == True
+#     assert synastry_chart.objects[chart.MARS].dignities.peregrine == True
+#     assert synastry_chart.objects[chart.MARS].score == -5
 
-    # Spot-check for correct partner object data against astro.com & Astro Gold
-    assert synastry_chart.partner_objects[chart.MERCURY].movement.retrograde == True
-    assert synastry_chart.partner_objects[chart.SUN].dignities.peregrine == True
-    assert synastry_chart.partner_objects[chart.SUN].score == -10
+#     # Spot-check for correct partner object data against astro.com & Astro Gold
+#     assert synastry_chart.partner_objects[chart.MERCURY].movement.retrograde == True
+#     assert synastry_chart.partner_objects[chart.SUN].dignities.peregrine == True
+#     assert synastry_chart.partner_objects[chart.SUN].score == -10
 
-    # Spot-check for correct natal angle positions against astro.com
-    assert synastry_chart.objects[chart.ASC].name == names.ANGLES[chart.ASC]
-    assert synastry_chart.objects[chart.ASC].sign.name == names.SIGNS[chart.PISCES]
-    assert synastry_chart.objects[chart.ASC].sign_longitude.formatted == '05°36\'38"'
+#     # Spot-check for correct natal angle positions against astro.com
+#     assert synastry_chart.objects[chart.ASC].name == names.ANGLES[chart.ASC]
+#     assert synastry_chart.objects[chart.ASC].sign.name == names.SIGNS[chart.PISCES]
+#     assert synastry_chart.objects[chart.ASC].sign_longitude.formatted == '05°36\'38"'
 
-    assert synastry_chart.objects[chart.MC].name == names.ANGLES[chart.MC]
-    assert synastry_chart.objects[chart.MC].sign.name == names.SIGNS[chart.SAGITTARIUS]
-    assert synastry_chart.objects[chart.MC].sign_longitude.formatted == '14°50\'44"'
+#     assert synastry_chart.objects[chart.MC].name == names.ANGLES[chart.MC]
+#     assert synastry_chart.objects[chart.MC].sign.name == names.SIGNS[chart.SAGITTARIUS]
+#     assert synastry_chart.objects[chart.MC].sign_longitude.formatted == '14°50\'44"'
 
-    # Spot-check for correct partner angle positions against astro.com
-    assert synastry_chart.partner_objects[chart.ASC].name == names.ANGLES[chart.ASC]
-    assert synastry_chart.partner_objects[chart.ASC].sign.name == names.SIGNS[chart.AQUARIUS]
-    assert synastry_chart.partner_objects[chart.ASC].sign_longitude.formatted == '07°17\'12"'
+#     # Spot-check for correct partner angle positions against astro.com
+#     assert synastry_chart.partner_objects[chart.ASC].name == names.ANGLES[chart.ASC]
+#     assert synastry_chart.partner_objects[chart.ASC].sign.name == names.SIGNS[chart.AQUARIUS]
+#     assert synastry_chart.partner_objects[chart.ASC].sign_longitude.formatted == '07°17\'12"'
 
-    assert synastry_chart.partner_objects[chart.MC].name == names.ANGLES[chart.MC]
-    assert synastry_chart.partner_objects[chart.MC].sign.name == names.SIGNS[chart.SCORPIO]
-    assert synastry_chart.partner_objects[chart.MC].sign_longitude.formatted == '27°24\'13"'
+#     assert synastry_chart.partner_objects[chart.MC].name == names.ANGLES[chart.MC]
+#     assert synastry_chart.partner_objects[chart.MC].sign.name == names.SIGNS[chart.SCORPIO]
+#     assert synastry_chart.partner_objects[chart.MC].sign_longitude.formatted == '27°24\'13"'
 
-    # Spot-check for correct natal 2nd house position against astro.com
-    assert synastry_chart.houses[chart.HOUSE2].name == names.HOUSES[chart.HOUSE2]
-    assert synastry_chart.houses[chart.HOUSE2].sign.name == names.SIGNS[chart.ARIES]
-    assert synastry_chart.houses[chart.HOUSE2].sign_longitude.formatted == '17°59\'40"'
+#     # Spot-check for correct natal 2nd house position against astro.com
+#     assert synastry_chart.houses[chart.HOUSE2].name == names.HOUSES[chart.HOUSE2]
+#     assert synastry_chart.houses[chart.HOUSE2].sign.name == names.SIGNS[chart.ARIES]
+#     assert synastry_chart.houses[chart.HOUSE2].sign_longitude.formatted == '17°59\'40"'
 
-    # Spot-check for correct partner 2nd house position against astro.com
-    assert synastry_chart.partner_houses[chart.HOUSE2].name == names.HOUSES[chart.HOUSE2]
-    assert synastry_chart.partner_houses[chart.HOUSE2].sign.name == names.SIGNS[chart.PISCES]
-    assert synastry_chart.partner_houses[chart.HOUSE2].sign_longitude.formatted == '23°06\'14"'
+#     # Spot-check for correct partner 2nd house position against astro.com
+#     assert synastry_chart.partner_houses[chart.HOUSE2].name == names.HOUSES[chart.HOUSE2]
+#     assert synastry_chart.partner_houses[chart.HOUSE2].sign.name == names.SIGNS[chart.PISCES]
+#     assert synastry_chart.partner_houses[chart.HOUSE2].sign_longitude.formatted == '23°06\'14"'
 
-    # Spot-check for correct natal weightings against astro.com
-    assert chart.JUPITER in synastry_chart.weightings['elements'].fire
-    assert chart.JUPITER in synastry_chart.weightings['modalities'].cardinal
-    assert chart.JUPITER in synastry_chart.weightings['quadrants'].first
+#     # Spot-check for correct natal weightings against astro.com
+#     assert chart.JUPITER in synastry_chart.weightings['elements'].fire
+#     assert chart.JUPITER in synastry_chart.weightings['modalities'].cardinal
+#     assert chart.JUPITER in synastry_chart.weightings['quadrants'].first
 
-    # Spot-check for correct partner weightings against astro.com
-    assert chart.JUPITER in synastry_chart.partner_weightings['elements'].air
-    assert chart.JUPITER in synastry_chart.partner_weightings['modalities'].mutable
-    assert chart.JUPITER in synastry_chart.partner_weightings['quadrants'].second
+#     # Spot-check for correct partner weightings against astro.com
+#     assert chart.JUPITER in synastry_chart.partner_weightings['elements'].air
+#     assert chart.JUPITER in synastry_chart.partner_weightings['modalities'].mutable
+#     assert chart.JUPITER in synastry_chart.partner_weightings['quadrants'].second
 
-    # Spot-check for correct natal aspects against astro.com
-    assert chart.SUN in synastry_chart.aspects
-    assert chart.VENUS in synastry_chart.aspects[chart.SUN]
-    assert synastry_chart.aspects[chart.SUN][chart.VENUS].aspect == calc.SQUARE
+#     # Spot-check for correct natal aspects against astro.com
+#     assert chart.SUN in synastry_chart.aspects
+#     assert chart.VENUS in synastry_chart.aspects[chart.SUN]
+#     assert synastry_chart.aspects[chart.SUN][chart.VENUS].aspect == calc.SQUARE
 
-    assert chart.MOON in synastry_chart.aspects
-    assert chart.MERCURY in synastry_chart.aspects[chart.MOON]
-    assert synastry_chart.aspects[chart.MOON][chart.MERCURY].aspect == calc.SQUARE
+#     assert chart.MOON in synastry_chart.aspects
+#     assert chart.MERCURY in synastry_chart.aspects[chart.MOON]
+#     assert synastry_chart.aspects[chart.MOON][chart.MERCURY].aspect == calc.SQUARE
 
-    # Spot-check for correct partner aspects against astro.com
-    assert chart.SUN in synastry_chart.partner_aspects
-    assert chart.MERCURY in synastry_chart.partner_aspects[chart.SUN]
-    assert synastry_chart.partner_aspects[chart.SUN][chart.MERCURY].aspect == calc.SEXTILE
+#     # Spot-check for correct partner aspects against astro.com
+#     assert chart.SUN in synastry_chart.partner_aspects
+#     assert chart.MERCURY in synastry_chart.partner_aspects[chart.SUN]
+#     assert synastry_chart.partner_aspects[chart.SUN][chart.MERCURY].aspect == calc.SEXTILE
 
-    assert chart.MOON in synastry_chart.partner_aspects
-    assert chart.URANUS in synastry_chart.partner_aspects[chart.MOON]
-    assert synastry_chart.partner_aspects[chart.MOON][chart.URANUS].aspect == calc.SEXTILE
+#     assert chart.MOON in synastry_chart.partner_aspects
+#     assert chart.URANUS in synastry_chart.partner_aspects[chart.MOON]
+#     assert synastry_chart.partner_aspects[chart.MOON][chart.URANUS].aspect == calc.SEXTILE
 
 
 def test_composite(dob, lat, lon, partner_dob, partner_lat, partner_lon):

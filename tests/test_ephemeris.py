@@ -245,7 +245,7 @@ def test_angles(jd, coords, all_angles):
 
 
 def test_armc_angles(jd, coords, armc, all_angles):
-    angles = ephemeris.armc_angles(jd, armc, coords[0], ephemeris.obliquity(jd), chart.PLACIDUS)
+    angles = ephemeris.armc_angles(armc, coords[0], ephemeris.obliquity(jd), chart.PLACIDUS)
     assert sorted(all_angles) == sorted(angles)
 
 
@@ -261,10 +261,10 @@ def test_armc_angle(jd, coords, armc, all_angles):
     obliquity = ephemeris.obliquity(jd)
 
     for index in all_angles:
-        angle = ephemeris.armc_angle(index, jd, armc, coords[0], obliquity, chart.PLACIDUS)
+        angle = ephemeris.armc_angle(index, armc, coords[0], obliquity, chart.PLACIDUS)
         assert angle['index'] == index and angle['type'] == chart.ANGLE
 
-    assert ephemeris.armc_angle(ephemeris.ALL, jd, armc, coords[0], obliquity, chart.PLACIDUS) == ephemeris.armc_angles(jd, armc, coords[0], obliquity, chart.PLACIDUS)
+    assert ephemeris.armc_angle(ephemeris.ALL, armc, coords[0], obliquity, chart.PLACIDUS) == ephemeris.armc_angles(armc, coords[0], obliquity, chart.PLACIDUS)
 
 
 def test_houses(jd, coords, all_houses):
@@ -388,7 +388,7 @@ def test_armc_get_data(coords, jd, astro, armc):
     obliquity = ephemeris.obliquity(jd)
 
     data = {
-        'asc': ephemeris.armc_angle(chart.ASC, jd, armc, coords[0], obliquity, chart.PLACIDUS),
+        'asc': ephemeris.armc_angle(chart.ASC, armc, coords[0], obliquity, chart.PLACIDUS),
         'house_2': ephemeris.armc_house(chart.HOUSE2, armc, coords[0], obliquity, chart.PLACIDUS),
         'pof': ephemeris.armc_point(chart.PARS_FORTUNA, jd, armc, coords[0], obliquity, pars_fortuna_formula=calc.DAY_NIGHT_FORMULA),
     }

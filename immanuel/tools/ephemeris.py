@@ -90,7 +90,7 @@ def objects(object_list: tuple, jd: float, lat: float = None, lon: float = None,
 
 def armc_objects(object_list: tuple, jd: float, armc: float, lat: float = None, lon: float = None, obliquity: float = None, house_system: int = None, pars_fortuna_formula: int = None) -> dict:
     """ Helper function returns a dict of all passed chart objects
-    with houses & angles calculated from the passed ARMC. """
+    with points & angles calculated from the passed ARMC. """
     return _objects(
         object_list=object_list,
         jd=jd,
@@ -147,12 +147,12 @@ def angles(jd: float, lat: float, lon: float, house_system: int) -> dict:
     )
 
 
-def armc_angles(jd: float, armc: float, lat: float, obliquity: float, house_system: int) -> dict:
+def armc_angles(armc: float, lat: float, obliquity: float, house_system: int) -> dict:
     """ Returns all four main chart angles calculated from the
     passed ARMC. """
     return _angle(
         index=ALL,
-        jd=jd,
+        jd=None,
         lat=lat,
         lon=None,
         house_system=house_system,
@@ -175,12 +175,12 @@ def angle(index: int, jd: float, lat: float, lon: float, house_system: int) -> d
     )
 
 
-def armc_angle(index: int, jd: float, armc: float, lat: float, obliquity: float, house_system: int) -> dict:
+def armc_angle(index: int, armc: float, lat: float, obliquity: float, house_system: int) -> dict:
     """ Returns one of the four main chart angles & its speed, calculated from
     the passed ARMC. Returns all if index == ALL. """
     return _angle(
         index=index,
-        jd=jd,
+        jd=None,
         lat=lat,
         lon=None,
         house_system=house_system,
@@ -627,7 +627,7 @@ def _pars_fortuna(jd: float, lat: float, lon: float, formula: int, armc: float =
     the default. """
     sun = planet(chart.SUN, jd)
     moon = planet(chart.MOON, jd)
-    asc = angle(chart.ASC, jd, lat, lon, chart.PLACIDUS) if armc is None else armc_angle(chart.ASC, jd, armc, lat, armc_obliquity, chart.PLACIDUS)
+    asc = angle(chart.ASC, jd, lat, lon, chart.PLACIDUS) if armc is None else armc_angle(chart.ASC, armc, lat, armc_obliquity, chart.PLACIDUS)
     lon = calculate.pars_fortuna_longitude(sun, moon, asc, formula)
     dec = swe.cotrans((lon, 0, 0), -obliquity(jd))[1]
 
