@@ -5,7 +5,7 @@
 
     The actual user-facing chart classes are contained in this module. Each
     chart class is easily serializable using the ToJSON class. Each chart type
-    is instantiated by passing an object of type Native.
+    is instantiated by passing an object of type Subject.
 
 """
 
@@ -18,10 +18,10 @@ from immanuel.setup import settings
 from immanuel.tools import calculate, convert, date, ephemeris, forecast, midpoint
 
 
-class Native:
+class Subject:
     def __init__(self, date_time: datetime | str, latitude: float, longitude: float, time_is_dst: bool = None):
-        self.time_is_dst = time_is_dst
         self.latitude, self.longitude = (convert.to_dec(v) for v in (latitude, longitude))
+        self.time_is_dst = time_is_dst
         self.date_time = date.localize(
                 dt=date_time if isinstance(date_time, datetime) else datetime.fromisoformat(date_time),
                 lat=self.latitude,
@@ -48,7 +48,7 @@ class Chart:
                     lon=self._native.longitude,
                     house_system=settings.house_system,
                 )
-            self._native_armc_lon = self._native_armc['lon']
+            self._native_armc_longitude = self._native_armc['lon']
 
         if hasattr(self, '_partner'):
             """ Add Julian DOB & ARMC for partner. """
@@ -60,7 +60,7 @@ class Chart:
                     lon=self._partner.longitude,
                     house_system=settings.house_system,
                 )
-            self._partner_armc_lon = self._partner_armc['lon']
+            self._partner_armc_longitude = self._partner_armc['lon']
 
         """ Set chart data specific to each type. """
         self.set_data()
@@ -71,7 +71,7 @@ class Chart:
                 case data.DATE_TIME:
                     self.date_time = wrap.Date(
                             dt=self._native.date_time,
-                            armc=self._native_armc_lon,
+                            armc=self._native_armc_longitude,
                             is_time_dst=self._native.time_is_dst,
                         )
 
@@ -84,7 +84,7 @@ class Chart:
                 case data.PARTNER_DATE_TIME:
                     self.partner_date_time = wrap.Date(
                             dt=self._partner.date_time,
-                            armc=self._partner_armc_lon,
+                            armc=self._partner_armc_longitude,
                             is_time_dst=self._partner.time_is_dst,
                         )
 
@@ -105,14 +105,22 @@ class Chart:
                             longitude=self._native.longitude,
                         )
 
-                # case data.PROGRESSION_DATE:
-                #     self.progression_date = wrap.Date(self._progression_date, self._progression_armc)
+                case data.PROGRESSION_DATE:
+                    self.progression_date = wrap.Date(
+                            dt=self._progression_date,
+                            armc=self._progression_armc_longitude,
+                        )
 
-                # case data.PROGRESSED_DATE:
-                #     self.progressed_date = wrap.Date(self._progressed_jd, self._progressed_armc_lon, self._latitude, self._longitude)
+                case data.PROGRESSED_DATE:
+                    self.progressed_date = wrap.Date(
+                            dt=self._progressed_jd,
+                            armc=self._progressed_armc_longitude,
+                            latitude=self._native.latitude,
+                            longitude=self._native.longitude,
+                        )
 
-                # case data.PROGRESSION_METHOD:
-                #     self.progression_method = names.PROGRESSION_METHODS[settings.mc_progression_method]
+                case data.PROGRESSION_METHOD:
+                    self.progression_method = names.PROGRESSION_METHODS[settings.mc_progression_method]
 
                 case data.HOUSE_SYSTEM:
                     self.house_system = names.HOUSE_SYSTEMS[settings.house_system]
@@ -138,9 +146,9 @@ class Chart:
                         self.objects[index] = wrap.Object(
                                 object=object,
                                 objects=self._objects,
-                                houses=self._houses,
-                                is_daytime=self._diurnal,
-                                obliquity=self._obliquity,
+                                houses=self._houses if hasattr(self, '_houses') else None,
+                                is_daytime=self._diurnal if hasattr(self, '_diurnal') else None,
+                                obliquity=self._obliquity if hasattr(self, '_obliquity') else None,
                             )
 
                 case data.HOUSES:
@@ -157,16 +165,16 @@ class Chart:
                     }
 
     def set_data(self) -> None:
-        self._native: Native = None
-        self._partner: Native = None
+        self._native: Subject = None
+        self._partner: Subject = None
         self._obliquity: float = None
         self._solar_return_year: int = None
         self._solar_return_jd: float = None
         self._solar_return_armc: float = None
         self._progression_date: datetime | str = None
-        self._progression_armc: float = None
+        self._progression_armc_longitude: float = None
         self._progressed_jd: float = None
-        self._progressed_armc_lon: float = None
+        self._progressed_armc_longitude: float = None
         self._diurnal: bool = None
         self._moon_phase: int = None
         self._objects: dict = {}
@@ -177,7 +185,7 @@ class Chart:
 class Natal(Chart):
     """ Standard natal chart generates data straight from the passed
     native information. """
-    def __init__(self, native: Native) -> None:
+    def __init__(self, native: Subject) -> None:
         self._native = native
         super().__init__(chart.NATAL)
 
@@ -215,7 +223,7 @@ class Natal(Chart):
 
 class SolarReturn(Chart):
     """ Solar return chart for the given year. """
-    def __init__(self, native: Native, year: int) -> None:
+    def __init__(self, native: Subject, year: int) -> None:
         self._native = native
         self._solar_return_year = year
         super().__init__(chart.SOLAR_RETURN)
@@ -263,7 +271,7 @@ class SolarReturn(Chart):
 class Progressed(Chart):
     """ Secondary progression chart uses the MC progression method from
     settings. """
-    def __init__(self, native: Native, date_time: datetime | str) -> None:
+    def __init__(self, native: Subject, date_time: datetime | str) -> None:
         self._native = native
         self._date_time = date_time
         super().__init__(chart.PROGRESSED)
@@ -275,15 +283,16 @@ class Progressed(Chart):
                 lon=self._native.longitude,
             )
         progression_jd = date.to_jd(self._progression_date)
-        self._progression_armc = ephemeris.angle(
+        progression_armc = ephemeris.angle(
                 index=chart.ARMC,
                 jd=progression_jd,
                 lat=self._native.latitude,
                 lon=self._native.longitude,
                 house_system=settings.house_system,
             )
+        self._progression_armc_longitude = progression_armc['lon']
 
-        self._progressed_jd, self._progressed_armc_lon = forecast.progression(
+        self._progressed_jd, self._progressed_armc_longitude = forecast.progression(
                 jd=self._native_jd,
                 lat=self._native.latitude,
                 lon=self._native.longitude,
@@ -297,7 +306,7 @@ class Progressed(Chart):
         moon = ephemeris.planet(chart.MOON, self._progressed_jd)
         asc = ephemeris.armc_angle(
             index=chart.ASC,
-                armc=self._progressed_armc_lon,
+                armc=self._progressed_armc_longitude,
                 lat=self._native.latitude,
                 obliquity=self._obliquity,
                 house_system=settings.house_system,
@@ -308,7 +317,7 @@ class Progressed(Chart):
         self._objects = ephemeris.armc_objects(
                 object_list=settings.objects,
                 jd=self._progressed_jd,
-                armc=self._progressed_armc_lon,
+                armc=self._progressed_armc_longitude,
                 lat=self._native.latitude,
                 lon=self._native.longitude,
                 obliquity=self._obliquity,
@@ -316,7 +325,7 @@ class Progressed(Chart):
                 pars_fortuna_formula=settings.pars_fortuna_formula,
             )
         self._houses = ephemeris.armc_houses(
-                armc=self._progressed_armc_lon,
+                armc=self._progressed_armc_longitude,
                 lat=self._native.latitude,
                 obliquity=self._obliquity,
                 house_system=settings.house_system,
@@ -324,58 +333,9 @@ class Progressed(Chart):
         self._aspects = aspect.all(self._objects)
 
 
-# class Synastry(Chart):
-#     """ Synastry chart is a special case - there are two sets of objects
-#     and houses, with aspects between them. """
-#     def __init__(self, dob: str, lat: float, lon: float, partner_dob: str, partner_lat: float = None, partner_lon: float = None, is_dst: bool = None, partner_is_dst: bool = None) -> None:
-#         self._dob = dob
-#         self._lat = lat
-#         self._lon = lon
-#         self._partner_dob = partner_dob
-#         self._partner_lat = partner_lat if partner_lat is not None else lat
-#         self._partner_lon = partner_lon if partner_lon is not None else lon
-#         self._is_dst = is_dst
-#         self._partner_is_dst = partner_is_dst
-#         super().__init__(chart.SYNASTRY)
-
-#     def set_data(self) -> None:
-#         self._latitude, self._longitude = (convert.to_dec(v) for v in (self._lat, self._lon))
-#         self._date_time = date.localize(datetime.fromisoformat(self._dob), self._latitude, self._longitude, self._is_dst)
-#         native_jd = date.to_jd(self._date_time)
-#         self._obliquity = ephemeris.obliquity(native_jd)
-#         self._native_armc = ephemeris.angle(chart.ARMC, native_jd, self._latitude, self._longitude, settings.house_system)['lon']
-
-#         sun = ephemeris.planet(chart.SUN, native_jd)
-#         moon = ephemeris.planet(chart.MOON, native_jd)
-#         asc = ephemeris.angle(chart.ASC, native_jd, self._latitude, self._longitude, settings.house_system)
-
-#         self._diurnal = calculate.is_daytime(sun, asc)
-#         self._moon_phase = calculate.moon_phase(sun, moon)
-#         self._objects = ephemeris.objects(settings.objects, native_jd, self._latitude, self._longitude, settings.house_system, settings.pars_fortuna_formula)
-#         self._houses = ephemeris.houses(native_jd, self._latitude, self._longitude, settings.house_system)
-
-#         self._partner_latitude, self._partner_longitude = (convert.to_dec(v) for v in (self._partner_lat, self._partner_lon))
-#         self._partner_date_time = date.localize(datetime.fromisoformat(self._partner_dob), self._partner_latitude, self._partner_longitude, self._partner_is_dst)
-#         partner_jd = date.to_jd(self._partner_date_time)
-#         self._partner_obliquity = ephemeris.obliquity(partner_jd)
-#         self._partner_armc = ephemeris.angle(chart.ARMC, partner_jd, self._partner_latitude, self._partner_longitude, settings.house_system)
-
-#         partner_sun = ephemeris.planet(chart.SUN, partner_jd)
-#         partner_moon = ephemeris.planet(chart.MOON, partner_jd)
-#         partner_asc = ephemeris.angle(chart.ASC, partner_jd, self._partner_latitude, self._partner_longitude, settings.house_system)
-
-#         self._partner_diurnal = calculate.is_daytime(partner_sun, partner_asc)
-#         self._partner_moon_phase = calculate.moon_phase(partner_sun, partner_moon)
-#         self._partner_objects = ephemeris.objects(settings.objects, partner_jd, self._partner_latitude, self._partner_longitude, settings.house_system, settings.pars_fortuna_formula)
-#         self._partner_houses = ephemeris.houses(partner_jd, self._partner_latitude, self._partner_longitude, settings.house_system)
-
-#         self._aspects = aspect.synastry(self._objects, self._partner_objects)
-#         self._partner_aspects = aspect.synastry(self._partner_objects, self._objects)
-
-
 class Composite(Chart):
     """ Generates a midpoint chart based on the two passed sets of data. """
-    def __init__(self, native: Native, partner: Native) -> None:
+    def __init__(self, native: Subject, partner: Subject) -> None:
         self._native = native
         self._partner = partner
         super().__init__(chart.COMPOSITE)
@@ -383,7 +343,7 @@ class Composite(Chart):
     def set_data(self) -> None:
         self._obliquity = midpoint.obliquity(self._native_jd, self._partner_jd)
 
-        objects = ephemeris.objects(
+        native_objects = ephemeris.objects(
                 object_list=settings.objects,
                 jd=self._native_jd,
                 lat=self._native.latitude,
@@ -400,14 +360,12 @@ class Composite(Chart):
                 pars_fortuna_formula=settings.pars_fortuna_formula,
             )
         self._objects = midpoint.all(
-                objects1=objects,
+                objects1=native_objects,
                 objects2=partner_objects,
                 obliquity=self._obliquity,
-                pars_fortuna=settings.composite_pars_fortuna,
-                pars_fortuna_formula=settings.pars_fortuna_formula,
             )
 
-        houses = ephemeris.houses(
+        native_houses = ephemeris.houses(
                 jd=self._native_jd,
                 lat=self._native.latitude,
                 lon=self._native.longitude,
@@ -419,26 +377,11 @@ class Composite(Chart):
                 lon=self._partner.longitude,
                 house_system=settings.house_system,
             )
-        if settings.composite_houses == calc.MIDPOINT:
-            self._houses = midpoint.all(
-                    objects1=houses,
-                    objects2=partner_houses,
-                    obliquity=self._obliquity,
-                    pars_fortuna=settings.composite_pars_fortuna,
-                    pars_fortuna_formula=settings.pars_fortuna_formula,
-                )
-        else:
-            armc_lon = midpoint.composite(
-                    object1=self._native_armc,
-                    object2=self._partner_armc,
-                    obliquity=self._obliquity,
-                )['lon']
-            self._houses = ephemeris.armc_houses(
-                    armc=armc_lon,
-                    lat=self._native.latitude,      # TODO: should this be mean latitude?
-                    obliquity=self._obliquity,
-                    house_system=settings.house_system,
-                )
+        self._houses = midpoint.all(
+                objects1=native_houses,
+                objects2=partner_houses,
+                obliquity=self._obliquity,
+            )
 
         native_sun = ephemeris.planet(chart.SUN, self._native_jd)
         native_moon = ephemeris.planet(chart.MOON, self._native_jd)
@@ -452,5 +395,31 @@ class Composite(Chart):
 
         self._diurnal = calculate.is_daytime(sun, asc)
         self._moon_phase = calculate.moon_phase(sun, moon)
+
+        self._aspects = aspect.all(self._objects)
+
+
+class Transit(Chart):
+    """ A very basic chart containing the main chart objects only. If no
+    coordinates are given then house-based points Vertex and Part of Fortune
+    are excluded. """
+    def __init__(self, latitude: float = 0.0, longitude: float = 0.0) -> None:
+        self._native = Subject(datetime.now(), latitude, longitude)
+        super().__init__(chart.TRANSIT)
+
+    def set_data(self) -> None:
+        exclude = [chart.ASC, chart.DESC, chart.MC, chart.IC]
+
+        if self._native.latitude == 0.0 and self._native.longitude == 0.0:
+            exclude += [chart.VERTEX, chart.PARS_FORTUNA]
+
+        object_list = [object for object in settings.objects if object not in exclude]
+
+        self._objects = ephemeris.objects(
+            object_list=object_list,
+            jd=self._native_jd,
+            lat=self._native.latitude,
+            lon=self._native.longitude,
+        )
 
         self._aspects = aspect.all(self._objects)

@@ -207,7 +207,7 @@ class Object:
         if 'size' in object:
             self.size = object['size']
 
-        if object['type'] == chart.PLANET:
+        if objects is not None and object['type'] == chart.PLANET:
             dignity_state = dignity.all(object=object, objects=objects, is_daytime=is_daytime)
             self.dignities = DignityState(dignity_state)
             self.score = dignity.score(dignity_state)

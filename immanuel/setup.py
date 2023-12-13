@@ -78,6 +78,11 @@ _settings['chart_data'] = {
         data.ASPECTS,
         data.WEIGHTINGS,
     ],
+    chart.TRANSIT: [
+        data.DATE_TIME,
+        data.OBJECTS,
+        data.ASPECTS,
+    ],
 }
 
 
@@ -228,14 +233,6 @@ _settings['mc_progression_method'] = calc.NAIBOD
 
 """ Part of Fortune formula. """
 _settings['pars_fortuna_formula'] = calc.DAY_NIGHT_FORMULA
-
-
-""" Composite Part of Fortune calculation. """
-_settings['composite_pars_fortuna'] = calc.MIDPOINT
-
-
-""" Composite house cusp calculation. """
-_settings['composite_houses'] = calc.MIDPOINT
 
 
 """ Dignity settings. """
