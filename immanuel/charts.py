@@ -414,8 +414,8 @@ class Transits(Chart):
         object_list = [object for object in settings.objects if object not in exclude]
 
         self._objects = ephemeris.objects(
-            object_list=object_list,
-            jd=self._native_jd,
-            lat=self._native.latitude,
-            lon=self._native.longitude,
-        )
+                object_list=object_list,
+                jd=self._native_jd,
+                lat=self._native.latitude,
+                lon=self._native.longitude,
+            )
