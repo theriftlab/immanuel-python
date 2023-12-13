@@ -403,7 +403,7 @@ class Transits(Chart):
     are excluded. """
     def __init__(self, latitude: float = 0.0, longitude: float = 0.0, aspects_to: Chart = None) -> None:
         self._native = Subject(datetime.now(), latitude, longitude)
-        super().__init__(chart.TRANSIT, aspects_to)
+        super().__init__(chart.TRANSITS, aspects_to)
 
     def set_data(self) -> None:
         exclude = [chart.ASC, chart.DESC, chart.MC, chart.IC]

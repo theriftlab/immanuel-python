@@ -78,7 +78,7 @@ _settings['chart_data'] = {
         data.ASPECTS,
         data.WEIGHTINGS,
     ],
-    chart.TRANSIT: [
+    chart.TRANSITS: [
         data.DATE_TIME,
         data.OBJECTS,
         data.ASPECTS,

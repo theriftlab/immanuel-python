@@ -15,7 +15,7 @@ CHART_TYPES = {
     chart.SOLAR_RETURN: 'Solar Return',
     chart.PROGRESSED: 'Progressed',
     chart.COMPOSITE: 'Composite',
-    chart.TRANSIT: 'Transit'
+    chart.TRANSITS: 'Transits'
 }
 
 OBJECTS = {
