@@ -12,7 +12,7 @@
 from datetime import datetime
 
 from immanuel.classes import wrap
-from immanuel.const import calc, chart, data, names
+from immanuel.const import chart, data, names
 from immanuel.reports import aspect, pattern, weighting
 from immanuel.setup import settings
 from immanuel.tools import calculate, convert, date, ephemeris, forecast, midpoint
@@ -30,16 +30,20 @@ class Subject:
             )
 
 
-class Chart:
+class BaseChart:
+    """ Since straightforward self-typing is not available in Python 3.10
+    we cheat by creating an empty base class allowing Chart to essentially
+    type-hint itself. """
+    pass
+
+class Chart(BaseChart):
     """ Base chart class. This is essentially an abstract class for the actual
     chart classes to inherit from. The constructor sets some properties common
     to all chart types. """
-    def __init__(self, type: int) -> None:
-        """ Set chart type name. """
+    def __init__(self, type: int, aspects_to: BaseChart = None) -> None:
         self.type = names.CHART_TYPES[type]
 
         if hasattr(self, '_native'):
-            """ Add Julian DOB & ARMC for native. """
             self._native_jd = date.to_jd(self._native.date_time)
             self._native_armc = ephemeris.angle(
                     index=chart.ARMC,
@@ -51,7 +55,6 @@ class Chart:
             self._native_armc_longitude = self._native_armc['lon']
 
         if hasattr(self, '_partner'):
-            """ Add Julian DOB & ARMC for partner. """
             self._partner_jd = date.to_jd(self._partner.date_time)
             self._partner_armc = ephemeris.angle(
                     index=chart.ARMC,
@@ -62,10 +65,8 @@ class Chart:
                 )
             self._partner_armc_longitude = self._partner_armc['lon']
 
-        """ Set chart data specific to each type. """
         self.set_data()
 
-        """ Add formatted data per the settings for this chart type. """
         for index in settings.chart_data[type]:
             match index:
                 case data.DATE_TIME:
@@ -155,7 +156,8 @@ class Chart:
                     self.houses = {index: wrap.Object(object=house) for index, house in self._houses.items()}
 
                 case data.ASPECTS:
-                    self.aspects = {index: {object_index: wrap.Aspect(aspect=object_aspect, objects=self._objects) for object_index, object_aspect in aspect_list.items()} for index, aspect_list in self._aspects.items()}
+                    aspects = aspect.all(self._objects) if aspects_to is None else aspect.synastry(self._objects, aspects_to._objects)
+                    self.aspects = {index: {object_index: wrap.Aspect(aspect=object_aspect, objects=self._objects) for object_index, object_aspect in aspect_list.items()} for index, aspect_list in aspects.items()}
 
                 case data.WEIGHTINGS:
                     self.weightings = {
@@ -179,15 +181,14 @@ class Chart:
         self._moon_phase: int = None
         self._objects: dict = {}
         self._houses: dict = {}
-        self._aspects: dict = {}
 
 
 class Natal(Chart):
     """ Standard natal chart generates data straight from the passed
     native information. """
-    def __init__(self, native: Subject) -> None:
+    def __init__(self, native: Subject, aspects_to: Chart = None) -> None:
         self._native = native
-        super().__init__(chart.NATAL)
+        super().__init__(chart.NATAL, aspects_to)
 
     def set_data(self) -> None:
         self._obliquity = ephemeris.obliquity(self._native_jd)
@@ -218,12 +219,11 @@ class Natal(Chart):
                 lon=self._native.longitude,
                 house_system=settings.house_system,
             )
-        self._aspects = aspect.all(self._objects)
 
 
 class SolarReturn(Chart):
     """ Solar return chart for the given year. """
-    def __init__(self, native: Subject, year: int) -> None:
+    def __init__(self, native: Subject, year: int, aspects_to: Chart = None) -> None:
         self._native = native
         self._solar_return_year = year
         super().__init__(chart.SOLAR_RETURN)
@@ -265,13 +265,12 @@ class SolarReturn(Chart):
                 lon=self._native.longitude,
                 house_system=settings.house_system,
             )
-        self._aspects = aspect.all(self._objects)
 
 
 class Progressed(Chart):
     """ Secondary progression chart uses the MC progression method from
     settings. """
-    def __init__(self, native: Subject, date_time: datetime | str) -> None:
+    def __init__(self, native: Subject, date_time: datetime | str, aspects_to: Chart = None) -> None:
         self._native = native
         self._date_time = date_time
         super().__init__(chart.PROGRESSED)
@@ -330,12 +329,11 @@ class Progressed(Chart):
                 obliquity=self._obliquity,
                 house_system=settings.house_system,
             )
-        self._aspects = aspect.all(self._objects)
 
 
 class Composite(Chart):
     """ Generates a midpoint chart based on the two passed sets of data. """
-    def __init__(self, native: Subject, partner: Subject) -> None:
+    def __init__(self, native: Subject, partner: Subject, aspects_to: Chart = None) -> None:
         self._native = native
         self._partner = partner
         super().__init__(chart.COMPOSITE)
@@ -399,13 +397,13 @@ class Composite(Chart):
         self._aspects = aspect.all(self._objects)
 
 
-class Transit(Chart):
+class Transits(Chart):
     """ A very basic chart containing the main chart objects only. If no
     coordinates are given then house-based points Vertex and Part of Fortune
     are excluded. """
-    def __init__(self, latitude: float = 0.0, longitude: float = 0.0) -> None:
+    def __init__(self, latitude: float = 0.0, longitude: float = 0.0, aspects_to: Chart = None) -> None:
         self._native = Subject(datetime.now(), latitude, longitude)
-        super().__init__(chart.TRANSIT)
+        super().__init__(chart.TRANSIT, aspects_to)
 
     def set_data(self) -> None:
         exclude = [chart.ASC, chart.DESC, chart.MC, chart.IC]
@@ -421,5 +419,3 @@ class Transit(Chart):
             lat=self._native.latitude,
             lon=self._native.longitude,
         )
-
-        self._aspects = aspect.all(self._objects)
