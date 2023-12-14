@@ -14,7 +14,6 @@
 """
 
 from datetime import datetime
-from typing import Any
 
 from immanuel.classes import wrap
 from immanuel.const import chart, names
@@ -26,7 +25,7 @@ from immanuel.tools import calculate, convert, date, ephemeris, forecast, midpoi
 class Subject:
     """ Simple class to model a chart subject - essentially just
     a time and place. """
-    def __init__(self, date_time: datetime | str, latitude: Any, longitude: Any, time_is_dst: bool = None) -> None:
+    def __init__(self, date_time: datetime | str, latitude: float | list | tuple | str, longitude: float | list | tuple | str, time_is_dst: bool = None) -> None:
         self._lat, self._lon = (convert.to_dec(v) for v in (latitude, longitude))
         self._dt = date.localize(
                 dt=date_time if isinstance(date_time, datetime) else datetime.fromisoformat(date_time),
@@ -55,17 +54,10 @@ class Subject:
             )
 
 
-class BaseChart:
-    """ Since straightforward self-typing is not available in Python 3.10
-    we cheat by creating a base class allowing Chart's constructor to
-    type-hint itself. """
-    pass
-
-
-class Chart(BaseChart):
+class Chart():
     """ Base chart class. This acts as an abstract class for the actual chart
     classes to inherit from. """
-    def __init__(self, type: int, aspects_to: BaseChart = None) -> None:
+    def __init__(self, type: int, aspects_to: 'Chart' = None) -> None:
         self.type: str = names.CHART_TYPES[type]
         self._type = type
         self._aspects_to = aspects_to
@@ -73,8 +65,8 @@ class Chart(BaseChart):
         self.wrap()
 
     def generate(self) -> None:
-        """ Generating the raw data is each descendant class's responsibility.
-        Placeholders for properties common to all charts are set here. """
+        """ Generating the raw data is each descendant class's responsibility,
+        but placeholders for properties common to all charts are set here. """
         self._native: Subject = None
         self._obliquity: float = None
         self._diurnal: bool = None
@@ -393,7 +385,7 @@ class Composite(Chart):
 class Transits(Chart):
     """ Chart of the moment for the given coordinates. Structurally identical
     to the natal chart. """
-    def __init__(self, latitude: Any, longitude: Any, aspects_to: Chart = None) -> None:
+    def __init__(self, latitude: float | list | tuple | str, longitude: float | list | tuple | str, aspects_to: Chart = None) -> None:
         self._native = Subject(datetime.now(), latitude, longitude)
         super().__init__(chart.TRANSITS, aspects_to)
 
