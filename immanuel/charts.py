@@ -5,7 +5,10 @@
 
     The actual user-facing chart classes are contained in this module. Each
     chart class is easily serializable using the ToJSON class. Each chart type
-    is instantiated by passing an instance of Subject.
+    is instantiated by passing an instance of Subject, apart from Transits.
+    This assumes the current moment and optionally takes a pair of coordinates
+    for house calculations, although these will default to those specifed in
+    the settings if they are not required.
 
     Instead of a dedicated synastry chart, the optional aspects_to parameter
     in each chart type's constructor takes another Chart instance and forms its
@@ -84,11 +87,8 @@ class Chart():
                 getattr(self, method)()
 
     # Base class provides wrappers for properties common to all classes.
-    def set_wrapped_date_time(self) -> None:
-        self.date_time = self._native.date_time
-
-    def set_wrapped_coordinates(self) -> None:
-        self.coordinates = self._native.coordinates
+    def set_wrapped_native(self) -> None:
+        self.native = self._native
 
     def set_wrapped_house_system(self) -> None:
         self.house_system = names.HOUSE_SYSTEMS[settings.house_system]
@@ -373,14 +373,8 @@ class Composite(Chart):
         self._diurnal = calculate.is_daytime(sun, asc)
         self._moon_phase = calculate.moon_phase(sun, moon)
 
-    def set_wrapped_partner_date_time(self):
-        self.partner_date_time = self._partner.date_time
-
-    def set_wrapped_partner_coordinates(self):
-        self.partner_coordinates = wrap.Coordinates(
-                latitude=self._partner._lat,
-                longitude=self._partner._lon,
-            )
+    def set_wrapped_partner(self):
+        self.partner = self._partner
 
 
 class Transits(Chart):

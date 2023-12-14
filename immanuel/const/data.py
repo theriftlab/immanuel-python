@@ -10,10 +10,8 @@
 """
 
 
-DATE_TIME = 'date_time'
-COORDINATES = 'coordinates'
-PARTNER_DATE_TIME = 'partner_date_time'
-PARTNER_COORDINATES = 'partner_coordinates'
+NATIVE = 'native'
+PARTNER = 'partner'
 SOLAR_RETURN_YEAR = 'solar_return_year'
 SOLAR_RETURN_DATE_TIME = 'solar_return_date_time'
 PROGRESSION_DATE_TIME = 'progression_date_time'

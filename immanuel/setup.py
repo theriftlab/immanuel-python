@@ -24,8 +24,7 @@ _settings = {}
 """ Data that should be included for each chart type's output. """
 _settings['chart_data'] = {
     chart.NATAL: [
-        data.DATE_TIME,
-        data.COORDINATES,
+        data.NATIVE,
         data.HOUSE_SYSTEM,
         data.SHAPE,
         data.DIURNAL,
@@ -36,10 +35,9 @@ _settings['chart_data'] = {
         data.WEIGHTINGS,
     ],
     chart.SOLAR_RETURN: [
-        data.DATE_TIME,
+        data.NATIVE,
         data.SOLAR_RETURN_YEAR,
         data.SOLAR_RETURN_DATE_TIME,
-        data.COORDINATES,
         data.HOUSE_SYSTEM,
         data.SHAPE,
         data.DIURNAL,
@@ -50,11 +48,10 @@ _settings['chart_data'] = {
         data.WEIGHTINGS,
     ],
     chart.PROGRESSED: [
-        data.DATE_TIME,
+        data.NATIVE,
         data.PROGRESSION_DATE_TIME,
         data.PROGRESSED_DATE_TIME,
         data.PROGRESSION_METHOD,
-        data.COORDINATES,
         data.HOUSE_SYSTEM,
         data.SHAPE,
         data.DIURNAL,
@@ -65,10 +62,8 @@ _settings['chart_data'] = {
         data.WEIGHTINGS,
     ],
     chart.COMPOSITE: [
-        data.DATE_TIME,
-        data.COORDINATES,
-        data.PARTNER_DATE_TIME,
-        data.PARTNER_COORDINATES,
+        data.NATIVE,
+        data.PARTNER,
         data.HOUSE_SYSTEM,
         data.SHAPE,
         data.DIURNAL,
@@ -79,8 +74,7 @@ _settings['chart_data'] = {
         data.WEIGHTINGS,
     ],
     chart.TRANSITS: [
-        data.DATE_TIME,
-        data.COORDINATES,
+        data.NATIVE,
         data.HOUSE_SYSTEM,
         data.SHAPE,
         data.DIURNAL,
@@ -96,6 +90,7 @@ _settings['chart_data'] = {
 """ Default coordinates when none are supplied. Currently points to
 the GMT prime meridian. """
 _settings['default_latitude'] = 51.4779
+
 _settings['default_longitude'] = -0.0015
 
 

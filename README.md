@@ -8,17 +8,17 @@ Simply pass in a date and coordinates to one of the available chart classes, and
 
 ## Documentation
 
-Full documentation is available [here](https://github.com/theriftlab/immanuel-python/tree/v1.0.12/docs/0-contents.md), or follow the Quick Start below to see how to generate a simple natal chart.
+Full documentation is available [here](https://github.com/theriftlab/immanuel-python/tree/v1.0.12/docs/0-contents.md), or follow the Quick Start below to see how to quickly generate a natal chart.
 
 ## Quick Start
 
-You can get started with a natal chart data in minutes. Simply install Immanuel:
+You can get started with full natal chart data in minutes. Simply install Immanuel:
 
 ```bash
 pip install immanuel
 ```
 
-Once you've imported Immanuel's chart classes you will need to construct a chart subject from a date & coordinates, then pass it to the Natal class. The date can be an ISO-formatted string, or a Python datetime instance. Coordinates can be strings formatted as in the example, or decimals.
+Once you've imported Immanuel's chart classes into your application, you will need to hand them a person or event. This is made easy with the Subject class, which takes a date and geographical coordinates. The date can be an ISO-formatted string or a Python datetime instance, and coordinates can be strings or decimals.
 
 ```python
 from immanuel import charts
@@ -44,7 +44,34 @@ Moon 16°19'29" in Scorpio, 8th House
 ...
 ```
 
-We can see much more data by serializing the chart's `objects` property to JSON like this:
+Add asteroid Ceres into the mix:
+
+```python
+from immanuel import charts
+from immanuel.const import chart
+from immanuel.setup import settings
+
+
+native = charts.Subject(
+        date_time='2000-01-01 10:00',
+        latitude='32n43',
+        longitude='117w09'
+    )
+
+settings.objects.append(chart.CERES)
+natal = charts.Natal(native)
+
+for object in natal.objects.values():
+    print(object)
+```
+
+Now you will see this appended to the list:
+
+```
+Ceres 04°30'28" in Libra, 7th House
+```
+
+More on the settings & constants in the full documentation - for now, we can see much more data by serializing the chart's `objects` property to JSON like this:
 
 ```python
 import json
@@ -189,7 +216,15 @@ Planetary dignity scores are based on those of Astro Gold, although these are so
 
 ## Settings
 
-The full documentation covers settings in detail, but much of the output can be customized. The settings module allows you specify what data each chart returns, what planets etc. to include, and to fine-tune many intricate details of the aspect calculations.
+The full documentation covers settings in detail, but much of the output can be customized. The settings module allows you to specify and personalize:
+
+* The house system to use
+* What data each chart returns
+* What planets, points, asteroid etc. to include
+* Details of the aspect calculations
+* Which dignities to use and their scores
+* The progression method to use for secondary progressions
+* ...and much more.
 
 ## Tests
 
