@@ -4,25 +4,26 @@
 
 
     Defines indices for the chart classes to define what data should be
-    included for output.
+    included for output. These are string rather than integer indices due to
+    the way the chart classes use these to name their functions.
 
 """
 
 
-DATE_TIME = 0
-COORDINATES = 1
-PARTNER_DATE_TIME = 2
-PARTNER_COORDINATES = 3
-SOLAR_RETURN_YEAR = 4
-SOLAR_RETURN_DATE = 5
-PROGRESSION_DATE = 6
-PROGRESSED_DATE = 7
-PROGRESSION_METHOD = 8
-HOUSE_SYSTEM = 9
-SHAPE = 10
-DIURNAL = 12
-MOON_PHASE = 14
-OBJECTS = 16
-ASPECTS = 18
-HOUSES = 20
-WEIGHTINGS = 22
+DATE_TIME = 'date_time'
+COORDINATES = 'coordinates'
+PARTNER_DATE_TIME = 'partner_date_time'
+PARTNER_COORDINATES = 'partner_coordinates'
+SOLAR_RETURN_YEAR = 'solar_return_year'
+SOLAR_RETURN_DATE_TIME = 'solar_return_date_time'
+PROGRESSION_DATE_TIME = 'progression_date_time'
+PROGRESSED_DATE_TIME = 'progressed_date_time'
+PROGRESSION_METHOD = 'progression_method'
+HOUSE_SYSTEM = 'house_system'
+SHAPE = 'shape'
+DIURNAL = 'diurnal'
+MOON_PHASE = 'moon_phase'
+OBJECTS = 'objects'
+ASPECTS = 'aspects'
+HOUSES = 'houses'
+WEIGHTINGS = 'weightings'

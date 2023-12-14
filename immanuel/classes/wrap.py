@@ -78,8 +78,8 @@ class Coordinates:
         return f'{self.latitude}, {self.longitude}'
 
 
-class Date:
-    def __init__(self, dt: datetime | float, armc: dict = None, latitude: float = None, longitude: float = None, is_time_dst: bool = None) -> None:
+class DateTime:
+    def __init__(self, dt: datetime | float, armc: dict | float = None, latitude: float = None, longitude: float = None, is_time_dst: bool = None) -> None:
         self.datetime = dt if isinstance(dt, datetime) else date.from_jd(dt, latitude, longitude)
         self.timezone = self.datetime.tzname()
         self.ambiguous = date.ambiguous(self.datetime) and is_time_dst is None
@@ -180,7 +180,7 @@ class Object:
             self.eclipse_type = EclipseType(object['eclipse_type'])
 
         if 'date' in object:
-            self.date = Date(object['date'])
+            self.date = DateTime(object['date'])
 
         if 'lat' in object:
             self.latitude = Angle(object['lat'])
@@ -207,7 +207,7 @@ class Object:
         if 'size' in object:
             self.size = object['size']
 
-        if objects is not None and object['type'] == chart.PLANET:
+        if objects is not None and object['type'] == chart.PLANET and is_daytime is not None:
             dignity_state = dignity.all(object=object, objects=objects, is_daytime=is_daytime)
             self.dignities = DignityState(dignity_state)
             self.score = dignity.score(dignity_state)

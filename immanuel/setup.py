@@ -38,7 +38,7 @@ _settings['chart_data'] = {
     chart.SOLAR_RETURN: [
         data.DATE_TIME,
         data.SOLAR_RETURN_YEAR,
-        data.SOLAR_RETURN_DATE,
+        data.SOLAR_RETURN_DATE_TIME,
         data.COORDINATES,
         data.HOUSE_SYSTEM,
         data.SHAPE,
@@ -51,8 +51,8 @@ _settings['chart_data'] = {
     ],
     chart.PROGRESSED: [
         data.DATE_TIME,
-        data.PROGRESSION_DATE,
-        data.PROGRESSED_DATE,
+        data.PROGRESSION_DATE_TIME,
+        data.PROGRESSED_DATE_TIME,
         data.PROGRESSION_METHOD,
         data.COORDINATES,
         data.HOUSE_SYSTEM,
