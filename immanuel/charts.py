@@ -26,7 +26,7 @@ from immanuel.tools import calculate, convert, date, ephemeris, forecast, midpoi
 class Subject:
     """ Simple class to model a chart subject - essentially just
     a time and place. """
-    def __init__(self, date_time: datetime | str, latitude: float, longitude: float, time_is_dst: bool = None) -> None:
+    def __init__(self, date_time: datetime | str, latitude: Any, longitude: Any, time_is_dst: bool = None) -> None:
         self._lat, self._lon = (convert.to_dec(v) for v in (latitude, longitude))
         self._dt = date.localize(
                 dt=date_time if isinstance(date_time, datetime) else datetime.fromisoformat(date_time),
@@ -104,12 +104,10 @@ class Chart(BaseChart):
         self.shape = names.CHART_SHAPES[pattern.chart_shape(self._objects)]
 
     def set_wrapped_diurnal(self) -> None:
-        if hasattr(self, '_diurnal'):
-            self.diurnal = self._diurnal
+        self.diurnal = self._diurnal
 
     def set_wrapped_moon_phase(self) -> None:
-        if hasattr(self, '_moon_phase'):
-            self.moon_phase = wrap.MoonPhase(self._moon_phase)
+        self.moon_phase = wrap.MoonPhase(self._moon_phase)
 
     def set_wrapped_objects(self) -> None:
         self.objects = {}
@@ -123,14 +121,13 @@ class Chart(BaseChart):
             self.objects[index] = wrap.Object(
                     object=object,
                     objects=self._objects,
-                    houses=self._houses if hasattr(self, '_houses') else None,
-                    is_daytime=self._diurnal if hasattr(self, '_diurnal') else None,
+                    houses=self._houses,
+                    is_daytime=self._diurnal,
                     obliquity=self._obliquity,
                 )
 
     def set_wrapped_houses(self) -> None:
-        if hasattr(self, '_houses'):
-            self.houses = {index: wrap.Object(object=house) for index, house in self._houses.items()}
+        self.houses = {index: wrap.Object(object=house) for index, house in self._houses.items()}
 
     def set_wrapped_aspects(self) -> None:
         aspects = aspect.all(self._objects) if self._aspects_to is None else aspect.synastry(self._objects, self._aspects_to._objects)
@@ -140,9 +137,8 @@ class Chart(BaseChart):
         self.weightings = {
             'elements': wrap.Elements(weighting.elements(self._objects)),
             'modalities': wrap.Modalities(weighting.modalities(self._objects)),
-        } | {
             'quadrants': wrap.Quadrants(weighting.quadrants(self._objects, self._houses)),
-        } if hasattr(self, '_houses') else {}
+        }
 
 
 class Natal(Chart):
@@ -395,25 +391,38 @@ class Composite(Chart):
 
 
 class Transits(Chart):
-    """ A very basic chart containing the main chart objects only. If no
-    coordinates are given then house-based points Vertex and Part of Fortune
-    are excluded. No houses are calculated either way. """
-    def __init__(self, latitude: float = 0.0, longitude: float = 0.0, aspects_to: Chart = None) -> None:
+    """ Chart of the moment for the given coordinates. Structurally identical
+    to the natal chart. """
+    def __init__(self, latitude: Any, longitude: Any, aspects_to: Chart = None) -> None:
         self._native = Subject(datetime.now(), latitude, longitude)
         super().__init__(chart.TRANSITS, aspects_to)
 
     def generate(self) -> None:
         self._obliquity = ephemeris.obliquity(self._native._jd)
-        exclude = [chart.ASC, chart.DESC, chart.MC, chart.IC]
 
-        if self._native._lat == 0.0 and self._native._lon == 0:
-            exclude += [chart.VERTEX, chart.PARS_FORTUNA]
-
-        object_list = [object for object in settings.objects if object not in exclude]
-
-        self._objects = ephemeris.objects(
-                object_list=object_list,
+        sun = ephemeris.planet(chart.SUN, self._native._jd)
+        moon = ephemeris.planet(chart.MOON, self._native._jd)
+        asc = ephemeris.angle(
+                index=chart.ASC,
                 jd=self._native._jd,
                 lat=self._native._lat,
                 lon=self._native._lon,
+                house_system=settings.house_system,
+            )
+
+        self._diurnal = calculate.is_daytime(sun, asc)
+        self._moon_phase = calculate.moon_phase(sun, moon)
+        self._objects = ephemeris.objects(
+                object_list=settings.objects,
+                jd=self._native._jd,
+                lat=self._native._lat,
+                lon=self._native._lon,
+                house_system=settings.house_system,
+                pars_fortuna_formula=settings.pars_fortuna_formula,
+            )
+        self._houses = ephemeris.houses(
+                jd=self._native._jd,
+                lat=self._native._lat,
+                lon=self._native._lon,
+                house_system=settings.house_system,
             )
