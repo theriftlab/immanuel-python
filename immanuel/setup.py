@@ -93,8 +93,15 @@ _settings['chart_data'] = {
 }
 
 
+""" Default coordinates when none are supplied. Currently points to
+the GMT prime meridian. """
+_settings['default_latitude'] = 51.4779
+_settings['default_longitude'] = -0.0015
+
+
 """ House system as supported by pyswisseph. """
 _settings['house_system'] = chart.PLACIDUS
+
 
 """ Which planets, points etc. to show. """
 _settings['objects'] = [
@@ -107,17 +114,20 @@ _settings['objects'] = [
     chart.CHIRON,
 ]
 
+
 """ Which planets, points etc. to use in chart shape calculations. """
 _settings['chart_shape_objects'] = [
     chart.SUN, chart.MOON, chart.MERCURY, chart.VENUS, chart.MARS,
     chart.JUPITER, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.PLUTO,
 ]
 
+
 """ Which aspects to calculate. """
 _settings['aspects'] = [
     calc.CONJUNCTION, calc.OPPOSITION, calc.SQUARE, calc.TRINE, calc.SEXTILE,
     calc.QUINCUNX,
 ]
+
 
 """ Rules for what chart objects can initiate or receive which aspects. """
 _settings['default_aspect_rule'] = {

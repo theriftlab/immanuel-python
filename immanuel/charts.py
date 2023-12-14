@@ -14,6 +14,7 @@
 """
 
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from immanuel.classes import wrap
 from immanuel.const import chart, names
@@ -58,7 +59,7 @@ class Chart():
     """ Base chart class. This acts as an abstract class for the actual chart
     classes to inherit from. """
     def __init__(self, type: int, aspects_to: 'Chart' = None) -> None:
-        self.type: str = names.CHART_TYPES[type]
+        self.type = names.CHART_TYPES[type]
         self._type = type
         self._aspects_to = aspects_to
         self.generate()
@@ -384,9 +385,12 @@ class Composite(Chart):
 
 class Transits(Chart):
     """ Chart of the moment for the given coordinates. Structurally identical
-    to the natal chart. """
-    def __init__(self, latitude: float | list | tuple | str, longitude: float | list | tuple | str, aspects_to: Chart = None) -> None:
-        self._native = Subject(datetime.now(), latitude, longitude)
+    to the natal chart. Coordinates default to those specified in settings. """
+    def __init__(self, latitude: float | list | tuple | str = settings.default_latitude, longitude: float | list | tuple | str = settings.default_longitude, aspects_to: Chart = None) -> None:
+        lat, lon = (convert.to_dec(v) for v in (latitude, longitude))
+        timezone = date.timezone(lat, lon)
+        date_time = datetime.now(tz=ZoneInfo(timezone))
+        self._native = Subject(date_time, lat, lon)
         super().__init__(chart.TRANSITS, aspects_to)
 
     def generate(self) -> None:

@@ -1,8 +1,10 @@
 # Immanuel
 
-Immanuel is a Python >= 3.10 package to painlessly provide your application with simple yet detailed chart-centric astrology data such as planets, points, signs, houses, aspects, weightings, etc. all based on the [Swiss Ephemeris](https://github.com/astrorigin/pyswisseph). Extra calculations, notably secondary progressions and dignity scores, are modeled on those of [astro.com](https://astro.com) and [Astro Gold](https://www.astrogold.io).
+Immanuel is a Python >= 3.10 package to painlessly provide your application with simple yet detailed chart-centric astrology data for planets, points, signs, houses, aspects, weightings, etc. all based on the [Swiss Ephemeris](https://github.com/astrorigin/pyswisseph). Extra calculations, notably secondary progressions and dignity scores, are modeled on those of [astro.com](https://astro.com) and [Astro Gold](https://www.astrogold.io).
 
-Simply pass a date and coordinates to one of the available chart classes, and the returned instance will contain all data necessary to construct a full astrological chart. A serializer is bundled to easily output all data as JSON, or it can simply be printed out as human-readable text.
+Data for natal charts, solar returns, progressions, and composites are available, as well as the ability to point the aspects from any one chart instance to the planets in another, creating a flexible method to build synastries.
+
+Simply pass in a date and coordinates to one of the available chart classes, and the returned instance will contain all data necessary to construct a full astrological chart. A serializer is bundled to easily output all data as JSON, or it can simply be printed out as human-readable text.
 
 ## Documentation
 
@@ -10,13 +12,13 @@ Full documentation is available [here](https://github.com/theriftlab/immanuel-py
 
 ## Quick Start
 
-You can get started generating natal chart data in minutes. Simply install Immanuel:
+You can get started with a natal chart data in minutes. Simply install Immanuel:
 
 ```bash
 pip install immanuel
 ```
 
-Once you've imported Immanuel's chart classes you will need to generate a chart subject from a date & coordinates, then pass it to the Natal class:
+Once you've imported Immanuel's chart classes you will need to construct a chart subject from a date & coordinates, then pass it to the Natal class. The date can be an ISO-formatted string, or a Python datetime instance. Coordinates can be strings formatted as in the example, or decimals.
 
 ```python
 from immanuel import charts
@@ -160,7 +162,7 @@ Currently Immanuel supports the following chart types:
 * Composite
 * Transits
 
-All chart classes allow an instance of another chart class to be passed as an argument, which will then calculate the main chart's aspects in relation to the passed chart. This way synastry and transit charts can be generated with great flexibility.
+Synastry is also available with an extra step - all chart classes allow an instance of another chart class to be passed as an argument, which will then calculate the main chart's aspects in relation to the passed chart. This way synastry (and transit) charts can be generated with great flexibility.
 
 ## Returned Chart Data
 
