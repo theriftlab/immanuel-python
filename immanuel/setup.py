@@ -80,8 +80,15 @@ _settings['chart_data'] = {
     ],
     chart.TRANSITS: [
         data.DATE_TIME,
+        data.COORDINATES,
+        data.HOUSE_SYSTEM,
+        data.SHAPE,
+        data.DIURNAL,
+        data.MOON_PHASE,
         data.OBJECTS,
+        data.HOUSES,
         data.ASPECTS,
+        data.WEIGHTINGS,
     ],
 }
 
