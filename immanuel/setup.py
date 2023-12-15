@@ -24,8 +24,7 @@ _settings = {}
 """ Data that should be included for each chart type's output. """
 _settings['chart_data'] = {
     chart.NATAL: [
-        data.NATAL_DATE,
-        data.COORDINATES,
+        data.NATIVE,
         data.HOUSE_SYSTEM,
         data.SHAPE,
         data.DIURNAL,
@@ -36,10 +35,9 @@ _settings['chart_data'] = {
         data.WEIGHTINGS,
     ],
     chart.SOLAR_RETURN: [
-        data.NATAL_DATE,
+        data.NATIVE,
         data.SOLAR_RETURN_YEAR,
-        data.SOLAR_RETURN_DATE,
-        data.COORDINATES,
+        data.SOLAR_RETURN_DATE_TIME,
         data.HOUSE_SYSTEM,
         data.SHAPE,
         data.DIURNAL,
@@ -50,11 +48,10 @@ _settings['chart_data'] = {
         data.WEIGHTINGS,
     ],
     chart.PROGRESSED: [
-        data.NATAL_DATE,
-        data.PROGRESSION_DATE,
-        data.PROGRESSED_DATE,
+        data.NATIVE,
+        data.PROGRESSION_DATE_TIME,
+        data.PROGRESSED_DATE_TIME,
         data.PROGRESSION_METHOD,
-        data.COORDINATES,
         data.HOUSE_SYSTEM,
         data.SHAPE,
         data.DIURNAL,
@@ -63,33 +60,21 @@ _settings['chart_data'] = {
         data.HOUSES,
         data.ASPECTS,
         data.WEIGHTINGS,
-    ],
-    chart.SYNASTRY: [
-        data.NATAL_DATE,
-        data.COORDINATES,
-        data.PARTNER_DATE,
-        data.PARTNER_COORDINATES,
-        data.HOUSE_SYSTEM,
-        data.SHAPE,
-        data.PARTNER_SHAPE,
-        data.DIURNAL,
-        data.PARTNER_DIURNAL,
-        data.MOON_PHASE,
-        data.PARTNER_MOON_PHASE,
-        data.OBJECTS,
-        data.PARTNER_OBJECTS,
-        data.HOUSES,
-        data.PARTNER_HOUSES,
-        data.ASPECTS,
-        data.PARTNER_ASPECTS,
-        data.WEIGHTINGS,
-        data.PARTNER_WEIGHTINGS,
     ],
     chart.COMPOSITE: [
-        data.NATAL_DATE,
-        data.COORDINATES,
-        data.PARTNER_DATE,
-        data.PARTNER_COORDINATES,
+        data.NATIVE,
+        data.PARTNER,
+        data.HOUSE_SYSTEM,
+        data.SHAPE,
+        data.DIURNAL,
+        data.MOON_PHASE,
+        data.OBJECTS,
+        data.HOUSES,
+        data.ASPECTS,
+        data.WEIGHTINGS,
+    ],
+    chart.TRANSITS: [
+        data.NATIVE,
         data.HOUSE_SYSTEM,
         data.SHAPE,
         data.DIURNAL,
@@ -102,8 +87,16 @@ _settings['chart_data'] = {
 }
 
 
+""" Default coordinates when none are supplied. Currently points to
+the GMT prime meridian. """
+_settings['default_latitude'] = 51.4779
+
+_settings['default_longitude'] = -0.0015
+
+
 """ House system as supported by pyswisseph. """
 _settings['house_system'] = chart.PLACIDUS
+
 
 """ Which planets, points etc. to show. """
 _settings['objects'] = [
@@ -116,17 +109,20 @@ _settings['objects'] = [
     chart.CHIRON,
 ]
 
+
 """ Which planets, points etc. to use in chart shape calculations. """
 _settings['chart_shape_objects'] = [
     chart.SUN, chart.MOON, chart.MERCURY, chart.VENUS, chart.MARS,
     chart.JUPITER, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.PLUTO,
 ]
 
+
 """ Which aspects to calculate. """
 _settings['aspects'] = [
     calc.CONJUNCTION, calc.OPPOSITION, calc.SQUARE, calc.TRINE, calc.SEXTILE,
     calc.QUINCUNX,
 ]
+
 
 """ Rules for what chart objects can initiate or receive which aspects. """
 _settings['default_aspect_rule'] = {
@@ -249,14 +245,6 @@ _settings['mc_progression_method'] = calc.NAIBOD
 
 """ Part of Fortune formula. """
 _settings['pars_fortuna_formula'] = calc.DAY_NIGHT_FORMULA
-
-
-""" Composite Part of Fortune calculation. """
-_settings['composite_pars_fortuna'] = calc.MIDPOINT
-
-
-""" Composite house cusp calculation. """
-_settings['composite_houses'] = calc.MIDPOINT
 
 
 """ Dignity settings. """

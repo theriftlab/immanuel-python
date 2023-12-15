@@ -32,6 +32,20 @@ STATION_SPEED = 0.0003                      # ~1 arc-second of movement
 YEAR_DAYS = 365.24219893                    # Average days in a solar year (see swisseph swehouse.c)
 J2000 = 2451545                             # Julian year 2000
 
+""" Explicitly specify all of our planets as a set. """
+PLANETS = {
+    chart.SUN,
+    chart.MOON,
+    chart.MERCURY,
+    chart.VENUS,
+    chart.MARS,
+    chart.JUPITER,
+    chart.SATURN,
+    chart.URANUS,
+    chart.NEPTUNE,
+    chart.PLUTO,
+}
+
 """ Mean daily planetary motions. """
 MEAN_MOTIONS = {
     chart.SUN: 0.98564733,                  # See https://www.astro.com/cgi/h.cgi?f=gch&h=gch246&lang=e

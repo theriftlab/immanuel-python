@@ -14,8 +14,8 @@ CHART_TYPES = {
     chart.NATAL: 'Natal',
     chart.SOLAR_RETURN: 'Solar Return',
     chart.PROGRESSED: 'Progressed',
-    chart.SYNASTRY: 'Synastry',
     chart.COMPOSITE: 'Composite',
+    chart.TRANSITS: 'Transits'
 }
 
 OBJECTS = {

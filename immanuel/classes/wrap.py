@@ -13,6 +13,7 @@ from datetime import datetime
 
 from immanuel.const import calc, chart, dignities, names
 from immanuel.reports import dignity
+from immanuel.setup import settings
 from immanuel.tools import calculate, convert, date, ephemeris, position
 
 
@@ -48,22 +49,22 @@ class Aspect:
         return f'{self._active_name} {self._passive_name} {self.type} within {self.difference} ({self.movement}, {self.condition})'
 
 
+class AspectCondition:
+    def __init__(self, condition: int) -> None:
+        self.associate = condition == calc.ASSOCIATE
+        self.dissociate = condition == calc.DISSOCIATE
+        self.formatted = names.ASPECT_CONDITIONS[condition]
+
+    def __str__(self) -> str:
+        return self.formatted
+
+
 class AspectMovement:
     def __init__(self, movement: int) -> None:
         self.applicative = movement == calc.APPLICATIVE
         self.exact = movement == calc.EXACT
         self.separative = movement == calc.SEPARATIVE
         self.formatted = names.ASPECT_MOVEMENTS[movement]
-
-    def __str__(self) -> str:
-        return self.formatted
-
-
-class AspectCondition:
-    def __init__(self, condition: int) -> None:
-        self.associate = condition == calc.ASSOCIATE
-        self.dissociate = condition == calc.DISSOCIATE
-        self.formatted = names.ASPECT_CONDITIONS[condition]
 
     def __str__(self) -> str:
         return self.formatted
@@ -78,11 +79,11 @@ class Coordinates:
         return f'{self.latitude}, {self.longitude}'
 
 
-class Date:
-    def __init__(self, dt: datetime | float, armc: dict = None, latitude: float = None, longitude: float = None, is_dst: bool = None) -> None:
+class DateTime:
+    def __init__(self, dt: datetime | float, armc: dict | float = None, latitude: float = None, longitude: float = None, time_is_dst: bool = None) -> None:
         self.datetime = dt if isinstance(dt, datetime) else date.from_jd(dt, latitude, longitude)
         self.timezone = self.datetime.tzname()
-        self.ambiguous = date.ambiguous(self.datetime) and is_dst is None
+        self.ambiguous = date.ambiguous(self.datetime) and time_is_dst is None
         self.julian = date.to_jd(dt) if isinstance(dt, datetime) else dt
         self.deltat = ephemeris.deltat(self.julian)
 
@@ -142,18 +143,6 @@ class House:
         return self.name
 
 
-class ObjectMovement:
-    def __init__(self, object: dict) -> None:
-        self._movement = calculate.object_movement(object)
-        self.direct = self._movement == calc.DIRECT
-        self.stationary = self._movement == calc.STATIONARY
-        self.retrograde = self._movement == calc.RETROGRADE
-        self.formatted = names.OBJECT_MOVEMENTS[self._movement]
-
-    def __str__(self) -> str:
-        return self.formatted
-
-
 class MoonPhase:
     def __init__(self, moon_phase: int) -> None:
         self.new_moon = moon_phase == calc.NEW_MOON
@@ -180,7 +169,7 @@ class Object:
             self.eclipse_type = EclipseType(object['eclipse_type'])
 
         if 'date' in object:
-            self.date = Date(object['date'])
+            self.date = DateTime(object['date'])
 
         if 'lat' in object:
             self.latitude = Angle(object['lat'])
@@ -197,17 +186,17 @@ class Object:
 
         self.speed = object['speed']
 
-        if object['type'] not in (chart.HOUSE, chart.FIXED_STAR, chart.ANGLE):
+        if object['type'] not in (chart.HOUSE, chart.ANGLE, chart.FIXED_STAR):
             self.movement = ObjectMovement(object)
 
-        if 'dec' in object:
-            self.declination = Angle(object['dec'])
-            self.out_of_bounds = calculate.is_out_of_bounds(object=object, obliquity=obliquity)
+            if 'dec' in object:
+                self.declination = Angle(object['dec'])
+                self.out_of_bounds = calculate.is_out_of_bounds(object=object, obliquity=obliquity)
 
         if 'size' in object:
             self.size = object['size']
 
-        if object['type'] == chart.PLANET:
+        if objects is not None and object['type'] == chart.PLANET and is_daytime is not None and calc.PLANETS.issubset(objects):
             dignity_state = dignity.all(object=object, objects=objects, is_daytime=is_daytime)
             self.dignities = DignityState(dignity_state)
             self.score = dignity.score(dignity_state)
@@ -219,6 +208,18 @@ class Object:
             str += f', {self.house.name}'
 
         return str
+
+
+class ObjectMovement:
+    def __init__(self, object: dict) -> None:
+        self._movement = calculate.object_movement(object)
+        self.direct = self._movement == calc.DIRECT
+        self.stationary = self._movement == calc.STATIONARY
+        self.retrograde = self._movement == calc.RETROGRADE
+        self.formatted = names.OBJECT_MOVEMENTS[self._movement]
+
+    def __str__(self) -> str:
+        return self.formatted
 
 
 class ObjectType:
@@ -237,6 +238,31 @@ class Sign:
 
     def __str__(self) -> str:
         return self.name
+
+
+class Subject:
+    def __init__(self, subject: 'Subject') -> None:
+        armc = ephemeris.angle(
+                index=chart.ARMC,
+                jd=subject.julian_date,
+                lat=subject.latitude,
+                lon=subject.longitude,
+                house_system=settings.house_system,
+            )
+        self.date_time = DateTime(
+                dt=subject.date_time,
+                armc=armc,
+                latitude=subject.latitude,
+                longitude=subject.longitude,
+                time_is_dst=subject.time_is_dst,
+            )
+        self.coordinates = Coordinates(
+                latitude=subject.latitude,
+                longitude=subject.longitude,
+            )
+
+    def __str__(self) -> str:
+        return f'{self.date_time} at {self.coordinates}'
 
 
 class Elements:

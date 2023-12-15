@@ -1,24 +1,36 @@
 # Immanuel
 
-Immanuel is a Python >= 3.10 package to allow your applications to painlessly produce simple, readable, chart-centred astrology data from [pyswisseph](https://github.com/astrorigin/pyswisseph), with extra calculations modeled on those of [astro.com](https://astro.com) and [Astro Gold](https://www.astrogold.io). Easy-to-use chart classes take date, time, and location data and return an object which can be output as either human-friendly text or easily serialized into JSON.
+Immanuel is a Python >= 3.10 package to painlessly provide your application with simple yet detailed chart-centric astrology data for planets, points, signs, houses, aspects, weightings, etc. all based on the [Swiss Ephemeris](https://github.com/astrorigin/pyswisseph). Extra calculations, notably secondary progressions and dignity scores, are modeled on those of [astro.com](https://astro.com) and [Astro Gold](https://www.astrogold.io).
 
-Full documentation is available [here](https://github.com/theriftlab/immanuel-python/tree/v1.0.12/docs/0-contents.md).
+Data for natal charts, solar returns, progressions, and composites are available, as well as the ability to point the aspects from any one chart instance to the planets in another, creating a flexible method to build synastries.
+
+Simply pass in a date and coordinates to one of the available chart classes, and the returned instance will contain all data necessary to construct a full astrological chart. A serializer is bundled to easily output all data as JSON, or it can simply be printed out as human-readable text.
+
+## Documentation
+
+Full documentation is available [here](https://github.com/theriftlab/immanuel-python/tree/v1.0.12/docs/0-contents.md), or follow the Quick Start below to see how to quickly generate a natal chart.
 
 ## Quick Start
 
-You can get started generating chart data in minutes. Simply install Immanuel:
+You can get started with full natal chart data in minutes. Simply install Immanuel:
 
 ```bash
 pip install immanuel
 ```
 
-Now import Immanuel's chart classes and generate a natal chart from a date & coordinates:
+Once you've imported Immanuel's chart classes into your application, you will need to hand them a person or event. This is made easy with the Subject class, which takes a date and geographical coordinates. The date can be an ISO-formatted string or a Python datetime instance, and coordinates can be strings or decimals.
 
 ```python
 from immanuel import charts
 
 
-natal = charts.Natal(dob='2000-01-01 10:00', lat='32n43', lon='117w09')
+native = charts.Subject(
+        date_time='2000-01-01 10:00',
+        latitude='32n43',
+        longitude='117w09'
+    )
+
+natal = charts.Natal(native)
 
 for object in natal.objects.values():
     print(object)
@@ -32,7 +44,34 @@ Moon 16°19'29" in Scorpio, 8th House
 ...
 ```
 
-We can see much more data by serializing the chart's `objects` property to JSON like this:
+Add asteroid Ceres into the mix:
+
+```python
+from immanuel import charts
+from immanuel.const import chart
+from immanuel.setup import settings
+
+
+native = charts.Subject(
+        date_time='2000-01-01 10:00',
+        latitude='32n43',
+        longitude='117w09'
+    )
+
+settings.objects.append(chart.CERES)
+natal = charts.Natal(native)
+
+for object in natal.objects.values():
+    print(object)
+```
+
+Now you will see this appended to the list:
+
+```
+Ceres 04°30'28" in Libra, 7th House
+```
+
+More on the settings & constants in the full documentation - for now, we can see much more data by serializing the chart's `objects` property to JSON like this:
 
 ```python
 import json
@@ -41,7 +80,13 @@ from immanuel.classes.serialize import ToJSON
 from immanuel import charts
 
 
-natal = charts.Natal(dob='2000-01-01 10:00', lat='32n43', lon='117w09')
+native = charts.Subject(
+        date_time='2000-01-01 10:00',
+        latitude='32n43',
+        longitude='117w09'
+    )
+
+natal = charts.Natal(native)
 
 print(json.dumps(natal.objects, cls=ToJSON, indent=4))
 ```
@@ -141,8 +186,10 @@ Currently Immanuel supports the following chart types:
 * Natal
 * Solar return
 * Progressed
-* Synastry
 * Composite
+* Transits
+
+Synastry is also available with an extra step - all chart classes allow an instance of another chart class to be passed as an argument, which will then calculate the main chart's aspects in relation to the passed chart. This way synastry (and transit) charts can be generated with great flexibility.
 
 ## Returned Chart Data
 
@@ -169,7 +216,15 @@ Planetary dignity scores are based on those of Astro Gold, although these are so
 
 ## Settings
 
-The full documentation covers settings in detail, but much of the output can be customized. The settings module allows you specify what data each chart returns, what planets etc. to include, and to fine-tune many intricate details of the aspect calculations.
+The full documentation covers settings in detail, but much of the output can be customized. The settings module allows you to specify and personalize:
+
+* The house system to use
+* What data each chart returns
+* What planets, points, asteroid etc. to include
+* Details of the aspect calculations
+* Which dignities to use and their scores
+* The progression method to use for secondary progressions
+* ...and much more.
 
 ## Tests
 

@@ -133,7 +133,7 @@ def astro():
 def test_all(coords, jd1, jd2, obliquity, astro):
     objects1 = ephemeris.objects(astro.keys(), jd1, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
     objects2 = ephemeris.objects(astro.keys(), jd2, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
-    composites = midpoint.all(objects1, objects2, obliquity, calc.MIDPOINT, calc.DAY_NIGHT_FORMULA)
+    composites = midpoint.all(objects1, objects2, obliquity)
 
     for index, composite in composites.items():
         sign = position.sign(composite)

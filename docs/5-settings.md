@@ -1,38 +1,53 @@
 # Settings
 
-## Example
+The `setup` module contains a `settings` class for changing Immanuel's default settings. Sensible defaults have been set out of the box, such as which chart objects to include, the preferred house system, aspect rules and orbs, dignity scores, Part of Fortune calculation etc. Many of the defaults are set to match those of astro.com but are easily overridden with Immanuel's built-in constants. Once a setting is changed, it will be applied to all subsequent charts until changed again.
 
-The `setup` module contains a `settings` class for changing defaults. Sensible defaults have been set out of the box, such as which chart objects to include, the preferred house system, aspect rules and orbs, dignity scores, Part of Fortune calculation etc. Many of the defaults are set to match those of astro.com but are easily overridden with Immanuel's built-in constants. For example, to specify a house system or MC progression method:
+## Quick Example
+
+To specify a different house system or MC progression method:
 
 ```python
+from immanuel import charts
 from immanuel.const import calc, chart
 from immanuel.setup import settings
 
 
 settings.house_system = chart.CAMPANUS
 
-natal = charts.Natal(dob='2000-01-01 10:00', lat='32n43', lon='117w09')
+native = charts.Subject('2000-01-01 10:00', '32n43', '117w09')
+# natal.houses will now use Campanus.
+natal = charts.Natal(native)
 
 settings.mc_progression_method = calc.DAILY_HOUSES
 
-progressed = charts.Progressed(dob='2000-01-01 10:00', lat='32n43', lon='117w09', pd='2025-06-20 17:00')
+# progressed.houses will now use Campanus,
+# and its progression method will be Daily Houses.
+progressed = charts.Progressed(native, '2025-06-20 17:00')
+```
+
+Or, to set them at the same time:
+
+```python
+settings.set({
+    'house_system': chart.CAMPANUS,
+    'mc_progression_method': calc.DAILY_HOUSES,
+})
 ```
 
 ## Overview
 
-There are many detailed customisations for chart data, especially for aspect rules. This will provide you with an overview, but taking a look through the defaults in `setup.py` and the const files might give you a more detailed idea.
+There are many detailed customizations for chart data, especially for aspect rules. This section will provide you with an overview, but taking a look through the defaults in `setup.py` and the const files will give you a more detailed idea.
 
 ### `chart_data`
 
 A dict which specifies what top-level data each chart type should contain. The values here are fairly self-explanatory as the constants line up with the chart class property names described in the [Returned Data](4-data.md) section.
 
-Currently the defaults specify the *maximum* amount of available data for each chart type - the only change you can reasonably make is to *remove* any properties you do not wish to include. Attempting to add data that does not belong (eg. adding `data.SOLAR_RETURN_DATE` to a natal chart) will only end in tears.
+The defaults specify the *maximum* amount of available data for each chart type - the only change you can reasonably make is to remove any properties you do not wish to include. Attempting to add data that does not belong (eg. adding `data.SOLAR_RETURN_DATE` to a natal chart) will not end well.
 
 ```python
 {
     chart.NATAL: [
-        data.NATAL_DATE,
-        data.COORDINATES,
+        data.NATIVE,
         data.HOUSE_SYSTEM,
         data.SHAPE,
         data.DIURNAL,
@@ -43,10 +58,9 @@ Currently the defaults specify the *maximum* amount of available data for each c
         data.WEIGHTINGS,
     ],
     chart.SOLAR_RETURN: [
-        data.NATAL_DATE,
+        data.NATIVE,
         data.SOLAR_RETURN_YEAR,
-        data.SOLAR_RETURN_DATE,
-        data.COORDINATES,
+        data.SOLAR_RETURN_DATE_TIME,
         data.HOUSE_SYSTEM,
         data.SHAPE,
         data.DIURNAL,
@@ -57,11 +71,10 @@ Currently the defaults specify the *maximum* amount of available data for each c
         data.WEIGHTINGS,
     ],
     chart.PROGRESSED: [
-        data.NATAL_DATE,
-        data.PROGRESSION_DATE,
-        data.PROGRESSED_DATE,
+        data.NATIVE,
+        data.PROGRESSION_DATE_TIME,
+        data.PROGRESSED_DATE_TIME,
         data.PROGRESSION_METHOD,
-        data.COORDINATES,
         data.HOUSE_SYSTEM,
         data.SHAPE,
         data.DIURNAL,
@@ -70,33 +83,21 @@ Currently the defaults specify the *maximum* amount of available data for each c
         data.HOUSES,
         data.ASPECTS,
         data.WEIGHTINGS,
-    ],
-    chart.SYNASTRY: [
-        data.NATAL_DATE,
-        data.COORDINATES,
-        data.PARTNER_DATE,
-        data.PARTNER_COORDINATES,
-        data.HOUSE_SYSTEM,
-        data.SHAPE,
-        data.PARTNER_SHAPE,
-        data.DIURNAL,
-        data.PARTNER_DIURNAL,
-        data.MOON_PHASE,
-        data.PARTNER_MOON_PHASE,
-        data.OBJECTS,
-        data.PARTNER_OBJECTS,
-        data.HOUSES,
-        data.PARTNER_HOUSES,
-        data.ASPECTS,
-        data.PARTNER_ASPECTS,
-        data.WEIGHTINGS,
-        data.PARTNER_WEIGHTINGS,
     ],
     chart.COMPOSITE: [
-        data.NATAL_DATE,
-        data.COORDINATES,
-        data.PARTNER_DATE,
-        data.PARTNER_COORDINATES,
+        data.NATIVE,
+        data.PARTNER,
+        data.HOUSE_SYSTEM,
+        data.SHAPE,
+        data.DIURNAL,
+        data.MOON_PHASE,
+        data.OBJECTS,
+        data.HOUSES,
+        data.ASPECTS,
+        data.WEIGHTINGS,
+    ],
+    chart.TRANSITS: [
+        data.NATIVE,
         data.HOUSE_SYSTEM,
         data.SHAPE,
         data.DIURNAL,
@@ -198,13 +199,13 @@ Pre & post-natal eclipses:
 
 Fixed stars:
 
-All fixed stars are included - simply add the name as a string to this list, eg.:
+All fixed stars are available out of the box - simply add the name as a string to this list, eg.:
 
 ```python
 settings.objects.append('Antares')
 ```
 
-Extra objects from external ephemeris files can also be added to this list by their number. See the [Extra Objects](#extra-objects) section below for details how.
+Extra objects from external ephemeris files can also be added to this list by their number. See the [External Objects](#external-objects) section below for details how.
 
 ### `chart_shape_objects`
 
@@ -428,11 +429,11 @@ The orb used when checking various gap sizes between planets to calculate the ch
 
 Which of the three available methods to use to progress the MC in a progressed chart.
 
-| Option | Astro.com Equivalent | Description |
+| Method | Astro.com Equivalent | Description |
 | --- | --- | --- |
-| `calc.NAIBOD` | ARMC 1 Naibod/prog.day | Progresses the ARMC by the number of day/years multiplied by the Sun's mean yearly motion. |
-| `calc.SOLAR_ARC` | MC from solar arc | Directly progresses the MC itself by the amount the sun has moved between the natal and progressed dates. |
-| `calc.DAILY_HOUSES` | ARMC 361°/prog.day | Gets the ARMC from the progressed date. |
+| `calc.NAIBOD` | ARMC 1 Naibod/prog.day | Advances the ARMC by the Sun's mean daily motion multiplied by the number of days between the natal and progressed date. |
+| `calc.SOLAR_ARC` | MC from solar arc | ARMC is calculated by advancing the MC by the same distance the Sun has traveled between the natal and progressed date. |
+| `calc.DAILY_HOUSES` | ARMC 361°/prog.day | Calculates where the ARMC would be on the progressed date. |
 
 Default `calc.NAIBOD`.
 
@@ -448,31 +449,9 @@ Which formula to use when calculating the Part of Fortune.
 
 Default `calc.DAY_NIGHT_FORMULA`.
 
-### `composite_pars_fortuna`
-
-How to calculate the Part of Fortune in a composite chart.
-
-| Option | Description |
-| --- | --- |
-| `calc.MIDPOINT` | Calculates the midpoint of the two objects. |
-| `calc.COMPOSITE` | Generates a new object from the midpoints of the two charts' Suns, Moons and Ascendants. |
-
-Default `calc.MIDPOINT`.
-
-### `composite_houses`
-
-How to calculate houses in a composite chart.
-
-| Option | Description |
-| --- | --- |
-| `calc.MIDPOINT` | Calculates the midpoint of each house's cusp. |
-| `calc.COMPOSITE` | Generates a new set of houses from the midpoint of the two charts' MCs. |
-
-Default `calc.MIDPOINT`.
-
 ### `rulerships`
 
-Rules for the planets' rulerships. You can see what these are in the `const.dignities` submodule.
+Rules for the planets' rulerships. You can see these in the `const.dignities` submodule.
 
 | Option | Description |
 | --- | --- |
@@ -483,7 +462,7 @@ Default `dignities.MODERN_RULERSHIPS`.
 
 ### `triplicities`
 
-Rules for the planets' triplicity rulerships. You can see what these are in the `const.dignities` submodule.
+Rules for the planets' triplicity rulerships. You can see these in the `const.dignities` submodule.
 
 | Option | Description |
 | --- | --- |
@@ -495,7 +474,7 @@ Default `dignities.PTOLEMAIC_TRIPLICITIES`.
 
 ### `terms`
 
-Rules for the planets' term rulerships. You can see what these are in the `const.dignities` submodule.
+Rules for the planets' term rulerships. You can see these in the `const.dignities` submodule.
 
 | Option | Description |
 | --- | --- |
@@ -540,7 +519,7 @@ Default:
 }
 ```
 
-## Extra Objects
+## External Objects
 
 As well as the readily-available chart objects listed above in the `objects` setting, it is possible to point Immanuel to any outside ephemeris files you might want to include, and add those extra objects to your chart.
 
@@ -557,7 +536,8 @@ from immanuel.setup import settings
 setup.add_filepath('my/directory/path')
 settings.objects.append(1181)
 
-natal = charts.Natal(dob='2000-01-01 10:00', lat='32n43', lon='117w09')
+native = charts.Subject('2000-01-01 10:00', '32n43', '117w09')
+natal = charts.Natal(native)
 print(json.dumps(natal.objects[1181], cls=ToJSON, indent=4))
 ```
 
@@ -624,7 +604,7 @@ This will return a standard asteroid object:
 }
 ```
 
-And voila! You have imported an extra object into your chart.
+Congratulations - you have imported an external object into your chart.
 
 ---
 
@@ -632,6 +612,5 @@ And voila! You have imported an extra object into your chart.
 2. [Installation](2-installation.md)
 3. [Examples](3-examples.md)
 4. [Returned Data](4-data.md)
-5. [Calculations](5-calculations.md)
-6. Settings
-7. [Submodules](7-submodules.md)
+5. Settings
+6. [Submodules](6-submodules.md)
