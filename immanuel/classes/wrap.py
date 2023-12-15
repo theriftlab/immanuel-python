@@ -49,22 +49,22 @@ class Aspect:
         return f'{self._active_name} {self._passive_name} {self.type} within {self.difference} ({self.movement}, {self.condition})'
 
 
+class AspectCondition:
+    def __init__(self, condition: int) -> None:
+        self.associate = condition == calc.ASSOCIATE
+        self.dissociate = condition == calc.DISSOCIATE
+        self.formatted = names.ASPECT_CONDITIONS[condition]
+
+    def __str__(self) -> str:
+        return self.formatted
+
+
 class AspectMovement:
     def __init__(self, movement: int) -> None:
         self.applicative = movement == calc.APPLICATIVE
         self.exact = movement == calc.EXACT
         self.separative = movement == calc.SEPARATIVE
         self.formatted = names.ASPECT_MOVEMENTS[movement]
-
-    def __str__(self) -> str:
-        return self.formatted
-
-
-class AspectCondition:
-    def __init__(self, condition: int) -> None:
-        self.associate = condition == calc.ASSOCIATE
-        self.dissociate = condition == calc.DISSOCIATE
-        self.formatted = names.ASPECT_CONDITIONS[condition]
 
     def __str__(self) -> str:
         return self.formatted
@@ -143,18 +143,6 @@ class House:
         return self.name
 
 
-class ObjectMovement:
-    def __init__(self, object: dict) -> None:
-        self._movement = calculate.object_movement(object)
-        self.direct = self._movement == calc.DIRECT
-        self.stationary = self._movement == calc.STATIONARY
-        self.retrograde = self._movement == calc.RETROGRADE
-        self.formatted = names.OBJECT_MOVEMENTS[self._movement]
-
-    def __str__(self) -> str:
-        return self.formatted
-
-
 class MoonPhase:
     def __init__(self, moon_phase: int) -> None:
         self.new_moon = moon_phase == calc.NEW_MOON
@@ -220,6 +208,18 @@ class Object:
             str += f', {self.house.name}'
 
         return str
+
+
+class ObjectMovement:
+    def __init__(self, object: dict) -> None:
+        self._movement = calculate.object_movement(object)
+        self.direct = self._movement == calc.DIRECT
+        self.stationary = self._movement == calc.STATIONARY
+        self.retrograde = self._movement == calc.RETROGRADE
+        self.formatted = names.OBJECT_MOVEMENTS[self._movement]
+
+    def __str__(self) -> str:
+        return self.formatted
 
 
 class ObjectType:
