@@ -72,14 +72,14 @@ def pdt():
 def test_subject(dob, lat, lon, native):
     date_time = datetime.fromisoformat(f'{dob} -08:00')
     latitude, longitude = (convert.string_to_dec(v) for v in (lat, lon))
-    assert native.date_time.datetime.year == date_time.year
-    assert native.date_time.datetime.month == date_time.month
-    assert native.date_time.datetime.day == date_time.day
-    assert native.date_time.datetime.hour == date_time.hour
-    assert native.date_time.datetime.minute == date_time.minute
-    assert native.date_time.datetime.second == date_time.second
-    assert native.coordinates.latitude.raw == latitude
-    assert native.coordinates.longitude.raw == longitude
+    assert native.date_time.year == date_time.year
+    assert native.date_time.month == date_time.month
+    assert native.date_time.day == date_time.day
+    assert native.date_time.hour == date_time.hour
+    assert native.date_time.minute == date_time.minute
+    assert native.date_time.second == date_time.second
+    assert native.latitude == latitude
+    assert native.longitude == longitude
 
 
 def test_natal(native, lat, lon):

@@ -30,32 +30,15 @@ class Subject:
     """ Simple class to model a chart subject - essentially just
     a time and place. """
     def __init__(self, date_time: datetime | str, latitude: float | list | tuple | str, longitude: float | list | tuple | str, time_is_dst: bool = None) -> None:
-        self._lat, self._lon = (convert.to_dec(v) for v in (latitude, longitude))
-        self._dt = date.localize(
+        self.latitude, self.longitude = (convert.to_dec(v) for v in (latitude, longitude))
+        self.time_is_dst = time_is_dst
+        self.date_time = date.localize(
                 dt=date_time if isinstance(date_time, datetime) else datetime.fromisoformat(date_time),
-                lat=self._lat,
-                lon=self._lon,
-                is_dst=time_is_dst,
+                lat=self.latitude,
+                lon=self.longitude,
+                is_dst=self.time_is_dst,
             )
-        self._jd = date.to_jd(self._dt)
-        armc = ephemeris.angle(
-                index=chart.ARMC,
-                jd=self._jd,
-                lat=self._lat,
-                lon=self._lon,
-                house_system=settings.house_system,
-            )
-        self.date_time = wrap.DateTime(
-                dt=self._dt,
-                armc=armc,
-                latitude=self._lat,
-                longitude=self._lon,
-                time_is_dst=time_is_dst,
-            )
-        self.coordinates = wrap.Coordinates(
-                latitude=self._lat,
-                longitude=self._lon,
-            )
+        self.julian_date = date.to_jd(self.date_time)
 
 
 class Chart():
@@ -88,7 +71,7 @@ class Chart():
 
     # Base class provides wrappers for properties common to all classes.
     def set_wrapped_native(self) -> None:
-        self.native = self._native
+        self.native = wrap.Subject(self._native)
 
     def set_wrapped_house_system(self) -> None:
         self.house_system = names.HOUSE_SYSTEMS[settings.house_system]
@@ -108,8 +91,8 @@ class Chart():
             if 'jd' in object:
                 object['date'] = date.localize(
                         dt=date.from_jd(object['jd']),
-                        lat=self._native._lat,
-                        lon=self._native._lon,
+                        lat=self._native.latitude,
+                        lon=self._native.longitude,
                     )
             self.objects[index] = wrap.Object(
                     object=object,
@@ -142,15 +125,15 @@ class Natal(Chart):
         super().__init__(chart.NATAL, aspects_to)
 
     def generate(self) -> None:
-        self._obliquity = ephemeris.obliquity(self._native._jd)
+        self._obliquity = ephemeris.obliquity(self._native.julian_date)
 
-        sun = ephemeris.planet(chart.SUN, self._native._jd)
-        moon = ephemeris.planet(chart.MOON, self._native._jd)
+        sun = ephemeris.planet(chart.SUN, self._native.julian_date)
+        moon = ephemeris.planet(chart.MOON, self._native.julian_date)
         asc = ephemeris.angle(
                 index=chart.ASC,
-                jd=self._native._jd,
-                lat=self._native._lat,
-                lon=self._native._lon,
+                jd=self._native.julian_date,
+                lat=self._native.latitude,
+                lon=self._native.longitude,
                 house_system=settings.house_system,
             )
 
@@ -158,16 +141,16 @@ class Natal(Chart):
         self._moon_phase = calculate.moon_phase(sun, moon)
         self._objects = ephemeris.objects(
                 object_list=settings.objects,
-                jd=self._native._jd,
-                lat=self._native._lat,
-                lon=self._native._lon,
+                jd=self._native.julian_date,
+                lat=self._native.latitude,
+                lon=self._native.longitude,
                 house_system=settings.house_system,
                 pars_fortuna_formula=settings.pars_fortuna_formula,
             )
         self._houses = ephemeris.houses(
-                jd=self._native._jd,
-                lat=self._native._lat,
-                lon=self._native._lon,
+                jd=self._native.julian_date,
+                lat=self._native.latitude,
+                lon=self._native.longitude,
                 house_system=settings.house_system,
             )
 
@@ -180,13 +163,13 @@ class SolarReturn(Chart):
         super().__init__(chart.SOLAR_RETURN, aspects_to)
 
     def generate(self) -> None:
-        self._solar_return_jd = forecast.solar_return(self._native._jd, self._solar_return_year)
+        self._solar_return_jd = forecast.solar_return(self._native.julian_date, self._solar_return_year)
         self._obliquity = ephemeris.obliquity(self._solar_return_jd)
         self._solar_return_armc = ephemeris.angle(
                 index=chart.ARMC,
                 jd=self._solar_return_jd,
-                lat=self._native._lat,
-                lon=self._native._lon,
+                lat=self._native.latitude,
+                lon=self._native.longitude,
                 house_system=settings.house_system,
             )
 
@@ -195,8 +178,8 @@ class SolarReturn(Chart):
         asc = ephemeris.angle(
                 index=chart.ASC,
                 jd=self._solar_return_jd,
-                lat=self._native._lat,
-                lon=self._native._lon,
+                lat=self._native.latitude,
+                lon=self._native.longitude,
                 house_system=settings.house_system,
             )
 
@@ -205,15 +188,15 @@ class SolarReturn(Chart):
         self._objects = ephemeris.objects(
                 object_list=settings.objects,
                 jd=self._solar_return_jd,
-                lat=self._native._lat,
-                lon=self._native._lon,
+                lat=self._native.latitude,
+                lon=self._native.longitude,
                 house_system=settings.house_system,
                 pars_fortuna_formula=settings.pars_fortuna_formula,
             )
         self._houses = ephemeris.houses(
                 jd=self._solar_return_jd,
-                lat=self._native._lat,
-                lon=self._native._lon,
+                lat=self._native.latitude,
+                lon=self._native.longitude,
                 house_system=settings.house_system,
             )
 
@@ -224,8 +207,8 @@ class SolarReturn(Chart):
         self.solar_return_date_time = wrap.DateTime(
                 dt=self._solar_return_jd,
                 armc=self._solar_return_armc,
-                latitude=self._native._lat,
-                longitude=self._native._lon,
+                latitude=self._native.latitude,
+                longitude=self._native.longitude,
             )
 
 
@@ -240,23 +223,23 @@ class Progressed(Chart):
     def generate(self) -> None:
         self._progression_date_time = date.localize(
                 dt=self._date_time if isinstance(self._date_time, datetime) else datetime.fromisoformat(self._date_time),
-                lat=self._native._lat,
-                lon=self._native._lon,
+                lat=self._native.latitude,
+                lon=self._native.longitude,
             )
         progression_jd = date.to_jd(self._progression_date_time)
         progression_armc = ephemeris.angle(
                 index=chart.ARMC,
                 jd=progression_jd,
-                lat=self._native._lat,
-                lon=self._native._lon,
+                lat=self._native.latitude,
+                lon=self._native.longitude,
                 house_system=settings.house_system,
             )
         self._progression_armc_longitude = progression_armc['lon']
 
         self._progressed_jd, self._progressed_armc_longitude = forecast.progression(
-                jd=self._native._jd,
-                lat=self._native._lat,
-                lon=self._native._lon,
+                jd=self._native.julian_date,
+                lat=self._native.latitude,
+                lon=self._native.longitude,
                 pjd=progression_jd,
                 house_system=settings.house_system,
                 method=settings.mc_progression_method,
@@ -268,7 +251,7 @@ class Progressed(Chart):
         asc = ephemeris.armc_angle(
             index=chart.ASC,
                 armc=self._progressed_armc_longitude,
-                lat=self._native._lat,
+                lat=self._native.latitude,
                 obliquity=self._obliquity,
                 house_system=settings.house_system,
             )
@@ -279,15 +262,15 @@ class Progressed(Chart):
                 object_list=settings.objects,
                 jd=self._progressed_jd,
                 armc=self._progressed_armc_longitude,
-                lat=self._native._lat,
-                lon=self._native._lon,
+                lat=self._native.latitude,
+                lon=self._native.longitude,
                 obliquity=self._obliquity,
                 house_system=settings.house_system,
                 pars_fortuna_formula=settings.pars_fortuna_formula,
             )
         self._houses = ephemeris.armc_houses(
                 armc=self._progressed_armc_longitude,
-                lat=self._native._lat,
+                lat=self._native.latitude,
                 obliquity=self._obliquity,
                 house_system=settings.house_system,
             )
@@ -302,8 +285,8 @@ class Progressed(Chart):
         self.progressed_date_time = wrap.DateTime(
                 dt=self._progressed_jd,
                 armc=self._progressed_armc_longitude,
-                latitude=self._native._lat,
-                longitude=self._native._lon,
+                latitude=self._native.latitude,
+                longitude=self._native.longitude,
             )
 
     def set_wrapped_progression_method(self) -> None:
@@ -318,21 +301,21 @@ class Composite(Chart):
         super().__init__(chart.COMPOSITE, aspects_to)
 
     def generate(self) -> None:
-        self._obliquity = midpoint.obliquity(self._native._jd, self._partner._jd)
+        self._obliquity = midpoint.obliquity(self._native.julian_date, self._partner.julian_date)
 
         native_objects = ephemeris.objects(
                 object_list=settings.objects,
-                jd=self._native._jd,
-                lat=self._native._lat,
-                lon=self._native._lon,
+                jd=self._native.julian_date,
+                lat=self._native.latitude,
+                lon=self._native.longitude,
                 house_system=settings.house_system,
                 pars_fortuna_formula=settings.pars_fortuna_formula,
             )
         partner_objects = ephemeris.objects(
                 object_list=settings.objects,
-                jd=self._partner._jd,
-                lat=self._partner._lat,
-                lon=self._partner._lon,
+                jd=self._partner.julian_date,
+                lat=self._partner.latitude,
+                lon=self._partner.longitude,
                 house_system=settings.house_system,
                 pars_fortuna_formula=settings.pars_fortuna_formula,
             )
@@ -343,15 +326,15 @@ class Composite(Chart):
             )
 
         native_houses = ephemeris.houses(
-                jd=self._native._jd,
-                lat=self._native._lat,
-                lon=self._native._lon,
+                jd=self._native.julian_date,
+                lat=self._native.latitude,
+                lon=self._native.longitude,
                 house_system=settings.house_system,
             )
         partner_houses = ephemeris.houses(
-                jd=self._partner._jd,
-                lat=self._partner._lat,
-                lon=self._partner._lon,
+                jd=self._partner.julian_date,
+                lat=self._partner.latitude,
+                lon=self._partner.longitude,
                 house_system=settings.house_system,
             )
         self._houses = midpoint.all(
@@ -360,11 +343,11 @@ class Composite(Chart):
                 obliquity=self._obliquity,
             )
 
-        native_sun = ephemeris.planet(chart.SUN, self._native._jd)
-        native_moon = ephemeris.planet(chart.MOON, self._native._jd)
+        native_sun = ephemeris.planet(chart.SUN, self._native.julian_date)
+        native_moon = ephemeris.planet(chart.MOON, self._native.julian_date)
 
-        partner_sun = ephemeris.planet(chart.SUN, self._partner._jd)
-        partner_moon = ephemeris.planet(chart.MOON, self._partner._jd)
+        partner_sun = ephemeris.planet(chart.SUN, self._partner.julian_date)
+        partner_moon = ephemeris.planet(chart.MOON, self._partner.julian_date)
 
         sun = midpoint.composite(native_sun, partner_sun, self._obliquity)
         moon = midpoint.composite(native_moon, partner_moon, self._obliquity)
@@ -374,7 +357,7 @@ class Composite(Chart):
         self._moon_phase = calculate.moon_phase(sun, moon)
 
     def set_wrapped_partner(self):
-        self.partner = self._partner
+        self.partner = wrap.Subject(self._partner)
 
 
 class Transits(Chart):
@@ -388,15 +371,15 @@ class Transits(Chart):
         super().__init__(chart.TRANSITS, aspects_to)
 
     def generate(self) -> None:
-        self._obliquity = ephemeris.obliquity(self._native._jd)
+        self._obliquity = ephemeris.obliquity(self._native.julian_date)
 
-        sun = ephemeris.planet(chart.SUN, self._native._jd)
-        moon = ephemeris.planet(chart.MOON, self._native._jd)
+        sun = ephemeris.planet(chart.SUN, self._native.julian_date)
+        moon = ephemeris.planet(chart.MOON, self._native.julian_date)
         asc = ephemeris.angle(
                 index=chart.ASC,
-                jd=self._native._jd,
-                lat=self._native._lat,
-                lon=self._native._lon,
+                jd=self._native.julian_date,
+                lat=self._native.latitude,
+                lon=self._native.longitude,
                 house_system=settings.house_system,
             )
 
@@ -404,15 +387,15 @@ class Transits(Chart):
         self._moon_phase = calculate.moon_phase(sun, moon)
         self._objects = ephemeris.objects(
                 object_list=settings.objects,
-                jd=self._native._jd,
-                lat=self._native._lat,
-                lon=self._native._lon,
+                jd=self._native.julian_date,
+                lat=self._native.latitude,
+                lon=self._native.longitude,
                 house_system=settings.house_system,
                 pars_fortuna_formula=settings.pars_fortuna_formula,
             )
         self._houses = ephemeris.houses(
-                jd=self._native._jd,
-                lat=self._native._lat,
-                lon=self._native._lon,
+                jd=self._native.julian_date,
+                lat=self._native.latitude,
+                lon=self._native.longitude,
                 house_system=settings.house_system,
             )

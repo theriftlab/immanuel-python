@@ -13,6 +13,7 @@ from datetime import datetime
 
 from immanuel.const import calc, chart, dignities, names
 from immanuel.reports import dignity
+from immanuel.setup import settings
 from immanuel.tools import calculate, convert, date, ephemeris, position
 
 
@@ -237,6 +238,31 @@ class Sign:
 
     def __str__(self) -> str:
         return self.name
+
+
+class Subject:
+    def __init__(self, subject: 'Subject') -> None:
+        armc = ephemeris.angle(
+                index=chart.ARMC,
+                jd=subject.julian_date,
+                lat=subject.latitude,
+                lon=subject.longitude,
+                house_system=settings.house_system,
+            )
+        self.date_time = DateTime(
+                dt=subject.date_time,
+                armc=armc,
+                latitude=subject.latitude,
+                longitude=subject.longitude,
+                time_is_dst=subject.time_is_dst,
+            )
+        self.coordinates = Coordinates(
+                latitude=subject.latitude,
+                longitude=subject.longitude,
+            )
+
+    def __str__(self) -> str:
+        return f'{self.date_time} at {self.coordinates}'
 
 
 class Elements:
