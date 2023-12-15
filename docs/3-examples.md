@@ -2,7 +2,7 @@
 
 All the chart data generation happens in the chart classes in Immanuel's `charts` module. To start, you will need to create a chart subject via the Subject class - this essentially just encapsulates a date/time and coordinates.
 
-The Subject class constructor takes a date/time either as a standard ISO format string (YYYY-MM-DD HH:MM:SS) or a native `datetime` object. Coordinates can be in either standard text format, decimal, or even a list or tuple of direction, degrees, minutes and seconds. All of these will yield the same result:
+The Subject class constructor takes a date/time either as a standard ISO format string (YYYY-MM-DD HH:MM:SS) or a native `datetime` object. Coordinates can be in either standard text format, decimal, or even a list / tuple of `[direction, degrees, minutes, seconds]`. All of these will yield the same result:
 
 ```python
 from immanuel import charts
@@ -40,9 +40,9 @@ composite = charts.Composite(native, partner)
 transits = charts.Transits('32n43', '117w09')
 ```
 
-For the Transits chart, the time is always assumed to be the present. Coordinates are optional, and when omitted they will default to the location of the GMT prime meridian in Greenwich. Coordinates are only needed to calculate the houses and house-based chart objects (Part of Fortune, Vertex, etc.), so if you do not require these in your transits you can safely omit them and simply call `chart.Transits()`.
+For the Transits chart, the time is always assumed to be the present. Coordinates are optional, and when omitted they will default to the location of the GMT prime meridian in Greenwich. Coordinates are only needed to calculate the houses and house-based chart objects (Part of Fortune, Vertex, etc.), so if you do not require these in your transits you can safely omit the coordinates and simply call `chart.Transits()`.
 
-Synastry charts are not explicitly available as a separate class, but since a synastry chart is esentially two charts layered on top of each other with aspects between them, you can use the `aspects_to` parameter which is available in each chart class. This takes another chart class as an argument, and builds the aspects of the containing class to point to the planets/objects in the passed class. For example:
+Synastry charts are not explicitly available as a distinct class, but since a synastry chart is esentially two charts layered on top of each other with aspects between them, you can use the `aspects_to` parameter - available in each chart class - to create a synastry. This takes another chart class instance as an argument, and builds the aspects of the containing instance to point to the planets/objects in the passed instance. For example:
 
 ```python
 from immanuel import charts
@@ -55,7 +55,7 @@ partner_chart = charts.Natal(partner)
 native_chart = charts.Natal(native, aspects_to=partner_chart)
 ```
 
-Now `native_chart`'s planets/objects will aspect `partner_chart`'s planets/objects instead of its own. This makes things very flexible - a synastry chart can be created as above, with two natal charts. A natal+transits chart can be created by passing a transits chart into a natal chart. It might be useful to pass transits into a progressed or composite chart. You could even pass a composite chart into another composite chart to view synastry aspects between them.
+Now `native_chart`'s planets/objects will aspect `partner_chart`'s planets/objects instead of its own. This makes things very flexible - a synastry chart can be created as above, with two natal charts, or a natal+transits chart can be created by passing a transits chart into a natal chart. It might also be useful to pass transits into a progressed or composite chart. You could even pass a composite chart into another composite chart to view synastry aspects between them.
 
 ## Human-Readable
 
@@ -119,7 +119,7 @@ Sat Jan 01 2000 10:00:00 AM PST at 32N43.0, 117W9.0
 
 ## JSON
 
-A chart property's structure is easier to visualize by serializing it with the bundled `ToJSON` class. In the above `coordinates` case:
+A chart property's structure is easier to visualize by serializing it with the bundled `ToJSON` class. In the above `native` case:
 
 ```python
 import json
@@ -130,28 +130,38 @@ from immanuel.classes.serialize import ToJSON
 
 native = charts.Subject('2000-01-01 10:00', '32n43', '117w09')
 natal = charts.Natal(native)
-print(json.dumps(natal.native.coordinates, cls=ToJSON, indent=4))
+print(json.dumps(natal.native, cls=ToJSON, indent=4))
 ```
 
 This will output the following JSON:
 
 ```json
 {
-    "latitude": {
-        "raw": 32.71666666666667,
-        "formatted": "32N43.0",
-        "direction": "+",
-        "degrees": 32,
-        "minutes": 43,
-        "seconds": 0
+    "date_time": {
+        "datetime": "2000-01-01 10:00:00-08:00",
+        "timezone": "PST",
+        "ambiguous": false,
+        "julian": 2451545.25,
+        "deltat": 0.0007387629899254968,
+        "sidereal_time": "16:54:13"
     },
-    "longitude": {
-        "raw": -117.15,
-        "formatted": "117W9.0",
-        "direction": "-",
-        "degrees": 117,
-        "minutes": 9,
-        "seconds": 0
+    "coordinates": {
+        "latitude": {
+            "raw": 32.71666666666667,
+            "formatted": "32N43.0",
+            "direction": "+",
+            "degrees": 32,
+            "minutes": 43,
+            "seconds": 0
+        },
+        "longitude": {
+            "raw": -117.15,
+            "formatted": "117W9.0",
+            "direction": "-",
+            "degrees": 117,
+            "minutes": 9,
+            "seconds": 0
+        }
     }
 }
 ```

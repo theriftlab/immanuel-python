@@ -2,9 +2,9 @@
 
 The `setup` module contains a `settings` class for changing Immanuel's default settings. Sensible defaults have been set out of the box, such as which chart objects to include, the preferred house system, aspect rules and orbs, dignity scores, Part of Fortune calculation etc. Many of the defaults are set to match those of astro.com but are easily overridden with Immanuel's built-in constants. Once a setting is changed, it will be applied to all subsequent charts until changed again.
 
-## Example
+## Quick Example
 
-To specify a house system or MC progression method:
+To specify a different house system or MC progression method:
 
 ```python
 from immanuel import charts
@@ -36,7 +36,7 @@ settings.set({
 
 ## Overview
 
-There are many detailed customisations for chart data, especially for aspect rules. This section will provide you with an overview, but taking a look through the defaults in `setup.py` and the const files might give you a more detailed idea.
+There are many detailed customizations for chart data, especially for aspect rules. This section will provide you with an overview, but taking a look through the defaults in `setup.py` and the const files will give you a more detailed idea.
 
 ### `chart_data`
 
@@ -205,7 +205,7 @@ All fixed stars are available out of the box - simply add the name as a string t
 settings.objects.append('Antares')
 ```
 
-Extra objects from external ephemeris files can also be added to this list by their number. See the [Extra Objects](#extra-objects) section below for details how.
+Extra objects from external ephemeris files can also be added to this list by their number. See the [External Objects](#external-objects) section below for details how.
 
 ### `chart_shape_objects`
 
@@ -519,7 +519,7 @@ Default:
 }
 ```
 
-## Extra Objects
+## External Objects
 
 As well as the readily-available chart objects listed above in the `objects` setting, it is possible to point Immanuel to any outside ephemeris files you might want to include, and add those extra objects to your chart.
 
@@ -536,7 +536,8 @@ from immanuel.setup import settings
 setup.add_filepath('my/directory/path')
 settings.objects.append(1181)
 
-natal = charts.Natal(dob='2000-01-01 10:00', lat='32n43', lon='117w09')
+native = charts.Subject('2000-01-01 10:00', '32n43', '117w09')
+natal = charts.Natal(native)
 print(json.dumps(natal.objects[1181], cls=ToJSON, indent=4))
 ```
 

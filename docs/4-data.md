@@ -43,7 +43,7 @@ The chart native, based on the date and coordinates you will have passed in when
 }
 ```
 
-The `date_time` structure is consistent for all dates returned by Immanuel's natal charts, as are the `latitude` and `longitude` for all angles returned.
+The `date_time` structure is consistent for all dates returned by Immanuel's natal charts, and the `latitude` and `longitude` are similarly consistent for all angles returned.
 
 Note that `ambiguous` is set to `true` when a time during the daylight savings switchover is passed without passing `time_is_dst` as discussed in the [Examples](3-examples.md#json) section. For instance, `2023-11-05 01:30` on the USA's West Coast could be either PDT or PST. By specifying `time_is_dst` when constructing the chart's subject, `ambiguous` will be `false`.
 
@@ -589,11 +589,11 @@ You are free to use the actual numerical index for these objects, but of course 
 Immanuel indexes chart objects numerically rather than by name for two main reasons:
 
 * Avoid name conflicts (eg. the three Liliths).
-* Allow extra objects to be easily added from your own extra ephemeris files by their default index.
+* Allow external objects to be easily added from your own extra ephemeris files by their default index.
 
 To demonstrate, asteroid Lilith is number 1181 as designated by the International Astronomical Union. This is the number of the ephemeris file you would need for Immanuel to include it, and on astro.com this is the number you would type into the "Manual entry" box under "Additional objects" to include the asteroid in your chart.
 
-Once you have the correct ephemeris file and have pointed Immanuel at it, you only need to add the number `1181` to the requested chart objects in Immanuel's settings for the asteroid object to be returned with an index of `1181` in the `objects` property (see the [Settings](5-settings.md#extra-objects) section for details on how to do this). Anywhere else this index appears in the chart's data can then be cross-referenced with its entry in `objects` to retrieve Lilith's information.
+Once you have the correct ephemeris file and have pointed Immanuel at it, you only need to add the number `1181` to the requested chart objects in Immanuel's settings for the asteroid object to be returned with an index of `1181` in the `objects` property (see the [Settings](5-settings.md#external-objects) section for details on how to do this). Anywhere else this index appears in the chart's data can then be cross-referenced with its entry in `objects` to retrieve Lilith's information.
 
 Fixed stars (which are included without you having to bring your own ephemeris file) are an exception as they are indexed by their name, which will be a string (eg. `Antares`) rather than a number. Any object whose index is a string will be assumed to be a fixed star.
 
