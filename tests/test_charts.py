@@ -373,6 +373,7 @@ def test_synastry(native, partner):
     partner_chart = charts.Natal(partner)
     native_chart = charts.Natal(native, aspects_to=partner_chart)
 
+    # Spot-check for correct aspects against astro.com
     assert chart.SUN in native_chart.aspects
     assert chart.VENUS in native_chart.aspects[chart.SUN]
     assert native_chart.aspects[chart.SUN][chart.VENUS].aspect == calc.SQUARE
