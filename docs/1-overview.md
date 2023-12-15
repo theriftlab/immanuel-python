@@ -10,15 +10,15 @@ Immanuel is an ancient name that means *God is with us*. Since astrology was onc
 
 ## What problem does it solve?
 
-Immanuel sets out to make it incredibly easy to generate simple, chart-centric data based on the Swiss Ephemeris from within your Python application. While [pyswisseph](https://github.com/astrorigin/pyswisseph) does an excellent job of providing detailed astronomical and house data, there are many steps to translating this into meaningful chart data, such as what planets are in which sign and house. This is where Immanuel comes in.
+Immanuel makes it incredibly easy to generate simple, chart-centric data based on the Swiss Ephemeris from within your Python application. While [pyswisseph](https://github.com/astrorigin/pyswisseph) does an excellent job of providing detailed astronomical and house data, there are many steps to translating this into meaningful chart data, such as what planets are in which signs and houses, and the aspects between them. This is where Immanuel comes in.
 
 ## What does it do?
 
-Not only are the planet / sign / house basics covered, but more complex calculations such as aspects, composites and secondary progressions are also taken care of, with many options to customize them.
+Not only are the basics covered, but more complex calculations such as composites and secondary progressions are also taken care of, with many options to customize them.
 
 Since there are seemingly infinite ways to interpret astronomical data into astrological, Immanuel seeks to align much of its output with that of [astro.com](https://astro.com) as this is arguably the most popular free go-to for many amateur and even professional astrologers.
 
-Although Immanuel generates human-friendly output, all of its data is JSON-serializable and highly configurable, making it ideal for powering APIs.
+Although it does not offer the vast amount of options or complexity as astro.com and many of the professional astrology software suites, it does generate the most commonly needed charts and their data in great detail and with much flexibility. As well as generating human-friendly output, all of its data is JSON-serializable and highly configurable, making it ideal for powering APIs.
 
 ## What's with all the objects?
 
@@ -30,6 +30,5 @@ Some confusion might arise with the word "object" - since an astrological chart 
 2. [Installation](2-installation.md)
 3. [Examples](3-examples.md)
 4. [Returned Data](4-data.md)
-5. [Calculations](5-calculations.md)
-6. [Settings](6-settings.md)
-7. [Submodules](7-submodules.md)
+5. [Settings](5-settings.md)
+6. [Submodules](6-submodules.md)
