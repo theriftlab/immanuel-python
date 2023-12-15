@@ -4,14 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "immanuel"
-version = "1.0.12"
-description = "Painlessly produce both human-readable and JSON-formatted astrology chart data based on pyswisseph and astro.com."
+version = "1.1.0"
+description = "Quickly produce both human-readable and JSON-formatted astrology chart data based on the Swiss Ephemeris and astro.com."
 authors = [
   { name = "Robert Davies", email = "robert@theriftlab.com" },
 ]
 license = { file = "LICENSE.md" }
 readme = "README.md"
-keywords = ["astrology", "api", "pyswisseph", "swisseph", "astro.com"]
+keywords = ["astrology", "api", "pyswisseph", "swisseph", "swiss ephemeris", "astro.com", "astro gold"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
