@@ -34,8 +34,16 @@ J2000 = 2451545                             # Julian year 2000
 
 """ Explicitly specify all of our planets as a set. """
 PLANETS = {
-    chart.SUN, chart.MOON, chart.MERCURY, chart.VENUS, chart.MARS,
-    chart.JUPITER, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.PLUTO,
+    chart.SUN,
+    chart.MOON,
+    chart.MERCURY,
+    chart.VENUS,
+    chart.MARS,
+    chart.JUPITER,
+    chart.SATURN,
+    chart.URANUS,
+    chart.NEPTUNE,
+    chart.PLUTO,
 }
 
 """ Mean daily planetary motions. """
