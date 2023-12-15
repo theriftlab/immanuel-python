@@ -6,57 +6,52 @@ Although you have some control over what data is returned for each chart type (m
 
 The best way to explore a chart's properties is by looking at their JSON output, since this most accurately reflects each property's internal class structure. The following output is available via the `ToJSON` serializer class mentioned in the [Examples](3-examples.md#json) section.
 
-### `natal.natal_date`
+### `natal.native`
 
 #### object
 
-This has a fairly straightforward structure.
+The chart native, based on the date and coordinates you will have passed in when creating the chart.
 
 ```json
 {
-    "datetime": "2000-01-01 10:00:00-08:00",
-    "timezone": "PST",
-    "ambiguous": false,
-    "julian": 2451545.25,
-    "deltat": 0.0007387629899254968,
-    "sidereal_time": "16:54:13"
-}
-```
-
-Note that the `ambiguous` flag is set to `true` when a time during the daylight savings switchover is passed, and no `is_dst` is passed. For example, `2023-11-05 01:30` on the USA's west coast could be either PDT or PST. By specifying an `is_dst` argument when constructing the chart, the `ambiguous` flag will be `false`.
-
-### `natal.coordinates`
-
-#### object
-
-The latitude and longitude properties follow the same structure as all other angles in the data.
-
-```json
-{
-    "latitude": {
-        "raw": 32.71666666666667,
-        "formatted": "32N43.0",
-        "direction": "+",
-        "degrees": 32,
-        "minutes": 43,
-        "seconds": 0
+    "date_time": {
+        "datetime": "2000-01-01 10:00:00-08:00",
+        "timezone": "PST",
+        "ambiguous": false,
+        "julian": 2451545.25,
+        "deltat": 0.0007387629899254968,
+        "sidereal_time": "16:54:13"
     },
-    "longitude": {
-        "raw": -117.15,
-        "formatted": "117W9.0",
-        "direction": "-",
-        "degrees": 117,
-        "minutes": 9,
-        "seconds": 0
+    "coordinates": {
+        "latitude": {
+            "raw": 32.71666666666667,
+            "formatted": "32N43.0",
+            "direction": "+",
+            "degrees": 32,
+            "minutes": 43,
+            "seconds": 0
+        },
+        "longitude": {
+            "raw": -117.15,
+            "formatted": "117W9.0",
+            "direction": "-",
+            "degrees": 117,
+            "minutes": 9,
+            "seconds": 0
+        }
     }
 }
 ```
+
+The `date_time` structure is consistent for all dates returned by Immanuel's natal charts, as are the `latitude` and `longitude` for all angles returned.
+
+Note that `ambiguous` is set to `true` when a time during the daylight savings switchover is passed without passing `time_is_dst` as discussed in the [Examples](3-examples.md#json) section. For instance, `2023-11-05 01:30` on the USA's West Coast could be either PDT or PST. By specifying `time_is_dst` when constructing the chart's subject, `ambiguous` will be `false`.
 
 ### `natal.house_system`
 
 #### string
 
-This is simply a string specifying which system was used to generate the houses in this chart. To see how to change the house system, see the [Settings](6-settings.md#house_system) section.
+A string specifying which system was used to generate the houses in this chart. To see how to change the house system, see the [Settings](6-settings.md#house_system) section.
 
 ```
 "Placidus"
@@ -66,7 +61,7 @@ This is simply a string specifying which system was used to generate the houses 
 
 #### string
 
-This is the overall chart shape formed by the planets. To change which chart objects this calculaton includes and what orb it uses, see the [Settings](6-settings.md#chart_shape_orb) section.
+The overall chart shape formed by the planets. To change which chart objects this calculaton includes and what orb it uses, see the [Settings](6-settings.md#chart_shape_orb) section.
 
 ```
 "Bowl"
@@ -106,7 +101,7 @@ Contains the eight main moon phases as booleans, and a formatted string of the c
 
 #### dict
 
-The main meaty core of any chart, the `objects` property is a dict of Python objects representing all of the chart's planets, points, primary angles, asteroids, fixed stars etc. Although the various object types have a slightly different structure, they will largely be like the following example:
+The core of any chart, the `objects` property is a dict of Python objects representing all of the chart's planets, points, primary angles, asteroids, fixed stars etc. Although the various object types have a slightly different structure, they will largely be like the following example:
 
 ```json
 {
@@ -188,17 +183,21 @@ The main meaty core of any chart, the `objects` property is a dict of Python obj
 }
 ```
 
-All angles have a standard data structure. Certain properties also have a standard "booleans + formatted" structure, like the previous `moon_phases` example.
+Some differences between object types include:
 
-You might have noticed that chart objects and their types all have a numerical index. More on these later in [this section](#object-indexing), but for now just be aware that Immanuel internally references planets, houses, asteroids etc. by numerical indices, and the `objects` property is keyed by them.
+* Only planets get dignities & a score.
+* Houses, primary angles, and fixed stars do not have `out_of_bounds` or `movement` (retrograde / stationary / direct).
+* Houses alone have a `size` measurd in degrees.
 
-Note that the `dignities` dict and dignity score are unique to planets.
+All angles in chart have teh same standard data structure. Certain properties also have a standard "booleans + formatted" structure, like the previous `moon_phases` example, and the `dignities` above.
+
+You might have noticed that chart objects and their types all have a numerical index. More on these later in [the Object Indexing section](#object-indexing), but for now just be aware that Immanuel internally references planets, houses, asteroids etc. by numerical indices, and the `objects` property is keyed by them.
 
 ### `natal.houses`
 
 #### dict
 
-The `houses` property is a dict of Python objects keyed by index. Each house will look something like this:
+A dict of Python objects keyed by index. Each house will look something like this:
 
 ```json
 {
@@ -239,7 +238,7 @@ As you can see, this is similar to the Sun's data above, only a little simpler. 
 
 #### dict
 
-The `aspects` property is a dict keyed by the indices of all chart objects that have aspects. Each entry is a dict of Python objects, keyed by the indices of aspecting chart objects. If this sounds confusing, this is what the JSON structure would look like with all the actual aspect data removed:
+A dict keyed by the indices of all chart objects that have aspects. Each entry is a dict of Python objects, keyed by the indices of aspecting chart objects. If this sounds confusing, this is what the JSON structure would look like with all the actual aspect data removed:
 
 ```json
 {
@@ -340,7 +339,7 @@ The `aspects` property is a dict keyed by the indices of all chart objects that 
 }
 ```
 
-Each aspect object contains data about the aspect. For example, if we look for the Sun's index `4000001` we see its entry is a dict of four aspects - one of which is to index `4000002` which is the Moon (likewise the Moon's entry contains the same aspect to the Sun). Let's manually inspect this aspect object:
+Each aspect object contains data about the aspect. For example, if we look for the Sun's index `4000001` we see its entry is a dict of four aspects - one of which is to index `4000002`, which is the Moon. Likewise the Moon's entry contains the same aspect to the Sun. Let's manually inspect this aspect object:
 
 ```python
 print(natal.aspects[4000001][4000002])
@@ -403,13 +402,13 @@ The active object is the Moon, index `4000002`, while the passive is the Sun, in
 
 #### dict
 
-`natal.weightings` is a dict containing three entries, which are also dicts:
+A dict containing three entries, which are also dicts. Each one contains a breakdown of which chart objects are in various categories based on their sign and house positions in the chart:
 
-* `elements` is a breakdown of which chart objects are in which of the four elements.
-* `modalities` is a breakdown of which chart objects are in which of the three modalities.
-* `quadrants` is a breakdown of which chart objects are in which of the four primary quadrants formed by the houses.
+* `elements`: which elements the objects belongs to based on their sign.
+* `modalities`: which modalities the objects belongs to based on their sign.
+* `quadrants`: which objects belong to which four primary quadrants formed by the houses.
 
-Each of the three dicts is keyed by category, and each category contains an array of chart object indices to represent the object within that category. In the case of our natal chart:
+Each of the three dicts is keyed by category, and each category contains an array of indices to represent the object within that category. In the case of our natal chart:
 
 ```json
 {
@@ -504,7 +503,7 @@ Each of the three dicts is keyed by category, and each category contains an arra
 }
 ```
 
-The human-readable output simply provides a total for each category - for example:
+The human-readable output simply provides a total for each category:
 
 ```python
 print(natal.weightings['elements'])
@@ -518,43 +517,36 @@ Fire: 7, Earth: 6, Air: 5, Water: 2
 
 ## Boolean + Formatted
 
-When outputting JSON-serialized properties or charts, you will notice that some are returned as simple data and others are returned as an object containing each state as a boolean, plus a human-readable `formatted` property. This distinction was made mainly with front-end developers in mind, where a user-facing application powered by Immanuel might need to quickly determine the state of something in order to display some kind of indicator.
+When outputting JSON-serialized properties or charts, you will notice that some are returned as simple data and others are returned as an object containing each state as a boolean, plus a human-readable `formatted` property. This distinction was made mainly with front-end development in mind, where a user-facing application powered by Immanuel might need to quickly determine the state of something in order to display some kind of indicator.
 
-For example, if a chart needs to show a full or new moon symbol when the chart's moon is full or new, then it can check the `moon_phase.full_moon` and/or `moon_phase.new_moon` properties rather than check a returned string for "Full". It can also provide its own mapping to more localized text if needed. Similarly with a chart object's dignity state, if certain dignities need to be quickly determined (eg. exaltation or detriment).
+For example, if a chart needs to show a full moon symbol when the chart's moon is full, then it can check the `moon_phase.full_moon` property rather than check a returned string for "Full". It can also provide its own mapping to more localized text if needed. Similarly with a chart object's dignity state, if certain dignities need to be quickly determined (eg. exaltation or detriment).
 
 A house system or chart shape, on the other hand, will always simply be information and is very unlikely to be needed as actual data to perform any kind of calculation - they are instead best suited to being passed straight to the user.
 
 ## Other Chart Types
 
-So far we have seen what gets returned from a simple natal chart. Other chart types return extra data, but since they are of the same types and formats as what we have already covered, here is a brief overview of what they are:
+So far we have seen what gets returned from a simple natal chart. Other chart types return extra data, but since they are of the same types and formats as what we have already covered, here is a brief overview of what they are.
 
 ### Solar Return
 
 | Property | Type | Description |
 |---|---|---|
 | solar_return_year | int | The year passed to the chart class constructor. |
-| solar_return_date | object | The calculated solar return date for the passed year, in the same format as `natal_date`. |
+| solar_return_date_time | object | The calculated solar return date for the passed year. |
 
 ### Progressed
 
 | Property | Type | Description |
 |---|---|---|
-| progression_date | object | The date passed to the chart class constructor to calculate secondary progressions for, in the same format as `natal_date`. |
-| progressed_date | object | The calculated progressed date, in the same format as `natal_date`. |
+| progression_date_time | object | Reflects the date passed to the chart class constructor to calculate secondary progressions. |
+| progressed_date_time | object | The calculated progressed date. |
 | progression_method | string | Which of the supported methods was used. |
-
-### Synastry
-
-The synastry chart class contains two of every property that the natal chart has (apart from `house_system` since this is the same across both). The partner's data properties are simply prefixed with `partner_` eg. `partner_date`, `partner_objects` etc.
-
-The biggest consideration here is that the `aspects` property contains the main chart's aspects to the partner's chart, and `partner_aspects` contains the partner's chart's aspects to the main chart (essentially the same data but from opposite sides).
 
 ### Composite
 
 | Property | Type | Description |
 |---|---|---|
-| partner_date | object | The partner's date passed to the chart class constructor, in the same format as `natal_date`. |
-| partner_coordinates | object | The partner's coordinates passed to the chart class constructor, in the same format as `coordinates`. |
+| partner | object | Based on the partner's `Subject` instance passed to the chart class constructor. |
 
 ## Object Indexing
 
@@ -567,7 +559,8 @@ from immanuel import charts
 from immanuel.const import chart
 
 
-natal = charts.Natal(dob='2000-01-01 10:00', lat='32n43', lon='117w09')
+native = charts.Subject('2000-01-01 10:00', '32n43', '117w09')
+natal = charts.Natal(native)
 # chart.SUN = 4000001
 print(natal.objects[chart.SUN])
 ```
@@ -598,11 +591,11 @@ Immanuel indexes chart objects numerically rather than by name for two main reas
 * Avoid name conflicts (eg. the three Liliths).
 * Allow extra objects to be easily added from your own extra ephemeris files by their default index.
 
-To demonstrate, asteroid Lilith is number 1181 as designated by the International Astronomical Union. This is the number of the ephemeris file you would need for Immanuel to include it, and on astro.com this is the number you would type into the *Manual entry* box under *Additional objects* to include the asteroid in your chart.
+To demonstrate, asteroid Lilith is number 1181 as designated by the International Astronomical Union. This is the number of the ephemeris file you would need for Immanuel to include it, and on astro.com this is the number you would type into the "Manual entry" box under "Additional objects" to include the asteroid in your chart.
 
-Once you have the correct ephemeris file and have pointed Immanuel at it, you only need to  add the number `1181` to the requested chart objects in Immanuel's [settings](6-settings.md#extra-objects) for the asteroid object to be returned with an index of `1181` in the `objects` property. Anywhere else this index appears in the chart's data can then be cross-referenced with its entry in `objects` to retrieve Lilith's information.
+Once you have the correct ephemeris file and have pointed Immanuel at it, you only need to add the number `1181` to the requested chart objects in Immanuel's settings for the asteroid object to be returned with an index of `1181` in the `objects` property (see the [Settings](6-settings.md#extra-objects) section for details on how to do this). Anywhere else this index appears in the chart's data can then be cross-referenced with its entry in `objects` to retrieve Lilith's information.
 
-Fixed stars (which are included without you having to bring your own ephemeris files) are an exception as they are indexed by their name, which will be a string (eg. `Antares`) rather than a number. Any object whose index is a string will be assumed to be a fixed star.
+Fixed stars (which are included without you having to bring your own ephemeris file) are an exception as they are indexed by their name, which will be a string (eg. `Antares`) rather than a number. Any object whose index is a string will be assumed to be a fixed star.
 
 ---
 

@@ -1,10 +1,28 @@
 # Examples
 
-All the chart data generation happens in the chart classes in Immanuel's `charts` module. Once imported, data for any given chart can be generated with one line of code by passing the relevant dates and coordinates.
+All the chart data generation happens in the chart classes in Immanuel's `charts` module. To start, you will need to create a chart subject via the Subject class - this essentially just encapsulates a date/time and coordinates.
 
-The constructors take date/times in standard timezone-naive ISO format (YYYY-MM-DD HH:MM:SS), and coordinates in either standard text format (as in the following examples) or decimal.
+The Subject class constructor takes a date/time either as a standard ISO format string (YYYY-MM-DD HH:MM:SS) or a native `datetime` object. Coordinates can be in either standard text format, decimal, or even a list or tuple of direction, degrees, minutes and seconds. All of these will yield the same result:
 
-Some times can be ambiguous, for example 1:30am on a night when switching to daylight savings. This time could be in either timezone. To specify which one, you can pass in an additional `is_dst` boolean to tell Immanuel whether or not the `dob` time belongs in the daylight savings zone. For partner charts, there will be an additional `partner_is_dst` for the `partner_dob`.
+```python
+from immanuel import charts
+
+
+native = charts.Subject('2000-01-01 10:00', '32n43', '117w09')
+native = charts.Subject('2000-01-01 10:00:00', "32°43'", "-117°09'")
+native = charts.Subject(datetime.fromisoformat('2000-01-01 10:00:00'), '32.71667n', '117.15w')
+native = charts.Subject(datetime(2000, 1, 1, 10, 0, 0), 32.71667, -117.15)
+native = charts.Subject(datetime(year=2000, month=1, day=1, hour=10), ('+', 32, 43, 0), ['-', 117, 9, 0])
+# Or if you prefer named arguments...
+native = charts.Subject(
+        date_time='2023-11-05 01:30',
+        latitude='32n43',
+        longitude='117w09',
+        time_is_dst=True,
+    )
+```
+
+The optional `time_is_dst` parameter is a boolean to clarify ambiguous times - for example 1:30am on a night when switching to US daylight savings could be in either the standard or the DST timezone. To specify which one, pass either `True` or `False` to this argument. For all other non-ambiguous times, `time_is_dst` can safely be omitted.
 
 To generate one of each type of supported chart, you could do the following:
 
@@ -12,20 +30,32 @@ To generate one of each type of supported chart, you could do the following:
 from immanuel import charts
 
 
-natal = charts.Natal(dob='2000-01-01 10:00', lat='32n43', lon='117w09')
-# or...
-natal = charts.Natal(dob='2000-01-01 10:00', lat=32.71667, lon=-117.15)
-# and if you were born in DST during a switchover...
-natal = charts.Natal(dob='2023-11-05 01:30', lat=32.71667, lon=-117.15, is_dst=True)
+native = charts.Subject('2000-01-01 10:00', '32n43', '117w09')
+partner = charts.Subject('2001-06-21 18:30', '51n28.69', '0e0.1')
 
-solar_return = charts.SolarReturn(dob='2000-01-01 10:00', lat='32n43', lon='117w09', year=2025)
-
-progressed = charts.Progressed(dob='2000-01-01 10:00', lat='32n43', lon='117w09', pdt='2025-06-20 17:00')
-
-synastry = charts.Synastry(dob='2000-01-01 10:00', lat='32n43', lon='117w09', partner_dob='2001-02-03 15:45', partner_lat='38n35', partner_lon='121w30')
-
-composite = charts.Composite(dob='2000-01-01 10:00', lat='32n43', lon='117w09', partner_dob='2001-02-03 15:45', partner_lat='38n35', partner_lon='121w30')
+natal = charts.Natal(native)
+solar_return = charts.SolarReturn(native, 2025)
+progressed = charts.Progressed(native, '2025-06-20 17:00')
+composite = charts.Composite(native, partner)
+transits = charts.Transits('32n43', '117w09')
 ```
+
+For the Transits chart, the time is always assumed to be the present. Coordinates are optional, and when omitted they will default to the location of the GMT prime meridian in Greenwich. Coordinates are only needed to calculate the houses and house-based chart objects (Part of Fortune, Vertex, etc.), so if you do not require these in your transits you can safely omit them and simply call `chart.Transits()`.
+
+Synastry charts are not explicitly available as a separate class, but since a synastry chart is esentially two charts layered on top of each other with aspects between them, you can use the `aspects_to` parameter which is available in each chart class. This takes another chart class as an argument, and builds the aspects of the containing class to point to the planets/objects in the passed class. For example:
+
+```python
+from immanuel import charts
+
+
+native = charts.Subject('2000-01-01 10:00', '32n43', '117w09')
+partner = charts.Subject('2001-06-21 18:30', '51n28.69', '0e0.1')
+
+partner_chart = charts.Natal(partner)
+native_chart = charts.Natal(native, aspects_to=partner_chart)
+```
+
+Now `native_chart`'s planets/objects will aspect `partner_chart`'s planets/objects instead of its own. This makes things very flexible - a synastry chart can be created as above, with two natal charts. A natal+transits chart can be created by passing a transits chart into a natal chart. It might be useful to pass transits into a progressed or composite chart. You could even pass a composite chart into another composite chart to view synastry aspects between them.
 
 ## Human-Readable
 
@@ -38,7 +68,7 @@ print(f'Moon phase: {natal.moon_phase}\n')
 for object in natal.objects.values():
     print(object)
 
-print('\n')
+print()
 
 for index, aspects in natal.aspects.items():
     print(f'Aspects for {natal.objects[index].name}:')
@@ -72,14 +102,16 @@ Aspects for Moon:
 Many of the properties are nested, eg.:
 
 ```python
-print(natal.coordinates)
-print(natal.coordinates.latitude)
-print(natal.coordinates.latitude.raw)
+print(natal.native)
+print(natal.native.coordinates)
+print(natal.native.coordinates.latitude)
+print(natal.native.coordinates.latitude.raw)
 ```
 
 Will look like this:
 
 ```
+Sat Jan 01 2000 10:00:00 AM PST at 32N43.0, 117W9.0
 32N43.0, 117W9.0
 32N43.0
 32.71666666666667
@@ -87,7 +119,7 @@ Will look like this:
 
 ## JSON
 
-A property's structure is easier to visualize by serializing it with the bundled `ToJSON` class. In the above `coordinates` case:
+A chart property's structure is easier to visualize by serializing it with the bundled `ToJSON` class. In the above `coordinates` case:
 
 ```python
 import json
@@ -96,8 +128,9 @@ from immanuel import charts
 from immanuel.classes.serialize import ToJSON
 
 
-natal = charts.Natal(dob='2000-01-01 10:00', lat='32n43', lon='117w09')
-print(json.dumps(natal.coordinates, cls=ToJSON, indent=4))
+native = charts.Subject('2000-01-01 10:00', '32n43', '117w09')
+natal = charts.Natal(native)
+print(json.dumps(natal.native.coordinates, cls=ToJSON, indent=4))
 ```
 
 This will output the following JSON:
@@ -126,8 +159,8 @@ This will output the following JSON:
 All chart properties, and the chart itself, can be serialized to JSON:
 
 ```python
-# Just the coordinates
-print(json.dumps(natal.coordinates, cls=ToJSON, indent=4))
+# Just the chart native
+print(json.dumps(natal.native, cls=ToJSON, indent=4))
 # Just the planets etc.
 print(json.dumps(natal.objects, cls=ToJSON, indent=4))
 # The whole chart

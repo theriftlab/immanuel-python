@@ -6,13 +6,15 @@
 
 *- Marcus Manilius*
 
-Immanuel is an ancient name that means *God is with us*. Since astrology was once revered as a study of the gods in their realm to make sense of their whims and seemingly-erratic movements, it seems an appropriate name for a package which aims to translate complex astronomical data into simple astrology chart data.
+Immanuel is an ancient name that means *God is with us*. Since astrology was once revered as a study of the gods in their realm to make sense of their (seemingly) erratic movements, it seems an appropriate name for a package which aims to translate complex astronomical data into simple astrology chart data.
 
 ## What problem does it solve?
 
-Immanuel sets out to make it a breeze to generate simple, chart-centred data based on the Swiss Ephemeris from within your Python application. While [pyswisseph](https://github.com/astrorigin/pyswisseph) does an excellent job of providing detailed astronomical and house data, there are many steps to translating this into meaningful chart data. This is where Immanuel comes in.
+Immanuel sets out to make it incredibly easy to generate simple, chart-centric data based on the Swiss Ephemeris from within your Python application. While [pyswisseph](https://github.com/astrorigin/pyswisseph) does an excellent job of providing detailed astronomical and house data, there are many steps to translating this into meaningful chart data, such as what planets are in which sign and house. This is where Immanuel comes in.
 
-Not only are the basics covered (planets and houses, which signs and houses the planets are in, etc.) but more complex calculations such as aspects, composites and secondary progressions are also taken care of, with many options to customize them.
+## What does it do?
+
+Not only are the planet / sign / house basics covered, but more complex calculations such as aspects, composites and secondary progressions are also taken care of, with many options to customize them.
 
 Since there are seemingly infinite ways to interpret astronomical data into astrological, Immanuel seeks to align much of its output with that of [astro.com](https://astro.com) as this is arguably the most popular free go-to for many amateur and even professional astrologers.
 
