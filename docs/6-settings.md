@@ -1,8 +1,10 @@
 # Settings
 
+The `setup` module contains a `settings` class for changing Immanuel's default settings. Sensible defaults have been set out of the box, such as which chart objects to include, the preferred house system, aspect rules and orbs, dignity scores, Part of Fortune calculation etc. Many of the defaults are set to match those of astro.com but are easily overridden with Immanuel's built-in constants. Once a setting is changed, it will be applied to all subsequent charts until changed again.
+
 ## Example
 
-The `setup` module contains a `settings` class for changing Immanuel's default settings. Sensible defaults have been set out of the box, such as which chart objects to include, the preferred house system, aspect rules and orbs, dignity scores, Part of Fortune calculation etc. Many of the defaults are set to match those of astro.com but are easily overridden with Immanuel's built-in constants. For example, to specify a house system or MC progression method:
+To specify a house system or MC progression method:
 
 ```python
 from immanuel import charts
@@ -13,11 +15,23 @@ from immanuel.setup import settings
 settings.house_system = chart.CAMPANUS
 
 native = charts.Subject('2000-01-01 10:00', '32n43', '117w09')
+# natal.houses will now use Campanus.
 natal = charts.Natal(native)
 
 settings.mc_progression_method = calc.DAILY_HOUSES
 
+# progressed.houses will now use Campanus,
+# and its progression method will be Daily Houses.
 progressed = charts.Progressed(native, '2025-06-20 17:00')
+```
+
+Or, to set them at the same time:
+
+```python
+settings.set({
+    'house_system': chart.CAMPANUS,
+    'mc_progression_method': calc.DAILY_HOUSES,
+})
 ```
 
 ## Overview
