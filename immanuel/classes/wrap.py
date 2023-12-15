@@ -17,11 +17,6 @@ from immanuel.setup import settings
 from immanuel.tools import calculate, convert, date, ephemeris, position
 
 
-_PLANETS = {
-    chart.SUN, chart.MOON, chart.MERCURY, chart.VENUS, chart.MARS,
-    chart.JUPITER, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.PLUTO,
-}
-
 class Angle:
     def __init__(self, angle: float, format: int = convert.FORMAT_DMS) -> None:
         self.raw = angle
@@ -213,7 +208,7 @@ class Object:
         if 'size' in object:
             self.size = object['size']
 
-        if objects is not None and object['type'] == chart.PLANET and is_daytime is not None and _PLANETS.issubset(objects):
+        if objects is not None and object['type'] == chart.PLANET and is_daytime is not None and calc.PLANETS.issubset(objects):
             dignity_state = dignity.all(object=object, objects=objects, is_daytime=is_daytime)
             self.dignities = DignityState(dignity_state)
             self.score = dignity.score(dignity_state)
