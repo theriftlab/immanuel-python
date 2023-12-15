@@ -81,10 +81,10 @@ class Coordinates:
 
 class DateTime:
     def __init__(self, dt: datetime | float, armc: dict | float = None, latitude: float = None, longitude: float = None, time_is_dst: bool = None) -> None:
-        self.datetime = dt if isinstance(dt, datetime) else date.from_jd(dt, latitude, longitude)
+        self.datetime = date.to_datetime(dt, latitude, longitude)
         self.timezone = self.datetime.tzname()
         self.ambiguous = date.ambiguous(self.datetime) and time_is_dst is None
-        self.julian = date.to_jd(dt) if isinstance(dt, datetime) else dt
+        self.julian = date.to_jd(dt)
         self.deltat = ephemeris.deltat(self.julian)
 
         if armc is not None:
@@ -168,8 +168,8 @@ class Object:
         if 'eclipse_type' in object:
             self.eclipse_type = EclipseType(object['eclipse_type'])
 
-        if 'date' in object:
-            self.date = DateTime(object['date'])
+        if 'date_time' in object:
+            self.date_time = DateTime(object['date_time'])
 
         if 'lat' in object:
             self.latitude = Angle(object['lat'])

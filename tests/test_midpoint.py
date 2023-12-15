@@ -24,11 +24,11 @@ def coords():
 
 @fixture
 def jd1(coords):
-    return date.to_jd(date.localize(datetime.fromisoformat('2000-01-01 10:00'), *coords))
+    return date.to_jd('2000-01-01 10:00', *coords)
 
 @fixture
 def jd2(coords):
-    return date.to_jd(date.localize(datetime.fromisoformat('2025-06-21 00:00'), *coords))
+    return date.to_jd('2025-06-21 00:00', *coords)
 
 @fixture
 def obliquity(jd1, jd2):

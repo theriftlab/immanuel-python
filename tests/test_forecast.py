@@ -23,12 +23,12 @@ def coords():
 
 @fixture
 def jd(coords):
-    return date.to_jd(date.localize(datetime.fromisoformat('2000-01-01 10:00'), *coords))
+    return date.to_jd('2000-01-01 10:00', *coords)
 
 @fixture
 def pjd():
     # Input JD for all progression tests - must be in UT
-    return date.to_jd(datetime(2025, 6, 21, tzinfo=ZoneInfo('UTC')))
+    return date.to_jd('2025-06-21')
 
 @fixture
 def astro():

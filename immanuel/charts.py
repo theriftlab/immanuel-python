@@ -32,11 +32,11 @@ class Subject:
     def __init__(self, date_time: datetime | str, latitude: float | list | tuple | str, longitude: float | list | tuple | str, time_is_dst: bool = None) -> None:
         self.latitude, self.longitude = (convert.to_dec(v) for v in (latitude, longitude))
         self.time_is_dst = time_is_dst
-        self.date_time = date.localize(
-                dt=date_time if isinstance(date_time, datetime) else datetime.fromisoformat(date_time),
+        self.date_time = date.to_datetime(
+                dt=date_time,
                 lat=self.latitude,
                 lon=self.longitude,
-                is_dst=self.time_is_dst,
+                is_dst=time_is_dst
             )
         self.julian_date = date.to_jd(self.date_time)
 
@@ -89,8 +89,8 @@ class Chart():
         self.objects = {}
         for index, object in self._objects.items():
             if 'jd' in object:
-                object['date'] = date.localize(
-                        dt=date.from_jd(object['jd']),
+                object['date_time'] = date.to_datetime(
+                        dt=object['jd'],
                         lat=self._native.latitude,
                         lon=self._native.longitude,
                     )
@@ -221,8 +221,8 @@ class Progressed(Chart):
         super().__init__(chart.PROGRESSED, aspects_to)
 
     def generate(self) -> None:
-        self._progression_date_time = date.localize(
-                dt=self._date_time if isinstance(self._date_time, datetime) else datetime.fromisoformat(self._date_time),
+        self._progression_date_time = date.to_datetime(
+                dt=self._date_time,
                 lat=self._native.latitude,
                 lon=self._native.longitude,
             )

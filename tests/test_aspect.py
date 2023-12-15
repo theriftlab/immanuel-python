@@ -25,13 +25,13 @@ from immanuel.tools import convert, date, ephemeris
 @fixture
 def objects():
     lat, lon = [convert.string_to_dec(v) for v in ('32n43', '117w09')]
-    jd = date.to_jd(date.localize(datetime.fromisoformat('2000-01-01 10:00'), lat, lon))
+    jd = date.to_jd('2000-01-01 10:00', lat, lon)
     return ephemeris.objects(settings.objects, jd, lat, lon, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
 
 @fixture
 def partner_objects():
     lat, lon = [convert.string_to_dec(v) for v in ('38n35', '121w30')]
-    jd = date.to_jd(date.localize(datetime.fromisoformat('2001-02-16 06:00'), lat, lon))
+    jd = date.to_jd('2001-02-16 06:00', lat, lon)
     return ephemeris.objects(settings.objects, jd, lat, lon, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
 
 

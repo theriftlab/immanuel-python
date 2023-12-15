@@ -27,7 +27,7 @@ def coords():
 
 @fixture
 def jd(coords):
-    return date.to_jd(date.localize(datetime.fromisoformat('2000-01-01 10:00'), *coords))
+    return date.to_jd('2000-01-01 10:00', *coords)
 
 @fixture
 def armc():
@@ -376,7 +376,7 @@ def test_get_data(coords, jd, astro):
 
         # For eclipse dates
         if 'date' in astro[key]:
-            object['date'] = date.from_jd(object['jd'], *coords).strftime('%d %B')
+            object['date'] = date.to_datetime(object['jd'], *coords).strftime('%d %B')
 
         for property, value in astro[key].items():
             assert object[property] == value

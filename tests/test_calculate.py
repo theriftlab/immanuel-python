@@ -24,11 +24,11 @@ def coords():
 
 @fixture
 def day_jd(coords):
-    return date.to_jd(date.localize(datetime.fromisoformat('2000-01-01 10:00'), *coords))
+    return date.to_jd('2000-01-01 10:00', *coords)
 
 @fixture
 def night_jd(coords):
-    return date.to_jd(date.localize(datetime.fromisoformat('2000-01-01 00:00'), *coords))
+    return date.to_jd('2000-01-01 00:00', *coords)
 
 
 def test_moon_phase(day_jd):
