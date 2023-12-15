@@ -79,10 +79,10 @@ class Coordinates:
 
 
 class DateTime:
-    def __init__(self, dt: datetime | float, armc: dict | float = None, latitude: float = None, longitude: float = None, is_time_dst: bool = None) -> None:
+    def __init__(self, dt: datetime | float, armc: dict | float = None, latitude: float = None, longitude: float = None, time_is_dst: bool = None) -> None:
         self.datetime = dt if isinstance(dt, datetime) else date.from_jd(dt, latitude, longitude)
         self.timezone = self.datetime.tzname()
-        self.ambiguous = date.ambiguous(self.datetime) and is_time_dst is None
+        self.ambiguous = date.ambiguous(self.datetime) and time_is_dst is None
         self.julian = date.to_jd(dt) if isinstance(dt, datetime) else dt
         self.deltat = ephemeris.deltat(self.julian)
 

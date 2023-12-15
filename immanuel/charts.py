@@ -50,7 +50,7 @@ class Subject:
                 armc=armc,
                 latitude=self._lat,
                 longitude=self._lon,
-                is_time_dst=time_is_dst,
+                time_is_dst=time_is_dst,
             )
         self.coordinates = wrap.Coordinates(
                 latitude=self._lat,
