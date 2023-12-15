@@ -187,9 +187,9 @@ Some differences between object types include:
 
 * Only planets get dignities & a score.
 * Houses, primary angles, and fixed stars do not have `out_of_bounds` or `movement` (retrograde / stationary / direct).
-* Houses alone have a `size` measurd in degrees.
+* Houses alone have a `size` measured in degrees.
 
-All angles in chart have teh same standard data structure. Certain properties also have a standard "booleans + formatted" structure, like the previous `moon_phases` example, and the `dignities` above.
+All angles in chart have the same standard data structure. Certain properties also have a standard "booleans + formatted" structure, like the previous `moon_phases` example, and the `dignities` above.
 
 You might have noticed that chart objects and their types all have a numerical index. More on these later in [the Object Indexing section](#object-indexing), but for now just be aware that Immanuel internally references planets, houses, asteroids etc. by numerical indices, and the `objects` property is keyed by them.
 
