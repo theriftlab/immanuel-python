@@ -476,6 +476,7 @@ def obliquity(jd: float, mean: bool = False) -> float:
     return ecl_nut[1] if mean else ecl_nut[0]
 
 
+@cache
 def deltat(jd: float, seconds: bool = False) -> float:
     """ Return the Delta-T value of the passed Julian date. Optionally it
     will return this value in seconds. """
