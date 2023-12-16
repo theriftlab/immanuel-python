@@ -42,20 +42,20 @@ def localize(dt: datetime, lat: float, lon: float, is_dst: bool = None) -> datet
 def to_datetime(dt: str | float | datetime, lat: float = None, lon: float = None, is_dst: bool = None) -> datetime:
     """ Convert an unknown into a datetime. Unknowns can be either an
     ISO-formatted string, a Julian Date, or already a datetime. """
+    no_coords = lat is None or lon is None
     if isinstance(dt, str):
         date_time = datetime.fromisoformat(dt)
-        if lat is not None and lon is not None:
-            return localize(date_time, lat, lon, is_dst)
-        return date_time
+        return date_time.replace(tzinfo=ZoneInfo('UTC')) if no_coords else localize(date_time, lat, lon, is_dst)
     if isinstance(dt, float):
         ut = swe.revjul(dt)
         time = convert.dec_to_dms(ut[3])[1:]
         date_time = datetime(*ut[:3], *time, tzinfo=ZoneInfo('UTC'))
-        return date_time if lat is None or lon is None else date_time.astimezone(ZoneInfo(timezone(lat, lon)))
+        return date_time if no_coords else date_time.astimezone(ZoneInfo(timezone(lat, lon)))
     if isinstance(dt, datetime):
-        if lat is not None and lon is not None:
+        if no_coords:
+            return dt.replace(tzinfo=ZoneInfo('UTC')) if dt.tzinfo is None else dt
+        else:
             return localize(dt, lat, lon, is_dst)
-        return dt
     return None
 
 
