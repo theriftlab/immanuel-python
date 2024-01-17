@@ -23,7 +23,7 @@ from immanuel.classes import wrap
 from immanuel.const import chart, names
 from immanuel.reports import aspect, pattern, weighting
 from immanuel.setup import settings
-from immanuel.tools import calculate, convert, date, ephemeris, forecast, midpoint
+from immanuel.tools import calculate, convert, date, ephemeris, forecast, midpoint, position
 
 
 class Subject:
@@ -50,6 +50,11 @@ class Chart():
         self._aspects_to = aspects_to
         self.generate()
         self.wrap()
+
+    def house_for(self, object: wrap.Object) -> wrap.Object:
+        """ Returns the house where any passed arbitrary object would appear in
+        the current chart. Useful for synastries and transit charts. """
+        return wrap.Object(object=position.house(object.longitude.raw, self._houses))
 
     def generate(self) -> None:
         """ Generating the raw data is each descendant class's responsibility,
