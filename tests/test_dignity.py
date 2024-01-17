@@ -11,7 +11,6 @@
 """
 
 import copy
-from datetime import datetime
 
 from pytest import fixture
 
@@ -47,42 +46,42 @@ def teardown_function():
 
 def test_ruler(objects):
     # Uranus is ruler of its sign
-    assert dignity.ruler(objects[chart.SUN]) == False
-    assert dignity.ruler(objects[chart.URANUS]) == True
+    assert dignity.ruler(objects[chart.SUN]) is False
+    assert dignity.ruler(objects[chart.URANUS]) is True
 
 
 def test_exalted(objects):
     # Nothing is exalted so we fudge the data
     sun = objects[chart.SUN].copy()
-    assert dignity.exalted(sun) == False
+    assert dignity.exalted(sun) is False
     sun['lon'] = 0                          # Force it into Aries
-    assert dignity.exalted(sun) == True
+    assert dignity.exalted(sun) is True
 
 
 def test_triplicity_ruler(objects, is_daytime):
     # Nothing is triplicity ruler without participatory so we fudge the data
     sun = objects[chart.SUN].copy()
-    assert dignity.triplicity_ruler(sun, is_daytime) == False
+    assert dignity.triplicity_ruler(sun, is_daytime) is False
     sun['lon'] = 0                          # Force it into Aries
-    assert dignity.triplicity_ruler(sun, is_daytime) == True
+    assert dignity.triplicity_ruler(sun, is_daytime) is True
 
     # Saturn should be triplicity ruler with participatory included
     settings.include_participatory_triplicities = True
-    assert dignity.triplicity_ruler(objects[chart.SATURN], is_daytime) == True
+    assert dignity.triplicity_ruler(objects[chart.SATURN], is_daytime) is True
 
 
 def test_term_ruler(objects):
     # Mercury is a term ruler
-    assert dignity.term_ruler(objects[chart.SUN]) == False
-    assert dignity.term_ruler(objects[chart.MERCURY]) == True
+    assert dignity.term_ruler(objects[chart.SUN]) is False
+    assert dignity.term_ruler(objects[chart.MERCURY]) is True
 
 
 def test_face_ruler(objects):
     # Nothing is face ruler so we fudge the data
     sun = objects[chart.SUN].copy()
-    assert dignity.face_ruler(sun) == False
+    assert dignity.face_ruler(sun) is False
     sun['lon'] = 10                         # Force it into 10° Aries
-    assert dignity.face_ruler(sun) == True
+    assert dignity.face_ruler(sun) is True
 
 
 def test_mutual_reception_ruler(objects):
@@ -90,12 +89,12 @@ def test_mutual_reception_ruler(objects):
     test_objects = copy.deepcopy(objects)
     sun = test_objects[chart.SUN]
     moon = test_objects[chart.MOON]
-    assert dignity.mutual_reception_ruler(sun, test_objects) == False
-    assert dignity.mutual_reception_ruler(moon, test_objects) == False
+    assert dignity.mutual_reception_ruler(sun, test_objects) is False
+    assert dignity.mutual_reception_ruler(moon, test_objects) is False
     sun['lon'] = 90                         # Force Sun into Cancer
     moon['lon'] = 120                       # Force Moon into Leo
-    assert dignity.mutual_reception_ruler(sun, test_objects) == True
-    assert dignity.mutual_reception_ruler(moon, test_objects) == True
+    assert dignity.mutual_reception_ruler(sun, test_objects) is True
+    assert dignity.mutual_reception_ruler(moon, test_objects) is True
 
 
 def test_mutual_reception_exalted(objects):
@@ -103,19 +102,19 @@ def test_mutual_reception_exalted(objects):
     test_objects = copy.deepcopy(objects)
     sun = test_objects[chart.SUN]
     moon = test_objects[chart.MOON]
-    assert dignity.mutual_reception_exalted(sun, test_objects) == False
-    assert dignity.mutual_reception_exalted(moon, test_objects) == False
+    assert dignity.mutual_reception_exalted(sun, test_objects) is False
+    assert dignity.mutual_reception_exalted(moon, test_objects) is False
     sun['lon'] = 30                         # Force Sun into Taurus
     moon['lon'] = 0                         # Force Moon into Aries
-    assert dignity.mutual_reception_exalted(sun, test_objects) == True
-    assert dignity.mutual_reception_exalted(moon, test_objects) == True
+    assert dignity.mutual_reception_exalted(sun, test_objects) is True
+    assert dignity.mutual_reception_exalted(moon, test_objects) is True
 
 
 def test_mutual_reception_triplicity_ruler(objects, is_daytime):
     # Sun & Venus are triplicity rulers by mutual reception
-    assert dignity.mutual_reception_triplicity_ruler(objects[chart.SUN], objects, is_daytime) == True
-    assert dignity.mutual_reception_triplicity_ruler(objects[chart.VENUS], objects, is_daytime) == True
-    assert dignity.mutual_reception_triplicity_ruler(objects[chart.MOON], objects, is_daytime) == False
+    assert dignity.mutual_reception_triplicity_ruler(objects[chart.SUN], objects, is_daytime) is True
+    assert dignity.mutual_reception_triplicity_ruler(objects[chart.VENUS], objects, is_daytime) is True
+    assert dignity.mutual_reception_triplicity_ruler(objects[chart.MOON], objects, is_daytime) is False
 
 
 def test_mutual_reception_term_ruler(objects):
@@ -123,12 +122,12 @@ def test_mutual_reception_term_ruler(objects):
     test_objects = copy.deepcopy(objects)
     mars = test_objects[chart.MARS]
     venus = test_objects[chart.VENUS]
-    assert dignity.mutual_reception_term_ruler(mars, test_objects) == False
-    assert dignity.mutual_reception_term_ruler(venus, test_objects) == False
+    assert dignity.mutual_reception_term_ruler(mars, test_objects) is False
+    assert dignity.mutual_reception_term_ruler(venus, test_objects) is False
     mars['lon'] = 6                         # Force Mars into 6° Aries
     venus['lon'] = 57                       # Force venus into 27° Taurus
-    assert dignity.mutual_reception_term_ruler(mars, test_objects) == True
-    assert dignity.mutual_reception_term_ruler(venus, test_objects) == True
+    assert dignity.mutual_reception_term_ruler(mars, test_objects) is True
+    assert dignity.mutual_reception_term_ruler(venus, test_objects) is True
 
 
 def test_mutual_reception_face_ruler(objects):
@@ -136,32 +135,32 @@ def test_mutual_reception_face_ruler(objects):
     test_objects = copy.deepcopy(objects)
     sun = test_objects[chart.SUN]
     moon = test_objects[chart.MOON]
-    assert dignity.mutual_reception_face_ruler(sun, test_objects) == False
-    assert dignity.mutual_reception_face_ruler(moon, test_objects) == False
+    assert dignity.mutual_reception_face_ruler(sun, test_objects) is False
+    assert dignity.mutual_reception_face_ruler(moon, test_objects) is False
     sun['lon'] = 40                         # Force Sun into 10° Taurus
     moon['lon'] = 10                        # Force Moon into 10° Aries
-    assert dignity.mutual_reception_face_ruler(sun, test_objects) == True
-    assert dignity.mutual_reception_face_ruler(moon, test_objects) == True
+    assert dignity.mutual_reception_face_ruler(sun, test_objects) is True
+    assert dignity.mutual_reception_face_ruler(moon, test_objects) is True
 
 
 def test_in_rulership_element(objects):
     # Moon is in a Water sign, Sun is in an Earth sign
-    assert dignity.in_rulership_element(objects[chart.SUN]) == False
-    assert dignity.in_rulership_element(objects[chart.MOON]) == True
+    assert dignity.in_rulership_element(objects[chart.SUN]) is False
+    assert dignity.in_rulership_element(objects[chart.MOON]) is True
 
 
 def test_detriment(objects):
     # Nothing is in detriment so we fudge the data
     sun = objects[chart.SUN].copy()
-    assert dignity.detriment(sun) == False
+    assert dignity.detriment(sun) is False
     sun['lon'] = 300                        # Force it into Aquarius
-    assert dignity.detriment(sun) == True
+    assert dignity.detriment(sun) is True
 
 
 def test_fall(objects):
     # Moon is in fall in Scorpio
-    assert dignity.fall(objects[chart.SUN]) == False
-    assert dignity.fall(objects[chart.MOON]) == True
+    assert dignity.fall(objects[chart.SUN]) is False
+    assert dignity.fall(objects[chart.MOON]) is True
 
 
 def test_all(objects, is_daytime):
@@ -170,42 +169,42 @@ def test_all(objects, is_daytime):
     for object in objects.values():
         all[object['index']] = dignity.all(object, objects, is_daytime)
 
-    assert all[chart.SUN][dignities.MUTUAL_RECEPTION_TRIPLICITY_RULER] == True
-    assert all[chart.SUN][dignities.PEREGRINE] == False
-    assert all[chart.MOON][dignities.IN_RULERSHIP_ELEMENT] == True
-    assert all[chart.MOON][dignities.FALL] == True
-    assert all[chart.MERCURY][dignities.TERM_RULER] == True
-    assert all[chart.VENUS][dignities.MUTUAL_RECEPTION_TRIPLICITY_RULER] == True
-    assert all[chart.VENUS][dignities.PEREGRINE] == False
-    assert all[chart.MARS][dignities.PEREGRINE] == True
-    assert all[chart.JUPITER][dignities.IN_RULERSHIP_ELEMENT] == True
-    assert all[chart.SATURN][dignities.IN_RULERSHIP_ELEMENT] == True
-    assert all[chart.URANUS][dignities.RULER] == True
-    assert all[chart.URANUS][dignities.IN_RULERSHIP_ELEMENT] == True
-    assert all[chart.NEPTUNE][dignities.FALL] == True
-    assert all[chart.NEPTUNE][dignities.PEREGRINE] == True
-    assert all[chart.PLUTO][dignities.PEREGRINE] == True
+    assert all[chart.SUN][dignities.MUTUAL_RECEPTION_TRIPLICITY_RULER] is True
+    assert all[chart.SUN][dignities.PEREGRINE] is False
+    assert all[chart.MOON][dignities.IN_RULERSHIP_ELEMENT] is True
+    assert all[chart.MOON][dignities.FALL] is True
+    assert all[chart.MERCURY][dignities.TERM_RULER] is True
+    assert all[chart.VENUS][dignities.MUTUAL_RECEPTION_TRIPLICITY_RULER] is True
+    assert all[chart.VENUS][dignities.PEREGRINE] is False
+    assert all[chart.MARS][dignities.PEREGRINE] is True
+    assert all[chart.JUPITER][dignities.IN_RULERSHIP_ELEMENT] is True
+    assert all[chart.SATURN][dignities.IN_RULERSHIP_ELEMENT] is True
+    assert all[chart.URANUS][dignities.RULER] is True
+    assert all[chart.URANUS][dignities.IN_RULERSHIP_ELEMENT] is True
+    assert all[chart.NEPTUNE][dignities.FALL] is True
+    assert all[chart.NEPTUNE][dignities.PEREGRINE] is True
+    assert all[chart.PLUTO][dignities.PEREGRINE] is True
 
     settings.include_mutual_receptions = False
 
     for object in objects.values():
         all[object['index']] = dignity.all(object, objects, is_daytime)
 
-    assert all[chart.SUN][dignities.MUTUAL_RECEPTION_TRIPLICITY_RULER] == True
-    assert all[chart.SUN][dignities.PEREGRINE] == True
-    assert all[chart.MOON][dignities.IN_RULERSHIP_ELEMENT] == True
-    assert all[chart.MOON][dignities.FALL] == True
-    assert all[chart.MERCURY][dignities.TERM_RULER] == True
-    assert all[chart.VENUS][dignities.MUTUAL_RECEPTION_TRIPLICITY_RULER] == True
-    assert all[chart.VENUS][dignities.PEREGRINE] == True
-    assert all[chart.MARS][dignities.PEREGRINE] == True
-    assert all[chart.JUPITER][dignities.IN_RULERSHIP_ELEMENT] == True
-    assert all[chart.SATURN][dignities.IN_RULERSHIP_ELEMENT] == True
-    assert all[chart.URANUS][dignities.RULER] == True
-    assert all[chart.URANUS][dignities.IN_RULERSHIP_ELEMENT] == True
-    assert all[chart.NEPTUNE][dignities.FALL] == True
-    assert all[chart.NEPTUNE][dignities.PEREGRINE] == True
-    assert all[chart.PLUTO][dignities.PEREGRINE] == True
+    assert all[chart.SUN][dignities.MUTUAL_RECEPTION_TRIPLICITY_RULER] is True
+    assert all[chart.SUN][dignities.PEREGRINE] is True
+    assert all[chart.MOON][dignities.IN_RULERSHIP_ELEMENT] is True
+    assert all[chart.MOON][dignities.FALL] is True
+    assert all[chart.MERCURY][dignities.TERM_RULER] is True
+    assert all[chart.VENUS][dignities.MUTUAL_RECEPTION_TRIPLICITY_RULER] is True
+    assert all[chart.VENUS][dignities.PEREGRINE] is True
+    assert all[chart.MARS][dignities.PEREGRINE] is True
+    assert all[chart.JUPITER][dignities.IN_RULERSHIP_ELEMENT] is True
+    assert all[chart.SATURN][dignities.IN_RULERSHIP_ELEMENT] is True
+    assert all[chart.URANUS][dignities.RULER] is True
+    assert all[chart.URANUS][dignities.IN_RULERSHIP_ELEMENT] is True
+    assert all[chart.NEPTUNE][dignities.FALL] is True
+    assert all[chart.NEPTUNE][dignities.PEREGRINE] is True
+    assert all[chart.PLUTO][dignities.PEREGRINE] is True
 
 
 def test_score(objects, is_daytime):

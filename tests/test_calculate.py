@@ -9,8 +9,6 @@
 
 """
 
-from datetime import datetime
-
 from pytest import fixture
 
 from immanuel.const import calc, chart
@@ -40,9 +38,9 @@ def test_moon_phase(day_jd):
 
 def test_is_daytime(day_jd, night_jd, coords):
     sun, asc = ephemeris.objects((chart.SUN, chart.ASC), day_jd, *coords, chart.PLACIDUS).values()
-    assert calculate.is_daytime(sun, asc) == True
+    assert calculate.is_daytime(sun, asc) is True
     sun, asc = ephemeris.objects((chart.SUN, chart.ASC), night_jd, *coords, chart.PLACIDUS).values()
-    assert calculate.is_daytime(sun, asc) == False
+    assert calculate.is_daytime(sun, asc) is False
 
 
 def test_pars_fortuna_day_formula(day_jd, coords):
@@ -80,8 +78,8 @@ def test_object_movement(day_jd, coords):
 
 def test_is_out_of_bounds(day_jd, coords):
     sun, mercury = ephemeris.objects((chart.SUN, chart.MERCURY), day_jd, *coords, chart.PLACIDUS).values()
-    assert calculate.is_out_of_bounds(sun, day_jd) == False
-    assert calculate.is_out_of_bounds(mercury, day_jd) == True
+    assert calculate.is_out_of_bounds(sun, day_jd) is False
+    assert calculate.is_out_of_bounds(mercury, day_jd) is True
 
 
 def test_solar_year_length():

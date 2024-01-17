@@ -73,8 +73,8 @@ def test_localize_dst(ambiguous_date, pst_coords):
 
 
 def test_ambiguous(ambiguous_date, pst_date):
-    assert date.ambiguous(ambiguous_date) == True
-    assert date.ambiguous(pst_date) == False
+    assert date.ambiguous(ambiguous_date) is True
+    assert date.ambiguous(pst_date) is False
 
 
 def test_to_jd(str_pst_date, gmt_date, pst_date, pst_coords, jd):

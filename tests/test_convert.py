@@ -125,7 +125,7 @@ def test_dms_to_string_lat_round_minute():
     assert convert.dms_to_string(('-', 12, 30.75), convert.FORMAT_LAT, convert.ROUND_MINUTE) == '12S31.0'
 
 
-def test_dms_to_string_lat_round_minute():
+def test_dms_to_string_lat_round_second():
     assert convert.dms_to_string(('+', 12, 30, 45), convert.FORMAT_LAT, convert.ROUND_SECOND) == '12N30.75'
     assert convert.dms_to_string(('+', 12, 30.75), convert.FORMAT_LAT, convert.ROUND_SECOND) == '12N30.75'
     assert convert.dms_to_string(('-', 12, 30, 45), convert.FORMAT_LAT, convert.ROUND_SECOND) == '12S30.75'
@@ -146,7 +146,7 @@ def test_dms_to_string_lon_round_minute():
     assert convert.dms_to_string(('-', 12, 30.75), convert.FORMAT_LON, convert.ROUND_MINUTE) == '12W31.0'
 
 
-def test_dms_to_string_lon_round_minute():
+def test_dms_to_string_lon_round_second():
     assert convert.dms_to_string(('+', 12, 30, 45), convert.FORMAT_LON, convert.ROUND_SECOND) == '12E30.75'
     assert convert.dms_to_string(('+', 12, 30.75), convert.FORMAT_LON, convert.ROUND_SECOND) == '12E30.75'
     assert convert.dms_to_string(('-', 12, 30, 45), convert.FORMAT_LON, convert.ROUND_SECOND) == '12W30.75'

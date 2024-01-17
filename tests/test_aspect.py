@@ -12,8 +12,6 @@
 
 import math
 
-from datetime import datetime
-
 from pytest import fixture
 
 from immanuel.const import calc, chart

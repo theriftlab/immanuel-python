@@ -95,8 +95,8 @@ def test_natal(native, lat, lon):
 
     assert natal_chart.house_system == names.HOUSE_SYSTEMS[settings.house_system]
     assert natal_chart.shape == names.CHART_SHAPES[calc.BOWL]
-    assert natal_chart.diurnal == True
-    assert natal_chart.moon_phase.third_quarter == True
+    assert natal_chart.diurnal is True
+    assert natal_chart.moon_phase.third_quarter is True
 
     # Spot-check for correct object positions against astro.com
     assert natal_chart.objects[chart.SUN].name == names.PLANETS[chart.SUN]
@@ -112,8 +112,8 @@ def test_natal(native, lat, lon):
     assert natal_chart.objects[chart.PARS_FORTUNA].sign_longitude.formatted == '11°18\'41"'
 
     # Spot-check for correct object data against astro.com & Astro Gold
-    assert natal_chart.objects[chart.SATURN].movement.retrograde == True
-    assert natal_chart.objects[chart.MARS].dignities.peregrine == True
+    assert natal_chart.objects[chart.SATURN].movement.retrograde is True
+    assert natal_chart.objects[chart.MARS].dignities.peregrine is True
     assert natal_chart.objects[chart.MARS].score == -5
 
     # Spot-check for correct angle positions against astro.com
@@ -161,8 +161,8 @@ def test_solar_return(native, lat, lon, solar_return_year):
 
     assert solar_return_chart.house_system == names.HOUSE_SYSTEMS[settings.house_system]
     assert solar_return_chart.shape == names.CHART_SHAPES[calc.LOCOMOTIVE]
-    assert solar_return_chart.diurnal == True
-    assert solar_return_chart.moon_phase.balsamic == True
+    assert solar_return_chart.diurnal is True
+    assert solar_return_chart.moon_phase.balsamic is True
 
     # Spot-check for correct object positions against astro.com
     assert solar_return_chart.objects[chart.SUN].name == names.PLANETS[chart.SUN]
@@ -178,8 +178,8 @@ def test_solar_return(native, lat, lon, solar_return_year):
     assert solar_return_chart.objects[chart.PARS_FORTUNA].sign_longitude.formatted == '24°41\'28"'
 
     # Spot-check for correct object data against astro.com & Astro Gold
-    assert solar_return_chart.objects[chart.SATURN].movement.retrograde == True
-    assert solar_return_chart.objects[chart.MARS].dignities.peregrine == True
+    assert solar_return_chart.objects[chart.SATURN].movement.retrograde is True
+    assert solar_return_chart.objects[chart.MARS].dignities.peregrine is True
     assert solar_return_chart.objects[chart.MARS].score == -5
 
     # Spot-check for correct angle positions against astro.com
@@ -235,8 +235,8 @@ def test_progressed(native, lat, lon, pdt):
 
     assert progressed_chart.house_system == names.HOUSE_SYSTEMS[settings.house_system]
     assert progressed_chart.shape == names.CHART_SHAPES[calc.LOCOMOTIVE]
-    assert progressed_chart.diurnal == True
-    assert progressed_chart.moon_phase.disseminating == True
+    assert progressed_chart.diurnal is True
+    assert progressed_chart.moon_phase.disseminating is True
 
     # Spot-check for correct object positions against astro.com
     assert progressed_chart.objects[chart.SUN].name == names.PLANETS[chart.SUN]
@@ -252,8 +252,8 @@ def test_progressed(native, lat, lon, pdt):
     assert progressed_chart.objects[chart.PARS_FORTUNA].sign_longitude.formatted == '00°17\'45"'
 
     # Spot-check for correct object data against Astro Gold
-    assert progressed_chart.objects[chart.SUN].dignities.detriment == True
-    assert progressed_chart.objects[chart.SUN].dignities.peregrine == True
+    assert progressed_chart.objects[chart.SUN].dignities.detriment is True
+    assert progressed_chart.objects[chart.SUN].dignities.peregrine is True
     assert progressed_chart.objects[chart.SUN].score == -10
 
     # Spot-check for correct angle positions against astro.com
@@ -303,8 +303,8 @@ def test_composite(native, lat, lon, partner, partner_lat, partner_lon):
     assert composite_chart.partner.coordinates.longitude.formatted == partner_lon
 
     assert composite_chart.house_system == names.HOUSE_SYSTEMS[settings.house_system]
-    assert composite_chart.diurnal == True
-    assert composite_chart.moon_phase.third_quarter == True
+    assert composite_chart.diurnal is True
+    assert composite_chart.moon_phase.third_quarter is True
 
     # Spot-check for correct object positions against astro.com
     assert composite_chart.objects[chart.SUN].name == names.PLANETS[chart.SUN]
@@ -320,8 +320,8 @@ def test_composite(native, lat, lon, partner, partner_lat, partner_lon):
     assert composite_chart.objects[chart.PARS_FORTUNA].sign_longitude.formatted == '01°03\'58"'
 
     # Spot-check for correct object data against Astro Gold
-    assert composite_chart.objects[chart.SUN].dignities.detriment == True
-    assert composite_chart.objects[chart.SUN].dignities.peregrine == True
+    assert composite_chart.objects[chart.SUN].dignities.detriment is True
+    assert composite_chart.objects[chart.SUN].dignities.peregrine is True
     assert composite_chart.objects[chart.SUN].score == -10
 
     # Spot-check for correct angle positions against astro.com
