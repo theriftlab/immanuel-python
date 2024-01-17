@@ -36,7 +36,7 @@ def timezone(lat: float, lon: float) -> str:
 
 def localize(dt: datetime, lat: float, lon: float, is_dst: bool = None) -> datetime:
     """ Localizes a naive datetime based on decimal lat/lon coordinates. """
-    return dt.replace(tzinfo=ZoneInfo(timezone(lat, lon)), fold=1 if is_dst == False else 0)
+    return dt.replace(tzinfo=ZoneInfo(timezone(lat, lon)), fold=1 if is_dst is False else 0)
 
 
 def to_datetime(dt: str | float | datetime, lat: float = None, lon: float = None, is_dst: bool = None) -> datetime:
