@@ -162,6 +162,10 @@ class MoonPhase:
 class Object:
     def __init__(self, object: dict, objects: dict = None, houses: dict = None, is_daytime: bool = None, obliquity: float = None) -> None:
         self.index = object['index']
+
+        if object['type'] == chart.HOUSE:
+            self.number = object['number']
+
         self.name = object['name']
         self.type = ObjectType(object['type'])
 
