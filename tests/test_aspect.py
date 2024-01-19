@@ -46,7 +46,9 @@ def test_between(objects):
 
 
 def test_for_object(objects):
-    settings.aspect_rules[chart.ASC] = settings.default_aspect_rule     # astro.com chart visual does not include aspects to Asc but its aspects table does
+    settings.aspect_rules = {
+        chart.ASC: settings.default_aspect_rule,          # astro.com chart visual does not include aspects to Asc but its aspects table does
+    }
     a = aspect.for_object(objects[chart.SUN], objects)
     assert sorted(tuple(a.keys())) == sorted((chart.ASC, chart.PARS_FORTUNA, chart.MOON, chart.MERCURY, chart.SATURN))
     assert a[chart.ASC]['aspect'] == calc.SEXTILE
@@ -57,10 +59,12 @@ def test_for_object(objects):
 
 
 def test_all(objects):
-    settings.aspect_rules[chart.ASC] = settings.default_aspect_rule     # astro.com chart visual does not include aspects to Asc but its aspects table does
-    settings.aspect_rules[chart.DESC] = {                               # Because we're looking at Asc aspects, don't allow Desc any
-        'initiate': (),
-        'receive': (),
+    settings.aspect_rules = {
+        chart.ASC: settings.default_aspect_rule,          # astro.com chart visual does not include aspects to Asc but its aspects table does
+        chart.DESC: {                                       # Because we're looking at Asc aspects, don't allow Desc any
+            'initiate': (),
+            'receive': (),
+        },
     }
     all = aspect.all(objects)
     for index, aspect_list in all.items():
@@ -71,8 +75,10 @@ def test_all(objects):
 
 
 def test_by_type(objects):
-    settings.aspect_rules[chart.ASC] = settings.default_aspect_rule                                     # astro.com chart visual does not include aspects to Asc but its aspects table does
-    settings.aspects = (calc.CONJUNCTION, calc.OPPOSITION, calc.SQUARE, calc.TRINE, calc.SEXTILE)       # Copy astro.com's "only major aspects"
+    settings.aspect_rules = {
+        chart.ASC: settings.default_aspect_rule,          # astro.com chart visual does not include aspects to Asc but its aspects table does
+    }
+    settings.aspects = [calc.CONJUNCTION, calc.OPPOSITION, calc.SQUARE, calc.TRINE, calc.SEXTILE]     # Copy astro.com's "only major aspects"
     by_type = aspect.by_type(objects)
     assert sorted(tuple(by_type.keys())) == sorted((calc.CONJUNCTION, calc.OPPOSITION, calc.SQUARE, calc.TRINE, calc.SEXTILE))
 
