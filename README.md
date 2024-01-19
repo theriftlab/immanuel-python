@@ -8,7 +8,7 @@ Simply pass in a date and coordinates to one of the available chart classes, and
 
 ## Documentation
 
-Full documentation is available [here](https://github.com/theriftlab/immanuel-python/tree/v1.1.1/docs/0-contents.md), or follow the Quick Start below to see how to quickly generate a natal chart.
+Full documentation is available [here](https://github.com/theriftlab/immanuel-python/tree/v1.2.0/docs/0-contents.md), or follow the Quick Start below to see how to quickly generate a natal chart.
 
 ## Quick Start
 
