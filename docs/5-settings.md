@@ -34,6 +34,40 @@ settings.set({
 })
 ```
 
+## Cascading Settings
+
+Some settings cascade into each other by default - for example, the `aspect_rules` setting (described later) is a dict containing each chart object's rules for which aspects it can initiate and receive. Each of the planets' rules are set to another setting, `planet_aspect_rule`, which is a dict specifying `initiate` and `receive` entries, both of which default to yet another setting, `aspects`, which is simply a list of all aspects being calculated for this chart.
+
+This means that changing the `aspects` setting to your own list will cascade that new list down to `planet_aspect_rule` which in turn will cascade down to the planets in `aspect_rules`.
+
+With all cascading settings, once you change the setting it will be "locked" and no longer inherit anything, but will still cascade downwards to be inherited. For example, changing the `planet_aspect_rule` setting alone will cause it to ignore `aspects` thereafter but it will still cascade down to `aspect_rules`.
+
+Because of the code required under the hood to maintain the real-time nature of these cascading attributes, they are not subscriptable - eg. to change the aspect rules for just the ascendant to allow all aspects, this will silently fail, despite being intuitively correct:
+
+```python
+settings.aspect_rules[chart.ASC] = settings.default_aspect_rule
+```
+
+You will instead have to assign it as a dict which will automatically be merged into the current settings:
+
+```python
+settings.aspect_rules = {
+    chart.ASC: settings.default_aspect_rule,
+}
+```
+
+Now the `chart.ASC` rule is locked in - even changing `default_aspect_rule` will not change this setting - while the other `aspect_rules` entries still inherit their default cascading settings.
+
+Note that if you *manually* merge a dict then this will essentially re-assign the settings to their current value and lock them in, so they will no longer inherit:
+
+```python
+# This updates chart.ASC but additionally reads ALL the other aspect_rules
+# entries and then writes them back, locking them all in.
+settings.aspect_rules |= {
+    chart.ASC: settings.default_aspect_rule,
+}
+```
+
 ## Overview
 
 There are many detailed customizations for chart data, especially for aspect rules. This section will provide you with an overview, but taking a look through the defaults in `setup.py` and the const files will give you a more detailed idea.
@@ -43,6 +77,8 @@ There are many detailed customizations for chart data, especially for aspect rul
 A dict which specifies what top-level data each chart type should contain. The values here are fairly self-explanatory as the constants line up with the chart class property names described in the [Returned Data](4-data.md) section.
 
 The defaults specify the *maximum* amount of available data for each chart type - the only change you can reasonably make is to remove any properties you do not wish to include. Attempting to add data that does not belong (eg. adding `data.SOLAR_RETURN_DATE` to a natal chart) will not end well.
+
+Defaults:
 
 ```python
 {
@@ -128,7 +164,7 @@ Which house system to use. Available options:
 * `chart.VEHLOW_EQUAL`
 * `chart.WHOLE_SIGN`
 
-Default `chart.PLACIDUS`
+Default: `chart.PLACIDUS`
 
 ### `objects`
 
@@ -222,7 +258,7 @@ All chart objects in the previous section are available here too.
 
 ### `aspects`
 
-A list of which aspects to calculate. Default:
+A list of which aspects to calculate. This setting will cascade into the other settings described below that rely on it. Default:
 
 ```python
 [
@@ -261,12 +297,12 @@ Default:
 
 ```python
 {
-    'initiate': _settings['aspects'],
-    'receive': _settings['aspects'],
+    'initiate': self.aspects,
+    'receive': self.aspects,
 }
 ```
 
-That is, both of these default to the list of all the aspects being calculated for this chart.
+That is, both of these default to the list of all the aspects being calculated for this chart, and will by default inherit any changes made to it.
 
 ### `planet_aspect_rule`
 
@@ -274,10 +310,12 @@ A dict of aspect rules, as above, which will be applied to planets only. Default
 
 ```python
 {
-    'initiate': _settings['aspects'],
-    'receive': _settings['aspects'],
+    'initiate': self.aspects,
+    'receive': self.aspects,
 }
 ```
+
+As above, this will by default inherit any changes made to `aspects`.
 
 ### `point_aspect_rule`
 
@@ -286,43 +324,47 @@ A dict of aspect rules, as above, which will be applied to calculated points onl
 ```python
 {
     'initiate': (calc.CONJUNCTION,),
-    'receive': _settings['aspects'],
+    'receive': self.aspects,
 }
 ```
+
+Similar to above, `receive` will by default inherit any changes made to `aspects`.
 
 ### `aspect_rules`
 
 A dict of aspect rule dicts like those above, keyed by chart object index. This sets which specific chart objects have which rules, and any object not found in this dict will default to the `default_aspect_rule` rules described above.
 
+By default this inherits any changes made to the above planet and point rules.
+
 Default:
 
 ```python
 {
-    chart.ASC: _settings['point_aspect_rule'],
-    chart.DESC: _settings['point_aspect_rule'],
-    chart.MC: _settings['point_aspect_rule'],
-    chart.IC: _settings['point_aspect_rule'],
+    chart.ASC: self.point_aspect_rule,
+    chart.DESC: self.point_aspect_rule,
+    chart.MC: self.point_aspect_rule,
+    chart.IC: self.point_aspect_rule,
 
-    chart.SUN: _settings['planet_aspect_rule'],
-    chart.MOON: _settings['planet_aspect_rule'],
-    chart.MERCURY: _settings['planet_aspect_rule'],
-    chart.VENUS: _settings['planet_aspect_rule'],
-    chart.MARS: _settings['planet_aspect_rule'],
-    chart.JUPITER: _settings['planet_aspect_rule'],
-    chart.SATURN: _settings['planet_aspect_rule'],
-    chart.URANUS: _settings['planet_aspect_rule'],
-    chart.NEPTUNE: _settings['planet_aspect_rule'],
-    chart.PLUTO: _settings['planet_aspect_rule'],
+    chart.SUN: self.planet_aspect_rule,
+    chart.MOON: self.planet_aspect_rule,
+    chart.MERCURY: self.planet_aspect_rule,
+    chart.VENUS: self.planet_aspect_rule,
+    chart.MARS: self.planet_aspect_rule,
+    chart.JUPITER: self.planet_aspect_rule,
+    chart.SATURN: self.planet_aspect_rule,
+    chart.URANUS: self.planet_aspect_rule,
+    chart.NEPTUNE: self.planet_aspect_rule,
+    chart.PLUTO: self.planet_aspect_rule,
 
-    chart.NORTH_NODE: _settings['point_aspect_rule'],
-    chart.SOUTH_NODE: _settings['point_aspect_rule'],
-    chart.TRUE_NORTH_NODE: _settings['point_aspect_rule'],
-    chart.TRUE_SOUTH_NODE: _settings['point_aspect_rule'],
-    chart.SYZYGY: _settings['point_aspect_rule'],
-    chart.PARS_FORTUNA: _settings['point_aspect_rule'],
-    chart.VERTEX: _settings['point_aspect_rule'],
-    chart.LILITH: _settings['point_aspect_rule'],
-    chart.TRUE_LILITH: _settings['point_aspect_rule'],
+    chart.NORTH_NODE: self.point_aspect_rule,
+    chart.SOUTH_NODE: self.point_aspect_rule,
+    chart.TRUE_NORTH_NODE: self.point_aspect_rule,
+    chart.TRUE_SOUTH_NODE: self.point_aspect_rule,
+    chart.SYZYGY: self.point_aspect_rule,
+    chart.PARS_FORTUNA: self.point_aspect_rule,
+    chart.VERTEX: self.point_aspect_rule,
+    chart.LILITH: self.point_aspect_rule,
+    chart.TRUE_LILITH: self.point_aspect_rule,
 }
 ```
 
@@ -347,7 +389,7 @@ Default: `calc.MEAN`
 
 ### `planet_orbs`
 
-A dict which specifies orbs for each aspect type, which will be applied to planets only. Default:
+A dict which specifies orbs for each aspect type, which will be applied to planets only. This will cascade down into the `orbs` setting described below. Default:
 
 ```python
 {
@@ -368,7 +410,7 @@ A dict which specifies orbs for each aspect type, which will be applied to plane
 
 ### `point_orbs`
 
-A dict which specifies orbs for each aspect type, which will be applied to calculated points only. As with the aspect rules, you will see which ones under the next heading. Default:
+A dict which specifies orbs for each aspect type, which will be applied to calculated points only. This will cascade down into the `orbs` setting described below. Default:
 
 ```python
 {
@@ -389,35 +431,39 @@ A dict which specifies orbs for each aspect type, which will be applied to calcu
 
 ### `orbs`
 
-A dict of orb dicts like those above, keyed by chart object index. This sets which specific chart objects have which orbs for each aspect, and any object not found in this dict will default to the `default_orb` value described above. Default:
+A dict of orb dicts like those above, keyed by chart object index. This sets which specific chart objects have which orbs for each aspect, and any object not found in this dict will default to the `default_orb` value described above.
+
+By default this inherits any changes made to the above planet and point orbs.
+
+Default:
 
 ```python
 {
-    chart.ASC: _settings['planet_orbs'],
-    chart.DESC: _settings['planet_orbs'],
-    chart.MC: _settings['planet_orbs'],
-    chart.IC: _settings['planet_orbs'],
+    chart.ASC: self.planet_orbs,
+    chart.DESC: self.planet_orbs,
+    chart.MC: self.planet_orbs,
+    chart.IC: self.planet_orbs,
 
-    chart.SUN: _settings['planet_orbs'],
-    chart.MOON: _settings['planet_orbs'],
-    chart.MERCURY: _settings['planet_orbs'],
-    chart.VENUS: _settings['planet_orbs'],
-    chart.MARS: _settings['planet_orbs'],
-    chart.JUPITER: _settings['planet_orbs'],
-    chart.SATURN: _settings['planet_orbs'],
-    chart.URANUS: _settings['planet_orbs'],
-    chart.NEPTUNE: _settings['planet_orbs'],
-    chart.PLUTO: _settings['planet_orbs'],
+    chart.SUN: self.planet_orbs,
+    chart.MOON: self.planet_orbs,
+    chart.MERCURY: self.planet_orbs,
+    chart.VENUS: self.planet_orbs,
+    chart.MARS: self.planet_orbs,
+    chart.JUPITER: self.planet_orbs,
+    chart.SATURN: self.planet_orbs,
+    chart.URANUS: self.planet_orbs,
+    chart.NEPTUNE: self.planet_orbs,
+    chart.PLUTO: self.planet_orbs,
 
-    chart.NORTH_NODE: _settings['point_orbs'],
-    chart.SOUTH_NODE: _settings['point_orbs'],
-    chart.TRUE_NORTH_NODE: _settings['point_orbs'],
-    chart.TRUE_SOUTH_NODE: _settings['point_orbs'],
-    chart.SYZYGY: _settings['point_orbs'],
-    chart.PARS_FORTUNA: _settings['point_orbs'],
-    chart.VERTEX: _settings['point_orbs'],
-    chart.LILITH: _settings['point_orbs'],
-    chart.TRUE_LILITH: _settings['point_orbs'],
+    chart.NORTH_NODE: self.point_orbs,
+    chart.SOUTH_NODE: self.point_orbs,
+    chart.TRUE_NORTH_NODE: self.point_orbs,
+    chart.TRUE_SOUTH_NODE: self.point_orbs,
+    chart.SYZYGY: self.point_orbs,
+    chart.PARS_FORTUNA: self.point_orbs,
+    chart.VERTEX: self.point_orbs,
+    chart.LILITH: self.point_orbs,
+    chart.TRUE_LILITH: self.point_orbs,
 }
 ```
 

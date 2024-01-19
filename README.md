@@ -216,7 +216,7 @@ Planetary dignity scores are based on those of Astro Gold, although these are so
 
 ## Settings
 
-The full documentation covers settings in detail, but much of the output can be customized. The settings module allows you to specify and personalize:
+The full documentation covers settings in detail, but much of the output can be customized. The settings class allows you to specify and personalize:
 
 * The house system to use
 * What data each chart returns
