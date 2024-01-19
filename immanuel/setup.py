@@ -327,6 +327,11 @@ class StaticSingleton(type):
     our BaseSettings instance to emulate static behavior. """
     _instance = BaseSettings()
 
+    def set(cls, values: dict) -> None:
+        """ Helper mass-set method. """
+        for key, value in values.items():
+            setattr(StaticSingleton._instance, key, value)
+
     def __getattr__(cls, name: str) -> Any:
         return getattr(StaticSingleton._instance, name)
 
