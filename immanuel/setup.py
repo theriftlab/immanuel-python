@@ -226,7 +226,7 @@ class BaseSettings:
     def point_aspect_rule(self) -> dict:
         """ Cascading setting - default aspects allowed for points. """
         return  {
-            'initiate': (calc.CONJUNCTION,),
+            'initiate': [calc.CONJUNCTION,],
             'receive': self.aspects,
         } | self._point_aspect_rule
 
