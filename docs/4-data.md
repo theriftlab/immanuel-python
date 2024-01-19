@@ -61,7 +61,7 @@ A string specifying which system was used to generate the houses in this chart. 
 
 #### string
 
-The overall chart shape formed by the planets. To change which chart objects this calculaton includes and what orb it uses, see the [Settings](5-settings.md#chart_shape_orb) section.
+The overall chart shape formed by the planets. To change which chart objects this calculation includes and what orb it uses, see the [Settings](5-settings.md#chart_shape_orb) section.
 
 ```
 "Bowl"
@@ -202,6 +202,7 @@ A dict of Python objects keyed by index. Each house will look something like thi
 ```json
 {
     "index": 2000001,
+    "number": 1,
     "name": "1st House",
     "type": {
         "index": 2000000,

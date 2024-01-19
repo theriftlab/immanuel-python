@@ -42,7 +42,7 @@ transits = charts.Transits('32n43', '117w09')
 
 For the Transits chart, the time is always assumed to be the present. Coordinates are optional, and when omitted they will default to the location of the GMT prime meridian in Greenwich. Coordinates are only needed to calculate the houses and house-based chart objects (Part of Fortune, Vertex, etc.), so if you do not require these in your transits you can safely omit the coordinates and simply call `chart.Transits()`.
 
-Synastry charts are not explicitly available as a distinct class, but since a synastry chart is esentially two charts layered on top of each other with aspects between them, you can use the `aspects_to` parameter - available in each chart class - to create a synastry. This takes another chart class instance as an argument, and builds the aspects of the containing instance to point to the planets/objects in the passed instance. For example:
+Synastry charts are not explicitly available as a distinct class, but since a synastry chart is essentially two charts layered on top of each other with aspects between them, you can use the `aspects_to` parameter - available in each chart class - to create a synastry. This takes another chart class instance as an argument, and builds the aspects of the containing instance to point to the planets/objects in the passed instance. For example:
 
 ```python
 from immanuel import charts
@@ -56,6 +56,8 @@ native_chart = charts.Natal(native, aspects_to=partner_chart)
 ```
 
 Now `native_chart`'s planets/objects will aspect `partner_chart`'s planets/objects instead of its own. This makes things very flexible - a synastry chart can be created as above, with two natal charts, or a natal+transits chart can be created by passing a transits chart into a natal chart. It might also be useful to pass transits into a progressed or composite chart. You could even pass a composite chart into another composite chart to view synastry aspects between them.
+
+All chart instances additionally feature a `house_for()` method which takes a chart object as a parameter. This simply returns the house object for where the passed chart object would appear in the current chart. This can be useful in conjunction with the above functionality to see which houses a transiting planet is in, or which houses in your chart a partner's planets appear.
 
 ## Human-Readable
 
