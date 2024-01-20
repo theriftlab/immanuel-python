@@ -7,7 +7,7 @@
 
     Assuming only planets will be passed, these functions will return the main
     essential dignity states of any planet. Mutual receptions are also
-    calculated for each diginity.
+    calculated for each dignity.
 
 """
 
@@ -150,6 +150,7 @@ def fall(object: dict) -> bool:
 
 
 def all(object: dict, objects: dict, is_daytime: bool) -> dict:
+    """ Returns a dict of all dignity states for the passed planet. """
     essential_dignities = {
         dignities.RULER: ruler(object),
         dignities.EXALTED: exalted(object),

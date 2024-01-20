@@ -15,6 +15,8 @@ from immanuel.setup import settings
 
 
 def chart_shape(objects: dict) -> int:
+    """ Returns which of the predetermined shapes the passed
+    chart objects form. """
     # Filter objects
     objects = { k: v for k, v in objects.items() if k in settings.chart_shape_objects }
 
@@ -58,4 +60,5 @@ def chart_shape(objects: dict) -> int:
 
 
 def _next(data: list, key: int, step: int = 1) -> float:
+    """ Returns the next item in data after the passed key. """
     return data[(key+step)%(len(data))]

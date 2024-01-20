@@ -83,7 +83,7 @@ def test_is_out_of_bounds(day_jd, coords):
 
 
 def test_solar_year_length():
-    """ This one is difficult to test in isolatioon since it's only used for
+    """ This one is difficult to test in isolation since it's only used for
     secondary progressions. For now we'll leave it to the forecast module
     tests to check the correct progressed Julian dates. """
     pass

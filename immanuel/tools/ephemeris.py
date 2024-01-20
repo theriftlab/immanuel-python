@@ -3,7 +3,7 @@
     Author: Robert Davies (robert@theriftlab.com)
 
 
-    This module provides easy access to fairly standardised pyswisseph data.
+    This module provides easy access to fairly standardized pyswisseph data.
 
     Relevant data on the main angles, houses, points and planets are
     available using the module's functions, many of which are cached.
@@ -385,7 +385,7 @@ def planet(index: int, jd: float) -> dict:
 @cache
 def asteroid(index: int, jd: float) -> dict:
     """ Returns an asteroid by Julian date and pyswisseph index
-    from an external asteroid's ephmeris file as specified
+    from an external asteroid's ephemeris file as specified
     in the setup module. """
     if _type(index) == chart.ASTEROID:
         return planet(index, jd)

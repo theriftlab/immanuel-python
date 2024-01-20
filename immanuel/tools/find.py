@@ -146,7 +146,7 @@ def _find(first: int, second: int, jd: float, aspect: float, direction: int) -> 
 
 
 def _eclipse_type(swe_index: int) -> int:
-    """ Returns the internal index of an eclipse type based on swisseph's
+    """ Returns the internal index of an eclipse type based on pyswisseph's
     bit flags. This clears the ECL_CENTRAL / ECL_NONCENTRAL bits from the
     end and maintains the simple eclipse type flag. """
     return _SWE[(swe_index >> 2) << 2]

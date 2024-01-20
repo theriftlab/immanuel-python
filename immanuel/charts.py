@@ -7,7 +7,7 @@
     chart class is easily serializable using the ToJSON class. Each chart type
     is instantiated by passing an instance of Subject, apart from Transits.
     This assumes the current moment and optionally takes a pair of coordinates
-    for house calculations, although these will default to those specifed in
+    for house calculations, although these will default to those specified in
     the settings if they are not required.
 
     Instead of a dedicated synastry chart, the optional aspects_to parameter

@@ -4,7 +4,7 @@
 
 
     Provides a simple set of default settings that can be overridden.
-    Also allows filepath(s) to ephermeris files to be changed or added.
+    Also allows filepath(s) to ephemeris files to be changed or added.
 
 """
 

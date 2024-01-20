@@ -393,7 +393,7 @@ def test_armc_get_data(coords, jd, astro, armc):
     }
 
     for key, eph_object in data.items():
-        # Convert ecliptical longitude to sign-based
+        # Convert ecliptic longitude to sign-based
         object = eph_object.copy()
         object['lon'] = position.sign_longitude(object)
 
