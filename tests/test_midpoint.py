@@ -8,8 +8,6 @@
 
 """
 
-from datetime import datetime
-
 import swisseph as swe
 from pytest import fixture
 

@@ -9,8 +9,8 @@
 
 """
 
-
 from immanuel.const import chart
+
 
 """ Aspects. """
 CONJUNCTION = 0.0

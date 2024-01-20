@@ -9,7 +9,6 @@
 
 """
 
-
 from pytest import fixture
 
 from immanuel import charts
