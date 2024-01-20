@@ -383,8 +383,8 @@ def test_synastry(native, partner):
     assert native_chart.aspects[chart.MOON][chart.MERCURY].aspect == calc.SQUARE
 
     # Spot-check house_for() against astro.com
-    assert native_chart.house_for(partner_chart.objects[chart.SUN]).number == 12
-    assert partner_chart.house_for(native_chart.objects[chart.SUN]).number == 11
+    assert native_chart.house_for(partner_chart.objects[chart.SUN]) == chart.HOUSE12
+    assert partner_chart.house_for(native_chart.objects[chart.SUN]) == chart.HOUSE11
 
-    assert native_chart.house_for(partner_chart.objects[chart.MOON]).number == 9
-    assert partner_chart.house_for(native_chart.objects[chart.MOON]).number == 9
+    assert native_chart.house_for(partner_chart.objects[chart.MOON]) == chart.HOUSE9
+    assert partner_chart.house_for(native_chart.objects[chart.MOON]) == chart.HOUSE9

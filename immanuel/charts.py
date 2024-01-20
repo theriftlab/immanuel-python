@@ -51,10 +51,11 @@ class Chart():
         self.generate()
         self.wrap()
 
-    def house_for(self, object: wrap.Object) -> wrap.Object:
-        """ Returns the house where any passed arbitrary object would appear in
-        the current chart. Useful for synastries and transit charts. """
-        return wrap.Object(object=position.house(object.longitude.raw, self._houses))
+    def house_for(self, object: wrap.Object) -> int:
+        """ Returns the index of the house where any passed arbitrary object
+        would appear in the current chart. Useful for synastries and
+        transit charts. """
+        return position.house(object.longitude.raw, self._houses)['index']
 
     def generate(self) -> None:
         """ Generating the raw data is each descendant class's responsibility,
