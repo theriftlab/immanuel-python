@@ -574,12 +574,12 @@ For example, to include asteroid Lilith (`1181`), download its ephemeris file `s
 ```python
 import json
 
-from immanuel import charts, setup
+from immanuel import charts
 from immanuel.classes.serialize import ToJSON
 from immanuel.setup import settings
 
 
-setup.add_filepath('my/directory/path')
+settings.add_filepath('my/directory/path')
 settings.objects.append(1181)
 
 native = charts.Subject('2000-01-01 10:00', '32n43', '117w09')
