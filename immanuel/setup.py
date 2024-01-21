@@ -305,9 +305,9 @@ class BaseSettings:
     def orbs(self, value: dict) -> None:
         self._orbs = value
 
-    def add_filepath(self, path) -> None:
+    def add_filepath(self, path: str, default: bool = False) -> None:
         """ Add an ephemeris file path. """
-        if self._file_path is None:
+        if default or self._file_path is None:
             self._file_path = path
         else:
             extra_path = f'{os.pathsep}{path}'
