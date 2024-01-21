@@ -15,7 +15,7 @@ import os
 
 from pytest import fixture
 
-from immanuel import setup
+from immanuel.setup import settings
 from immanuel.const import calc, chart
 from immanuel.tools import convert, date, ephemeris, position
 
@@ -31,7 +31,7 @@ def jd(coords):
 
 @fixture
 def data(jd, coords):
-    setup.add_filepath(os.path.dirname(__file__))
+    settings.add_filepath(os.path.dirname(__file__))
 
     return {
         'asc': ephemeris.angle(chart.ASC, jd, *coords, chart.PLACIDUS),

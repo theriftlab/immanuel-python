@@ -14,7 +14,7 @@ import os
 
 from pytest import approx, fixture
 
-from immanuel import setup
+from immanuel.setup import settings
 from immanuel.const import calc, chart
 from immanuel.tools import convert, date, ephemeris, position
 
@@ -199,7 +199,7 @@ def test_armc_objects(jd, coords, armc):
 
 
 def test_get(jd, coords):
-    setup.add_filepath(os.path.dirname(__file__))
+    settings.add_filepath(os.path.dirname(__file__))
     assert ephemeris.get(chart.ASC, jd, *coords, chart.PLACIDUS)['index'] == chart.ASC
     assert ephemeris.get(chart.HOUSE2, jd, *coords, chart.PLACIDUS)['index'] == chart.HOUSE2
     assert ephemeris.get(chart.SUN, jd)['index'] == chart.SUN
@@ -212,7 +212,7 @@ def test_get(jd, coords):
 
 
 def test_armc_get(jd, coords, armc):
-    setup.add_filepath(os.path.dirname(__file__))
+    settings.add_filepath(os.path.dirname(__file__))
     assert ephemeris.armc_get(chart.ASC, jd, armc, coords[0], house_system=chart.PLACIDUS)['index'] == chart.ASC
     assert ephemeris.armc_get(chart.HOUSE2, jd, armc, coords[0], house_system=chart.PLACIDUS)['index'] == chart.HOUSE2
     assert ephemeris.armc_get(chart.PARS_FORTUNA, jd, armc, coords[0], pars_fortuna_formula=calc.DAY_NIGHT_FORMULA)['index'] == chart.PARS_FORTUNA
@@ -313,7 +313,7 @@ def test_planet(jd, all_planets):
 
 
 def test_asteroid(jd, all_asteroids):
-    setup.add_filepath(os.path.dirname(__file__))
+    settings.add_filepath(os.path.dirname(__file__))
 
     for index in all_asteroids:
         asteroid = ephemeris.asteroid(index, jd)
@@ -347,7 +347,7 @@ def test_eclipse(jd):
 """ Now we are satisfied the correct chart objects are being returned,
 we can test the accuracy of the module's data. """
 def test_get_data(coords, jd, astro):
-    setup.add_filepath(os.path.dirname(__file__))
+    settings.add_filepath(os.path.dirname(__file__))
 
     data = {
         'asc': ephemeris.angle(chart.ASC, jd, *coords, chart.PLACIDUS),
@@ -382,7 +382,7 @@ def test_get_data(coords, jd, astro):
 
 
 def test_armc_get_data(coords, jd, astro, armc):
-    setup.add_filepath(os.path.dirname(__file__))
+    settings.add_filepath(os.path.dirname(__file__))
 
     obliquity = ephemeris.obliquity(jd)
 

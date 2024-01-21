@@ -18,8 +18,9 @@ from immanuel.const import calc, chart, data, dignities
 
 class BaseSettings:
     def __init__(self) -> None:
-        """ Default file path. """
-        self.file_path = None
+        """ Default ephemeris file path. """
+        self._file_path = None
+        self.add_filepath(f'{os.path.dirname(__file__)}{os.sep}resources{os.sep}ephemeris')
 
         """ Data that should be included for each chart type's output. """
         self.chart_data = {
@@ -304,22 +305,19 @@ class BaseSettings:
     def orbs(self, value: dict) -> None:
         self._orbs = value
 
+    def add_filepath(self, path) -> None:
+        """ Add an ephemeris file path. """
+        if self._file_path is None:
+            self._file_path = path
+        else:
+            extra_path = f'{os.pathsep}{path}'
 
-def set_filepath(path) -> None:
-    """ Set the main file path for ephemeris files. """
-    BaseSettings.file_path = path
-    swe.set_ephe_path(BaseSettings.file_path)
+            if self._file_path.endswith(extra_path):
+                return
 
+            self._file_path += extra_path
 
-def add_filepath(path) -> None:
-    """ Append a file path to the main one for custom extras. """
-    extra_path = f'{os.pathsep}{path}'
-
-    if BaseSettings.file_path.endswith(extra_path):
-        return
-
-    BaseSettings.file_path += extra_path
-    swe.set_ephe_path(BaseSettings.file_path)
+        swe.set_ephe_path(self._file_path)
 
 
 class StaticSingleton(type):
