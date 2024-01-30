@@ -2,6 +2,7 @@
 
 <p align="center">
     <img src="https://img.shields.io/pypi/v/immanuel">
+    <img src="https://img.shields.io/python/required-version-toml?tomlFilePath=https://raw.githubusercontent.com/theriftlab/immanuel-python/master/pyproject.toml">
     <img src="https://img.shields.io/github/issues/theriftlab/immanuel-python">
     <img src="https://img.shields.io/pepy/dt/immanuel">
 </p>
