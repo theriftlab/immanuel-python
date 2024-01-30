@@ -1,4 +1,4 @@
-# <p align="center"><img src="https://github.com/theriftlab/immanuel-python/assets/370745/b834a4b1-9558-410f-8cbd-94018a9e2f1d" height="300"></p>
+# <p align="center"><img src="https://github.com/theriftlab/immanuel-python/assets/370745/b834a4b1-9558-410f-8cbd-94018a9e2f1d"></p>
 
 <p align="center">
     <img src="https://img.shields.io/pypi/v/immanuel">
