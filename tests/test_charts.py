@@ -355,6 +355,69 @@ def test_composite(native, lat, lon, partner, partner_lat, partner_lon):
     assert chart.JUPITER in composite_chart.weightings['modalities'].fixed
     assert chart.JUPITER in composite_chart.weightings['quadrants'].first
 
+    # Ensure more quirky house systems work
+    settings.house_system = chart.EQUAL
+
+    composite_chart = charts.Composite(native, partner)
+
+    assert composite_chart.objects[chart.ASC].sign.name == names.SIGNS[chart.AQUARIUS]
+    assert composite_chart.objects[chart.ASC].sign_longitude.formatted == '21°26\'55"'
+    assert composite_chart.objects[chart.ASC].declination.formatted == '-14°21\'10"'
+
+    assert composite_chart.objects[chart.MC].sign.name == names.SIGNS[chart.SAGITTARIUS]
+    assert composite_chart.objects[chart.MC].sign_longitude.formatted == '06°07\'28"'
+    assert composite_chart.objects[chart.MC].declination.formatted == '-21°19\'44"'
+
+    assert composite_chart.houses[chart.HOUSE1].sign.name == names.SIGNS[chart.AQUARIUS]
+    assert composite_chart.houses[chart.HOUSE1].sign_longitude.formatted == '21°26\'55"'
+    assert composite_chart.houses[chart.HOUSE1].declination.formatted == '-14°21\'10"'
+
+    assert composite_chart.houses[chart.HOUSE2].sign.name == names.SIGNS[chart.PISCES]
+    assert composite_chart.houses[chart.HOUSE2].sign_longitude.formatted == '21°26\'55"'
+    assert composite_chart.houses[chart.HOUSE2].declination.formatted == '-03°23\'27"'
+
+    settings.house_system = chart.VEHLOW_EQUAL
+
+    composite_chart = charts.Composite(native, partner)
+
+    assert composite_chart.objects[chart.ASC].sign.name == names.SIGNS[chart.AQUARIUS]
+    assert composite_chart.objects[chart.ASC].sign_longitude.formatted == '21°26\'55"'
+    assert composite_chart.objects[chart.ASC].declination.formatted == '-14°21\'10"'
+
+    assert composite_chart.objects[chart.MC].sign.name == names.SIGNS[chart.SAGITTARIUS]
+    assert composite_chart.objects[chart.MC].sign_longitude.formatted == '06°07\'28"'
+    assert composite_chart.objects[chart.MC].declination.formatted == '-21°19\'44"'
+
+    assert composite_chart.houses[chart.HOUSE1].sign.name == names.SIGNS[chart.AQUARIUS]
+    assert composite_chart.houses[chart.HOUSE1].sign_longitude.formatted == '06°26\'55"'
+    assert composite_chart.houses[chart.HOUSE1].declination.formatted == '-18°39\'36"'
+
+    assert composite_chart.houses[chart.HOUSE2].sign.name == names.SIGNS[chart.PISCES]
+    assert composite_chart.houses[chart.HOUSE2].sign_longitude.formatted == '06°26\'55"'
+    assert composite_chart.houses[chart.HOUSE2].declination.formatted == '-09°08\'42"'
+
+    settings.house_system = chart.WHOLE_SIGN
+
+    composite_chart = charts.Composite(native, partner)
+
+    assert composite_chart.objects[chart.ASC].sign.name == names.SIGNS[chart.AQUARIUS]
+    assert composite_chart.objects[chart.ASC].sign_longitude.formatted == '21°26\'55"'
+    assert composite_chart.objects[chart.ASC].declination.formatted == '-14°21\'10"'
+
+    assert composite_chart.objects[chart.MC].sign.name == names.SIGNS[chart.SAGITTARIUS]
+    assert composite_chart.objects[chart.MC].sign_longitude.formatted == '06°07\'28"'
+    assert composite_chart.objects[chart.MC].declination.formatted == '-21°19\'44"'
+
+    assert composite_chart.houses[chart.HOUSE1].sign.name == names.SIGNS[chart.AQUARIUS]
+    assert composite_chart.houses[chart.HOUSE1].sign_longitude.formatted == '00°00\'00"'
+    assert composite_chart.houses[chart.HOUSE1].declination.formatted == '-20°08\'58"'
+
+    assert composite_chart.houses[chart.HOUSE2].sign.name == names.SIGNS[chart.PISCES]
+    assert composite_chart.houses[chart.HOUSE2].sign_longitude.formatted == '00°00\'00"'
+    assert composite_chart.houses[chart.HOUSE2].declination.formatted == '-11°28\'17"'
+
+    settings.house_system = chart.PLACIDUS
+
 
 def test_transits(lat, lon):
     transits_chart = charts.Transits(lat, lon)
