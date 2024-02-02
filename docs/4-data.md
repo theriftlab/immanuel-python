@@ -229,6 +229,14 @@ A dict of Python objects keyed by index. Each house will look something like thi
         "name": "Pisces"
     },
     "speed": 516.3767707094903,
+    "declination": {
+        "raw": -9.453470857404115,
+        "formatted": "-09\u00b027'12\"",
+        "direction": "-",
+        "degrees": 9,
+        "minutes": 27,
+        "seconds": 12
+    },
     "size": 42.38404742743842
 }
 ```
