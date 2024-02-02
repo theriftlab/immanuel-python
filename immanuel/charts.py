@@ -331,23 +331,48 @@ class Composite(Chart):
                 obliquity=self._obliquity,
             )
 
-        native_houses = ephemeris.houses(
-                jd=self._native.julian_date,
-                lat=self._native.latitude,
-                lon=self._native.longitude,
-                house_system=settings.house_system,
-            )
-        partner_houses = ephemeris.houses(
-                jd=self._partner.julian_date,
-                lat=self._partner.latitude,
-                lon=self._partner.longitude,
-                house_system=settings.house_system,
-            )
-        self._houses = midpoint.all(
-                objects1=native_houses,
-                objects2=partner_houses,
-                obliquity=self._obliquity,
-            )
+        if settings.house_system == chart.WHOLE_SIGN:
+            native_armc = ephemeris.angle(
+                    index=chart.ARMC,
+                    jd=self._native.julian_date,
+                    lat=self._native.latitude,
+                    lon=self._native.longitude,
+                    house_system=settings.house_system,
+                )
+            partner_armc = ephemeris.angle(
+                    index=chart.ARMC,
+                    jd=self._partner.julian_date,
+                    lat=self._partner.latitude,
+                    lon=self._partner.longitude,
+                    house_system=settings.house_system,
+                )
+            armc = midpoint.composite(native_armc, partner_armc, self._obliquity)['lon']
+            latitude = (self._native.latitude + self._partner.latitude) / 2
+
+            self._houses = ephemeris.armc_houses(
+                    armc=armc,
+                    lat=latitude,
+                    obliquity=self._obliquity,
+                    house_system=settings.house_system,
+                )
+        else:
+            native_houses = ephemeris.houses(
+                    jd=self._native.julian_date,
+                    lat=self._native.latitude,
+                    lon=self._native.longitude,
+                    house_system=settings.house_system,
+                )
+            partner_houses = ephemeris.houses(
+                    jd=self._partner.julian_date,
+                    lat=self._partner.latitude,
+                    lon=self._partner.longitude,
+                    house_system=settings.house_system,
+                )
+            self._houses = midpoint.all(
+                    objects1=native_houses,
+                    objects2=partner_houses,
+                    obliquity=self._obliquity,
+                )
 
         if chart.ASC in self._objects:
             asc = self._objects[chart.ASC]

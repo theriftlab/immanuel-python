@@ -193,8 +193,10 @@ class Object:
         if object['type'] not in (chart.HOUSE, chart.ANGLE, chart.FIXED_STAR):
             self.movement = ObjectMovement(object)
 
-            if 'dec' in object:
-                self.declination = Angle(object['dec'])
+        if 'dec' in object:
+            self.declination = Angle(object['dec'])
+
+            if object['type'] not in (chart.HOUSE, chart.ANGLE, chart.FIXED_STAR):
                 self.out_of_bounds = calculate.is_out_of_bounds(object=object, obliquity=obliquity)
 
         if 'size' in object:
