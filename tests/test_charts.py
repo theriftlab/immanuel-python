@@ -306,6 +306,10 @@ def test_composite(native, lat, lon, partner, partner_lat, partner_lon):
     assert composite_chart.moon_phase.third_quarter is True
 
     # Spot-check for correct object positions against astro.com
+    assert composite_chart.objects[chart.ASC].name == names.ANGLES[chart.ASC]
+    assert composite_chart.objects[chart.ASC].sign.name == names.SIGNS[chart.AQUARIUS]
+    assert composite_chart.objects[chart.ASC].sign_longitude.formatted == '21°26\'55"'
+
     assert composite_chart.objects[chart.SUN].name == names.PLANETS[chart.SUN]
     assert composite_chart.objects[chart.SUN].sign.name == names.SIGNS[chart.AQUARIUS]
     assert composite_chart.objects[chart.SUN].sign_longitude.formatted == '04°17\'35"'

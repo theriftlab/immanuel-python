@@ -349,15 +349,38 @@ class Composite(Chart):
                 obliquity=self._obliquity,
             )
 
-        native_sun = ephemeris.planet(chart.SUN, self._native.julian_date)
-        native_moon = ephemeris.planet(chart.MOON, self._native.julian_date)
+        if chart.ASC in self._objects:
+            asc = self._objects[chart.ASC]
+        else:
+            native_asc = ephemeris.angle(
+                    index=chart.ASC,
+                    jd=self._native.julian_date,
+                    lat=self._native.latitude,
+                    lon=self._native.longitude,
+                    house_system=settings.house_system,
+                )
+            partner_asc = ephemeris.angle(
+                    index=chart.ASC,
+                    jd=self._partner.julian_date,
+                    lat=self._partner.latitude,
+                    lon=self._partner.longitude,
+                    house_system=settings.house_system,
+                )
+            asc = midpoint.composite(native_asc, partner_asc, self._obliquity)
 
-        partner_sun = ephemeris.planet(chart.SUN, self._partner.julian_date)
-        partner_moon = ephemeris.planet(chart.MOON, self._partner.julian_date)
+        if chart.SUN in self._objects:
+            sun = self._objects[chart.SUN]
+        else:
+            native_sun = ephemeris.planet(chart.SUN, self._native.julian_date)
+            partner_sun = ephemeris.planet(chart.SUN, self._partner.julian_date)
+            sun = midpoint.composite(native_sun, partner_sun, self._obliquity)
 
-        sun = midpoint.composite(native_sun, partner_sun, self._obliquity)
-        moon = midpoint.composite(native_moon, partner_moon, self._obliquity)
-        asc = self._houses[chart.HOUSE1]
+        if chart.MOON in self._objects:
+            moon = self._objects[chart.MOON]
+        else:
+            native_moon = ephemeris.planet(chart.MOON, self._native.julian_date)
+            partner_moon = ephemeris.planet(chart.MOON, self._partner.julian_date)
+            moon = midpoint.composite(native_moon, partner_moon, self._obliquity)
 
         self._diurnal = calculate.is_daytime(sun, asc)
         self._moon_phase = calculate.moon_phase(sun, moon)
