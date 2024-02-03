@@ -9,7 +9,7 @@
 
 """
 
-import os
+import random, os
 from datetime import datetime
 
 import swisseph as swe
@@ -98,7 +98,10 @@ def test_add_filepath(native):
 
     # Cache-bust
     settings.add_filepath(os.path.dirname(__file__), True)
-    native2 = charts.Subject(datetime.now(), '32N43.0', '117W9.0')
+    date_time = datetime.now()
+    latitude = random.random() * 180 - 90
+    longitude = random.random() * 360 - 180
+    native2 = charts.Subject(date_time, latitude, longitude)
 
     with pytest.raises(swe.Error):
         charts.Natal(native2)
