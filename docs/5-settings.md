@@ -652,6 +652,8 @@ This will return a standard asteroid object:
 
 Congratulations - you have imported an external object into your chart.
 
+If you want Immanuel to only use your own ephemeris files for everything, passing `True` as a second parameter to `add_filepath()` will set the passed path as the only path rather than adding it to the default one.
+
 ---
 
 1. [Overview](1-overview.md)

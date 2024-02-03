@@ -9,6 +9,11 @@
 
 """
 
+import os
+from datetime import datetime
+
+import swisseph as swe
+import pytest
 from pytest import fixture
 
 from immanuel import charts
@@ -83,3 +88,17 @@ def test_settings_are_respected(native):
 
     natal = charts.Natal(native)
     assert chart.SUN not in natal.aspects
+
+
+def test_add_filepath(native):
+    settings.add_filepath(os.path.dirname(__file__))
+    settings.objects.append(1181)
+    natal = charts.Natal(native)
+    assert 1181 in natal.objects
+
+    # Cache-bust
+    settings.add_filepath(os.path.dirname(__file__), True)
+    native2 = charts.Subject(datetime.now(), '32N43.0', '117W9.0')
+
+    with pytest.raises(swe.Error):
+        charts.Natal(native2)

@@ -597,7 +597,7 @@ You are free to use the actual numerical index for these objects, but of course 
 
 Immanuel indexes chart objects numerically rather than by name for two main reasons:
 
-* Avoid name conflicts (eg. the three Liliths).
+* Avoid name conflicts (eg. the four Liliths).
 * Allow external objects to be easily added from your own extra ephemeris files by their default index.
 
 To demonstrate, asteroid Lilith is number 1181 as designated by the International Astronomical Union. This is the number of the ephemeris file you would need for Immanuel to include it, and on astro.com this is the number you would type into the "Manual entry" box under "Additional objects" to include the asteroid in your chart.
