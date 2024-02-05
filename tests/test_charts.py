@@ -58,6 +58,10 @@ def partner(partner_dob, partner_lat, partner_lon):
     return charts.Subject(partner_dob, partner_lat, partner_lon)
 
 @fixture
+def julian_date():
+    return 2451545.25               # 2000-01-01 18:00 UT
+
+@fixture
 def solar_return_year():
     return 2030
 
@@ -68,7 +72,7 @@ def pdt():
     return '2025-06-20 17:00:00'
 
 
-def test_subject(dob, lat, lon, native):
+def test_subject(dob, lat, lon, native, julian_date):
     date_time = datetime.fromisoformat(f'{dob} -08:00')
     latitude, longitude = (convert.string_to_dec(v) for v in (lat, lon))
     assert native.date_time.year == date_time.year
@@ -79,6 +83,12 @@ def test_subject(dob, lat, lon, native):
     assert native.date_time.second == date_time.second
     assert native.latitude == latitude
     assert native.longitude == longitude
+    assert native.date_time_ambiguous == False
+    assert native.julian_date == julian_date
+
+    ambiguous_date_time = datetime(2022, 11, 6, 1, 30)
+    ambiguous_native = charts.Subject(ambiguous_date_time, lat, lon)
+    assert ambiguous_native.date_time_ambiguous == True
 
 
 def test_natal(native, lat, lon):

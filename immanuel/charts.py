@@ -38,6 +38,7 @@ class Subject:
                 lon=self.longitude,
                 is_dst=time_is_dst
             )
+        self.date_time_ambiguous = date.ambiguous(self.date_time) and time_is_dst is None
         self.julian_date = date.to_jd(self.date_time)
 
 
