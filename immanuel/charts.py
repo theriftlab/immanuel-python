@@ -20,6 +20,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from immanuel.classes import wrap
+from immanuel.classes.localize import _
 from immanuel.const import chart, names
 from immanuel.reports import aspect, pattern, weighting
 from immanuel.setup import settings
@@ -46,7 +47,7 @@ class Chart():
     """ Base chart class. This acts as an abstract class for the actual chart
     classes to inherit from. """
     def __init__(self, type: int, aspects_to: 'Chart' = None) -> None:
-        self.type = names.CHART_TYPES[type]
+        self.type = _(names.CHART_TYPES[type])
         self._type = type
         self._aspects_to = aspects_to
         self.generate()
@@ -81,10 +82,10 @@ class Chart():
         self.native = wrap.Subject(self._native)
 
     def set_wrapped_house_system(self) -> None:
-        self.house_system = names.HOUSE_SYSTEMS[settings.house_system]
+        self.house_system = _(names.HOUSE_SYSTEMS[settings.house_system])
 
     def set_wrapped_shape(self) -> None:
-        self.shape = names.CHART_SHAPES[pattern.chart_shape(self._objects)]
+        self.shape = _(names.CHART_SHAPES[pattern.chart_shape(self._objects)])
 
     def set_wrapped_diurnal(self) -> None:
         self.diurnal = self._diurnal
@@ -297,7 +298,7 @@ class Progressed(Chart):
             )
 
     def set_wrapped_progression_method(self) -> None:
-        self.progression_method = names.PROGRESSION_METHODS[settings.mc_progression_method]
+        self.progression_method = _(names.PROGRESSION_METHODS[settings.mc_progression_method])
 
 
 class Composite(Chart):
