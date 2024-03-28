@@ -92,7 +92,7 @@ class DateTime:
             self.sidereal_time = convert.dec_to_string(calculate.sidereal_time(armc), convert.FORMAT_TIME)
 
     def __str__(self) -> str:
-        str = f'{self.datetime.strftime("%a %b %d %Y %I:%M:%S %p")} {self.timezone}'
+        str = f'{self.datetime.strftime("%a %b %d %Y %H:%M:%S")} {self.timezone}'
 
         if self.ambiguous:
             str += ' (ambiguous)'
