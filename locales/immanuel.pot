@@ -1,0 +1,544 @@
+# Immanuel translatable strings
+# This file is distributed under the same license as the PACKAGE package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2024-03-27 17:05-0700\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+
+# Chart types
+
+msgid "Natal"
+msgstr ""
+
+msgid "Solar Return"
+msgstr ""
+
+msgid "Progressed"
+msgstr ""
+
+msgid "Composite"
+msgstr ""
+
+
+# Objects
+
+msgid "House"
+msgstr ""
+
+msgid "Angle"
+msgstr ""
+
+msgid "Planet"
+msgstr ""
+
+msgid "Asteroid"
+msgstr ""
+
+msgid "Point"
+msgstr ""
+
+msgid "Eclipse"
+msgstr ""
+
+msgid "Fixed star"
+msgstr ""
+
+
+# Signs
+
+msgid "Aries"
+msgstr ""
+
+msgid "Taurus"
+msgstr ""
+
+msgid "Gemini"
+msgstr ""
+
+msgid "Cancer"
+msgstr ""
+
+msgid "Leo"
+msgstr ""
+
+msgid "Virgo"
+msgstr ""
+
+msgid "Libra"
+msgstr ""
+
+msgid "Scorpio"
+msgstr ""
+
+msgid "Sagittarius"
+msgstr ""
+
+msgid "Capricorn"
+msgstr ""
+
+msgid "Aquarius"
+msgstr ""
+
+msgid "Pisces"
+msgstr ""
+
+
+# Decans
+
+msgid "1st Decan"
+msgstr ""
+
+msgid "2nd Decan"
+msgstr ""
+
+msgid "3rd Decan"
+msgstr ""
+
+
+# Elements
+
+msgid "Fire"
+msgstr ""
+
+msgid "Earth"
+msgstr ""
+
+msgid "Air"
+msgstr ""
+
+msgid "Water"
+msgstr ""
+
+
+# Modalities
+
+msgid "Cardinal"
+msgstr ""
+
+msgid "Fixed"
+msgstr ""
+
+msgid "Mutable"
+msgstr ""
+
+
+# House Systems
+
+msgid "Alcabitus"
+msgstr ""
+
+msgid "Azimuthal"
+msgstr ""
+
+msgid "Campanus"
+msgstr ""
+
+msgid "Equal House"
+msgstr ""
+
+msgid "Koch"
+msgstr ""
+
+msgid "Meridian"
+msgstr ""
+
+msgid "Morinus"
+msgstr ""
+
+msgid "Placidus"
+msgstr ""
+
+msgid "Polich Page"
+msgstr ""
+
+msgid "Porphyrius"
+msgstr ""
+
+msgid "Regiomontanus"
+msgstr ""
+
+msgid "Vehlow Equal House"
+msgstr ""
+
+msgid "Whole Sign"
+msgstr ""
+
+
+# Houses
+
+msgid "1st House"
+msgstr ""
+
+msgid "2nd House"
+msgstr ""
+
+msgid "3rd House"
+msgstr ""
+
+msgid "4th House"
+msgstr ""
+
+msgid "5th House"
+msgstr ""
+
+msgid "6th House"
+msgstr ""
+
+msgid "7th House"
+msgstr ""
+
+msgid "8th House"
+msgstr ""
+
+msgid "9th House"
+msgstr ""
+
+msgid "10th House"
+msgstr ""
+
+msgid "11th House"
+msgstr ""
+
+msgid "12th House"
+msgstr ""
+
+
+# Angles
+
+msgid "Asc"
+msgstr ""
+
+msgid "Desc"
+msgstr ""
+
+msgid "MC"
+msgstr ""
+
+msgid "IC"
+msgstr ""
+
+msgid "ARMC"
+msgstr ""
+
+
+# Planets
+
+msgid "Sun"
+msgstr ""
+
+msgid "Moon"
+msgstr ""
+
+msgid "Mercury"
+msgstr ""
+
+msgid "Venus"
+msgstr ""
+
+msgid "Mars"
+msgstr ""
+
+msgid "Jupiter"
+msgstr ""
+
+msgid "Saturn"
+msgstr ""
+
+msgid "Uranus"
+msgstr ""
+
+msgid "Neptune"
+msgstr ""
+
+msgid "Pluto"
+msgstr ""
+
+
+# Asteroids
+
+msgid "Chiron"
+msgstr ""
+
+msgid "Pholus"
+msgstr ""
+
+msgid "Ceres"
+msgstr ""
+
+msgid "Pallas"
+msgstr ""
+
+msgid "Juno"
+msgstr ""
+
+msgid "Vesta"
+msgstr ""
+
+
+# Points
+
+msgid "North Node"
+msgstr ""
+
+msgid "South Node"
+msgstr ""
+
+msgid "True North Node"
+msgstr ""
+
+msgid "True South Node"
+msgstr ""
+
+msgid "Vertex"
+msgstr ""
+
+msgid "Lilith"
+msgstr ""
+
+msgid "True Lilith"
+msgstr ""
+
+msgid "Syzygy"
+msgstr ""
+
+msgid "Part of Fortune"
+msgstr ""
+
+
+# Eclipses
+
+msgid "Pre-natal Lunar Eclipse"
+msgstr ""
+
+msgid "Pre-natal Solar Eclipse"
+msgstr ""
+
+msgid "Post-natal Lunar Eclipse"
+msgstr ""
+
+msgid "Post-natal Solar Eclipse"
+msgstr ""
+
+
+# Eclipse types
+
+msgid "Total"
+msgstr ""
+
+msgid "Annular"
+msgstr ""
+
+msgid "Partial"
+msgstr ""
+
+msgid "Annular Total"
+msgstr ""
+
+msgid "Penumbral"
+msgstr ""
+
+
+# Aspects
+
+msgid "Conjunction"
+msgstr ""
+
+msgid "Opposition"
+msgstr ""
+
+msgid "Square"
+msgstr ""
+
+msgid "Trine"
+msgstr ""
+
+msgid "Sextile"
+msgstr ""
+
+msgid "Septile"
+msgstr ""
+
+msgid "Semisquare"
+msgstr ""
+
+msgid "Sesquisquare"
+msgstr ""
+
+msgid "Semisextile"
+msgstr ""
+
+msgid "Quincunx"
+msgstr ""
+
+msgid "Quintile"
+msgstr ""
+
+msgid "Biquintile"
+msgstr ""
+
+
+# Aspect Movements
+
+msgid "Applicative"
+msgstr ""
+
+msgid "Exact"
+msgstr ""
+
+msgid "Separative"
+msgstr ""
+
+
+# Aspect Conditions
+
+msgid "Associate"
+msgstr ""
+
+msgid "Dissociate"
+msgstr ""
+
+
+# Dignities
+
+msgid "Ruler"
+msgstr ""
+
+msgid "Exalted"
+msgstr ""
+
+msgid "Triplicity Ruler"
+msgstr ""
+
+msgid "Term Ruler"
+msgstr ""
+
+msgid "Face Ruler"
+msgstr ""
+
+msgid "Ruler by mutual reception"
+msgstr ""
+
+msgid "Exalted by mutual reception"
+msgstr ""
+
+msgid "Triplicity Ruler by mutual reception"
+msgstr ""
+
+msgid "Term Ruler by mutual reception"
+msgstr ""
+
+msgid "Face Ruler by mutual reception"
+msgstr ""
+
+msgid "In rulership element"
+msgstr ""
+
+msgid "Detriment"
+msgstr ""
+
+msgid "Fall"
+msgstr ""
+
+msgid "Peregrine"
+msgstr ""
+
+
+# Moon Phases
+
+msgid "New"
+msgstr ""
+
+msgid "Waxing Crescent"
+msgstr ""
+
+msgid "First Quarter"
+msgstr ""
+
+msgid "Waxing Gibbous"
+msgstr ""
+
+msgid "Full"
+msgstr ""
+
+msgid "Disseminating"
+msgstr ""
+
+msgid "Third Quarter"
+msgstr ""
+
+msgid "Balsamic"
+msgstr ""
+
+
+# Object Movements
+
+msgid "Direct"
+msgstr ""
+
+msgid "Stationary"
+msgstr ""
+
+msgid "Retrograde"
+msgstr ""
+
+
+# Chart Shapes
+
+msgid "Bundle"
+msgstr ""
+
+msgid "Bucket"
+msgstr ""
+
+msgid "Bowl"
+msgstr ""
+
+msgid "Locomotive"
+msgstr ""
+
+msgid "Seesaw"
+msgstr ""
+
+msgid "Splay"
+msgstr ""
+
+msgid "Splash"
+msgstr ""
+
+
+# Progression Methods
+
+msgid "Naibod"
+msgstr ""
+
+msgid "Solar Arc"
+msgstr ""
+
+msgid "Daily Houses"
+msgstr ""
+
+
+# Formatted Words
+
+# For datetimes, eg. Sun Nov 06 2022 01:30:00 AM PDT (ambiguous)
+msgid "ambiguous"
+msgstr ""
+
+# For orbs, eg. Square within 1.5°
+msgid "within"
+msgstr ""
+
+# For signs, eg. Sun in Aries
+msgid "in"
+msgstr ""
+
+# For chart subjects, eg. Sat Jan 01 2000 10:00:00 AM PST at 32N43.0, 117W9.0
+msgid "at"
+msgstr ""

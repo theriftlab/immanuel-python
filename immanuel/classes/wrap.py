@@ -47,7 +47,7 @@ class Aspect:
         self.condition = AspectCondition(aspect['condition'])
 
     def __str__(self) -> str:
-        return f'{self._active_name} {self._passive_name} {self.type} within {self.difference} ({self.movement}, {self.condition})'
+        return f"{self._active_name} {self._passive_name} {self.type} {_('within')} {self.difference} ({self.movement}, {self.condition})"
 
 
 class AspectCondition:
@@ -92,10 +92,10 @@ class DateTime:
             self.sidereal_time = convert.dec_to_string(calculate.sidereal_time(armc), convert.FORMAT_TIME)
 
     def __str__(self) -> str:
-        str = f'{self.datetime.strftime("%a %b %d %Y %H:%M:%S")} {self.timezone}'
+        str = f"{self.datetime.strftime('%a %b %d %Y %H:%M:%S')} {self.timezone}"
 
         if self.ambiguous:
-            str += ' (ambiguous)'
+            str += f" ({_('ambiguous')})"
 
         return str
 
@@ -209,7 +209,7 @@ class Object:
             self.score = dignity.score(dignity_state)
 
     def __str__(self) -> str:
-        str = f'{self.name} {self.sign_longitude} in {self.sign}'
+        str = f"{self.name} {self.sign_longitude} {_('in')} {self.sign}"
 
         if hasattr(self, 'house'):
             str += f', {self.house.name}'
@@ -269,7 +269,7 @@ class Subject:
             )
 
     def __str__(self) -> str:
-        return f'{self.date_time} at {self.coordinates}'
+        return f"{self.date_time} {_('at')} {self.coordinates}"
 
 
 class Elements:
@@ -280,7 +280,7 @@ class Elements:
         self.water = elements[chart.WATER]
 
     def __str__(self) -> str:
-        return f'Fire: {len(self.fire)}, Earth: {len(self.earth)}, Air: {len(self.air)}, Water: {len(self.water)}'
+        return f"{_('Fire')}: {len(self.fire)}, {_('Earth')}: {len(self.earth)}, {_('Air')}: {len(self.air)}, {_('Water')}: {len(self.water)}"
 
 
 class Modalities:
@@ -290,7 +290,7 @@ class Modalities:
         self.mutable = modalities[chart.MUTABLE]
 
     def __str__(self) -> str:
-        return f'Cardinal: {len(self.cardinal)}, Fixed: {len(self.fixed)}, Mutable: {len(self.mutable)}'
+        return f"{_('Cardinal')}: {len(self.cardinal)}, {_('Fixed')}: {len(self.fixed)}, {_('Mutable')}: {len(self.mutable)}"
 
 
 class Quadrants:
@@ -301,4 +301,4 @@ class Quadrants:
         self.fourth = quadrants[4]
 
     def __str__(self) -> str:
-        return f'First: {len(self.first)}, Second: {len(self.second)}, Third: {len(self.third)}, Fourth: {len(self.fourth)}'
+        return f"{_('First')}: {len(self.first)}, {_('Second')}: {len(self.second)}, {_('Third')}: {len(self.third)}, {_('Fourth')}: {len(self.fourth)}"
