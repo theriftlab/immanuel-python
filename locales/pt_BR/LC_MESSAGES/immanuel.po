@@ -1,0 +1,544 @@
+# Immanuel translatable strings for Portuguese
+# This file is distributed under the same license as the PACKAGE package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2024-03-27 17:05-0700\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+
+# Chart types
+
+msgid "Natal"
+msgstr ""
+
+msgid "Solar Return"
+msgstr ""
+
+msgid "Progressed"
+msgstr ""
+
+msgid "Composite"
+msgstr ""
+
+
+# Objects
+
+msgid "House"
+msgstr "Casa"
+
+msgid "Angle"
+msgstr ""
+
+msgid "Planet"
+msgstr ""
+
+msgid "Asteroid"
+msgstr ""
+
+msgid "Point"
+msgstr ""
+
+msgid "Eclipse"
+msgstr ""
+
+msgid "Fixed star"
+msgstr ""
+
+
+# Signs
+
+msgid "Aries"
+msgstr "Áries"
+
+msgid "Taurus"
+msgstr "Touro"
+
+msgid "Gemini"
+msgstr "Gêmeos"
+
+msgid "Cancer"
+msgstr "Câncer"
+
+msgid "Leo"
+msgstr "Leão"
+
+msgid "Virgo"
+msgstr "Virgem"
+
+msgid "Libra"
+msgstr "Libra"
+
+msgid "Scorpio"
+msgstr "Escorpião"
+
+msgid "Sagittarius"
+msgstr "Sagitário"
+
+msgid "Capricorn"
+msgstr "Capricórnio"
+
+msgid "Aquarius"
+msgstr "Aquário"
+
+msgid "Pisces"
+msgstr "Peixes"
+
+
+# Decans
+
+msgid "1st Decan"
+msgstr ""
+
+msgid "2nd Decan"
+msgstr ""
+
+msgid "3rd Decan"
+msgstr ""
+
+
+# Elements
+
+msgid "Fire"
+msgstr ""
+
+msgid "Earth"
+msgstr ""
+
+msgid "Air"
+msgstr ""
+
+msgid "Water"
+msgstr ""
+
+
+# Modalities
+
+msgid "Cardinal"
+msgstr ""
+
+msgid "Fixed"
+msgstr ""
+
+msgid "Mutable"
+msgstr ""
+
+
+# House Systems
+
+msgid "Alcabitus"
+msgstr ""
+
+msgid "Azimuthal"
+msgstr ""
+
+msgid "Campanus"
+msgstr ""
+
+msgid "Equal House"
+msgstr ""
+
+msgid "Koch"
+msgstr ""
+
+msgid "Meridian"
+msgstr ""
+
+msgid "Morinus"
+msgstr ""
+
+msgid "Placidus"
+msgstr ""
+
+msgid "Polich Page"
+msgstr ""
+
+msgid "Porphyrius"
+msgstr ""
+
+msgid "Regiomontanus"
+msgstr ""
+
+msgid "Vehlow Equal House"
+msgstr ""
+
+msgid "Whole Sign"
+msgstr ""
+
+
+# Houses
+
+msgid "1st House"
+msgstr "Casa 1"
+
+msgid "2nd House"
+msgstr "Casa 2"
+
+msgid "3rd House"
+msgstr "Casa 3"
+
+msgid "4th House"
+msgstr "Casa 4"
+
+msgid "5th House"
+msgstr "Casa 5"
+
+msgid "6th House"
+msgstr "Casa 6"
+
+msgid "7th House"
+msgstr "Casa 7"
+
+msgid "8th House"
+msgstr "Casa 8"
+
+msgid "9th House"
+msgstr "Casa 9"
+
+msgid "10th House"
+msgstr "Casa 10"
+
+msgid "11th House"
+msgstr "Casa 11"
+
+msgid "12th House"
+msgstr "Casa 12"
+
+
+# Angles
+
+msgid "Asc"
+msgstr "Ascendente"
+
+msgid "Desc"
+msgstr "Descendente"
+
+msgid "MC"
+msgstr "Meio do Céu"
+
+msgid "IC"
+msgstr "Fundo do Céu"
+
+msgid "ARMC"
+msgstr "ARMC"
+
+
+# Planets
+
+msgid "Sun"
+msgstr "Sol"
+
+msgid "Moon"
+msgstr "Lua"
+
+msgid "Mercury"
+msgstr "Mercúrio"
+
+msgid "Venus"
+msgstr "Vênus"
+
+msgid "Mars"
+msgstr "Marte"
+
+msgid "Jupiter"
+msgstr "Júpiter"
+
+msgid "Saturn"
+msgstr "Saturno"
+
+msgid "Uranus"
+msgstr "Urano"
+
+msgid "Neptune"
+msgstr "Netuno"
+
+msgid "Pluto"
+msgstr "Plutão"
+
+
+# Asteroids
+
+msgid "Chiron"
+msgstr "Quiron"
+
+msgid "Pholus"
+msgstr "Pholus"
+
+msgid "Ceres"
+msgstr "Ceres"
+
+msgid "Pallas"
+msgstr "Pallas"
+
+msgid "Juno"
+msgstr "Juno"
+
+msgid "Vesta"
+msgstr "Vesta"
+
+
+# Points
+
+msgid "North Node"
+msgstr "Nodo Norte Médio"
+
+msgid "South Node"
+msgstr "Nodo Sul Médio"
+
+msgid "True North Node"
+msgstr "Nodo Norte"
+
+msgid "True South Node"
+msgstr "Nodo Sul"
+
+msgid "Vertex"
+msgstr "Vertex"
+
+msgid "Lilith"
+msgstr "Lilith Média"
+
+msgid "True Lilith"
+msgstr "Lilith"
+
+msgid "Syzygy"
+msgstr "Sizígia"
+
+msgid "Part of Fortune"
+msgstr "Roda da Fortuna"
+
+
+# Eclipses
+
+msgid "Pre-natal Lunar Eclipse"
+msgstr ""
+
+msgid "Pre-natal Solar Eclipse"
+msgstr ""
+
+msgid "Post-natal Lunar Eclipse"
+msgstr ""
+
+msgid "Post-natal Solar Eclipse"
+msgstr ""
+
+
+# Eclipse types
+
+msgid "Total"
+msgstr ""
+
+msgid "Annular"
+msgstr ""
+
+msgid "Partial"
+msgstr ""
+
+msgid "Annular Total"
+msgstr ""
+
+msgid "Penumbral"
+msgstr ""
+
+
+# Aspects
+
+msgid "Conjunction"
+msgstr "Conjunção"
+
+msgid "Opposition"
+msgstr "Oposição"
+
+msgid "Square"
+msgstr "Quadratura"
+
+msgid "Trine"
+msgstr "Trígono"
+
+msgid "Sextile"
+msgstr "Sextil"
+
+msgid "Septile"
+msgstr "Septil"
+
+msgid "Semisquare"
+msgstr "Semi-quadratura"
+
+msgid "Sesquisquare"
+msgstr "Sesqui-quadratura"
+
+msgid "Semisextile"
+msgstr "Semi-sextil"
+
+msgid "Quincunx"
+msgstr "Quincúncio"
+
+msgid "Quintile"
+msgstr "Quintil"
+
+msgid "Biquintile"
+msgstr "Biquintil"
+
+
+# Aspect Movements
+
+msgid "Applicative"
+msgstr "Aplicativo(a)"
+
+msgid "Exact"
+msgstr "Exacto(a)"
+
+msgid "Separative"
+msgstr "Separativo(a)"
+
+
+# Aspect Conditions
+
+msgid "Associate"
+msgstr ""
+
+msgid "Dissociate"
+msgstr ""
+
+
+# Dignities
+
+msgid "Ruler"
+msgstr ""
+
+msgid "Exalted"
+msgstr ""
+
+msgid "Triplicity Ruler"
+msgstr ""
+
+msgid "Term Ruler"
+msgstr ""
+
+msgid "Face Ruler"
+msgstr ""
+
+msgid "Ruler by mutual reception"
+msgstr ""
+
+msgid "Exalted by mutual reception"
+msgstr ""
+
+msgid "Triplicity Ruler by mutual reception"
+msgstr ""
+
+msgid "Term Ruler by mutual reception"
+msgstr ""
+
+msgid "Face Ruler by mutual reception"
+msgstr ""
+
+msgid "In rulership element"
+msgstr ""
+
+msgid "Detriment"
+msgstr ""
+
+msgid "Fall"
+msgstr ""
+
+msgid "Peregrine"
+msgstr ""
+
+
+# Moon Phases
+
+msgid "New"
+msgstr ""
+
+msgid "Waxing Crescent"
+msgstr ""
+
+msgid "First Quarter"
+msgstr ""
+
+msgid "Waxing Gibbous"
+msgstr ""
+
+msgid "Full"
+msgstr ""
+
+msgid "Disseminating"
+msgstr ""
+
+msgid "Third Quarter"
+msgstr ""
+
+msgid "Balsamic"
+msgstr ""
+
+
+# Object Movements
+
+msgid "Direct"
+msgstr "Direto"
+
+msgid "Stationary"
+msgstr "Estacionário"
+
+msgid "Retrograde"
+msgstr "Retrógrado"
+
+
+# Chart Shapes
+
+msgid "Bundle"
+msgstr ""
+
+msgid "Bucket"
+msgstr ""
+
+msgid "Bowl"
+msgstr ""
+
+msgid "Locomotive"
+msgstr ""
+
+msgid "Seesaw"
+msgstr ""
+
+msgid "Splay"
+msgstr ""
+
+msgid "Splash"
+msgstr ""
+
+
+# Progression Methods
+
+msgid "Naibod"
+msgstr ""
+
+msgid "Solar Arc"
+msgstr ""
+
+msgid "Daily Houses"
+msgstr ""
+
+
+# Formatted Words
+
+# For datetimes, eg. Sun Nov 06 2022 01:30:00 AM PDT (ambiguous)
+msgid "ambiguous"
+msgstr ""
+
+# For orbs, eg. Square within 1.5°
+msgid "within"
+msgstr ""
+
+# For signs, eg. Sun in Aries
+msgid "in"
+msgstr ""
+
+# For chart subjects, eg. Sat Jan 01 2000 10:00:00 AM PST at 32N43.0, 117W9.0
+msgid "at"
+msgstr ""
