@@ -20,6 +20,7 @@ import swisseph as swe
 
 from immanuel.const import chart, names
 from immanuel.tools import calculate, find
+from immanuel.classes.localize import _
 
 
 ALL = -1
@@ -373,7 +374,7 @@ def planet(index: int, jd: float) -> dict:
     return {
         'index': index,
         'type': chart.ASTEROID if asteroid else chart.PLANET,
-        'name': names.ASTEROIDS[index] if asteroid else names.PLANETS[index],
+        'name': _(names.ASTEROIDS[index] if asteroid else names.PLANETS[index]),
         'lon': ec_res[0],
         'lat': ec_res[1],
         'dist': ec_res[2],
@@ -449,7 +450,7 @@ def eclipse(index: int, jd: float) -> dict:
     return {
         'index': index,
         'type': chart.ECLIPSE,
-        'name': names.ECLIPSES[index],
+        'name': _(names.ECLIPSES[index]),
         'eclipse_type': eclipse_type,
         'jd': eclipse_jd,
         'lon': ec_res[0],
@@ -543,7 +544,7 @@ def _angles_houses_vertex_from_swe(obliquity: float, cusps: tuple, ascmc: tuple,
         angles[i] = {
             'index': i,
             'type': chart.ANGLE,
-            'name': names.ANGLES[i],
+            'name': _(names.ANGLES[i]),
             'lon': lon,
             'speed': speed,
             'dec': dec,
@@ -555,7 +556,7 @@ def _angles_houses_vertex_from_swe(obliquity: float, cusps: tuple, ascmc: tuple,
             angles[index] = {
                 'index': index,
                 'type': chart.ANGLE,
-                'name': names.ANGLES[index],
+                'name': _(names.ANGLES[index]),
                 'lon': swe.degnorm(lon - 180),
                 'speed': speed,
                 'dec': dec * -1,
@@ -572,7 +573,7 @@ def _angles_houses_vertex_from_swe(obliquity: float, cusps: tuple, ascmc: tuple,
         houses[index] = {
             'index': index,
             'type': chart.HOUSE,
-            'name': names.HOUSES[index],
+            'name': _(names.HOUSES[index]),
             'number': i,
             'lon': lon,
             'size': size,
@@ -587,7 +588,7 @@ def _angles_houses_vertex_from_swe(obliquity: float, cusps: tuple, ascmc: tuple,
     vertex = {
         'index': chart.VERTEX,
         'type': chart.POINT,
-        'name': names.POINTS[chart.VERTEX],
+        'name': _(names.POINTS[chart.VERTEX]),
         'lon': vertex_lon,
         'speed': vertex_speed,
         'dec': vertex_dec,
@@ -613,7 +614,7 @@ def _syzygy(jd: float) -> dict:
     return {
         'index': chart.SYZYGY,
         'type': chart.POINT,
-        'name': names.POINTS[chart.SYZYGY],
+        'name': _(names.POINTS[chart.SYZYGY]),
         'lon': syzygy_moon['lon'],
         'lat': syzygy_moon['lat'],
         'speed': syzygy_moon['speed'],
@@ -635,7 +636,7 @@ def _pars_fortuna(jd: float, lat: float, lon: float, formula: int, armc: float =
     return {
         'index': chart.PARS_FORTUNA,
         'type': chart.POINT,
-        'name': names.POINTS[chart.PARS_FORTUNA],
+        'name': _(names.POINTS[chart.PARS_FORTUNA]),
         'lon': lon,
         'lat': 0.0,
         'speed': 0.0,
@@ -655,7 +656,7 @@ def _swisseph_point(index: int, jd: float) -> dict:
     return {
         'index': index,
         'type': chart.POINT,
-        'name': names.POINTS[index],
+        'name': _(names.POINTS[index]),
         'lon': lon,
         'lat': lat,
         'speed': speed,

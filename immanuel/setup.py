@@ -18,6 +18,9 @@ from immanuel.const import calc, chart, data, dignities
 
 class BaseSettings:
     def __init__(self) -> None:
+        """ Set output language. """
+        self.language = 'en'
+
         """ Default ephemeris file path. """
         self._file_path = None
         self.add_filepath(f'{os.path.dirname(__file__)}{os.sep}resources{os.sep}ephemeris')

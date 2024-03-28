@@ -15,6 +15,7 @@ from immanuel.const import calc, chart, dignities, names
 from immanuel.reports import dignity
 from immanuel.setup import settings
 from immanuel.tools import calculate, convert, date, ephemeris, position
+from immanuel.classes.localize import _
 
 
 class Angle:
@@ -37,7 +38,7 @@ class Aspect:
         self._passive_name = objects[aspect['passive']]['name']
         self.active = aspect['active']
         self.passive = aspect['passive']
-        self.type = names.ASPECTS[aspect['aspect']]
+        self.type = _(names.ASPECTS[aspect['aspect']])
         self.aspect = aspect['aspect']
         self.orb = aspect['orb']
         self.distance = Angle(aspect['distance'])
@@ -53,7 +54,7 @@ class AspectCondition:
     def __init__(self, condition: int) -> None:
         self.associate = condition == calc.ASSOCIATE
         self.dissociate = condition == calc.DISSOCIATE
-        self.formatted = names.ASPECT_CONDITIONS[condition]
+        self.formatted = _(names.ASPECT_CONDITIONS[condition])
 
     def __str__(self) -> str:
         return self.formatted
@@ -64,7 +65,7 @@ class AspectMovement:
         self.applicative = movement == calc.APPLICATIVE
         self.exact = movement == calc.EXACT
         self.separative = movement == calc.SEPARATIVE
-        self.formatted = names.ASPECT_MOVEMENTS[movement]
+        self.formatted = _(names.ASPECT_MOVEMENTS[movement])
 
     def __str__(self) -> str:
         return self.formatted
@@ -114,7 +115,7 @@ class DignityState:
         self.detriment = dignity_state[dignities.DETRIMENT]
         self.fall = dignity_state[dignities.FALL]
         self.peregrine = dignity_state[dignities.PEREGRINE]
-        self.formatted = [names.DIGNITIES[dignity] for dignity, active in dignity_state.items() if active]
+        self.formatted = [_(names.DIGNITIES[dignity]) for dignity, active in dignity_state.items() if active]
 
     def __str__(self) -> str:
         return ', '.join(self.formatted)
@@ -127,7 +128,7 @@ class EclipseType:
         self.partial = eclipse_type == chart.PARTIAL
         self.annular_total = eclipse_type == chart.ANNULAR_TOTAL
         self.penumbral = eclipse_type == chart.PENUMBRAL
-        self.formatted = names.ECLIPSE_TYPES[eclipse_type]
+        self.formatted = _(names.ECLIPSE_TYPES[eclipse_type])
 
     def __str__(self) -> str:
         return self.formatted
@@ -153,7 +154,7 @@ class MoonPhase:
         self.disseminating = moon_phase == calc.DISSEMINATING
         self.third_quarter = moon_phase == calc.THIRD_QUARTER
         self.balsamic = moon_phase == calc.BALSAMIC
-        self.formatted = names.MOON_PHASES[moon_phase]
+        self.formatted = _(names.MOON_PHASES[moon_phase])
 
     def __str__(self) -> str:
         return self.formatted
@@ -222,7 +223,7 @@ class ObjectMovement:
         self.direct = self._movement == calc.DIRECT
         self.stationary = self._movement == calc.STATIONARY
         self.retrograde = self._movement == calc.RETROGRADE
-        self.formatted = names.OBJECT_MOVEMENTS[self._movement]
+        self.formatted = _(names.OBJECT_MOVEMENTS[self._movement])
 
     def __str__(self) -> str:
         return self.formatted
@@ -231,7 +232,7 @@ class ObjectMovement:
 class ObjectType:
     def __init__(self, type: int) -> None:
         self.index = type
-        self.name = names.OBJECTS[type]
+        self.name = _(names.OBJECTS[type])
 
     def __str__(self) -> str:
         return self.name
@@ -240,7 +241,7 @@ class ObjectType:
 class Sign:
     def __init__(self, number: int) -> None:
         self.number = number
-        self.name = names.SIGNS[self.number]
+        self.name = _(names.SIGNS[self.number])
 
     def __str__(self) -> str:
         return self.name
