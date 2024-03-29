@@ -10,8 +10,7 @@
 
 """
 
-import gettext, locale
-from pathlib import Path
+import gettext, locale, os
 
 from immanuel.setup import settings
 
@@ -21,7 +20,7 @@ class Localize:
 
     def get_translation() -> gettext.NullTranslations | gettext.GNUTranslations:
         if Localize.translation is None:
-            localedir = (Path(__file__).parent.parent.parent / 'locales').absolute()
+            localedir = f'{os.path.dirname(__file__)}{os.sep}..{os.sep}..{os.sep}locales'
             languages = [settings.locale, settings.locale[:2]]
 
             Localize.translation = gettext.translation('immanuel', localedir=localedir, languages=languages, fallback=True)
@@ -30,6 +29,7 @@ class Localize:
                 locale.setlocale(locale.LC_TIME, settings.locale)
 
         return Localize.translation
+
 
 def _(input: str) -> str:
     if settings.locale is None:
