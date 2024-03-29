@@ -1,4 +1,4 @@
-# Immanuel translatable strings for Portuguese
+# Immanuel translatable strings for Brazilian Portuguese
 # This file is distributed under the same license as the PACKAGE package.
 #
 #, fuzzy
