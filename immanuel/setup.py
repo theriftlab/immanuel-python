@@ -13,13 +13,14 @@ from typing import Any
 
 import swisseph as swe
 
+from immanuel.classes.localize import Localize
 from immanuel.const import calc, chart, data, dignities
 
 
 class BaseSettings:
     def __init__(self) -> None:
         """ Set locale. """
-        self.locale = None
+        self._locale = None
 
         """ Default ephemeris file path. """
         self._file_path = None
@@ -201,6 +202,15 @@ class BaseSettings:
         self._point_aspect_rule = {}
         self._aspect_rules = {}
         self._orbs = {}
+
+    @property
+    def locale(self) -> str:
+        return self._locale
+
+    @locale.setter
+    def locale(self, lcid: str) -> None:
+        self._locale = lcid
+        Localize.set_locale(lcid)
 
     @property
     def default_aspect_rule(self) -> dict:
