@@ -12,27 +12,28 @@
 
 import gettext, locale, os
 
-from immanuel.setup import settings
-
 
 class Localize:
+    lcid = None
     translation = None
 
-    def get_translation() -> gettext.NullTranslations | gettext.GNUTranslations:
-        if Localize.translation is None:
-            localedir = f'{os.path.dirname(__file__)}{os.sep}..{os.sep}..{os.sep}locales'
-            languages = [settings.locale, settings.locale[:2]]
+    def set_locale(lcid: str) -> None:
+        localedir = f'{os.path.dirname(__file__)}{os.sep}..{os.sep}..{os.sep}locales'
+        languages = (lcid, lcid[:2])
+        translation = gettext.translation('immanuel', localedir=localedir, languages=languages, fallback=True)
 
-            Localize.translation = gettext.translation('immanuel', localedir=localedir, languages=languages, fallback=True)
-
-            if isinstance(Localize.translation, gettext.GNUTranslations):
-                locale.setlocale(locale.LC_TIME, settings.locale)
-
-        return Localize.translation
+        if isinstance(translation, gettext.GNUTranslations):
+            Localize.lcid = lcid
+            Localize.translation = translation
+            locale.setlocale(locale.LC_TIME, lcid)
+        else:
+            Localize.lcid = None
+            Localize.translation = None
+            locale.setlocale(locale.LC_TIME, 'en_US')
 
 
 def _(input: str) -> str:
-    if settings.locale is None:
+    if Localize.translation is None:
         return input
 
-    return Localize.get_translation().gettext(input)
+    return Localize.translation.gettext(input)
