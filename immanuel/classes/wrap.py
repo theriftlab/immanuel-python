@@ -100,6 +100,15 @@ class DateTime:
         return str
 
 
+class Decan:
+    def __init__(self, number: int) -> None:
+        self.number = number
+        self.name = _(names.DECANS[self.number])
+
+    def __str__(self) -> str:
+        return self.name
+
+
 class DignityState:
     def __init__(self, dignity_state: dict) -> None:
         self.ruler = dignity_state[dignities.RULER]
@@ -182,6 +191,7 @@ class Object:
         self.longitude = Angle(object['lon'])
         self.sign_longitude = Angle(position.sign_longitude(object))
         self.sign = Sign(position.sign(object))
+        self.decan = Decan(position.decan(object))
 
         if houses is not None:
             self.house = House(position.house(object, houses))
@@ -242,6 +252,8 @@ class Sign:
     def __init__(self, number: int) -> None:
         self.number = number
         self.name = _(names.SIGNS[self.number])
+        self.element = _(names.ELEMENTS[position.element((self.number-1) * 30)])
+        self.modality = _(names.MODALITIES[position.modality((self.number-1) * 30)])
 
     def __str__(self) -> str:
         return self.name
