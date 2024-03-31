@@ -43,7 +43,7 @@ class Subject:
         self.julian_date = date.to_jd(self.date_time)
 
 
-class Chart():
+class Chart:
     """ Base chart class. This acts as an abstract class for the actual chart
     classes to inherit from. """
     def __init__(self, type: int, aspects_to: 'Chart' = None) -> None:
