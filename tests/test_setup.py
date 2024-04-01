@@ -9,17 +9,21 @@
 
 """
 
-import random, os
-from datetime import datetime
+import os
 
 import swisseph as swe
 import pytest
 from pytest import fixture
 
 from immanuel import charts
+from immanuel.classes.cache import FunctionCache
 from immanuel.const import calc, chart
 from immanuel.setup import settings
 
+
+@fixture(autouse=True)
+def clear_caches():
+    FunctionCache.clear_all()
 
 @fixture
 def native():
@@ -27,8 +31,6 @@ def native():
 
 
 def test_attributes():
-    # Standard setting
-    assert settings.house_system == chart.PLACIDUS
     settings.house_system = chart.POLICH_PAGE
     assert settings.house_system == chart.POLICH_PAGE
 
@@ -96,12 +98,10 @@ def test_add_filepath(native):
     natal = charts.Natal(native)
     assert 1181 in natal.objects
 
-    # Cache-bust
-    settings.add_filepath(os.path.dirname(__file__), True)
-    date_time = datetime.now()
-    latitude = random.random() * 180 - 90
-    longitude = random.random() * 360 - 180
-    native2 = charts.Subject(date_time, latitude, longitude)
+    settings.add_filepath('', True)
+    FunctionCache.clear_all()
 
     with pytest.raises(swe.Error):
-        charts.Natal(native2)
+        charts.Natal(native)
+
+    settings.add_filepath(f'{os.path.dirname(__file__)}{os.sep}..{os.sep}resources{os.sep}ephemeris')

@@ -12,7 +12,7 @@
 from datetime import datetime
 
 from immanuel.const import calc, chart, dignities, names
-from immanuel.reports import dignity
+from immanuel.reports import dignity, weighting
 from immanuel.setup import settings
 from immanuel.tools import calculate, convert, date, ephemeris, position
 from immanuel.classes.localize import _
@@ -282,6 +282,16 @@ class Subject:
 
     def __str__(self) -> str:
         return f"{self.date_time} {_('at')} {self.coordinates}"
+
+
+class Weightings:
+    def __init__(self, objects: dict, houses: dict) -> None:
+        self.elements = Elements(weighting.elements(objects))
+        self.modalities = Modalities(weighting.modalities(objects))
+        self.quadrants = Quadrants(weighting.quadrants(objects, houses))
+
+    def __str__(self) -> str:
+        return f'{self.elements}\n{self.modalities}\n{self.quadrants}'
 
 
 class Elements:

@@ -149,9 +149,9 @@ def test_natal(native, lat, lon):
     assert natal_chart.aspects[chart.MOON][chart.SATURN].aspect == calc.OPPOSITION
 
     # Spot-check for correct weightings against astro.com
-    assert chart.JUPITER in natal_chart.weightings['elements'].fire
-    assert chart.JUPITER in natal_chart.weightings['modalities'].cardinal
-    assert chart.JUPITER in natal_chart.weightings['quadrants'].first
+    assert chart.JUPITER in natal_chart.weightings.elements.fire
+    assert chart.JUPITER in natal_chart.weightings.modalities.cardinal
+    assert chart.JUPITER in natal_chart.weightings.quadrants.first
 
 
 def test_solar_return(native, lat, lon, solar_return_year):
@@ -215,9 +215,9 @@ def test_solar_return(native, lat, lon, solar_return_year):
     assert solar_return_chart.aspects[chart.MOON][chart.NEPTUNE].aspect == calc.TRINE
 
     # Spot-check for correct weightings against astro.com
-    assert chart.JUPITER in solar_return_chart.weightings['elements'].water
-    assert chart.JUPITER in solar_return_chart.weightings['modalities'].fixed
-    assert chart.JUPITER in solar_return_chart.weightings['quadrants'].second
+    assert chart.JUPITER in solar_return_chart.weightings.elements.water
+    assert chart.JUPITER in solar_return_chart.weightings.modalities.fixed
+    assert chart.JUPITER in solar_return_chart.weightings.quadrants.second
 
 
 def test_progressed(native, lat, lon, pdt):
@@ -289,9 +289,9 @@ def test_progressed(native, lat, lon, pdt):
     assert progressed_chart.aspects[chart.MOON][chart.URANUS].aspect == calc.TRINE
 
     # Spot-check for correct weightings against astro.com
-    assert chart.VENUS in progressed_chart.weightings['elements'].earth
-    assert chart.VENUS in progressed_chart.weightings['modalities'].cardinal
-    assert chart.VENUS in progressed_chart.weightings['quadrants'].third
+    assert chart.VENUS in progressed_chart.weightings.elements.earth
+    assert chart.VENUS in progressed_chart.weightings.modalities.cardinal
+    assert chart.VENUS in progressed_chart.weightings.quadrants.third
 
 
 def test_composite(native, lat, lon, partner, partner_lat, partner_lon):
@@ -361,9 +361,9 @@ def test_composite(native, lat, lon, partner, partner_lat, partner_lon):
     assert composite_chart.aspects[chart.MOON][chart.VENUS].aspect == calc.SEXTILE
 
     # Spot-check for correct weightings against astro.com
-    assert chart.JUPITER in composite_chart.weightings['elements'].earth
-    assert chart.JUPITER in composite_chart.weightings['modalities'].fixed
-    assert chart.JUPITER in composite_chart.weightings['quadrants'].first
+    assert chart.JUPITER in composite_chart.weightings.elements.earth
+    assert chart.JUPITER in composite_chart.weightings.modalities.fixed
+    assert chart.JUPITER in composite_chart.weightings.quadrants.first
 
     # Ensure more quirky house systems work
     settings.house_system = chart.EQUAL

@@ -12,6 +12,8 @@
 
 import gettext, locale, os
 
+from immanuel.classes.cache import FunctionCache
+
 
 class Localize:
     lcid = None
@@ -21,6 +23,7 @@ class Localize:
         localedir = f'{os.path.dirname(__file__)}{os.sep}..{os.sep}..{os.sep}locales'
         languages = (lcid, lcid[:2])
         translation = gettext.translation('immanuel', localedir=localedir, languages=languages, fallback=True)
+        FunctionCache.clear_all()
 
         if isinstance(translation, gettext.GNUTranslations):
             Localize.lcid = lcid

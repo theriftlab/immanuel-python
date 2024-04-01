@@ -9,10 +9,15 @@
 
 from pytest import fixture
 
+from immanuel.classes.cache import FunctionCache
 from immanuel.const import chart
 from immanuel.reports import weighting
 from immanuel.tools import convert, date, ephemeris
 
+
+@fixture(autouse=True)
+def clear_caches():
+    FunctionCache.clear_all()
 
 @fixture
 def coords():

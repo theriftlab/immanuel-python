@@ -14,11 +14,10 @@
 
 """
 
-from functools import cache
-
 import swisseph as swe
 
 from immanuel.const import chart, names
+from immanuel.classes.cache import cache
 from immanuel.tools import calculate, find
 from immanuel.classes.localize import _
 

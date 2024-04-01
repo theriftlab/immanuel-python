@@ -118,11 +118,7 @@ class Chart:
         self.aspects = {index: {object_index: wrap.Aspect(aspect=object_aspect, objects=self._objects) for object_index, object_aspect in aspect_list.items()} for index, aspect_list in aspects.items()}
 
     def set_wrapped_weightings(self) -> None:
-        self.weightings = {
-            'elements': wrap.Elements(weighting.elements(self._objects)),
-            'modalities': wrap.Modalities(weighting.modalities(self._objects)),
-            'quadrants': wrap.Quadrants(weighting.quadrants(self._objects, self._houses)),
-        }
+        self.weightings = wrap.Weightings(self._objects, self._houses)
 
 
 class Natal(Chart):
