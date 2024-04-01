@@ -239,13 +239,6 @@ def test_properties_elements(native):
     assert natal.objects[chart.MARS].sign.element == 'Ar'
     assert natal.objects[chart.MOON].sign.element == 'Água'
 
-    chart_elements = str(natal.weightings.elements)
-
-    assert 'Fogo' in chart_elements
-    assert 'Terra' in chart_elements
-    assert 'Ar' in chart_elements
-    assert 'Água' in chart_elements
-
 
 def test_properties_modalities(native):
     settings.locale = 'pt_BR'
@@ -253,12 +246,6 @@ def test_properties_modalities(native):
     assert natal.objects[chart.SUN].sign.modality == 'Cardinal'
     assert natal.objects[chart.MOON].sign.modality == 'Fixo'
     assert natal.objects[chart.VENUS].sign.modality == 'Mutável'
-
-    chart_modalities = str(natal.weightings.modalities)
-
-    assert 'Cardinal' in chart_modalities
-    assert 'Fixo' in chart_modalities
-    assert 'Mutável' in chart_modalities
 
 
 def test_properties_house_system(native):
@@ -524,3 +511,28 @@ def test_formatted_subject(native):
     settings.locale = 'pt_BR'
     natal = charts.Natal(native)
     assert str(natal.native) == 'Sáb Jan 01 2000 10:00:00 PST em 32N43.0, 117W9.0'
+
+
+def test_formatted_weightings_elements(native):
+    settings.locale = 'pt_BR'
+    natal = charts.Natal(native)
+    chart_elements = str(natal.weightings.elements)
+
+    assert 'Fogo' in chart_elements
+    assert 'Terra' in chart_elements
+    assert 'Ar' in chart_elements
+    assert 'Água' in chart_elements
+
+
+def test_formatted_weightings_modalities(native):
+    settings.locale = 'pt_BR'
+    natal = charts.Natal(native)
+    chart_modalities = str(natal.weightings.modalities)
+
+    assert 'Cardinal' in chart_modalities
+    assert 'Fixo' in chart_modalities
+    assert 'Mutável' in chart_modalities
+
+
+def test_formatted_weightings_quadrants(native):
+    pass
