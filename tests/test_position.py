@@ -15,8 +15,8 @@ import os
 
 from pytest import fixture
 
-from immanuel.setup import settings
 from immanuel.const import calc, chart
+from immanuel.setup import settings
 from immanuel.tools import convert, date, ephemeris, position
 
 
@@ -121,6 +121,10 @@ def astro():
             'modality': chart.MUTABLE,
         },
     }
+
+
+def teardown_function():
+    settings.reset()
 
 
 def test_sign(data, astro):

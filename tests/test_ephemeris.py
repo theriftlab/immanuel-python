@@ -184,6 +184,10 @@ def astro():
     }
 
 
+def teardown_function():
+    settings.reset()
+
+
 """ These tests simply check the correct chart objects are being
 returned. Data is checked separately afterwards. """
 def test_objects(jd, coords):

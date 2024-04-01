@@ -72,6 +72,10 @@ def pdt():
     return '2025-06-20 17:00:00'
 
 
+def teardown_function():
+    settings.reset()
+
+
 def test_subject(dob, lat, lon, native, julian_date):
     date_time = datetime.fromisoformat(f'{dob} -08:00')
     latitude, longitude = (convert.string_to_dec(v) for v in (lat, lon))

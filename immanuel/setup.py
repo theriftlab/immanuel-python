@@ -24,7 +24,7 @@ class BaseSettings:
 
         """ Default ephemeris file path. """
         self._file_path = None
-        self.add_filepath(f'{os.path.dirname(__file__)}{os.sep}..{os.sep}resources{os.sep}ephemeris')
+        self.add_filepath(f'{os.path.dirname(__file__)}{os.sep}..{os.sep}resources{os.sep}ephemeris', True)
 
         """ Data that should be included for each chart type's output. """
         self.chart_data = {
@@ -337,6 +337,10 @@ class StaticSingleton(type):
     """ Metaclass to ensure singleton behavior & route everything to
     our BaseSettings instance to emulate static behavior. """
     _instance = BaseSettings()
+
+    def reset(cls) -> None:
+        StaticSingleton._instance = BaseSettings()
+        Localize.reset()
 
     def set(cls, values: dict) -> None:
         """ Helper mass-set method. """

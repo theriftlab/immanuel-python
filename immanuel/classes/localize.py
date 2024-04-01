@@ -20,19 +20,23 @@ class Localize:
     translation = None
 
     def set_locale(lcid: str) -> None:
+        FunctionCache.clear_all()
+
         localedir = f'{os.path.dirname(__file__)}{os.sep}..{os.sep}..{os.sep}locales'
         languages = (lcid, lcid[:2])
         translation = gettext.translation('immanuel', localedir=localedir, languages=languages, fallback=True)
-        FunctionCache.clear_all()
 
         if isinstance(translation, gettext.GNUTranslations):
             Localize.lcid = lcid
             Localize.translation = translation
             locale.setlocale(locale.LC_TIME, lcid)
         else:
-            Localize.lcid = None
-            Localize.translation = None
-            locale.setlocale(locale.LC_TIME, 'en_US')
+            Localize.reset()
+
+    def reset() -> None:
+        Localize.lcid = None
+        Localize.translation = None
+        locale.setlocale(locale.LC_TIME, 'en_US')
 
 
 def _(input: str) -> str:
