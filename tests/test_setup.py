@@ -21,13 +21,14 @@ from immanuel.const import calc, chart
 from immanuel.setup import settings
 
 
-@fixture(autouse=True)
-def clear_caches():
-    FunctionCache.clear_all()
-
 @fixture
 def native():
     return charts.Subject('2000-01-01 10:00', '32N43.0', '117W9.0')
+
+
+def teardown_function():
+    settings.reset()
+    FunctionCache.clear_all()
 
 
 def test_attributes():

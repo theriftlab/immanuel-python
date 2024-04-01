@@ -15,10 +15,6 @@ from immanuel.reports import weighting
 from immanuel.tools import convert, date, ephemeris
 
 
-@fixture(autouse=True)
-def clear_caches():
-    FunctionCache.clear_all()
-
 @fixture
 def coords():
     # San Diego coords as used by astro.com
@@ -51,6 +47,10 @@ def objects(coords, jd):
 @fixture
 def houses(coords, jd):
     return ephemeris.houses(jd, *coords, chart.PLACIDUS)
+
+
+def teardown_function():
+    FunctionCache.clear_all()
 
 
 def test_elements(objects):

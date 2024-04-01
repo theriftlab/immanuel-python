@@ -9,6 +9,7 @@
 """
 
 import functools
+from typing import Callable
 
 
 class FunctionCache:
@@ -19,7 +20,7 @@ class FunctionCache:
             cached_func.cache_clear()
 
 
-def cache(func):
+def cache(func: Callable) -> Callable:
     cached_func = functools.cache(func)
     FunctionCache.registry.append(cached_func)
     return cached_func

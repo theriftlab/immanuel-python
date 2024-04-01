@@ -40,8 +40,7 @@ def is_daytime(jd, coords):
 
 
 def teardown_function():
-    settings.include_participatory_triplicities = False
-    settings.include_mutual_receptions = True
+    settings.reset()
 
 
 def test_ruler(objects):
