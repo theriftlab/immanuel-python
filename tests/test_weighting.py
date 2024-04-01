@@ -9,7 +9,6 @@
 
 from pytest import fixture
 
-from immanuel.classes.cache import FunctionCache
 from immanuel.const import chart
 from immanuel.reports import weighting
 from immanuel.tools import convert, date, ephemeris
@@ -47,10 +46,6 @@ def objects(coords, jd):
 @fixture
 def houses(coords, jd):
     return ephemeris.houses(jd, *coords, chart.PLACIDUS)
-
-
-def teardown_function():
-    FunctionCache.clear_all()
 
 
 def test_elements(objects):
