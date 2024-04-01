@@ -542,3 +542,16 @@ msgstr "em"
 # For chart subjects, eg. Sat Jan 01 2000 10:00:00 AM PST at 32N43.0, 117W9.0
 msgid "at"
 msgstr "em"
+
+# For quadrant weighting
+msgid "First"
+msgstr ""
+
+msgid "Second"
+msgstr ""
+
+msgid "Third"
+msgstr ""
+
+msgid "Fourth"
+msgstr ""
