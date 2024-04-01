@@ -95,14 +95,6 @@ def object_names():
     }
 
 @fixture
-def aspect_planets():
-    return [
-        chart.PARS_FORTUNA,
-        chart.SUN, chart.MOON, chart.MERCURY, chart.VENUS, chart.MARS,
-        chart.JUPITER, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.PLUTO,
-    ]
-
-@fixture
 def aspects():
     return [
         calc.CONJUNCTION,
@@ -367,9 +359,8 @@ def test_properties_eclipse_types(lat, lon):
     assert natal.objects[chart.PRE_NATAL_LUNAR_ECLIPSE].eclipse_type.formatted == 'Penumbral'
 
 
-def test_properties_aspects(native, aspect_planets, aspects):
+def test_properties_aspects(native, aspects):
     settings.locale = 'pt_BR'
-    settings.objects = aspect_planets
     settings.aspects = aspects
 
     natal = charts.Natal(native)
@@ -388,9 +379,8 @@ def test_properties_aspects(native, aspect_planets, aspects):
     assert natal.aspects[chart.VENUS][chart.JUPITER].type == 'Biquintil'
 
 
-def test_properties_aspect_movements(native, aspect_planets, aspects):
+def test_properties_aspect_movements(native, aspects):
     settings.locale = 'pt_BR'
-    settings.objects = aspect_planets
     settings.aspects = aspects
 
     natal = charts.Natal(native)
@@ -400,9 +390,8 @@ def test_properties_aspect_movements(native, aspect_planets, aspects):
     assert natal.aspects[chart.MOON][chart.SUN].movement.formatted == 'Separativo(a)'
 
 
-def test_properties_aspect_conditions(native, aspect_planets, aspects):
+def test_properties_aspect_conditions(native, aspects):
     settings.locale = 'pt_BR'
-    settings.objects = aspect_planets
     settings.aspects = aspects
 
     natal = charts.Natal(native)
@@ -411,9 +400,8 @@ def test_properties_aspect_conditions(native, aspect_planets, aspects):
     assert natal.aspects[chart.MERCURY][chart.MARS].condition.formatted == 'Dissociado'
 
 
-def test_properties_dignities(native, aspect_planets):
+def test_properties_dignities(native):
     settings.locale = 'pt_BR'
-    settings.objects = aspect_planets
 
     natal = charts.Natal(native)
 
@@ -479,9 +467,8 @@ def test_properties_moon_phases(lat, lon):
     assert natal_third_quarter.moon_phase.formatted == 'Minguante'
 
 
-def test_properties_object_movement(native, aspect_planets):
+def test_properties_object_movement(native):
     settings.locale = 'pt_BR'
-    settings.objects = aspect_planets
 
     natal = charts.Natal(native)
 
@@ -492,6 +479,7 @@ def test_properties_object_movement(native, aspect_planets):
 
 def test_properties_chart_shape(chart_pattern_birth_data):
     settings.locale = 'pt_BR'
+
     for data in chart_pattern_birth_data.values():
         natal = charts.Natal(charts.Subject(data['dob'], data['latitude'], data['longitude']))
         assert natal.shape == data['shape']
@@ -520,16 +508,14 @@ def test_formatted_ambiguous_datetime(lat, lon):
     assert str(natal.native.date_time) == 'Dom Nov 06 2022 01:30:00 PDT (ambíguo)'
 
 
-def test_formatted_aspect(native, aspect_planets):
+def test_formatted_aspect(native):
     settings.locale = 'pt_BR'
-    settings.objects = aspect_planets
     natal = charts.Natal(native)
     assert str(natal.aspects[chart.SUN][chart.PARS_FORTUNA]) == 'Sol Roda da Fortuna Conjunção dentro de 00°41\'15" (Aplicativo(a), Associado)'
 
 
-def test_formatted_object(native, aspect_planets):
+def test_formatted_object(native):
     settings.locale = 'pt_BR'
-    settings.objects = aspect_planets
     natal = charts.Natal(native)
     assert str(natal.objects[chart.SUN]) == 'Sol 10°37\'26" em Capricórnio, Casa 11'
 
