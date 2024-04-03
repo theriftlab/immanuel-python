@@ -47,7 +47,14 @@ class Aspect:
         self.condition = AspectCondition(aspect['condition'])
 
     def __str__(self) -> str:
-        return f"{self._active_name} {self._passive_name} {self.type} {_('within')} {self.difference} ({self.movement}, {self.condition})"
+        return _('{active} {passive} {type} within {difference} ({movement}, {condition})').format(
+                active=self._active_name,
+                passive=self._passive_name,
+                type=self.type,
+                difference = self.difference,
+                movement = self.movement,
+                condition = self.condition,
+            )
 
 
 class AspectCondition:
@@ -219,12 +226,17 @@ class Object:
             self.score = dignity.score(dignity_state)
 
     def __str__(self) -> str:
-        str = f"{self.name} {self.sign_longitude} {_('in')} {self.sign}"
+        str = '{name} {longitude} in {sign}'
 
         if hasattr(self, 'house'):
-            str += f', {self.house.name}'
+            str += ', {house}'
 
-        return str
+        return _(str).format(
+                name=self.name,
+                longitude=self.sign_longitude,
+                sign=self.sign,
+                house=self.house.name if hasattr(self, 'house') else None,
+            )
 
 
 class ObjectMovement:
@@ -281,7 +293,11 @@ class Subject:
             )
 
     def __str__(self) -> str:
-        return f"{self.date_time} {_('at')} {self.coordinates}"
+        return _('{date_time} at {lat}, {lon}').format(
+                date_time=self.date_time,
+                lat=self.coordinates.latitude,
+                lon=self.coordinates.longitude,
+            )
 
 
 class Weightings:

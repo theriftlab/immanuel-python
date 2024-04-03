@@ -531,16 +531,20 @@ msgstr ""
 msgid "ambiguous"
 msgstr ""
 
-# For orbs, eg. Square within 1.5°
-msgid "within"
+# For aspects, eg. Moon Sun Sextile within -05°42'03" (Separative, Associate)
+msgid "{active} {passive} {type} within {difference} ({movement}, {condition})"
 msgstr ""
 
-# For signs, eg. Sun in Aries
-msgid "in"
+# For houses in signs, eg. 2nd House 17°59'40" in Aries
+msgid "{name} {longitude} in {sign}"
+msgstr ""
+
+# For objects in signs and houses, eg. Sun 10°37'26" in Capricorn, 11th House
+msgid "{name} {longitude} in {sign}, {house}"
 msgstr ""
 
 # For chart subjects, eg. Sat Jan 01 2000 10:00:00 AM PST at 32N43.0, 117W9.0
-msgid "at"
+msgid "{date_time} at {lat}, {lon}"
 msgstr ""
 
 # For quadrant weighting
