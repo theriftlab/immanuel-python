@@ -399,10 +399,10 @@ msgstr "Separativo(a)"
 # Aspect Conditions
 
 msgid "Associate"
-msgstr "Associado"
+msgstr "Associado(a)"
 
 msgid "Dissociate"
-msgstr "Dissociado"
+msgstr "Dissociado(a)"
 
 
 # Dignities
@@ -531,27 +531,31 @@ msgstr "Casas Diárias"
 msgid "ambiguous"
 msgstr "ambíguo"
 
-# For orbs, eg. Square within 1.5°
-msgid "within"
-msgstr "dentro de"
+# For aspects, eg. Moon Sun Sextile within -05°42'03" (Separative, Associate)
+msgid "{active} {passive} {type} within {difference} ({movement}, {condition})"
+msgstr "{type} entre {active} e {passive} dentro de {difference} ({movement}, {condition})"
 
-# For signs, eg. Sun in Aries
-msgid "in"
-msgstr "em"
+# For houses in signs, eg. 2nd House 17°59'40" in Aries
+msgid "{name} {longitude} in {sign}"
+msgstr "{name} {longitude} em {sign}"
+
+# For objects in signs and houses, eg. Sun 10°37'26" in Capricorn, 11th House
+msgid "{name} {longitude} in {sign}, {house}"
+msgstr "{name} {longitude} em {sign}, {house}"
 
 # For chart subjects, eg. Sat Jan 01 2000 10:00:00 AM PST at 32N43.0, 117W9.0
-msgid "at"
-msgstr "em"
+msgid "{date_time} at {lat}, {lon}"
+msgstr "{date_time} em {lat}, {lon}"
 
 # For quadrant weighting
 msgid "First"
-msgstr ""
+msgstr "Primeiro"
 
 msgid "Second"
-msgstr ""
+msgstr "Segundo"
 
 msgid "Third"
-msgstr ""
+msgstr "Terceiro"
 
 msgid "Fourth"
-msgstr ""
+msgstr "Quarto"

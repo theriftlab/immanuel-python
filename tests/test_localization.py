@@ -383,8 +383,8 @@ def test_properties_aspect_conditions(native, aspects):
 
     natal = charts.Natal(native)
 
-    assert natal.aspects[chart.SUN][chart.PARS_FORTUNA].condition.formatted == 'Associado'
-    assert natal.aspects[chart.MERCURY][chart.MARS].condition.formatted == 'Dissociado'
+    assert natal.aspects[chart.SUN][chart.PARS_FORTUNA].condition.formatted == 'Associado(a)'
+    assert natal.aspects[chart.MERCURY][chart.MARS].condition.formatted == 'Dissociado(a)'
 
 
 def test_properties_dignities(native):
@@ -498,7 +498,7 @@ def test_formatted_ambiguous_datetime(lat, lon):
 def test_formatted_aspect(native):
     settings.locale = 'pt_BR'
     natal = charts.Natal(native)
-    assert str(natal.aspects[chart.SUN][chart.PARS_FORTUNA]) == 'Sol Roda da Fortuna Conjunção dentro de 00°41\'15" (Aplicativo(a), Associado)'
+    assert str(natal.aspects[chart.SUN][chart.PARS_FORTUNA]) == 'Conjunção entre Sol e Roda da Fortuna dentro de 00°41\'15" (Aplicativo(a), Associado(a))'
 
 
 def test_formatted_object(native):
@@ -535,4 +535,11 @@ def test_formatted_weightings_modalities(native):
 
 
 def test_formatted_weightings_quadrants(native):
-    pass
+    settings.locale = 'pt_BR'
+    natal = charts.Natal(native)
+    chart_quadrants = str(natal.weightings.quadrants)
+
+    assert 'Primeiro' in chart_quadrants
+    assert 'Segundo' in chart_quadrants
+    assert 'Terceiro' in chart_quadrants
+    assert 'Quarto' in chart_quadrants
