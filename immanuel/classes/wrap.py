@@ -226,16 +226,18 @@ class Object:
             self.score = dignity.score(dignity_state)
 
     def __str__(self) -> str:
-        str = '{name} {longitude} in {sign}'
-
         if hasattr(self, 'house'):
-            str += ', {house}'
+            return _('{name} {longitude} in {sign}, {house}').format(
+                    name=self.name,
+                    longitude=self.sign_longitude,
+                    sign=self.sign,
+                    house=self.house.name,
+                )
 
-        return _(str).format(
+        return _('{name} {longitude} in {sign}').format(
                 name=self.name,
                 longitude=self.sign_longitude,
                 sign=self.sign,
-                house=self.house.name if hasattr(self, 'house') else None,
             )
 
 
