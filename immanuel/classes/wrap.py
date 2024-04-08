@@ -15,7 +15,7 @@ from immanuel.const import calc, chart, dignities, names
 from immanuel.reports import dignity, weighting
 from immanuel.setup import settings
 from immanuel.tools import calculate, convert, date, ephemeris, position
-from immanuel.classes.localize import _
+from immanuel.classes.localize import gender, _
 
 
 class Angle:
@@ -43,8 +43,8 @@ class Aspect:
         self.orb = aspect['orb']
         self.distance = Angle(aspect['distance'])
         self.difference = Angle(aspect['difference'])
-        self.movement = AspectMovement(aspect['movement'])
-        self.condition = AspectCondition(aspect['condition'])
+        self.movement = AspectMovement(aspect)
+        self.condition = AspectCondition(aspect)
 
     def __str__(self) -> str:
         return _('{active} {passive} {type} within {difference} ({movement}, {condition})').format(
@@ -58,21 +58,21 @@ class Aspect:
 
 
 class AspectCondition:
-    def __init__(self, condition: int) -> None:
-        self.associate = condition == calc.ASSOCIATE
-        self.dissociate = condition == calc.DISSOCIATE
-        self.formatted = _(names.ASPECT_CONDITIONS[condition])
+    def __init__(self, aspect: dict) -> None:
+        self.associate = aspect['condition'] == calc.ASSOCIATE
+        self.dissociate = aspect['condition'] == calc.DISSOCIATE
+        self.formatted = _(names.ASPECT_CONDITIONS[aspect['condition']], gender(aspect['aspect']))
 
     def __str__(self) -> str:
         return self.formatted
 
 
 class AspectMovement:
-    def __init__(self, movement: int) -> None:
-        self.applicative = movement == calc.APPLICATIVE
-        self.exact = movement == calc.EXACT
-        self.separative = movement == calc.SEPARATIVE
-        self.formatted = _(names.ASPECT_MOVEMENTS[movement])
+    def __init__(self, aspect: dict) -> None:
+        self.applicative = aspect['movement'] == calc.APPLICATIVE
+        self.exact = aspect['movement'] == calc.EXACT
+        self.separative = aspect['movement'] == calc.SEPARATIVE
+        self.formatted = _(names.ASPECT_MOVEMENTS[aspect['movement']], gender(aspect['aspect']))
 
     def __str__(self) -> str:
         return self.formatted
@@ -117,7 +117,7 @@ class Decan:
 
 
 class DignityState:
-    def __init__(self, dignity_state: dict) -> None:
+    def __init__(self, object: dict, dignity_state: dict) -> None:
         self.ruler = dignity_state[dignities.RULER]
         self.exalted = dignity_state[dignities.EXALTED]
         self.triplicity_ruler = dignity_state[dignities.TRIPLICITY_RULER]
@@ -131,7 +131,7 @@ class DignityState:
         self.detriment = dignity_state[dignities.DETRIMENT]
         self.fall = dignity_state[dignities.FALL]
         self.peregrine = dignity_state[dignities.PEREGRINE]
-        self.formatted = [_(names.DIGNITIES[dignity]) for dignity, active in dignity_state.items() if active]
+        self.formatted = [_(names.DIGNITIES[dignity], gender(object['index'])) for dignity, active in dignity_state.items() if active]
 
     def __str__(self) -> str:
         return ', '.join(self.formatted)
@@ -222,7 +222,7 @@ class Object:
 
         if objects is not None and object['type'] == chart.PLANET and is_daytime is not None and calc.PLANETS.issubset(objects):
             dignity_state = dignity.all(object=object, objects=objects, is_daytime=is_daytime)
-            self.dignities = DignityState(dignity_state)
+            self.dignities = DignityState(object=object, dignity_state=dignity_state)
             self.score = dignity.score(dignity_state)
 
     def __str__(self) -> str:
@@ -247,7 +247,7 @@ class ObjectMovement:
         self.direct = self._movement == calc.DIRECT
         self.stationary = self._movement == calc.STATIONARY
         self.retrograde = self._movement == calc.RETROGRADE
-        self.formatted = _(names.OBJECT_MOVEMENTS[self._movement])
+        self.formatted = _(names.OBJECT_MOVEMENTS[self._movement], gender(object['index']))
 
     def __str__(self) -> str:
         return self.formatted
