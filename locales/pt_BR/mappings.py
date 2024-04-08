@@ -10,7 +10,7 @@
 from immanuel.const import calc, chart, genders
 
 
-MAPPED = {
+GENDERS = {
     chart.ASC: genders.MASCULINE,
     chart.DESC: genders.MASCULINE,
     chart.MC: genders.MASCULINE,
