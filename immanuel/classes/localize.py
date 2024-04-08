@@ -16,7 +16,7 @@ from immanuel.classes.cache import FunctionCache
 from immanuel.const import genders
 
 
-GENDERS = {}
+MAPPINGS = {}
 
 
 class Localize:
@@ -58,8 +58,8 @@ def gender(index: int|float) -> str:
     if Localize.translation is None:
         return None
 
-    if not GENDERS:
-        with open(f'{Localize.localedir}{os.sep}{Localize.lcid}{os.sep}genders.py', 'r') as gender_file:
-            exec(gender_file.read(), GENDERS)
+    if not MAPPINGS:
+        with open(f'{Localize.localedir}{os.sep}{Localize.lcid}{os.sep}mappings.py', 'r') as mappings:
+            exec(mappings.read(), MAPPINGS)
 
-    return GENDERS['MAPPED'][index] if index in GENDERS['MAPPED'] else genders.AMBIGUOUS
+    return MAPPINGS['GENDERS'][index] if index in MAPPINGS['GENDERS'] else genders.AMBIGUOUS
