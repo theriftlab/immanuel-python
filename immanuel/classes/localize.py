@@ -13,18 +13,22 @@
 import gettext, locale, os
 
 from immanuel.classes.cache import FunctionCache
+from immanuel.const import genders
+
+
+GENDERS = {}
 
 
 class Localize:
     lcid = None
     translation = None
+    localedir = f'{os.path.dirname(__file__)}{os.sep}..{os.sep}..{os.sep}locales'
 
     def set_locale(lcid: str) -> None:
         FunctionCache.clear_all()
 
-        localedir = f'{os.path.dirname(__file__)}{os.sep}..{os.sep}..{os.sep}locales'
         languages = (lcid, lcid[:2])
-        translation = gettext.translation('immanuel', localedir=localedir, languages=languages, fallback=True)
+        translation = gettext.translation('immanuel', localedir=Localize.localedir, languages=languages, fallback=True)
 
         if isinstance(translation, gettext.GNUTranslations):
             Localize.lcid = lcid
@@ -39,8 +43,23 @@ class Localize:
         locale.setlocale(locale.LC_TIME, 'en_US')
 
 
-def _(input: str) -> str:
+def _(input: str, context: str = None) -> str:
     if Localize.translation is None:
         return input
 
-    return Localize.translation.gettext(input)
+    if context is None:
+        return Localize.translation.gettext(input)
+    else:
+        contextualized = Localize.translation.pgettext(context, input)
+        return contextualized if contextualized != input else Localize.translation.gettext(input)
+
+
+def gender(index: int|float) -> str:
+    if Localize.translation is None:
+        return None
+
+    if not GENDERS:
+        with open(f'{Localize.localedir}{os.sep}{Localize.lcid}{os.sep}genders.py', 'r') as gender_file:
+            exec(gender_file.read(), GENDERS)
+
+    return GENDERS['MAPPED'][index] if index in GENDERS['MAPPED'] else genders.AMBIGUOUS
