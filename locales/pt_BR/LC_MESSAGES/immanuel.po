@@ -1,4 +1,4 @@
-# Immanuel translatable strings for Portuguese
+# Immanuel translatable strings for Brazilian Portuguese
 # This file is distributed under the same license as the PACKAGE package.
 #
 #, fuzzy
@@ -386,23 +386,48 @@ msgstr "Biquintil"
 
 # Aspect Movements
 
+msgctxt "masculine"
 msgid "Applicative"
-msgstr "Aplicativo(a)"
+msgstr "Aplicativo"
 
+msgctxt "feminine"
+msgid "Applicative"
+msgstr "Aplicativa"
+
+msgctxt "masculine"
 msgid "Exact"
-msgstr "Exacto(a)"
+msgstr "Exacto"
 
+msgctxt "feminine"
+msgid "Exact"
+msgstr "Exacta"
+
+msgctxt "masculine"
 msgid "Separative"
-msgstr "Separativo(a)"
+msgstr "Separativo"
+
+msgctxt "feminine"
+msgid "Separative"
+msgstr "Separativa"
 
 
 # Aspect Conditions
 
+msgctxt "masculine"
 msgid "Associate"
-msgstr "Associado(a)"
+msgstr "Associado"
 
+msgctxt "feminine"
+msgid "Associate"
+msgstr "Associada"
+
+msgctxt "masculine"
 msgid "Dissociate"
-msgstr "Dissociado(a)"
+msgstr "Dissociado"
+
+msgctxt "feminine"
+msgid "Dissociate"
+msgstr "Dissociada"
 
 
 # Dignities
@@ -410,8 +435,13 @@ msgstr "Dissociado(a)"
 msgid "Ruler"
 msgstr "Regente"
 
+msgctxt "masculine"
 msgid "Exalted"
 msgstr "Exaltado"
+
+msgctxt "feminine"
+msgid "Exalted"
+msgstr "Exaltada"
 
 msgid "Triplicity Ruler"
 msgstr "Regente de Triplicidade"
@@ -425,8 +455,13 @@ msgstr "Regente de Face"
 msgid "Ruler by mutual reception"
 msgstr "Regente por recepção mútua"
 
+msgctxt "masculine"
 msgid "Exalted by mutual reception"
 msgstr "Exaltado por recepção mútua"
+
+msgctxt "feminine"
+msgid "Exalted by mutual reception"
+msgstr "Exaltada por recepção mútua"
 
 msgid "Triplicity Ruler by mutual reception"
 msgstr "Regente de Triplicidade por recepção mútua"
@@ -441,13 +476,18 @@ msgid "In rulership element"
 msgstr "No elemento de regência"
 
 msgid "Detriment"
-msgstr "Exílio"
+msgstr "Em Exílio"
 
 msgid "Fall"
-msgstr "Queda"
+msgstr "Em Queda"
 
+msgctxt "masculine"
 msgid "Peregrine"
 msgstr "Peregrino"
+
+msgctxt "feminine"
+msgid "Peregrine"
+msgstr "Peregrina"
 
 
 # Moon Phases
@@ -479,14 +519,41 @@ msgstr "Minguante"
 
 # Object Movements
 
+msgctxt "masculine"
 msgid "Direct"
 msgstr "Direto"
 
+msgctxt "feminine"
+msgid "Direct"
+msgstr "Direta"
+
+msgctxt "ambiguous"
+msgid "Direct"
+msgstr "Direto(a)"
+
+msgctxt "masculine"
 msgid "Stationary"
 msgstr "Estacionário"
 
+msgctxt "feminine"
+msgid "Stationary"
+msgstr "Estacionária"
+
+msgctxt "ambiguous"
+msgid "Stationary"
+msgstr "Estacionário(a)"
+
+msgctxt "masculine"
 msgid "Retrograde"
 msgstr "Retrógrado"
+
+msgctxt "feminine"
+msgid "Retrograde"
+msgstr "Retrógrada"
+
+msgctxt "ambiguous"
+msgid "Retrograde"
+msgstr "Retrógrado(a)"
 
 
 # Chart Shapes
@@ -525,7 +592,7 @@ msgid "Daily Houses"
 msgstr "Casas Diárias"
 
 
-# Formatted Words
+# Formatted sentences & words
 
 # For datetimes, eg. Sun Nov 06 2022 01:30:00 AM PDT (ambiguous)
 msgid "ambiguous"

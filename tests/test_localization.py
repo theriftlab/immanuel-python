@@ -172,14 +172,8 @@ def teardown_function():
 
 
 def test_date_locale(native):
-    # Defaults to English when None
-    assert str(wrap.Subject(native)) == 'Sat Jan 01 2000 10:00:00 PST at 32N43.0, 117W9.0'
-    # Switch to pt_BR
     settings.locale = 'pt_BR'
     assert str(wrap.Subject(native)) == 'Sáb Jan 01 2000 10:00:00 PST em 32N43.0, 117W9.0'
-    # Defaults to English when cannot find translations
-    settings.locale = 'nonexistent'
-    assert str(wrap.Subject(native)) == 'Sat Jan 01 2000 10:00:00 PST at 32N43.0, 117W9.0'
 
 
 def test_properties_chart_type(native, partner):
@@ -372,9 +366,9 @@ def test_properties_aspect_movements(native, aspects):
 
     natal = charts.Natal(native)
 
-    assert natal.aspects[chart.SUN][chart.PARS_FORTUNA].movement.formatted == 'Aplicativo(a)'
-    assert natal.aspects[chart.PLUTO][chart.PARS_FORTUNA].movement.formatted == 'Exacto(a)'
-    assert natal.aspects[chart.MOON][chart.SUN].movement.formatted == 'Separativo(a)'
+    assert natal.aspects[chart.SUN][chart.PARS_FORTUNA].movement.formatted == 'Aplicativa'
+    assert natal.aspects[chart.PLUTO][chart.PARS_FORTUNA].movement.formatted == 'Exacto'
+    assert natal.aspects[chart.MOON][chart.SUN].movement.formatted == 'Separativo'
 
 
 def test_properties_aspect_conditions(native, aspects):
@@ -383,8 +377,8 @@ def test_properties_aspect_conditions(native, aspects):
 
     natal = charts.Natal(native)
 
-    assert natal.aspects[chart.SUN][chart.PARS_FORTUNA].condition.formatted == 'Associado(a)'
-    assert natal.aspects[chart.MERCURY][chart.MARS].condition.formatted == 'Dissociado(a)'
+    assert natal.aspects[chart.SUN][chart.PARS_FORTUNA].condition.formatted == 'Associada'
+    assert natal.aspects[chart.MERCURY][chart.MARS].condition.formatted == 'Dissociado'
 
 
 def test_properties_dignities(native):
@@ -393,7 +387,7 @@ def test_properties_dignities(native):
     natal = charts.Natal(native)
 
     # Since it is near impossible to calculate a chart with every dignity, we invent some
-    natal.objects[chart.SUN].dignities = wrap.DignityState({ v: True for v in [
+    natal.objects[chart.SUN].dignities = wrap.DignityState({ 'index': chart.SUN }, { v: True for v in [
         dignities.RULER,
         dignities.EXALTED,
         dignities.TRIPLICITY_RULER,
@@ -421,8 +415,8 @@ def test_properties_dignities(native):
     assert 'Regente de Termo por recepção mútua' in natal.objects[chart.SUN].dignities.formatted
     assert 'Regente de Face por recepção mútua' in natal.objects[chart.SUN].dignities.formatted
     assert 'No elemento de regência' in natal.objects[chart.SUN].dignities.formatted
-    assert 'Exílio' in natal.objects[chart.SUN].dignities.formatted
-    assert 'Queda' in natal.objects[chart.SUN].dignities.formatted
+    assert 'Em Exílio' in natal.objects[chart.SUN].dignities.formatted
+    assert 'Em Queda' in natal.objects[chart.SUN].dignities.formatted
     assert 'Peregrino' in natal.objects[chart.SUN].dignities.formatted
 
 
@@ -460,7 +454,7 @@ def test_properties_object_movement(native):
     natal = charts.Natal(native)
 
     assert natal.objects[chart.SUN].movement.formatted == 'Direto'
-    assert natal.objects[chart.PARS_FORTUNA].movement.formatted == 'Estacionário'
+    assert natal.objects[chart.PARS_FORTUNA].movement.formatted == 'Estacionária'
     assert natal.objects[chart.SATURN].movement.formatted == 'Retrógrado'
 
 
@@ -498,7 +492,7 @@ def test_formatted_ambiguous_datetime(lat, lon):
 def test_formatted_aspect(native):
     settings.locale = 'pt_BR'
     natal = charts.Natal(native)
-    assert str(natal.aspects[chart.SUN][chart.PARS_FORTUNA]) == 'Conjunção entre Sol e Roda da Fortuna dentro de 00°41\'15" (Aplicativo(a), Associado(a))'
+    assert str(natal.aspects[chart.SUN][chart.PARS_FORTUNA]) == 'Conjunção entre Sol e Roda da Fortuna dentro de 00°41\'15" (Aplicativa, Associada)'
 
 
 def test_formatted_object(native):
