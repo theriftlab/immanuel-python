@@ -44,6 +44,7 @@ class Localize:
             Localize.reset()
 
     def reset() -> None:
+        FunctionCache.clear_all()
         Localize.lcid = None
         Localize.translation = None
         locale.setlocale(locale.LC_TIME, 'en_US')
