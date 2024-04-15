@@ -22,7 +22,7 @@ from zoneinfo import ZoneInfo
 from immanuel.classes import wrap
 from immanuel.classes.localize import _
 from immanuel.const import chart, names
-from immanuel.reports import aspect, pattern, weighting
+from immanuel.reports import aspect, pattern
 from immanuel.setup import settings
 from immanuel.tools import calculate, convert, date, ephemeris, forecast, midpoint, position
 

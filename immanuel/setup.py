@@ -23,8 +23,7 @@ class BaseSettings:
         self._locale = None
 
         """ Default ephemeris file path. """
-        self._file_path = None
-        self.add_filepath(f'{os.path.dirname(__file__)}{os.sep}..{os.sep}resources{os.sep}ephemeris', True)
+        self._file_path = f'{os.path.dirname(__file__)}{os.sep}..{os.sep}resources{os.sep}ephemeris'
 
         """ Data that should be included for each chart type's output. """
         self.chart_data = {
@@ -320,7 +319,7 @@ class BaseSettings:
 
     def add_filepath(self, path: str, default: bool = False) -> None:
         """ Add an ephemeris file path. """
-        if default or self._file_path is None:
+        if default:
             self._file_path = path
         else:
             extra_path = f'{os.pathsep}{path}'
@@ -330,6 +329,10 @@ class BaseSettings:
 
             self._file_path += extra_path
 
+        self.set_swe_filepath()
+
+    def set_swe_filepath(self) -> None:
+        """ Pass defined path(s) to swisseph. """
         swe.set_ephe_path(self._file_path)
 
 
@@ -339,7 +342,9 @@ class StaticSingleton(type):
     _instance = BaseSettings()
 
     def reset(cls) -> None:
+        """ Reset all settings to default. """
         StaticSingleton._instance = BaseSettings()
+        StaticSingleton._instance.set_swe_filepath()
         Localize.reset()
 
     def set(cls, values: dict) -> None:
