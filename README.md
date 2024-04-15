@@ -17,6 +17,16 @@ Simply pass in a date and coordinates to one of the available chart classes, and
 
 Full documentation is available [here](https://github.com/theriftlab/immanuel-python/tree/v1.2.4/docs/0-contents.md), or follow the Quick Start below to see how to quickly generate a natal chart.
 
+## Translations
+
+Immanuel is currently available in the following locales / languages:
+
+* **en_US:** (default) US English
+* **pt_BR:** Brazilian Portuguese
+* Coming soon: Spanish translation
+
+See [the documentation](/docs/5-settings.md#locale) on how to switch. Documentation itself is not currently available in other translations.
+
 ## Quick Start
 
 You can get started with full natal chart data in minutes. Simply install Immanuel:
@@ -134,7 +144,13 @@ Which will output each of the chart's objects in this format:
     },
     "sign": {
         "number": 10,
-        "name": "Capricorn"
+        "name": "Capricorn",
+        "element": "Earth",
+        "modality": "Cardinal"
+    },
+    "decan": {
+        "number": 2,
+        "name": "2nd Decan"
     },
     "house": {
         "index": 2000011,
@@ -250,6 +266,8 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 ## Credits
 
 Immanuel is forever indebted to the pioneering work of Alois Treindl and Dieter Koch at Astrodienst, and to João Ventura for the incredibly detailed [flatlib](https://github.com/flatangle/flatlib) which first inspired the development of this package.
+
+A big thank-you goes to Nathan Octavio who suggested translations, and who translated Immanuel into Brazilian Portuguese.
 
 ## Contact
 

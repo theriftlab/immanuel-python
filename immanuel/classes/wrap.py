@@ -226,19 +226,19 @@ class Object:
             self.score = dignity.score(dignity_state)
 
     def __str__(self) -> str:
-        if hasattr(self, 'house'):
-            return _('{name} {longitude} in {sign}, {house}').format(
-                    name=self.name,
-                    longitude=self.sign_longitude,
-                    sign=self.sign,
-                    house=self.house.name,
-                )
-
-        return _('{name} {longitude} in {sign}').format(
+        formatted = _('{name} {longitude} in {sign}').format(
                 name=self.name,
                 longitude=self.sign_longitude,
                 sign=self.sign,
             )
+
+        if hasattr(self, 'house'):
+            formatted += f', {_(self.house)}'
+
+        if hasattr(self, 'movement'):
+            formatted += f', {_(self.movement)}'
+
+        return formatted
 
 
 class ObjectMovement:

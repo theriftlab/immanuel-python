@@ -34,6 +34,12 @@ class Localize:
             Localize.lcid = lcid
             Localize.translation = translation
             locale.setlocale(locale.LC_TIME, lcid)
+
+            mappings_path = f'{Localize.localedir}{os.sep}{Localize.lcid}{os.sep}mappings.py'
+
+            if os.path.isfile(mappings_path):
+                with open(mappings_path, 'r') as mappings:
+                    exec(mappings.read(), MAPPINGS)
         else:
             Localize.reset()
 
@@ -41,6 +47,7 @@ class Localize:
         Localize.lcid = None
         Localize.translation = None
         locale.setlocale(locale.LC_TIME, 'en_US')
+        MAPPINGS = {}
 
 
 def _(input: str, context: str = None) -> str:
@@ -57,9 +64,5 @@ def _(input: str, context: str = None) -> str:
 def gender(index: int|float) -> str:
     if Localize.translation is None:
         return None
-
-    if not MAPPINGS:
-        with open(f'{Localize.localedir}{os.sep}{Localize.lcid}{os.sep}mappings.py', 'r') as mappings:
-            exec(mappings.read(), MAPPINGS)
 
     return MAPPINGS['GENDERS'][index] if index in MAPPINGS['GENDERS'] else genders.AMBIGUOUS

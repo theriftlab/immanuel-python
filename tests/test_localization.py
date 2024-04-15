@@ -498,7 +498,9 @@ def test_formatted_aspect(native):
 def test_formatted_object(native):
     settings.locale = 'pt_BR'
     natal = charts.Natal(native)
-    assert str(natal.objects[chart.SUN]) == 'Sol 10°37\'26" em Capricórnio, Casa 11'
+    assert str(natal.objects[chart.SUN]) == 'Sol 10°37\'26" em Capricórnio, Casa 11, Direto'
+    assert str(natal.objects[chart.ASC]) == 'Ascendente 05°36\'38" em Peixes, Casa 1'
+    assert str(natal.houses[chart.HOUSE2]) == 'Casa 2 17°59\'40" em Áries'
 
 
 def test_formatted_subject(native):

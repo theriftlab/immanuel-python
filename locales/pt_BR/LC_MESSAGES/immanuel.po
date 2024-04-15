@@ -606,10 +606,6 @@ msgstr "{type} entre {active} e {passive} dentro de {difference} ({movement}, {c
 msgid "{name} {longitude} in {sign}"
 msgstr "{name} {longitude} em {sign}"
 
-# For objects in signs and houses, eg. Sun 10°37'26" in Capricorn, 11th House
-msgid "{name} {longitude} in {sign}, {house}"
-msgstr "{name} {longitude} em {sign}, {house}"
-
 # For chart subjects, eg. Sat Jan 01 2000 10:00:00 AM PST at 32N43.0, 117W9.0
 msgid "{date_time} at {lat}, {lon}"
 msgstr "{date_time} em {lat}, {lon}"
