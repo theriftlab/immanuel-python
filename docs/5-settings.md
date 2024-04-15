@@ -72,6 +72,14 @@ settings.aspect_rules |= {
 
 There are many detailed customizations for chart data, especially for aspect rules. This section will provide you with an overview, but taking a look through the defaults in `setup.py` and the const files will give you a more detailed idea.
 
+### `locale`
+
+A string specifying the locale for all output on any subsequently-generated charts or chart subjects. Available options:
+
+* `pt_BR` - Brazilian Portuguese
+
+Default: `None` (effectively `en_US`)
+
 ### `chart_data`
 
 A dict which specifies what top-level data each chart type should contain. The values here are fairly self-explanatory as the constants line up with the chart class property names described in the [Returned Data](4-data.md) section.
