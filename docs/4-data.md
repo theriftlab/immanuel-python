@@ -137,7 +137,13 @@ The core of any chart, the `objects` property is a dict of Python objects repres
     },
     "sign": {
         "number": 10,
-        "name": "Capricorn"
+        "name": "Capricorn",
+        "element": "Earth",
+        "modality": "Cardinal"
+    },
+    "decan": {
+        "number": 2,
+        "name": "2nd Decan"
     },
     "house": {
         "index": 2000011,
@@ -226,7 +232,13 @@ A dict of Python objects keyed by index. Each house will look something like thi
     },
     "sign": {
         "number": 12,
-        "name": "Pisces"
+        "name": "Pisces",
+        "element": "Water",
+        "modality": "Mutable"
+    },
+    "decan": {
+        "number": 1,
+        "name": "1st Decan"
     },
     "speed": 516.3767707094903,
     "declination": {
@@ -577,7 +589,7 @@ print(natal.objects[chart.SUN])
 Which will output the Sun's information only:
 
 ```
-Sun 10°37'26" in Capricorn, 11th House
+Sun 10°37'26" in Capricorn, 11th House, Direct
 ```
 
 Or to make the aspect code from earlier a little easier to read:

@@ -85,8 +85,8 @@ The (abridged) output will look something like this:
 Daytime: True
 Moon phase: Third Quarter
 
-Sun 10°37'26" in Capricorn, 11th House
-Moon 16°19'29" in Scorpio, 8th House
+Sun 10°37'26" in Capricorn, 11th House, Direct
+Moon 16°19'29" in Scorpio, 8th House, Direct
 ... etc.
 
 Aspects for Sun:
