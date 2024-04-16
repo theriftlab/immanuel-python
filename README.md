@@ -15,7 +15,7 @@ Simply pass in a date and coordinates to one of the available chart classes, and
 
 ## Documentation
 
-Full documentation is available [here](https://github.com/theriftlab/immanuel-python/tree/v1.2.4/docs/0-contents.md), or follow the Quick Start below to see how to quickly generate a natal chart.
+Full documentation is available [here](https://github.com/theriftlab/immanuel-python/tree/v1.3.0/docs/0-contents.md), or follow the Quick Start below to see how to quickly generate a natal chart.
 
 ## Translations
 
@@ -25,7 +25,7 @@ Immanuel is currently available in the following locales / languages:
 * **pt_BR:** Brazilian Portuguese
 * Coming soon: Spanish translation
 
-See [the documentation](/docs/5-settings.md#locale) on how to switch. The documentation itself is not currently available in other translations. To contribute translations, see [below](#contributions).
+See [the documentation](https://github.com/theriftlab/immanuel-python/tree/v1.3.0/docs/5-settings.md#locale) on how to switch. The documentation itself is not currently available in other translations. To contribute translations, see [below](#contributions).
 
 ## Quick Start
 
