@@ -15,7 +15,7 @@ Simply pass in a date and coordinates to one of the available chart classes, and
 
 ## Documentation
 
-Full documentation is available [here](https://github.com/theriftlab/immanuel-python/tree/v1.3.0/docs/0-contents.md), or follow the Quick Start below to see how to quickly generate a natal chart.
+Full documentation is available [here](https://github.com/theriftlab/immanuel-python/tree/v1.3.1/docs/0-contents.md), or follow the Quick Start below to see how to quickly generate a natal chart.
 
 ## Translations
 
@@ -25,7 +25,7 @@ Immanuel is currently available in the following locales / languages:
 * **pt_BR:** Brazilian Portuguese
 * Coming soon: Spanish translation
 
-See [the documentation](https://github.com/theriftlab/immanuel-python/tree/v1.3.0/docs/5-settings.md#locale) on how to switch. The documentation itself is not currently available in other translations. To contribute translations, see [below](#contributions).
+See [the documentation](https://github.com/theriftlab/immanuel-python/tree/v1.3.1/docs/5-settings.md#locale) on how to switch. The documentation itself is not currently available in other translations. To contribute translations, see [below](#contributions).
 
 ## Quick Start
 
@@ -283,9 +283,9 @@ New translations for Immanuel's output are always welcome, although it is curren
 
 * Fork the repo.
 * Create a branch named after the locale, eg. `translations/pr_BR` - locale names for various languages can be found online, for example [here](https://learn.microsoft.com/en-us/openspecs/office_standards/ms-oe376/6c085406-a698-4e12-9d4d-c3b0ee3dbc4a), although you should use an underscore rather than a hyphen.
-* Create a subdirectory in `/locales` named after your locale code, and another sub-directory under this called `LC_MESSAGES`.
+* Create a subdirectory in `/immanuel/locales` named after your locale code, and another sub-directory under this called `LC_MESSAGES`.
 * Copy `locales/immanuel.pot` into the new `LC_MESSAGES` sub-directory and rename it `immanuel.po`.
-* For every English word in a `msgid` string, if there is a direct translation in your language, enter it in the following empty `msgstr`. For gendered adjectives, you will need to add all gendered variants using `msgctxt` like this:
+* Within `immanuel.po`, for every English word or sentence in a `msgid` string, if there is a direct translation in your language, enter it in the following empty `msgstr`. For gendered adjectives, you will need to add all gendered variants using `msgctxt` like this:
 ```
 msgctxt "masculine"
 msgid "Applicative"
