@@ -56,8 +56,16 @@ for object in natal.objects.values():
 This will output all the chart objects (planets, points, asteroids etc.) in this format:
 
 ```
-Sun 10°37'26" in Capricorn, 11th House
-Moon 16°19'29" in Scorpio, 8th House
+Sun 10°37'26" in Capricorn, 11th House, Direct
+Moon 16°19'29" in Scorpio, 8th House, Direct
+Mercury 02°16'43" in Capricorn, 10th House, Direct
+Venus 01°52'05" in Sagittarius, 9th House, Direct
+Mars 28°09'26" in Aquarius, 12th House, Direct
+Jupiter 25°15'48" in Aries, 2nd House, Direct
+Saturn 10°23'27" in Taurus, 2nd House, Retrograde
+Uranus 14°49'19" in Aquarius, 12th House, Direct
+Neptune 03°12'07" in Aquarius, 12th House, Direct
+Pluto 11°27'49" in Sagittarius, 9th House, Direct
 ...
 ```
 
@@ -85,7 +93,7 @@ for object in natal.objects.values():
 Now you will see this appended to the list:
 
 ```
-Ceres 04°30'28" in Libra, 7th House
+Ceres 04°30'28" in Libra, 7th House, Direct
 ```
 
 More on the settings & constants in the full documentation - for now, we can see much more data by serializing the chart's `objects` property to JSON like this:
