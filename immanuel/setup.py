@@ -23,7 +23,7 @@ class BaseSettings:
         self._locale = None
 
         """ Default ephemeris file path. """
-        self._file_path = f'{os.path.dirname(__file__)}{os.sep}..{os.sep}resources{os.sep}ephemeris'
+        self._file_path = f'{os.path.dirname(__file__)}{os.sep}resources{os.sep}ephemeris'
 
         """ Data that should be included for each chart type's output. """
         self.chart_data = {

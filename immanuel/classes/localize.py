@@ -22,7 +22,7 @@ MAPPINGS = {}
 class Localize:
     lcid = None
     translation = None
-    localedir = f'{os.path.dirname(__file__)}{os.sep}..{os.sep}..{os.sep}locales'
+    localedir = f'{os.path.dirname(__file__)}{os.sep}..{os.sep}locales'
 
     def set_locale(lcid: str) -> None:
         FunctionCache.clear_all()
