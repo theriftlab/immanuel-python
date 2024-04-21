@@ -96,6 +96,11 @@ class BaseSettings:
 
         self.default_longitude = -0.0015
 
+        """ Whether or not the stringified output of chart objects should
+        always display the object's motion even when it is typical for
+        that object. """
+        self.output_typical_object_motion = False
+
         """ House system as supported by pyswisseph. """
         self.house_system = chart.PLACIDUS
 

@@ -235,7 +235,7 @@ class Object:
         if hasattr(self, 'house'):
             formatted += f', {_(self.house)}'
 
-        if hasattr(self, 'movement'):
+        if hasattr(self, 'movement') and (settings.output_typical_object_motion or not self.movement.typical):
             formatted += f', {_(self.movement)}'
 
         return formatted
@@ -247,6 +247,7 @@ class ObjectMovement:
         self.direct = self._movement == calc.DIRECT
         self.stationary = self._movement == calc.STATIONARY
         self.retrograde = self._movement == calc.RETROGRADE
+        self.typical = calculate.object_movement_typical(object)
         self.formatted = _(names.OBJECT_MOVEMENTS[self._movement], gender(object['index']))
 
     def __str__(self) -> str:
