@@ -1,0 +1,624 @@
+# Immanuel translatable strings for Spanish
+# This file is distributed under the same license as the PACKAGE package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2024-04-22 03:12-1200\n"
+"Last-Translator: Nathan Octavio\n"
+"Language: Spanish\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+
+# Chart types
+
+msgid "Natal"
+msgstr "Natal"
+
+msgid "Solar Return"
+msgstr "Retorno Solar"
+
+msgid "Progressed"
+msgstr "Progressado"
+
+msgid "Composite"
+msgstr "Compuesto"
+
+
+# Objects
+
+msgid "House"
+msgstr "Casa"
+
+msgid "Angle"
+msgstr "Ángulo"
+
+msgid "Planet"
+msgstr "Planeta"
+
+msgid "Asteroid"
+msgstr "Asteroide"
+
+msgid "Point"
+msgstr "Punto"
+
+msgid "Eclipse"
+msgstr "Eclipse"
+
+msgid "Fixed star"
+msgstr "Estrella fija"
+
+
+# Signs
+
+msgid "Aries"
+msgstr "Aries"
+
+msgid "Taurus"
+msgstr "Tauro"
+
+msgid "Gemini"
+msgstr "Géminis"
+
+msgid "Cancer"
+msgstr "Cáncer"
+
+msgid "Leo"
+msgstr "Leo"
+
+msgid "Virgo"
+msgstr "Virgo"
+
+msgid "Libra"
+msgstr "Libra"
+
+msgid "Scorpio"
+msgstr "Escorpio"
+
+msgid "Sagittarius"
+msgstr "Sagitario"
+
+msgid "Capricorn"
+msgstr "Capricornio"
+
+msgid "Aquarius"
+msgstr "Acuario"
+
+msgid "Pisces"
+msgstr "Piscis"
+
+
+# Decans
+
+msgid "1st Decan"
+msgstr "1º Decanato"
+
+msgid "2nd Decan"
+msgstr "2º Decanato"
+
+msgid "3rd Decan"
+msgstr "3º Decanato"
+
+
+# Elements
+
+msgid "Fire"
+msgstr "Fuego"
+
+msgid "Earth"
+msgstr "Tierra"
+
+msgid "Air"
+msgstr "Aire"
+
+msgid "Water"
+msgstr "Agua"
+
+
+# Modalities
+
+msgid "Cardinal"
+msgstr "Cardinal"
+
+msgid "Fixed"
+msgstr "Fijo"
+
+msgid "Mutable"
+msgstr "Mutable"
+
+
+# House Systems
+
+msgid "Alcabitus"
+msgstr "Alcabitius"
+
+msgid "Azimuthal"
+msgstr "Azimutal"
+
+msgid "Campanus"
+msgstr "Campanus"
+
+msgid "Equal House"
+msgstr "Casas iguales"
+
+msgid "Koch"
+msgstr "Koch"
+
+msgid "Meridian"
+msgstr "Meridiano"
+
+msgid "Morinus"
+msgstr "Morinus"
+
+msgid "Placidus"
+msgstr "Placidus"
+
+msgid "Polich Page"
+msgstr "Polich Page"
+
+msgid "Porphyrius"
+msgstr "Porfirio"
+
+msgid "Regiomontanus"
+msgstr "Regiomontanus"
+
+msgid "Vehlow Equal House"
+msgstr "Vehlow"
+
+msgid "Whole Sign"
+msgstr "Signos enteros"
+
+
+# Houses
+
+msgid "1st House"
+msgstr "Casa 1"
+
+msgid "2nd House"
+msgstr "Casa 2"
+
+msgid "3rd House"
+msgstr "Casa 3"
+
+msgid "4th House"
+msgstr "Casa 4"
+
+msgid "5th House"
+msgstr "Casa 5"
+
+msgid "6th House"
+msgstr "Casa 6"
+
+msgid "7th House"
+msgstr "Casa 7"
+
+msgid "8th House"
+msgstr "Casa 8"
+
+msgid "9th House"
+msgstr "Casa 9"
+
+msgid "10th House"
+msgstr "Casa 10"
+
+msgid "11th House"
+msgstr "Casa 11"
+
+msgid "12th House"
+msgstr "Casa 12"
+
+
+# Angles
+
+msgid "Asc"
+msgstr "Ascendente"
+
+msgid "Desc"
+msgstr "Descendente"
+
+msgid "MC"
+msgstr "Medio Cielo"
+
+msgid "IC"
+msgstr "Fondo del Cielo"
+
+msgid "ARMC"
+msgstr "ARMC"
+
+
+# Planets
+
+msgid "Sun"
+msgstr "Sol"
+
+msgid "Moon"
+msgstr "Luna"
+
+msgid "Mercury"
+msgstr "Mercurio"
+
+msgid "Venus"
+msgstr "Venus"
+
+msgid "Mars"
+msgstr "Marte"
+
+msgid "Jupiter"
+msgstr "Júpiter"
+
+msgid "Saturn"
+msgstr "Saturno"
+
+msgid "Uranus"
+msgstr "Urano"
+
+msgid "Neptune"
+msgstr "Neptuno"
+
+msgid "Pluto"
+msgstr "Plutón"
+
+
+# Asteroids
+
+msgid "Chiron"
+msgstr "Quirón"
+
+msgid "Pholus"
+msgstr "Folo"
+
+msgid "Ceres"
+msgstr "Ceres"
+
+msgid "Pallas"
+msgstr "Palas"
+
+msgid "Juno"
+msgstr "Juno"
+
+msgid "Vesta"
+msgstr "Vesta"
+
+
+# Points
+
+msgid "North Node"
+msgstr "Nodo Norte"
+
+msgid "South Node"
+msgstr "Nodo Sur"
+
+msgid "True North Node"
+msgstr "Nodo Norte Verdadero"
+
+msgid "True South Node"
+msgstr "Nodo Sur Verdadero"
+
+msgid "Vertex"
+msgstr "Vértice"
+
+msgid "Lilith"
+msgstr "Lilith"
+
+msgid "True Lilith"
+msgstr "Lilith Verdadera"
+
+msgid "Syzygy"
+msgstr "Sizigia"
+
+msgid "Part of Fortune"
+msgstr "Parte de la Fortuna"
+
+
+# Eclipses
+
+msgid "Pre-natal Lunar Eclipse"
+msgstr "Eclipse Lunar Prenatal"
+
+msgid "Pre-natal Solar Eclipse"
+msgstr "Eclipse Solar Prenatal"
+
+msgid "Post-natal Lunar Eclipse"
+msgstr "Eclipse Lunar Postnatal"
+
+msgid "Post-natal Solar Eclipse"
+msgstr "Eclipse Solar Postnatal"
+
+
+# Eclipse types
+
+msgid "Total"
+msgstr "Total"
+
+msgid "Annular"
+msgstr "Anelar"
+
+msgid "Partial"
+msgstr "Parcial"
+
+msgid "Annular Total"
+msgstr "Anelar Total"
+
+msgid "Penumbral"
+msgstr "Penumbral"
+
+
+# Aspects
+
+msgid "Conjunction"
+msgstr "Conjunción"
+
+msgid "Opposition"
+msgstr "Oposición"
+
+msgid "Square"
+msgstr "Cuadratura"
+
+msgid "Trine"
+msgstr "Trígono"
+
+msgid "Sextile"
+msgstr "Sextil"
+
+msgid "Septile"
+msgstr "Septil"
+
+msgid "Semisquare"
+msgstr "Semiquadratura"
+
+msgid "Sesquisquare"
+msgstr "Sesquicuadratura"
+
+msgid "Semisextile"
+msgstr "Semisextil"
+
+msgid "Quincunx"
+msgstr "Quincuncio"
+
+msgid "Quintile"
+msgstr "Quintil"
+
+msgid "Biquintile"
+msgstr "Biquintil"
+
+
+# Aspect Movements
+
+msgctxt "masculine"
+msgid "Applicative"
+msgstr "Aplicativo"
+
+msgctxt "feminine"
+msgid "Applicative"
+msgstr "Aplicativa"
+
+msgctxt "masculine"
+msgid "Exact"
+msgstr "Exacto"
+
+msgctxt "feminine"
+msgid "Exact"
+msgstr "Exacta"
+
+msgctxt "masculine"
+msgid "Separative"
+msgstr "Separativo"
+
+msgctxt "feminine"
+msgid "Separative"
+msgstr "Separativa"
+
+
+# Aspect Conditions
+
+msgctxt "masculine"
+msgid "Associate"
+msgstr "Asociado"
+
+msgctxt "feminine"
+msgid "Associate"
+msgstr "Asociada"
+
+msgctxt "masculine"
+msgid "Dissociate"
+msgstr "Disociado"
+
+msgctxt "feminine"
+msgid "Dissociate"
+msgstr "Disociada"
+
+
+# Dignities
+
+msgid "Ruler"
+msgstr "Regente"
+
+msgctxt "masculine"
+msgid "Exalted"
+msgstr "Exaltado"
+
+msgctxt "feminine"
+msgid "Exalted"
+msgstr "Exaltada"
+
+msgid "Triplicity Ruler"
+msgstr "Regente de Triplicidad"
+
+msgid "Term Ruler"
+msgstr "Regente de Término"
+
+msgid "Face Ruler"
+msgstr "Regente de Decanato"
+
+msgid "Ruler by mutual reception"
+msgstr "Regente por recepción mutua"
+
+msgctxt "masculine"
+msgid "Exalted by mutual reception"
+msgstr "Exaltado por recepción mutua"
+
+msgctxt "feminine"
+msgid "Exalted by mutual reception"
+msgstr "Exaltada por recepción mutua"
+
+msgid "Triplicity Ruler by mutual reception"
+msgstr "Regente de Triplicidad por recepción mutua"
+
+msgid "Term Ruler by mutual reception"
+msgstr "Regente de Término por recepción mutua"
+
+msgid "Face Ruler by mutual reception"
+msgstr "Regente de Decanato por recepción mutua"
+
+msgid "In rulership element"
+msgstr "En su elemento de regencia"
+
+msgid "Detriment"
+msgstr "Em Detrimento"
+
+msgid "Fall"
+msgstr "Em Caída"
+
+msgctxt "masculine"
+msgid "Peregrine"
+msgstr "Peregrino"
+
+msgctxt "feminine"
+msgid "Peregrine"
+msgstr "Peregrina"
+
+
+# Moon Phases
+
+msgid "New"
+msgstr "Nueva"
+
+msgid "Waxing Crescent"
+msgstr "Creciente"
+
+msgid "First Quarter"
+msgstr "Cuarto Creciente"
+
+msgid "Waxing Gibbous"
+msgstr "Gibosa Creciente"
+
+msgid "Full"
+msgstr "Llena"
+
+msgid "Disseminating"
+msgstr "Gibosa Menguante"
+
+msgid "Third Quarter"
+msgstr "Cuarto Menguante"
+
+msgid "Balsamic"
+msgstr "Minguante"
+
+
+# Object Movements
+
+msgctxt "masculine"
+msgid "Direct"
+msgstr "Directo"
+
+msgctxt "feminine"
+msgid "Direct"
+msgstr "Directa"
+
+msgctxt "ambiguous"
+msgid "Direct"
+msgstr "Directo(a)"
+
+msgctxt "masculine"
+msgid "Stationary"
+msgstr "Estacionario"
+
+msgctxt "feminine"
+msgid "Stationary"
+msgstr "Estacionaria"
+
+msgctxt "ambiguous"
+msgid "Stationary"
+msgstr "Estacionario(a)"
+
+msgctxt "masculine"
+msgid "Retrograde"
+msgstr "Retrógrado"
+
+msgctxt "feminine"
+msgid "Retrograde"
+msgstr "Retrógrada"
+
+msgctxt "ambiguous"
+msgid "Retrograde"
+msgstr "Retrógrado(a)"
+
+
+# Chart Shapes
+
+msgid "Bundle"
+msgstr "Haz"
+
+msgid "Bucket"
+msgstr "Cubo"
+
+msgid "Bowl"
+msgstr "Cuenco"
+
+msgid "Locomotive"
+msgstr "Locomotora"
+
+msgid "Seesaw"
+msgstr "Balancín"
+
+msgid "Splay"
+msgstr "Disperso"
+
+msgid "Splash"
+msgstr "Salpicadura"
+
+
+# Progression Methods
+
+msgid "Naibod"
+msgstr "Naibod"
+
+msgid "Solar Arc"
+msgstr "Arco Solar"
+
+msgid "Daily Houses"
+msgstr "Casas Diarias"
+
+
+# Formatted sentences & words
+
+# For datetimes, eg. Sun Nov 06 2022 01:30:00 AM PDT (ambiguous)
+msgid "ambiguous"
+msgstr "ambíguo"
+
+# For aspects, eg. Moon Sun Sextile within -05°42'03" (Separative, Associate)
+msgid "{active} {passive} {type} within {difference} ({movement}, {condition})"
+msgstr {type} entre {active} y {passive} dentro de {difference} ({movement}, {condition})"
+
+# For houses in signs, eg. 2nd House 17°59'40" in Aries
+msgid "{name} {longitude} in {sign}"
+msgstr "{name} {longitude} en {sign}"
+
+# For chart subjects, eg. Sat Jan 01 2000 10:00:00 AM PST at 32N43.0, 117W9.0
+msgid "{date_time} at {lat}, {lon}"
+msgstr "{date_time} en {lat}, {lon}"
+
+# For quadrant weighting
+msgid "First"
+msgstr "Primero"
+
+msgid "Second"
+msgstr "Segundo"
+
+msgid "Third"
+msgstr "Tercero"
+
+msgid "Fourth"
+msgstr "Cuarto"
