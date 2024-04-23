@@ -23,9 +23,9 @@ Immanuel is currently available in the following locales / languages:
 
 * **en_US:** (default) US English
 * **pt_BR:** Brazilian Portuguese
-* Coming soon: Spanish translation
+* **es_ES:** Spanish
 
-See [the documentation](https://github.com/theriftlab/immanuel-python/tree/v1.3.2/docs/5-settings.md#locale) on how to switch. The documentation itself is not currently available in other translations. To contribute translations, see [below](#contributions).
+See [the documentation](https://github.com/theriftlab/immanuel-python/tree/v1.3.2/docs/5-settings.md#locale) on how to switch. The documentation itself is not currently available in other translations. To contribute in-software translations, see [below](#contributions).
 
 ## Quick Start
 
@@ -283,8 +283,8 @@ New translations for Immanuel's output are always welcome, although it is curren
 
 * Fork the repo.
 * Create a branch named after the locale, eg. `translations/pr_BR` - locale names for various languages can be found online, for example [here](https://learn.microsoft.com/en-us/openspecs/office_standards/ms-oe376/6c085406-a698-4e12-9d4d-c3b0ee3dbc4a), although you should use an underscore rather than a hyphen.
-* Create a subdirectory in `/immanuel/locales` named after your locale code, and another sub-directory under this called `LC_MESSAGES`.
-* Copy `locales/immanuel.pot` into the new `LC_MESSAGES` sub-directory and rename it `immanuel.po`.
+* Create a subdirectory named after your locale code in the existing `immanuel/locales` directory, and another sub-directory under this called `LC_MESSAGES`.
+* Copy `immanuel/locales/immanuel.pot` into the new `LC_MESSAGES` sub-directory and rename it `immanuel.po`.
 * Within `immanuel.po`, for every English word or sentence in a `msgid` string, if there is a direct translation in your language, enter it in the following empty `msgstr`. For gendered adjectives, you will need to add all gendered variants using `msgctxt` like this:
 ```
 msgctxt "masculine"

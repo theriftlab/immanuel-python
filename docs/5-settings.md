@@ -77,6 +77,7 @@ There are many detailed customizations for chart data, especially for aspect rul
 A string specifying the locale for all output on any subsequently-generated charts or chart subjects. Available options:
 
 * `pt_BR` - Brazilian Portuguese
+* `es_ES` - Spanish
 
 Default: `None` (effectively `en_US`)
 

@@ -600,7 +600,7 @@ msgstr "ambíguo"
 
 # For aspects, eg. Moon Sun Sextile within -05°42'03" (Separative, Associate)
 msgid "{active} {passive} {type} within {difference} ({movement}, {condition})"
-msgstr {type} entre {active} y {passive} dentro de {difference} ({movement}, {condition})"
+msgstr "{type} entre {active} y {passive} dentro de {difference} ({movement}, {condition})"
 
 # For houses in signs, eg. 2nd House 17°59'40" in Aries
 msgid "{name} {longitude} in {sign}"

@@ -26,8 +26,7 @@ def sign(object: dict | float) -> int:
 
 
 def sign_longitude(object: dict | float) -> tuple:
-    """ Returns the index of the zodiac sign the passed object
-    belongs to, and the sign-specific longitude inside it. """
+    """ Returns the sign-specific longitude. """
     return (object['lon'] if isinstance(object, dict) else object) % 30
 
 

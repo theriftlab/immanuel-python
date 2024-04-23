@@ -62,7 +62,7 @@ def object_movement_typical(object: dict) -> bool:
     """ Returns whether an object's movement is typical, ie. direct for planets,
     retrograde for nodes, stationary for Part of Fortune and eclipses. """
     if object['index'] in (chart.PARS_FORTUNA, chart.PRE_NATAL_SOLAR_ECLIPSE, chart.PRE_NATAL_LUNAR_ECLIPSE, chart.POST_NATAL_SOLAR_ECLIPSE, chart.POST_NATAL_SOLAR_ECLIPSE):
-        return True
+        return object['speed'] == 0.0
 
     movement = object_movement(object)
     is_node = object['index'] in (chart.NORTH_NODE, chart.SOUTH_NODE, chart.TRUE_NORTH_NODE, chart.TRUE_SOUTH_NODE)
