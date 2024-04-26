@@ -626,3 +626,4 @@ Fixed stars (which are included without you having to bring your own ephemeris f
 4. Returned Data
 5. [Settings](5-settings.md)
 6. [Submodules](6-submodules.md)
+7. [Contributions](7-contributions.md)

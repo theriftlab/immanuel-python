@@ -13,19 +13,19 @@ Data for natal charts, solar returns, progressions, and composites are available
 
 Simply pass in a date and coordinates to one of the available chart classes, and the returned instance will contain all data necessary to construct a full astrological chart. A serializer is bundled to easily output all data as JSON, or it can simply be printed out as human-readable text.
 
-## Documentation
-
-Full documentation is available [here](https://github.com/theriftlab/immanuel-python/tree/v1.3.2/docs/0-contents.md), or follow the Quick Start below to see how to quickly generate a natal chart.
-
 ## Translations
 
-Immanuel is currently available in the following locales / languages:
+Immanuel's output is currently available in the following locales / languages:
 
 * **en_US:** (default) US English
 * **pt_BR:** Brazilian Portuguese
 * **es_ES:** Spanish
 
-See [the documentation](https://github.com/theriftlab/immanuel-python/tree/v1.3.2/docs/5-settings.md#locale) on how to switch. The documentation itself is not currently available in other translations. To contribute in-software translations, see [below](#contributions).
+See [here](https://github.com/theriftlab/immanuel-python/tree/v1.3.2/docs/5-settings.md#locale) for details on how to switch. The documentation itself is not currently available in other translations. To contribute in-software translations, see [here](https://github.com/theriftlab/immanuel-python/tree/v1.3.2/docs/7-contributions.md).
+
+## Documentation
+
+Full documentation is available [here](https://github.com/theriftlab/immanuel-python/tree/v1.3.2/docs/0-contents.md), or follow the Quick Start below to see how to quickly generate a natal chart.
 
 ## Quick Start
 
@@ -56,16 +56,16 @@ for object in natal.objects.values():
 This will output all the chart objects (planets, points, asteroids etc.) in this format:
 
 ```
-Sun 10°37'26" in Capricorn, 11th House, Direct
-Moon 16°19'29" in Scorpio, 8th House, Direct
-Mercury 02°16'43" in Capricorn, 10th House, Direct
-Venus 01°52'05" in Sagittarius, 9th House, Direct
-Mars 28°09'26" in Aquarius, 12th House, Direct
-Jupiter 25°15'48" in Aries, 2nd House, Direct
+Sun 10°37'26" in Capricorn, 11th House
+Moon 16°19'29" in Scorpio, 8th House
+Mercury 02°16'43" in Capricorn, 10th House
+Venus 01°52'05" in Sagittarius, 9th House
+Mars 28°09'26" in Aquarius, 12th House
+Jupiter 25°15'48" in Aries, 2nd House
 Saturn 10°23'27" in Taurus, 2nd House, Retrograde
-Uranus 14°49'19" in Aquarius, 12th House, Direct
-Neptune 03°12'07" in Aquarius, 12th House, Direct
-Pluto 11°27'49" in Sagittarius, 9th House, Direct
+Uranus 14°49'19" in Aquarius, 12th House
+Neptune 03°12'07" in Aquarius, 12th House
+Pluto 11°27'49" in Sagittarius, 9th House
 ...
 ```
 
@@ -93,7 +93,7 @@ for object in natal.objects.values():
 Now you will see this appended to the list:
 
 ```
-Ceres 04°30'28" in Libra, 7th House, Direct
+Ceres 04°30'28" in Libra, 7th House
 ```
 
 More on the settings & constants in the full documentation - for now, we can see much more data by serializing the chart's `objects` property to JSON like this:
@@ -249,6 +249,7 @@ Planetary dignity scores are based on those of Astro Gold, although these are so
 
 The full documentation covers settings in detail, but much of the output can be customized. The settings class allows you to specify and personalize:
 
+* Locale / language
 * The house system to use
 * What data each chart returns
 * What planets, points, asteroid etc. to include
@@ -275,29 +276,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 Immanuel is forever indebted to the pioneering work of Alois Treindl and Dieter Koch at Astrodienst, and to João Ventura for the incredibly detailed [flatlib](https://github.com/flatangle/flatlib) which first inspired the development of this package.
 
-A big thank-you goes to Nathan Octavio who suggested translations, and who translated Immanuel into Brazilian Portuguese.
-
-## Contributions
-
-New translations for Immanuel's output are always welcome, although it is currently geared to Western-European languages. If you would like to contribute a translation, follow these steps:
-
-* Fork the repo.
-* Create a branch named after the locale, eg. `translations/pr_BR` - locale names for various languages can be found online, for example [here](https://learn.microsoft.com/en-us/openspecs/office_standards/ms-oe376/6c085406-a698-4e12-9d4d-c3b0ee3dbc4a), although you should use an underscore rather than a hyphen.
-* Create a subdirectory named after your locale code in the existing `immanuel/locales` directory, and another sub-directory under this called `LC_MESSAGES`.
-* Copy `immanuel/locales/immanuel.pot` into the new `LC_MESSAGES` sub-directory and rename it `immanuel.po`.
-* Within `immanuel.po`, for every English word or sentence in a `msgid` string, if there is a direct translation in your language, enter it in the following empty `msgstr`. For gendered adjectives, you will need to add all gendered variants using `msgctxt` like this:
-```
-msgctxt "masculine"
-msgid "Applicative"
-msgstr "Aplicativo"
-
-msgctxt "feminine"
-msgid "Applicative"
-msgstr "Aplicativa"
-```
-* To map genders, a file `mappings.py` will need to be created under your new locale directory alongside `LC_MESSAGES`. See existing mapping files for an example of how to assign all of Immanuel's objects a gender for your language.
-* Once all translations and gender-mapping is complete, you can either compile your `.po` file to an `.mo` file or simply leave this out and I will compile it. Commit your changes and create a pull request.
-* If everything looks good, I will merge to master & prep a new release!
+A big thank-you goes to Nathan Octavio who suggested translations, and who translated Immanuel into both Brazilian Portuguese and Spanish.
 
 ## Contact
 

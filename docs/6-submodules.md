@@ -34,3 +34,4 @@ These submodules represent Immanuel's backbone and therefore contain far too muc
 4. [Returned Data](4-data.md)
 5. [Settings](5-settings.md)
 6. Submodules
+7. [Contributions](7-contributions.md)
