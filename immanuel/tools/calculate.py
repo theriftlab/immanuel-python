@@ -70,6 +70,14 @@ def object_movement_typical(object: dict) -> bool:
     return movement == calc.RETROGRADE if is_node else movement == calc.DIRECT
 
 
+def relative_position(object1: dict | float, object2: dict | float) -> int:
+    """ Calculate which side of object1 object2 is. """
+    lon1 = object1['lon'] if isinstance(object1, dict) else object1
+    lon2 = object2['lon'] if isinstance(object2, dict) else object2
+
+    return calc.OCCIDENTAL if swe.difdegn(lon1, lon2) > 180 else calc.ORIENTAL
+
+
 def is_out_of_bounds(object: dict | float, jd: float = None, obliquity: float = None) -> bool:
     """ Returns whether the passed object is out of bounds either on the passed
     Julian date or relative to the passed obliquity. """

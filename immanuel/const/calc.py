@@ -75,6 +75,10 @@ DIRECT = 0
 RETROGRADE = 1
 STATIONARY = 2
 
+""" Relative planetary rising / setting. """
+OCCIDENTAL = 0
+ORIENTAL = 1
+
 """ MC progression formulae. """
 NAIBOD = 0
 SOLAR_ARC = 1
