@@ -43,7 +43,7 @@ GENDERS = {
     chart.LILITH: genders.FEMININE,
     chart.TRUE_LILITH: genders.FEMININE,
     chart.SYZYGY: genders.FEMININE,
-    chart.PARS_FORTUNA: genders.FEMININE,
+    chart.PART_OF_FORTUNE: genders.FEMININE,
 
     chart.PRE_NATAL_SOLAR_ECLIPSE: genders.MASCULINE,
     chart.PRE_NATAL_LUNAR_ECLIPSE: genders.MASCULINE,

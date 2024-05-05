@@ -50,9 +50,9 @@ def test_for_object(objects):
         chart.ASC: settings.default_aspect_rule,          # astro.com chart visual does not include aspects to Asc but its aspects table does
     }
     a = aspect.for_object(objects[chart.SUN], objects)
-    assert sorted(tuple(a.keys())) == sorted((chart.ASC, chart.PARS_FORTUNA, chart.MOON, chart.MERCURY, chart.SATURN))
+    assert sorted(tuple(a.keys())) == sorted((chart.ASC, chart.PART_OF_FORTUNE, chart.MOON, chart.MERCURY, chart.SATURN))
     assert a[chart.ASC]['aspect'] == calc.SEXTILE
-    assert a[chart.PARS_FORTUNA]['aspect'] == calc.CONJUNCTION
+    assert a[chart.PART_OF_FORTUNE]['aspect'] == calc.CONJUNCTION
     assert a[chart.MOON]['aspect'] == calc.SEXTILE
     assert a[chart.MERCURY]['aspect'] == calc.CONJUNCTION
     assert a[chart.SATURN]['aspect'] == calc.TRINE

@@ -132,7 +132,7 @@ POINTS = {
     chart.LILITH: 'Lilith',
     chart.TRUE_LILITH: 'True Lilith',
     chart.SYZYGY: 'Syzygy',
-    chart.PARS_FORTUNA: 'Part of Fortune',
+    chart.PART_OF_FORTUNE: 'Part of Fortune',
 }
 
 ECLIPSES = {

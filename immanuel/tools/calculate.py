@@ -31,7 +31,7 @@ def is_daytime(sun: dict | float, asc: dict | float) -> bool:
     return swe.difdeg2n(sun_lon, asc_lon) < 0
 
 
-def pars_fortuna_longitude(sun: dict | float, moon: dict | float, asc: dict | float, formula: int) -> float:
+def part_of_fortune_longitude(sun: dict | float, moon: dict | float, asc: dict | float, formula: int) -> float:
     """ Returns the Part of Fortune longitude. """
     sun_lon, moon_lon, asc_lon = (object['lon'] if isinstance(object, dict) else object for object in (sun, moon, asc))
 
@@ -61,7 +61,7 @@ def object_movement(object: dict | float) -> int:
 def object_movement_typical(object: dict) -> bool:
     """ Returns whether an object's movement is typical, ie. direct for planets,
     retrograde for nodes, stationary for Part of Fortune and eclipses. """
-    if object['index'] in (chart.PARS_FORTUNA, chart.PRE_NATAL_SOLAR_ECLIPSE, chart.PRE_NATAL_LUNAR_ECLIPSE, chart.POST_NATAL_SOLAR_ECLIPSE, chart.POST_NATAL_SOLAR_ECLIPSE):
+    if object['index'] in (chart.PART_OF_FORTUNE, chart.PRE_NATAL_SOLAR_ECLIPSE, chart.PRE_NATAL_LUNAR_ECLIPSE, chart.POST_NATAL_SOLAR_ECLIPSE, chart.POST_NATAL_SOLAR_ECLIPSE):
         return object['speed'] == 0.0
 
     movement = object_movement(object)

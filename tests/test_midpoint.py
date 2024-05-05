@@ -118,7 +118,7 @@ def astro():
             'speed': '-00°03\'45"',
             'dec': '19°43\'43"',
         },
-        chart.PARS_FORTUNA: {
+        chart.PART_OF_FORTUNE: {
             'sign': chart.PISCES,
             'lon': '09°54\'57"',
             'lat': '00°00\'00"',

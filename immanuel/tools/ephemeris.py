@@ -69,12 +69,14 @@ _SWE = {
     chart.VERTEX: swe.VERTEX,
     chart.LILITH: swe.MEAN_APOG,
     chart.TRUE_LILITH: swe.OSCU_APOG,
+    chart.INTERPOLATED_LILITH: swe.INTP_APOG,
     chart.SYZYGY: chart.SYZYGY,
-    chart.PARS_FORTUNA: chart.PARS_FORTUNA,
+    chart.PART_OF_FORTUNE: chart.PART_OF_FORTUNE,
+    chart.LOT_OF_SPIRIT: chart.LOT_OF_SPIRIT,
 }
 
 
-def objects(object_list: tuple, jd: float, lat: float = None, lon: float = None, house_system: int = None, pars_fortuna_formula: int = None) -> dict:
+def objects(object_list: tuple, jd: float, lat: float = None, lon: float = None, house_system: int = None, lot_formula: int = None) -> dict:
     """ Helper function returns a dict of all passed chart objects. """
     return _objects(
         object_list=object_list,
@@ -82,13 +84,13 @@ def objects(object_list: tuple, jd: float, lat: float = None, lon: float = None,
         lat=lat,
         lon=lon,
         house_system=house_system,
-        pars_fortuna_formula=pars_fortuna_formula,
+        lot_formula=lot_formula,
         armc=None,
         armc_obliquity=None
     )
 
 
-def armc_objects(object_list: tuple, jd: float, armc: float, lat: float = None, lon: float = None, obliquity: float = None, house_system: int = None, pars_fortuna_formula: int = None) -> dict:
+def armc_objects(object_list: tuple, jd: float, armc: float, lat: float = None, lon: float = None, obliquity: float = None, house_system: int = None, lot_formula: int = None) -> dict:
     """ Helper function returns a dict of all passed chart objects
     with points & angles calculated from the passed ARMC. """
     return _objects(
@@ -97,13 +99,13 @@ def armc_objects(object_list: tuple, jd: float, armc: float, lat: float = None, 
         lat=lat,
         lon=lon,
         house_system=house_system,
-        pars_fortuna_formula=pars_fortuna_formula,
+        lot_formula=lot_formula,
         armc=armc,
         armc_obliquity=obliquity
     )
 
 
-def get(index: int | str, jd: float, lat: float = None, lon: float = None, house_system: int = None, pars_fortuna_formula: int = None) -> dict:
+def get(index: int | str, jd: float, lat: float = None, lon: float = None, house_system: int = None, lot_formula: int = None) -> dict:
     """ Helper function to retrieve an angle, house, planet, point,
     asteroid, or fixed star. """
     return _get(
@@ -112,13 +114,13 @@ def get(index: int | str, jd: float, lat: float = None, lon: float = None, house
         lat=lat,
         lon=lon,
         house_system=house_system,
-        pars_fortuna_formula=pars_fortuna_formula,
+        lot_formula=lot_formula,
         armc=None,
         armc_obliquity=None
     )
 
 
-def armc_get(index: int | str, jd: float, armc: float, lat: float = None, lon: float = None, obliquity: float = None, house_system: int = None, pars_fortuna_formula: int = None) -> dict:
+def armc_get(index: int | str, jd: float, armc: float, lat: float = None, lon: float = None, obliquity: float = None, house_system: int = None, lot_formula: int = None) -> dict:
     """ Helper function to retrieve an angle, house, planet, point,
     asteroid, or fixed star with houses & angles calculated from the
     passed ARMC. """
@@ -128,7 +130,7 @@ def armc_get(index: int | str, jd: float, armc: float, lat: float = None, lon: f
         lat=lat,
         lon=lon,
         house_system=house_system,
-        pars_fortuna_formula=pars_fortuna_formula,
+        lot_formula=lot_formula,
         armc=armc,
         armc_obliquity=obliquity
     )
@@ -242,7 +244,7 @@ def armc_house(index: int, armc: float, lat: float, obliquity: float, house_syst
     )
 
 
-def point(index: int, jd: float, lat: float = None, lon: float = None, house_system: int = None, pars_fortuna_formula: int = None) -> dict:
+def point(index: int, jd: float, lat: float = None, lon: float = None, house_system: int = None, lot_formula: int = None) -> dict:
     """ Returns a calculated point by Julian date, and additionally by lat / lon
     coordinates. """
     return _point(
@@ -251,13 +253,13 @@ def point(index: int, jd: float, lat: float = None, lon: float = None, house_sys
         lat=lat,
         lon=lon,
         house_system=house_system,
-        pars_fortuna_formula=pars_fortuna_formula,
+        lot_formula=lot_formula,
         armc=None,
         armc_obliquity=None
     )
 
 
-def armc_point(index: int, jd: float, armc: float, lat: float, obliquity: float, house_system: int = None, pars_fortuna_formula: int = None) -> dict:
+def armc_point(index: int, jd: float, armc: float, lat: float, obliquity: float, house_system: int = None, lot_formula: int = None) -> dict:
     """ Returns a calculated point by Julian date, and additionally by the
     passed ARMC. """
     return _point(
@@ -266,23 +268,23 @@ def armc_point(index: int, jd: float, armc: float, lat: float, obliquity: float,
         lat=lat,
         lon=None,
         house_system=house_system,
-        pars_fortuna_formula=pars_fortuna_formula,
+        lot_formula=lot_formula,
         armc=armc,
         armc_obliquity=obliquity
     )
 
 
-def _objects(object_list: tuple, jd: float, lat: float, lon: float, house_system: int, pars_fortuna_formula: int, armc: float, armc_obliquity: float) -> dict:
+def _objects(object_list: tuple, jd: float, lat: float, lon: float, house_system: int, lot_formula: int, armc: float, armc_obliquity: float) -> dict:
     """ Function for items() and armc_items(). """
     objects = {}
 
     for index in object_list:
-        objects[index] = _get(index, jd, lat, lon, house_system, pars_fortuna_formula, armc, armc_obliquity)
+        objects[index] = _get(index, jd, lat, lon, house_system, lot_formula, armc, armc_obliquity)
 
     return objects
 
 
-def _get(index: int | str, jd: float, lat: float, lon: float, house_system: int, pars_fortuna_formula: int, armc: float, armc_obliquity: float) -> dict:
+def _get(index: int | str, jd: float, lat: float, lon: float, house_system: int, lot_formula: int, armc: float, armc_obliquity: float) -> dict:
     """ Function for get() and armc_get(). """
     if armc is not None and armc_obliquity is None:
         armc_obliquity = obliquity(jd)
@@ -303,7 +305,7 @@ def _get(index: int | str, jd: float, lat: float, lon: float, house_system: int,
             case chart.HOUSE:
                 return _house(index, jd, lat, lon, house_system, armc, armc_obliquity)
             case chart.POINT:
-                return _point(index, jd, lat, lon, house_system, pars_fortuna_formula, armc, armc_obliquity)
+                return _point(index, jd, lat, lon, house_system, lot_formula, armc, armc_obliquity)
             case chart.ECLIPSE:
                 return eclipse(index, jd)
             case (chart.ASTEROID|chart.PLANET):
@@ -344,7 +346,7 @@ def _house(index: int, jd: float, lat: float, lon: float, house_system: int, arm
     return None
 
 
-def _point(index: int, jd: float, lat: float, lon: float, house_system: int, pars_fortuna_formula: int, armc: float, armc_obliquity: float) -> dict:
+def _point(index: int, jd: float, lat: float, lon: float, house_system: int, lot_formula: int, armc: float, armc_obliquity: float) -> dict:
     """ Function for point() and armc_point(). """
     if index == chart.VERTEX:
         if armc is not None:
@@ -355,8 +357,8 @@ def _point(index: int, jd: float, lat: float, lon: float, house_system: int, par
     if index == chart.SYZYGY:
         return _syzygy(jd)
 
-    if index == chart.PARS_FORTUNA:
-        return _pars_fortuna(jd, lat, lon, pars_fortuna_formula, armc, armc_obliquity)
+    if index == chart.PART_OF_FORTUNE:
+        return _part_of_fortune(jd, lat, lon, lot_formula, armc, armc_obliquity)
 
     return _swisseph_point(index, jd)
 
@@ -622,20 +624,20 @@ def _syzygy(jd: float) -> dict:
 
 
 @cache
-def _pars_fortuna(jd: float, lat: float, lon: float, formula: int, armc: float = None, armc_obliquity: float = None) -> dict:
+def _part_of_fortune(jd: float, lat: float, lon: float, formula: int, armc: float = None, armc_obliquity: float = None) -> dict:
     """ Calculate Part of Fortune - this relies on the ascendant which will be
     consistent across all supported systems, so it is safe to pass Placidus as
     the default. """
     sun = planet(chart.SUN, jd)
     moon = planet(chart.MOON, jd)
     asc = angle(chart.ASC, jd, lat, lon, chart.PLACIDUS) if armc is None else armc_angle(chart.ASC, armc, lat, armc_obliquity, chart.PLACIDUS)
-    lon = calculate.pars_fortuna_longitude(sun, moon, asc, formula)
+    lon = calculate.part_of_fortune_longitude(sun, moon, asc, formula)
     dec = swe.cotrans((lon, 0, 0), -obliquity(jd))[1]
 
     return {
-        'index': chart.PARS_FORTUNA,
+        'index': chart.PART_OF_FORTUNE,
         'type': chart.POINT,
-        'name': _(names.POINTS[chart.PARS_FORTUNA]),
+        'name': _(names.POINTS[chart.PART_OF_FORTUNE]),
         'lon': lon,
         'lat': 0.0,
         'speed': 0.0,

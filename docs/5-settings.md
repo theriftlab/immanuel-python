@@ -183,7 +183,7 @@ A list of which chart objects should be included. Default:
 [
     chart.ASC, chart.DESC, chart.MC, chart.IC,
     chart.TRUE_NORTH_NODE, chart.TRUE_SOUTH_NODE,
-    chart.VERTEX, chart.PARS_FORTUNA,
+    chart.VERTEX, chart.PART_OF_FORTUNE,
     chart.TRUE_LILITH,
     chart.SUN, chart.MOON, chart.MERCURY, chart.VENUS, chart.MARS,
     chart.JUPITER, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.PLUTO,
@@ -233,7 +233,7 @@ Calculated points:
 * `chart.LILITH`
 * `chart.TRUE_LILITH`
 * `chart.SYZYGY`
-* `chart.PARS_FORTUNA`
+* `chart.PART_OF_FORTUNE`
 
 Pre & post-natal eclipses:
 
@@ -370,7 +370,7 @@ Default:
     chart.TRUE_NORTH_NODE: self.point_aspect_rule,
     chart.TRUE_SOUTH_NODE: self.point_aspect_rule,
     chart.SYZYGY: self.point_aspect_rule,
-    chart.PARS_FORTUNA: self.point_aspect_rule,
+    chart.PART_OF_FORTUNE: self.point_aspect_rule,
     chart.VERTEX: self.point_aspect_rule,
     chart.LILITH: self.point_aspect_rule,
     chart.TRUE_LILITH: self.point_aspect_rule,
@@ -469,7 +469,7 @@ Default:
     chart.TRUE_NORTH_NODE: self.point_orbs,
     chart.TRUE_SOUTH_NODE: self.point_orbs,
     chart.SYZYGY: self.point_orbs,
-    chart.PARS_FORTUNA: self.point_orbs,
+    chart.PART_OF_FORTUNE: self.point_orbs,
     chart.VERTEX: self.point_orbs,
     chart.LILITH: self.point_orbs,
     chart.TRUE_LILITH: self.point_orbs,
@@ -492,7 +492,7 @@ Which of the three available methods to use to progress the MC in a progressed c
 
 Default `calc.NAIBOD`.
 
-### `pars_fortuna_formula`
+### `lot_formula`
 
 Which formula to use when calculating the Part of Fortune.
 

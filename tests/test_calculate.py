@@ -43,18 +43,18 @@ def test_is_daytime(day_jd, night_jd, coords):
     assert calculate.is_daytime(sun, asc) is False
 
 
-def test_pars_fortuna_day_formula(day_jd, coords):
+def test_part_of_fortune_day_formula(day_jd, coords):
     sun, moon, asc = ephemeris.objects((chart.SUN, chart.MOON, chart.ASC), day_jd, *coords, chart.PLACIDUS).values()
-    pof = calculate.pars_fortuna_longitude(sun, moon, asc, calc.DAY_FORMULA)
+    pof = calculate.part_of_fortune_longitude(sun, moon, asc, calc.DAY_FORMULA)
     sign = position.sign(pof)
     lon = position.sign_longitude(pof)
     assert sign == chart.CAPRICORN
     assert convert.dec_to_string(lon) == '11°18\'41"'
 
 
-def test_pars_fortuna_night_formula(night_jd, coords):
+def test_part_of_fortune_night_formula(night_jd, coords):
     sun, moon, asc = ephemeris.objects((chart.SUN, chart.MOON, chart.ASC), night_jd, *coords, chart.PLACIDUS).values()
-    pof = calculate.pars_fortuna_longitude(sun, moon, asc, calc.NIGHT_FORMULA)
+    pof = calculate.part_of_fortune_longitude(sun, moon, asc, calc.NIGHT_FORMULA)
     sign = position.sign(pof)
     lon = position.sign_longitude(pof)
     assert sign == chart.SAGITTARIUS
@@ -68,12 +68,12 @@ def test_sidereal_time(day_jd, coords):
 
 
 def test_object_movement(day_jd, coords):
-    sun, moon, saturn, true_north_node, pars_fortuna = ephemeris.objects((chart.SUN, chart.MOON, chart.SATURN, chart.TRUE_NORTH_NODE, chart.PARS_FORTUNA), day_jd, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA).values()
+    sun, moon, saturn, true_north_node, part_of_fortune = ephemeris.objects((chart.SUN, chart.MOON, chart.SATURN, chart.TRUE_NORTH_NODE, chart.PART_OF_FORTUNE), day_jd, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA).values()
     assert calculate.object_movement(sun) == calc.DIRECT
     assert calculate.object_movement(moon) == calc.DIRECT
     assert calculate.object_movement(saturn) == calc.RETROGRADE
     assert calculate.object_movement(true_north_node) == calc.RETROGRADE
-    assert calculate.object_movement(pars_fortuna) == calc.STATIONARY
+    assert calculate.object_movement(part_of_fortune) == calc.STATIONARY
 
 
 def test_is_out_of_bounds(day_jd, coords):

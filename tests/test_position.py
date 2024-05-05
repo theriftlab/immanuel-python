@@ -37,7 +37,7 @@ def data(jd, coords):
         'asc': ephemeris.angle(chart.ASC, jd, *coords, chart.PLACIDUS),
         'house_2': ephemeris.house(chart.HOUSE2, jd, *coords, chart.PLACIDUS),
         'sun': ephemeris.planet(chart.SUN, jd),
-        'pof': ephemeris.point(chart.PARS_FORTUNA, jd, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA),
+        'pof': ephemeris.point(chart.PART_OF_FORTUNE, jd, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA),
         'juno': ephemeris.asteroid(chart.JUNO, jd),       # Included with planets
         'lilith': ephemeris.asteroid(1181, jd),           # From its own file
         'antares': ephemeris.fixed_star('Antares', jd),

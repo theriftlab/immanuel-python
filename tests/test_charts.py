@@ -120,9 +120,9 @@ def test_natal(native, lat, lon):
     assert natal_chart.objects[chart.MOON].sign.name == names.SIGNS[chart.SCORPIO]
     assert natal_chart.objects[chart.MOON].sign_longitude.formatted == '16°19\'29"'
 
-    assert natal_chart.objects[chart.PARS_FORTUNA].name == names.POINTS[chart.PARS_FORTUNA]
-    assert natal_chart.objects[chart.PARS_FORTUNA].sign.name == names.SIGNS[chart.CAPRICORN]
-    assert natal_chart.objects[chart.PARS_FORTUNA].sign_longitude.formatted == '11°18\'41"'
+    assert natal_chart.objects[chart.PART_OF_FORTUNE].name == names.POINTS[chart.PART_OF_FORTUNE]
+    assert natal_chart.objects[chart.PART_OF_FORTUNE].sign.name == names.SIGNS[chart.CAPRICORN]
+    assert natal_chart.objects[chart.PART_OF_FORTUNE].sign_longitude.formatted == '11°18\'41"'
 
     # Spot-check for correct object data against astro.com & Astro Gold
     assert natal_chart.objects[chart.SATURN].movement.retrograde is True
@@ -186,9 +186,9 @@ def test_solar_return(native, lat, lon, solar_return_year):
     assert solar_return_chart.objects[chart.MOON].sign.name == names.SIGNS[chart.SCORPIO]
     assert solar_return_chart.objects[chart.MOON].sign_longitude.formatted == '28°43\'43"'
 
-    assert solar_return_chart.objects[chart.PARS_FORTUNA].name == names.POINTS[chart.PARS_FORTUNA]
-    assert solar_return_chart.objects[chart.PARS_FORTUNA].sign.name == names.SIGNS[chart.TAURUS]
-    assert solar_return_chart.objects[chart.PARS_FORTUNA].sign_longitude.formatted == '24°41\'28"'
+    assert solar_return_chart.objects[chart.PART_OF_FORTUNE].name == names.POINTS[chart.PART_OF_FORTUNE]
+    assert solar_return_chart.objects[chart.PART_OF_FORTUNE].sign.name == names.SIGNS[chart.TAURUS]
+    assert solar_return_chart.objects[chart.PART_OF_FORTUNE].sign_longitude.formatted == '24°41\'28"'
 
     # Spot-check for correct object data against astro.com & Astro Gold
     assert solar_return_chart.objects[chart.SATURN].movement.retrograde is True
@@ -260,9 +260,9 @@ def test_progressed(native, lat, lon, pdt):
     assert progressed_chart.objects[chart.MOON].sign.name == names.SIGNS[chart.LIBRA]
     assert progressed_chart.objects[chart.MOON].sign_longitude.formatted == '23°50\'57"'
 
-    assert progressed_chart.objects[chart.PARS_FORTUNA].name == names.POINTS[chart.PARS_FORTUNA]
-    assert progressed_chart.objects[chart.PARS_FORTUNA].sign.name == names.SIGNS[chart.CAPRICORN]
-    assert progressed_chart.objects[chart.PARS_FORTUNA].sign_longitude.formatted == '00°17\'45"'
+    assert progressed_chart.objects[chart.PART_OF_FORTUNE].name == names.POINTS[chart.PART_OF_FORTUNE]
+    assert progressed_chart.objects[chart.PART_OF_FORTUNE].sign.name == names.SIGNS[chart.CAPRICORN]
+    assert progressed_chart.objects[chart.PART_OF_FORTUNE].sign_longitude.formatted == '00°17\'45"'
 
     # Spot-check for correct object data against Astro Gold
     assert progressed_chart.objects[chart.SUN].dignities.detriment is True
@@ -332,9 +332,9 @@ def test_composite(native, lat, lon, partner, partner_lat, partner_lon):
     assert composite_chart.objects[chart.MOON].sign.name == names.SIGNS[chart.SAGITTARIUS]
     assert composite_chart.objects[chart.MOON].sign_longitude.formatted == '00°22\'35"'
 
-    assert composite_chart.objects[chart.PARS_FORTUNA].name == names.POINTS[chart.PARS_FORTUNA]
-    assert composite_chart.objects[chart.PARS_FORTUNA].sign.name == names.SIGNS[chart.PISCES]
-    assert composite_chart.objects[chart.PARS_FORTUNA].sign_longitude.formatted == '01°03\'58"'
+    assert composite_chart.objects[chart.PART_OF_FORTUNE].name == names.POINTS[chart.PART_OF_FORTUNE]
+    assert composite_chart.objects[chart.PART_OF_FORTUNE].sign.name == names.SIGNS[chart.PISCES]
+    assert composite_chart.objects[chart.PART_OF_FORTUNE].sign_longitude.formatted == '01°03\'58"'
 
     # Spot-check for correct object data against Astro Gold
     assert composite_chart.objects[chart.SUN].dignities.detriment is True

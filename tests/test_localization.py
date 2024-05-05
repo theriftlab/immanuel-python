@@ -86,7 +86,7 @@ def object_names():
         chart.LILITH: 'Lilith',
         chart.TRUE_LILITH: 'Lilith Verdadeira',
         chart.SYZYGY: 'Sizígia',
-        chart.PARS_FORTUNA: 'Roda da Fortuna',
+        chart.PART_OF_FORTUNE: 'Roda da Fortuna',
 
         chart.PRE_NATAL_LUNAR_ECLIPSE: 'Eclipse Lunar Pré-natal',
         chart.PRE_NATAL_SOLAR_ECLIPSE: 'Eclipse Solar Pré-natal',
@@ -346,15 +346,15 @@ def test_properties_aspects(native, aspects):
 
     natal = charts.Natal(native)
 
-    assert natal.aspects[chart.SUN][chart.PARS_FORTUNA].type == 'Conjunção'
+    assert natal.aspects[chart.SUN][chart.PART_OF_FORTUNE].type == 'Conjunção'
     assert natal.aspects[chart.MOON][chart.SATURN].type == 'Oposição'
     assert natal.aspects[chart.MOON][chart.URANUS].type == 'Quadratura'
-    assert natal.aspects[chart.SATURN][chart.PARS_FORTUNA].type == 'Trígono'
+    assert natal.aspects[chart.SATURN][chart.PART_OF_FORTUNE].type == 'Trígono'
     assert natal.aspects[chart.MOON][chart.SUN].type == 'Sextil'
     assert natal.aspects[chart.NEPTUNE][chart.PLUTO].type == 'Septil'
     assert natal.aspects[chart.SUN][chart.MARS].type == 'Semi-quadratura'
     assert natal.aspects[chart.JUPITER][chart.PLUTO].type == 'Sesqui-quadratura'
-    assert natal.aspects[chart.PLUTO][chart.PARS_FORTUNA].type == 'Semi-sextil'
+    assert natal.aspects[chart.PLUTO][chart.PART_OF_FORTUNE].type == 'Semi-sextil'
     assert natal.aspects[chart.PLUTO][chart.SATURN].type == 'Quincúncio'
     assert natal.aspects[chart.VENUS][chart.URANUS].type == 'Quintil'
     assert natal.aspects[chart.VENUS][chart.JUPITER].type == 'Biquintil'
@@ -366,8 +366,8 @@ def test_properties_aspect_movements(native, aspects):
 
     natal = charts.Natal(native)
 
-    assert natal.aspects[chart.SUN][chart.PARS_FORTUNA].movement.formatted == 'Aplicativa'
-    assert natal.aspects[chart.PLUTO][chart.PARS_FORTUNA].movement.formatted == 'Exacto'
+    assert natal.aspects[chart.SUN][chart.PART_OF_FORTUNE].movement.formatted == 'Aplicativa'
+    assert natal.aspects[chart.PLUTO][chart.PART_OF_FORTUNE].movement.formatted == 'Exacto'
     assert natal.aspects[chart.MOON][chart.SUN].movement.formatted == 'Separativo'
 
 
@@ -377,7 +377,7 @@ def test_properties_aspect_conditions(native, aspects):
 
     natal = charts.Natal(native)
 
-    assert natal.aspects[chart.SUN][chart.PARS_FORTUNA].condition.formatted == 'Associada'
+    assert natal.aspects[chart.SUN][chart.PART_OF_FORTUNE].condition.formatted == 'Associada'
     assert natal.aspects[chart.MERCURY][chart.MARS].condition.formatted == 'Dissociado'
 
 
@@ -454,7 +454,7 @@ def test_properties_object_movement(native):
     natal = charts.Natal(native)
 
     assert natal.objects[chart.SUN].movement.formatted == 'Direto'
-    assert natal.objects[chart.PARS_FORTUNA].movement.formatted == 'Estacionária'
+    assert natal.objects[chart.PART_OF_FORTUNE].movement.formatted == 'Estacionária'
     assert natal.objects[chart.SATURN].movement.formatted == 'Retrógrado'
 
 
@@ -492,7 +492,7 @@ def test_formatted_ambiguous_datetime(lat, lon):
 def test_formatted_aspect(native):
     settings.locale = 'pt_BR'
     natal = charts.Natal(native)
-    assert str(natal.aspects[chart.SUN][chart.PARS_FORTUNA]) == 'Conjunção entre Sol e Roda da Fortuna dentro de 00°41\'15" (Aplicativa, Associada)'
+    assert str(natal.aspects[chart.SUN][chart.PART_OF_FORTUNE]) == 'Conjunção entre Sol e Roda da Fortuna dentro de 00°41\'15" (Aplicativa, Associada)'
 
 
 def test_formatted_object(native):

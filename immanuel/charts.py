@@ -149,7 +149,7 @@ class Natal(Chart):
                 lat=self._native.latitude,
                 lon=self._native.longitude,
                 house_system=settings.house_system,
-                pars_fortuna_formula=settings.pars_fortuna_formula,
+                lot_formula=settings.lot_formula,
             )
         self._houses = ephemeris.houses(
                 jd=self._native.julian_date,
@@ -195,7 +195,7 @@ class SolarReturn(Chart):
                 lat=self._native.latitude,
                 lon=self._native.longitude,
                 house_system=settings.house_system,
-                pars_fortuna_formula=settings.pars_fortuna_formula,
+                lot_formula=settings.lot_formula,
             )
         self._houses = ephemeris.houses(
                 jd=self._solar_return_jd,
@@ -270,7 +270,7 @@ class Progressed(Chart):
                 lon=self._native.longitude,
                 obliquity=self._obliquity,
                 house_system=settings.house_system,
-                pars_fortuna_formula=settings.pars_fortuna_formula,
+                lot_formula=settings.lot_formula,
             )
         self._houses = ephemeris.armc_houses(
                 armc=self._progressed_armc_longitude,
@@ -313,7 +313,7 @@ class Composite(Chart):
                 lat=self._native.latitude,
                 lon=self._native.longitude,
                 house_system=settings.house_system,
-                pars_fortuna_formula=settings.pars_fortuna_formula,
+                lot_formula=settings.lot_formula,
             )
         partner_objects = ephemeris.objects(
                 object_list=settings.objects,
@@ -321,7 +321,7 @@ class Composite(Chart):
                 lat=self._partner.latitude,
                 lon=self._partner.longitude,
                 house_system=settings.house_system,
-                pars_fortuna_formula=settings.pars_fortuna_formula,
+                lot_formula=settings.lot_formula,
             )
         self._objects = midpoint.all(
                 objects1=native_objects,
@@ -443,7 +443,7 @@ class Transits(Chart):
                 lat=self._native.latitude,
                 lon=self._native.longitude,
                 house_system=settings.house_system,
-                pars_fortuna_formula=settings.pars_fortuna_formula,
+                lot_formula=settings.lot_formula,
             )
         self._houses = ephemeris.houses(
                 jd=self._native.julian_date,

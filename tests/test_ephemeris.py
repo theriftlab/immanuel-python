@@ -71,7 +71,7 @@ def all_points():
         chart.LILITH,
         chart.TRUE_LILITH,
         chart.SYZYGY,
-        chart.PARS_FORTUNA,
+        chart.PART_OF_FORTUNE,
     )
 
 @fixture
@@ -191,13 +191,13 @@ def teardown_function():
 """ These tests simply check the correct chart objects are being
 returned. Data is checked separately afterwards. """
 def test_objects(jd, coords):
-    chart_objects = (chart.SUN, chart.MOON, chart.PARS_FORTUNA, chart.SYZYGY, chart.NORTH_NODE, chart.ASC)
+    chart_objects = (chart.SUN, chart.MOON, chart.PART_OF_FORTUNE, chart.SYZYGY, chart.NORTH_NODE, chart.ASC)
     objects = ephemeris.objects(chart_objects, jd, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
     assert tuple(objects.keys()) == chart_objects
 
 
 def test_armc_objects(jd, coords, armc):
-    chart_objects = (chart.SUN, chart.MOON, chart.PARS_FORTUNA, chart.SYZYGY, chart.NORTH_NODE, chart.ASC)
+    chart_objects = (chart.SUN, chart.MOON, chart.PART_OF_FORTUNE, chart.SYZYGY, chart.NORTH_NODE, chart.ASC)
     objects = ephemeris.armc_objects(chart_objects, jd, armc, *coords, None, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
     assert tuple(objects.keys()) == chart_objects
 
@@ -207,7 +207,7 @@ def test_get(jd, coords):
     assert ephemeris.get(chart.ASC, jd, *coords, chart.PLACIDUS)['index'] == chart.ASC
     assert ephemeris.get(chart.HOUSE2, jd, *coords, chart.PLACIDUS)['index'] == chart.HOUSE2
     assert ephemeris.get(chart.SUN, jd)['index'] == chart.SUN
-    assert ephemeris.get(chart.PARS_FORTUNA, jd, *coords, pars_fortuna_formula=calc.DAY_NIGHT_FORMULA)['index'] == chart.PARS_FORTUNA
+    assert ephemeris.get(chart.PART_OF_FORTUNE, jd, *coords, lot_formula=calc.DAY_NIGHT_FORMULA)['index'] == chart.PART_OF_FORTUNE
     assert ephemeris.get(chart.JUNO, jd)['index'] == chart.JUNO   # Included with planets
     lilith = ephemeris.get(1181, jd)                              # From external file
     antares = ephemeris.get('Antares', jd)
@@ -219,7 +219,7 @@ def test_armc_get(jd, coords, armc):
     settings.add_filepath(os.path.dirname(__file__))
     assert ephemeris.armc_get(chart.ASC, jd, armc, coords[0], house_system=chart.PLACIDUS)['index'] == chart.ASC
     assert ephemeris.armc_get(chart.HOUSE2, jd, armc, coords[0], house_system=chart.PLACIDUS)['index'] == chart.HOUSE2
-    assert ephemeris.armc_get(chart.PARS_FORTUNA, jd, armc, coords[0], pars_fortuna_formula=calc.DAY_NIGHT_FORMULA)['index'] == chart.PARS_FORTUNA
+    assert ephemeris.armc_get(chart.PART_OF_FORTUNE, jd, armc, coords[0], lot_formula=calc.DAY_NIGHT_FORMULA)['index'] == chart.PART_OF_FORTUNE
 
 
 def test_get_angles(jd, coords, all_angles):
@@ -357,7 +357,7 @@ def test_get_data(coords, jd, astro):
         'asc': ephemeris.angle(chart.ASC, jd, *coords, chart.PLACIDUS),
         'house_2': ephemeris.house(chart.HOUSE2, jd, *coords, chart.PLACIDUS),
         'sun': ephemeris.planet(chart.SUN, jd),
-        'pof': ephemeris.point(chart.PARS_FORTUNA, jd, *coords, pars_fortuna_formula=calc.DAY_NIGHT_FORMULA),
+        'pof': ephemeris.point(chart.PART_OF_FORTUNE, jd, *coords, lot_formula=calc.DAY_NIGHT_FORMULA),
         'juno': ephemeris.asteroid(chart.JUNO, jd),    # Included with planets
         'lilith': ephemeris.asteroid(1181, jd),        # From external file
         'antares': ephemeris.fixed_star('Antares', jd),
@@ -393,7 +393,7 @@ def test_armc_get_data(coords, jd, astro, armc):
     data = {
         'asc': ephemeris.armc_angle(chart.ASC, armc, coords[0], obliquity, chart.PLACIDUS),
         'house_2': ephemeris.armc_house(chart.HOUSE2, armc, coords[0], obliquity, chart.PLACIDUS),
-        'pof': ephemeris.armc_point(chart.PARS_FORTUNA, jd, armc, coords[0], obliquity, pars_fortuna_formula=calc.DAY_NIGHT_FORMULA),
+        'pof': ephemeris.armc_point(chart.PART_OF_FORTUNE, jd, armc, coords[0], obliquity, lot_formula=calc.DAY_NIGHT_FORMULA),
     }
 
     for key, eph_object in data.items():
