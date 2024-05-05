@@ -31,14 +31,15 @@ def is_daytime(sun: dict | float, asc: dict | float) -> bool:
     return swe.difdeg2n(sun_lon, asc_lon) < 0
 
 
-def part_of_fortune_longitude(sun: dict | float, moon: dict | float, asc: dict | float, formula: int) -> float:
-    """ Returns the Part of Fortune longitude. """
+def lot_longitude(index: int, sun: dict | float, moon: dict | float, asc: dict | float, formula: int) -> float:
+    """ Returns the longitude of the given Lot - currently supports
+    Lot / Part of Fortune and Lot of Spirit. """
     sun_lon, moon_lon, asc_lon = (object['lon'] if isinstance(object, dict) else object for object in (sun, moon, asc))
 
     if formula == calc.NIGHT_FORMULA or (formula == calc.DAY_NIGHT_FORMULA and not is_daytime(sun_lon, asc_lon)):
-        lon = asc_lon + sun_lon - moon_lon
+        lon = asc_lon + sun_lon - moon_lon if index == chart.PART_OF_FORTUNE else asc_lon + moon_lon - sun_lon
     else:
-        lon = asc_lon + moon_lon - sun_lon
+        lon = asc_lon + moon_lon - sun_lon if index == chart.PART_OF_FORTUNE else asc_lon + sun_lon - moon_lon
 
     return swe.degnorm(lon)
 

@@ -45,7 +45,7 @@ def test_is_daytime(day_jd, night_jd, coords):
 
 def test_part_of_fortune_day_formula(day_jd, coords):
     sun, moon, asc = ephemeris.objects((chart.SUN, chart.MOON, chart.ASC), day_jd, *coords, chart.PLACIDUS).values()
-    pof = calculate.part_of_fortune_longitude(sun, moon, asc, calc.DAY_FORMULA)
+    pof = calculate.lot_longitude(chart.PART_OF_FORTUNE, sun, moon, asc, calc.DAY_FORMULA)
     sign = position.sign(pof)
     lon = position.sign_longitude(pof)
     assert sign == chart.CAPRICORN
@@ -54,7 +54,7 @@ def test_part_of_fortune_day_formula(day_jd, coords):
 
 def test_part_of_fortune_night_formula(night_jd, coords):
     sun, moon, asc = ephemeris.objects((chart.SUN, chart.MOON, chart.ASC), night_jd, *coords, chart.PLACIDUS).values()
-    pof = calculate.part_of_fortune_longitude(sun, moon, asc, calc.NIGHT_FORMULA)
+    pof = calculate.lot_longitude(chart.PART_OF_FORTUNE, sun, moon, asc, calc.NIGHT_FORMULA)
     sign = position.sign(pof)
     lon = position.sign_longitude(pof)
     assert sign == chart.SAGITTARIUS

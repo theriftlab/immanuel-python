@@ -357,8 +357,8 @@ def _point(index: int, jd: float, lat: float, lon: float, house_system: int, lot
     if index == chart.SYZYGY:
         return _syzygy(jd)
 
-    if index == chart.PART_OF_FORTUNE:
-        return _part_of_fortune(jd, lat, lon, lot_formula, armc, armc_obliquity)
+    if index in (chart.PART_OF_FORTUNE, chart.LOT_OF_SPIRIT):
+        return _lot(index, jd, lat, lon, lot_formula, armc, armc_obliquity)
 
     return _swisseph_point(index, jd)
 
@@ -624,20 +624,17 @@ def _syzygy(jd: float) -> dict:
 
 
 @cache
-def _part_of_fortune(jd: float, lat: float, lon: float, formula: int, armc: float = None, armc_obliquity: float = None) -> dict:
-    """ Calculate Part of Fortune - this relies on the ascendant which will be
-    consistent across all supported systems, so it is safe to pass Placidus as
-    the default. """
+def _lot(index: int, jd: float, lat: float, lon: float, formula: int, armc: float = None, armc_obliquity: float = None) -> dict:
     sun = planet(chart.SUN, jd)
     moon = planet(chart.MOON, jd)
     asc = angle(chart.ASC, jd, lat, lon, chart.PLACIDUS) if armc is None else armc_angle(chart.ASC, armc, lat, armc_obliquity, chart.PLACIDUS)
-    lon = calculate.part_of_fortune_longitude(sun, moon, asc, formula)
+    lon = calculate.lot_longitude(index, sun, moon, asc, formula)
     dec = swe.cotrans((lon, 0, 0), -obliquity(jd))[1]
 
     return {
-        'index': chart.PART_OF_FORTUNE,
+        'index': index,
         'type': chart.POINT,
-        'name': _(names.POINTS[chart.PART_OF_FORTUNE]),
+        'name': _(names.POINTS[index]),
         'lon': lon,
         'lat': 0.0,
         'speed': 0.0,
