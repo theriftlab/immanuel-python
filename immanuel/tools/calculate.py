@@ -31,9 +31,9 @@ def is_daytime(sun: dict | float, asc: dict | float) -> bool:
     return swe.difdeg2n(sun_lon, asc_lon) < 0
 
 
-def lot_longitude(index: int, sun: dict | float, moon: dict | float, asc: dict | float, formula: int) -> float:
-    """ Returns the longitude of the given Lot - currently supports
-    Lot / Part of Fortune and Lot of Spirit. """
+def part_longitude(index: int, sun: dict | float, moon: dict | float, asc: dict | float, formula: int) -> float:
+    """ Returns the longitude of the given Part - currently supports Parts of
+    Fortune and Spirit. """
     sun_lon, moon_lon, asc_lon = (object['lon'] if isinstance(object, dict) else object for object in (sun, moon, asc))
 
     if formula == calc.NIGHT_FORMULA or (formula == calc.DAY_NIGHT_FORMULA and not is_daytime(sun_lon, asc_lon)):
@@ -62,11 +62,24 @@ def object_movement(object: dict | float) -> int:
 def object_movement_typical(object: dict) -> bool:
     """ Returns whether an object's movement is typical, ie. direct for planets,
     retrograde for nodes, stationary for Part of Fortune and eclipses. """
-    if object['index'] in (chart.PART_OF_FORTUNE, chart.PRE_NATAL_SOLAR_ECLIPSE, chart.PRE_NATAL_LUNAR_ECLIPSE, chart.POST_NATAL_SOLAR_ECLIPSE, chart.POST_NATAL_SOLAR_ECLIPSE):
+    if object['index'] in (
+            chart.PART_OF_FORTUNE,
+            chart.PART_OF_SPIRIT,
+            chart.PRE_NATAL_SOLAR_ECLIPSE,
+            chart.PRE_NATAL_LUNAR_ECLIPSE,
+            chart.POST_NATAL_SOLAR_ECLIPSE,
+            chart.POST_NATAL_SOLAR_ECLIPSE
+        ):
         return object['speed'] == 0.0
 
     movement = object_movement(object)
-    is_node = object['index'] in (chart.NORTH_NODE, chart.SOUTH_NODE, chart.TRUE_NORTH_NODE, chart.TRUE_SOUTH_NODE)
+
+    is_node = object['index'] in (
+            chart.NORTH_NODE,
+            chart.SOUTH_NODE,
+            chart.TRUE_NORTH_NODE,
+            chart.TRUE_SOUTH_NODE
+        )
 
     return movement == calc.RETROGRADE if is_node else movement == calc.DIRECT
 

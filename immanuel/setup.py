@@ -170,8 +170,8 @@ class BaseSettings:
         """ MC progression formula for secondary progressions. """
         self.mc_progression_method = calc.NAIBOD
 
-        """ Part of Fortune formula. """
-        self.lot_formula = calc.DAY_NIGHT_FORMULA
+        """ Part of Fortune / Spirit formula. """
+        self.part_formula = calc.DAY_NIGHT_FORMULA
 
         """ Dignity settings. """
         self.rulerships = dignities.MODERN_RULERSHIPS
@@ -278,7 +278,7 @@ class BaseSettings:
             chart.TRUE_SOUTH_NODE: self.point_aspect_rule,
             chart.SYZYGY: self.point_aspect_rule,
             chart.PART_OF_FORTUNE: self.point_aspect_rule,
-            chart.LOT_OF_SPIRIT: self.point_aspect_rule,
+            chart.PART_OF_SPIRIT: self.point_aspect_rule,
             chart.VERTEX: self.point_aspect_rule,
             chart.LILITH: self.point_aspect_rule,
             chart.TRUE_LILITH: self.point_aspect_rule,
@@ -314,7 +314,7 @@ class BaseSettings:
             chart.TRUE_SOUTH_NODE: self.point_orbs,
             chart.SYZYGY: self.point_orbs,
             chart.PART_OF_FORTUNE: self.point_orbs,
-            chart.LOT_OF_SPIRIT: self.point_orbs,
+            chart.PART_OF_SPIRIT: self.point_orbs,
             chart.VERTEX: self.point_orbs,
             chart.LILITH: self.point_orbs,
             chart.TRUE_LILITH: self.point_orbs,

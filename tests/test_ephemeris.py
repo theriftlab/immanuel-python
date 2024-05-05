@@ -207,7 +207,7 @@ def test_get(jd, coords):
     assert ephemeris.get(chart.ASC, jd, *coords, chart.PLACIDUS)['index'] == chart.ASC
     assert ephemeris.get(chart.HOUSE2, jd, *coords, chart.PLACIDUS)['index'] == chart.HOUSE2
     assert ephemeris.get(chart.SUN, jd)['index'] == chart.SUN
-    assert ephemeris.get(chart.PART_OF_FORTUNE, jd, *coords, lot_formula=calc.DAY_NIGHT_FORMULA)['index'] == chart.PART_OF_FORTUNE
+    assert ephemeris.get(chart.PART_OF_FORTUNE, jd, *coords, part_formula=calc.DAY_NIGHT_FORMULA)['index'] == chart.PART_OF_FORTUNE
     assert ephemeris.get(chart.JUNO, jd)['index'] == chart.JUNO   # Included with planets
     lilith = ephemeris.get(1181, jd)                              # From external file
     antares = ephemeris.get('Antares', jd)
@@ -219,7 +219,7 @@ def test_armc_get(jd, coords, armc):
     settings.add_filepath(os.path.dirname(__file__))
     assert ephemeris.armc_get(chart.ASC, jd, armc, coords[0], house_system=chart.PLACIDUS)['index'] == chart.ASC
     assert ephemeris.armc_get(chart.HOUSE2, jd, armc, coords[0], house_system=chart.PLACIDUS)['index'] == chart.HOUSE2
-    assert ephemeris.armc_get(chart.PART_OF_FORTUNE, jd, armc, coords[0], lot_formula=calc.DAY_NIGHT_FORMULA)['index'] == chart.PART_OF_FORTUNE
+    assert ephemeris.armc_get(chart.PART_OF_FORTUNE, jd, armc, coords[0], part_formula=calc.DAY_NIGHT_FORMULA)['index'] == chart.PART_OF_FORTUNE
 
 
 def test_get_angles(jd, coords, all_angles):
@@ -357,7 +357,7 @@ def test_get_data(coords, jd, astro):
         'asc': ephemeris.angle(chart.ASC, jd, *coords, chart.PLACIDUS),
         'house_2': ephemeris.house(chart.HOUSE2, jd, *coords, chart.PLACIDUS),
         'sun': ephemeris.planet(chart.SUN, jd),
-        'pof': ephemeris.point(chart.PART_OF_FORTUNE, jd, *coords, lot_formula=calc.DAY_NIGHT_FORMULA),
+        'pof': ephemeris.point(chart.PART_OF_FORTUNE, jd, *coords, part_formula=calc.DAY_NIGHT_FORMULA),
         'juno': ephemeris.asteroid(chart.JUNO, jd),    # Included with planets
         'lilith': ephemeris.asteroid(1181, jd),        # From external file
         'antares': ephemeris.fixed_star('Antares', jd),
@@ -393,7 +393,7 @@ def test_armc_get_data(coords, jd, astro, armc):
     data = {
         'asc': ephemeris.armc_angle(chart.ASC, armc, coords[0], obliquity, chart.PLACIDUS),
         'house_2': ephemeris.armc_house(chart.HOUSE2, armc, coords[0], obliquity, chart.PLACIDUS),
-        'pof': ephemeris.armc_point(chart.PART_OF_FORTUNE, jd, armc, coords[0], obliquity, lot_formula=calc.DAY_NIGHT_FORMULA),
+        'pof': ephemeris.armc_point(chart.PART_OF_FORTUNE, jd, armc, coords[0], obliquity, part_formula=calc.DAY_NIGHT_FORMULA),
     }
 
     for key, eph_object in data.items():
