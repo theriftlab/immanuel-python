@@ -282,6 +282,7 @@ class BaseSettings:
             chart.VERTEX: self.point_aspect_rule,
             chart.LILITH: self.point_aspect_rule,
             chart.TRUE_LILITH: self.point_aspect_rule,
+            chart.INTERPOLATED_LILITH: self.point_aspect_rule,
         } | self._aspect_rules
 
     @aspect_rules.setter
@@ -318,6 +319,7 @@ class BaseSettings:
             chart.VERTEX: self.point_orbs,
             chart.LILITH: self.point_orbs,
             chart.TRUE_LILITH: self.point_orbs,
+            chart.INTERPOLATED_LILITH: self.point_orbs,
         } | self._orbs
 
     @orbs.setter

@@ -232,6 +232,7 @@ Calculated points:
 * `chart.VERTEX`
 * `chart.LILITH`
 * `chart.TRUE_LILITH`
+* `chart.INTERPOLATED_LILITH`
 * `chart.SYZYGY`
 * `chart.PART_OF_FORTUNE`
 * `chart.PART_OF_SPIRIT`
@@ -376,6 +377,7 @@ Default:
     chart.VERTEX: self.point_aspect_rule,
     chart.LILITH: self.point_aspect_rule,
     chart.TRUE_LILITH: self.point_aspect_rule,
+    chart.INTERPOLATED_LILITH: self.point_aspect_rule,
 }
 ```
 
@@ -476,6 +478,7 @@ Default:
     chart.VERTEX: self.point_orbs,
     chart.LILITH: self.point_orbs,
     chart.TRUE_LILITH: self.point_orbs,
+    chart.INTERPOLATED_LILITH: self.point_orbs,
 }
 ```
 

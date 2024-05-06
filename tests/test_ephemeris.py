@@ -70,6 +70,7 @@ def all_points():
         chart.VERTEX,
         chart.LILITH,
         chart.TRUE_LILITH,
+        chart.INTERPOLATED_LILITH,
         chart.SYZYGY,
         chart.PART_OF_FORTUNE,
     )

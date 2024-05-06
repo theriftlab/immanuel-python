@@ -131,6 +131,7 @@ POINTS = {
     chart.VERTEX: 'Vertex',
     chart.LILITH: 'Lilith',
     chart.TRUE_LILITH: 'True Lilith',
+    chart.INTERPOLATED_LILITH: 'Interpolated Lilith',
     chart.SYZYGY: 'Syzygy',
     chart.PART_OF_FORTUNE: 'Part of Fortune',
     chart.PART_OF_SPIRIT: 'Part of Spirit',
