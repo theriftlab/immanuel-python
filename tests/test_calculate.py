@@ -9,7 +9,7 @@
 
 """
 
-from pytest import fixture
+from pytest import approx, fixture
 
 from immanuel.const import calc, chart
 from immanuel.tools import calculate, convert, date, ephemeris, position
@@ -59,6 +59,28 @@ def test_part_of_fortune_night_formula(night_jd, coords):
     lon = position.sign_longitude(pof)
     assert sign == chart.SAGITTARIUS
     assert convert.dec_to_string(lon) == '10°04\'30"'
+
+
+def test_part_of_spirit_day_formula(day_jd, coords):
+    # Courtesy of astro-seek.com which does not include arc-seconds
+    sun, moon, asc = ephemeris.objects((chart.SUN, chart.MOON, chart.ASC), day_jd, *coords, chart.PLACIDUS).values()
+    pos = calculate.part_longitude(chart.PART_OF_SPIRIT, sun, moon, asc, calc.DAY_FORMULA)
+    sign = position.sign(pos)
+    lon = position.sign_longitude(pos)
+    assert sign == chart.ARIES
+    # Since astro-seek does all its calculations without arc-seconds, we will have to be approximate
+    assert round(lon, 1) == convert.to_dec('29°54\'')
+
+
+def test_part_of_spirit_night_formula(night_jd, coords):
+    # Courtesy of astro-seek.com which does not include arc-seconds
+    sun, moon, asc = ephemeris.objects((chart.SUN, chart.MOON, chart.ASC), night_jd, *coords, chart.PLACIDUS).values()
+    pos = calculate.part_longitude(chart.PART_OF_SPIRIT, sun, moon, asc, calc.NIGHT_FORMULA)
+    sign = position.sign(pos)
+    lon = position.sign_longitude(pos)
+    assert sign == chart.LEO
+    # Since astro-seek does all its calculations without arc-seconds, we will have to be approximate
+    assert round(lon, 1) == convert.to_dec('12°18\'')
 
 
 def test_sidereal_time(day_jd, coords):
