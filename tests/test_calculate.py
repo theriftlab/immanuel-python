@@ -45,7 +45,7 @@ def test_is_daytime(day_jd, night_jd, coords):
 
 def test_part_of_fortune_day_formula(day_jd, coords):
     sun, moon, asc = ephemeris.objects((chart.SUN, chart.MOON, chart.ASC), day_jd, *coords, chart.PLACIDUS).values()
-    pof = calculate.part_longitude(chart.PART_OF_FORTUNE, sun, moon, asc, calc.DAY_FORMULA)
+    pof = calculate.part_longitude(chart.PART_OF_FORTUNE, sun, moon, asc, formula=calc.DAY_FORMULA)
     sign = position.sign(pof)
     lon = position.sign_longitude(pof)
     assert sign == chart.CAPRICORN
@@ -54,7 +54,7 @@ def test_part_of_fortune_day_formula(day_jd, coords):
 
 def test_part_of_fortune_night_formula(night_jd, coords):
     sun, moon, asc = ephemeris.objects((chart.SUN, chart.MOON, chart.ASC), night_jd, *coords, chart.PLACIDUS).values()
-    pof = calculate.part_longitude(chart.PART_OF_FORTUNE, sun, moon, asc, calc.NIGHT_FORMULA)
+    pof = calculate.part_longitude(chart.PART_OF_FORTUNE, sun, moon, asc, formula=calc.NIGHT_FORMULA)
     sign = position.sign(pof)
     lon = position.sign_longitude(pof)
     assert sign == chart.SAGITTARIUS
@@ -64,23 +64,45 @@ def test_part_of_fortune_night_formula(night_jd, coords):
 def test_part_of_spirit_day_formula(day_jd, coords):
     # Courtesy of astro-seek.com which does not include arc-seconds
     sun, moon, asc = ephemeris.objects((chart.SUN, chart.MOON, chart.ASC), day_jd, *coords, chart.PLACIDUS).values()
-    pos = calculate.part_longitude(chart.PART_OF_SPIRIT, sun, moon, asc, calc.DAY_FORMULA)
+    pos = calculate.part_longitude(chart.PART_OF_SPIRIT, sun, moon, asc, formula=calc.DAY_FORMULA)
     sign = position.sign(pos)
     lon = position.sign_longitude(pos)
     assert sign == chart.ARIES
     # Since astro-seek does all its calculations without arc-seconds, we will have to be approximate
-    assert round(lon, 1) == convert.to_dec('29°54\'')
+    assert round(lon, 1) == round(convert.to_dec('29°54\''), 1)
 
 
 def test_part_of_spirit_night_formula(night_jd, coords):
     # Courtesy of astro-seek.com which does not include arc-seconds
     sun, moon, asc = ephemeris.objects((chart.SUN, chart.MOON, chart.ASC), night_jd, *coords, chart.PLACIDUS).values()
-    pos = calculate.part_longitude(chart.PART_OF_SPIRIT, sun, moon, asc, calc.NIGHT_FORMULA)
+    pos = calculate.part_longitude(chart.PART_OF_SPIRIT, sun, moon, asc, formula=calc.NIGHT_FORMULA)
     sign = position.sign(pos)
     lon = position.sign_longitude(pos)
     assert sign == chart.LEO
     # Since astro-seek does all its calculations without arc-seconds, we will have to be approximate
-    assert round(lon, 1) == convert.to_dec('12°18\'')
+    assert round(lon, 1) == round(convert.to_dec('12°18\''), 1)
+
+
+def test_part_of_eros_day_formula(day_jd, coords):
+    # Courtesy of astro-seek.com which does not include arc-seconds
+    sun, moon, asc, venus = ephemeris.objects((chart.SUN, chart.MOON, chart.ASC, chart.VENUS), day_jd, *coords, chart.PLACIDUS).values()
+    poe = calculate.part_longitude(chart.PART_OF_EROS, sun, moon, asc, venus, formula=calc.DAY_FORMULA)
+    sign = position.sign(poe)
+    lon = position.sign_longitude(poe)
+    assert sign == chart.LIBRA
+    # Since astro-seek does all its calculations without arc-seconds, we will have to be approximate
+    assert round(lon, 1) == round(convert.to_dec('07°34\''), 1)
+
+
+def test_part_of_eros_night_formula(night_jd, coords):
+    # Courtesy of astro-seek.com which does not include arc-seconds
+    sun, moon, asc, venus = ephemeris.objects((chart.SUN, chart.MOON, chart.ASC, chart.VENUS), night_jd, *coords, chart.PLACIDUS).values()
+    poe = calculate.part_longitude(chart.PART_OF_EROS, sun, moon, asc, venus, formula=calc.NIGHT_FORMULA)
+    sign = position.sign(poe)
+    lon = position.sign_longitude(poe)
+    assert sign == chart.GEMINI
+    # Since astro-seek does all its calculations without arc-seconds, we will have to be approximate
+    assert round(lon, 1) == round(convert.to_dec('22°08\''), 1)
 
 
 def test_sidereal_time(day_jd, coords):

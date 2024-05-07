@@ -305,10 +305,19 @@ msgstr ""
 msgid "True Lilith"
 msgstr ""
 
+msgid "Interpolated Lilith"
+msgstr ""
+
 msgid "Syzygy"
 msgstr ""
 
 msgid "Part of Fortune"
+msgstr ""
+
+msgid "Part of Spirit"
+msgstr ""
+
+msgid "Part of Eros"
 msgstr ""
 
 

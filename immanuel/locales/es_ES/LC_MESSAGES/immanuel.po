@@ -305,11 +305,20 @@ msgstr "Lilith"
 msgid "True Lilith"
 msgstr "Lilith Verdadera"
 
+msgid "Interpolated Lilith"
+msgstr "Lilith interpolada"
+
 msgid "Syzygy"
 msgstr "Sizigia"
 
 msgid "Part of Fortune"
 msgstr "Parte de la Fortuna"
+
+msgid "Part of Spirit"
+msgstr "Parte del Espíritu"
+
+msgid "Part of Eros"
+msgstr "Parte de Eros"
 
 
 # Eclipses

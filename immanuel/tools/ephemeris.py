@@ -73,6 +73,7 @@ _SWE = {
     chart.SYZYGY: chart.SYZYGY,
     chart.PART_OF_FORTUNE: chart.PART_OF_FORTUNE,
     chart.PART_OF_SPIRIT: chart.PART_OF_SPIRIT,
+    chart.PART_OF_EROS: chart.PART_OF_EROS,
 }
 
 
@@ -357,7 +358,7 @@ def _point(index: int, jd: float, lat: float, lon: float, house_system: int, par
     if index == chart.SYZYGY:
         return _syzygy(jd)
 
-    if index in (chart.PART_OF_FORTUNE, chart.PART_OF_SPIRIT):
+    if index in (chart.PART_OF_FORTUNE, chart.PART_OF_SPIRIT, chart.PART_OF_EROS):
         return _part(index, jd, lat, lon, part_formula, armc, armc_obliquity)
 
     return _swisseph_point(index, jd)
@@ -627,8 +628,9 @@ def _syzygy(jd: float) -> dict:
 def _part(index: int, jd: float, lat: float, lon: float, formula: int, armc: float = None, armc_obliquity: float = None) -> dict:
     sun = planet(chart.SUN, jd)
     moon = planet(chart.MOON, jd)
+    venus = planet(chart.VENUS, jd) if index == chart.PART_OF_EROS else None
     asc = angle(chart.ASC, jd, lat, lon, chart.PLACIDUS) if armc is None else armc_angle(chart.ASC, armc, lat, armc_obliquity, chart.PLACIDUS)
-    lon = calculate.part_longitude(index, sun, moon, asc, formula)
+    lon = calculate.part_longitude(index, sun, moon, asc, venus, formula)
     dec = swe.cotrans((lon, 0, 0), -obliquity(jd))[1]
 
     return {

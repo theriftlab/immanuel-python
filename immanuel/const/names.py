@@ -135,6 +135,7 @@ POINTS = {
     chart.SYZYGY: 'Syzygy',
     chart.PART_OF_FORTUNE: 'Part of Fortune',
     chart.PART_OF_SPIRIT: 'Part of Spirit',
+    chart.PART_OF_EROS: 'Part of Eros',
 }
 
 ECLIPSES = {

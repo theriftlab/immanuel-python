@@ -236,6 +236,7 @@ Calculated points:
 * `chart.SYZYGY`
 * `chart.PART_OF_FORTUNE`
 * `chart.PART_OF_SPIRIT`
+* `chart.PART_OF_EROS`
 
 Pre & post-natal eclipses:
 
@@ -374,6 +375,7 @@ Default:
     chart.SYZYGY: self.point_aspect_rule,
     chart.PART_OF_FORTUNE: self.point_aspect_rule,
     chart.PART_OF_SPIRIT: self.point_aspect_rule,
+    chart.PART_OF_EROS: self.point_aspect_rule,
     chart.VERTEX: self.point_aspect_rule,
     chart.LILITH: self.point_aspect_rule,
     chart.TRUE_LILITH: self.point_aspect_rule,
@@ -475,6 +477,7 @@ Default:
     chart.SYZYGY: self.point_orbs,
     chart.PART_OF_FORTUNE: self.point_orbs,
     chart.PART_OF_SPIRIT: self.point_orbs,
+    chart.PART_OF_EROS: self.point_orbs,
     chart.VERTEX: self.point_orbs,
     chart.LILITH: self.point_orbs,
     chart.TRUE_LILITH: self.point_orbs,
@@ -500,7 +503,7 @@ Default `calc.NAIBOD`.
 
 ### `part_formula`
 
-Which formula to use when calculating the Part of Fortune or Spirit.
+Which formula to use when calculating the Part of Fortune / Spirit / Eros.
 
 | Option | Description |
 | --- | --- |

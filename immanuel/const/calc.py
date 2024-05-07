@@ -84,14 +84,10 @@ NAIBOD = 0
 SOLAR_ARC = 1
 DAILY_HOUSES = 2
 
-""" Part of Fortune formulae. """
+""" Part of Fortune / Spirit / Eros formulae. """
 DAY_FORMULA = 0
 NIGHT_FORMULA = 1
 DAY_NIGHT_FORMULA = 2
-
-""" Composite Part of Fortune calculations. """
-MIDPOINT = 0
-COMPOSITE = 1
 
 """ Orb calculation when two chart objects have different orbs. """
 MEAN = 0

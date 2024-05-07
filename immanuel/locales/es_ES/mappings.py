@@ -42,8 +42,11 @@ GENDERS = {
     chart.VERTEX: genders.MASCULINE,
     chart.LILITH: genders.FEMININE,
     chart.TRUE_LILITH: genders.FEMININE,
+    chart.INTERPOLATED_LILITH: genders.FEMININE,
     chart.SYZYGY: genders.FEMININE,
     chart.PART_OF_FORTUNE: genders.FEMININE,
+    chart.PART_OF_SPIRIT: genders.FEMININE,
+    chart.PART_OF_EROS: genders.FEMININE,
 
     chart.PRE_NATAL_SOLAR_ECLIPSE: genders.MASCULINE,
     chart.PRE_NATAL_LUNAR_ECLIPSE: genders.MASCULINE,
