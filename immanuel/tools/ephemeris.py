@@ -626,6 +626,7 @@ def _syzygy(jd: float) -> dict:
 
 @cache
 def _part(index: int, jd: float, lat: float, lon: float, formula: int, armc: float = None, armc_obliquity: float = None) -> dict:
+    """ Calculates Parts of Fortune, Spirit, and Eros. """
     sun = planet(chart.SUN, jd)
     moon = planet(chart.MOON, jd)
     venus = planet(chart.VENUS, jd) if index == chart.PART_OF_EROS else None
