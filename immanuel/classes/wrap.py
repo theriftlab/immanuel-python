@@ -19,9 +19,15 @@ from immanuel.classes.localize import gender, _
 
 
 class Angle:
-    def __init__(self, angle: float, format: int = convert.FORMAT_DMS) -> None:
+    precision = {
+        calc.DEGREE: convert.ROUND_DEGREE,
+        calc.MINUTE: convert.ROUND_MINUTE,
+        calc.SECOND: convert.ROUND_SECOND,
+    }
+
+    def __init__(self, angle: float, format: int = convert.FORMAT_DMS, round_to: int = calc.SECOND) -> None:
         self.raw = angle
-        self.formatted = convert.dec_to_string(angle, format)
+        self.formatted = convert.dec_to_string(angle, format, Angle.precision[round_to])
         self.direction = None
         self.degrees = None
         self.minutes = None
@@ -41,8 +47,8 @@ class Aspect:
         self.type = _(names.ASPECTS[aspect['aspect']])
         self.aspect = aspect['aspect']
         self.orb = aspect['orb']
-        self.distance = Angle(aspect['distance'])
-        self.difference = Angle(aspect['difference'])
+        self.distance = Angle(aspect['distance'], round_to=settings.angle_precision)
+        self.difference = Angle(aspect['difference'], round_to=settings.angle_precision)
         self.movement = AspectMovement(aspect)
         self.condition = AspectCondition(aspect)
 
@@ -193,10 +199,10 @@ class Object:
             self.date_time = DateTime(object['date_time'])
 
         if 'lat' in object:
-            self.latitude = Angle(object['lat'])
+            self.latitude = Angle(object['lat'], round_to=settings.angle_precision)
 
-        self.longitude = Angle(object['lon'])
-        self.sign_longitude = Angle(position.sign_longitude(object))
+        self.longitude = Angle(object['lon'], round_to=settings.angle_precision)
+        self.sign_longitude = Angle(position.sign_longitude(object), round_to=settings.angle_precision)
         self.sign = Sign(position.sign(object))
         self.decan = Decan(position.decan(object))
 
@@ -212,7 +218,7 @@ class Object:
             self.movement = ObjectMovement(object)
 
         if 'dec' in object:
-            self.declination = Angle(object['dec'])
+            self.declination = Angle(object['dec'], round_to=settings.angle_precision)
 
             if object['type'] not in (chart.HOUSE, chart.ANGLE, chart.FIXED_STAR):
                 self.out_of_bounds = calculate.is_out_of_bounds(object=object, obliquity=obliquity)

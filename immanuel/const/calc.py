@@ -109,3 +109,8 @@ LOCOMOTIVE = 3
 SEESAW = 4
 SPLAY = 5
 SPLASH = 6
+
+""" Angle rounding. """
+DEGREE = 0
+MINUTE = 1
+SECOND = 2

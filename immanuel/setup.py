@@ -101,6 +101,9 @@ class BaseSettings:
         that object. """
         self.output_typical_object_motion = False
 
+        """ Rounding for formatted angle strings. """
+        self.angle_precision = calc.SECOND
+
         """ House system as supported by pyswisseph. """
         self.house_system = chart.PLACIDUS
 
