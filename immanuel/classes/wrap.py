@@ -12,7 +12,7 @@
 from datetime import datetime
 
 from immanuel.const import calc, chart, dignities, names
-from immanuel.reports import dignity, weighting
+from immanuel.reports import dignity
 from immanuel.setup import settings
 from immanuel.tools import calculate, convert, date, ephemeris, position
 from immanuel.classes.localize import gender, _
@@ -39,9 +39,9 @@ class Angle:
 
 
 class Aspect:
-    def __init__(self, aspect: dict, objects: dict) -> None:
-        self._active_name = objects[aspect['active']]['name']
-        self._passive_name = objects[aspect['passive']]['name']
+    def __init__(self, aspect: dict, active_name: str, passive_name: str) -> None:
+        self._active_name = active_name
+        self._passive_name = passive_name
         self.active = aspect['active']
         self.passive = aspect['passive']
         self.type = _(names.ASPECTS[aspect['aspect']])
@@ -183,7 +183,16 @@ class MoonPhase:
 
 
 class Object:
-    def __init__(self, object: dict, objects: dict = None, houses: dict = None, is_daytime: bool = None, obliquity: float = None) -> None:
+    # def __init__(self, object: dict, objects: dict = None, houses: dict = None, is_daytime: bool = None, obliquity: float = None) -> None:
+    def __init__(
+        self,
+        object: dict,
+        date_time: datetime = None,
+        house: int = None,
+        out_of_bounds: bool = None,
+        in_sect: bool = None,
+        dignity_state: dict = None,
+    ) -> None:
         self.index = object['index']
 
         if object['type'] == chart.HOUSE:
@@ -195,8 +204,8 @@ class Object:
         if 'eclipse_type' in object:
             self.eclipse_type = EclipseType(object['eclipse_type'])
 
-        if 'date_time' in object:
-            self.date_time = DateTime(object['date_time'])
+        if date_time is not None:
+            self.date_time = DateTime(date_time)
 
         if 'lat' in object:
             self.latitude = Angle(object['lat'], round_to=settings.angle_precision)
@@ -206,8 +215,8 @@ class Object:
         self.sign = Sign(position.sign(object))
         self.decan = Decan(position.decan(object))
 
-        if houses is not None:
-            self.house = House(position.house(object, houses))
+        if house is not None:
+            self.house = House(house)
 
         if 'dist' in object:
             self.distance = object['dist']
@@ -220,16 +229,19 @@ class Object:
         if 'dec' in object:
             self.declination = Angle(object['dec'], round_to=settings.angle_precision)
 
-            if object['type'] not in (chart.HOUSE, chart.ANGLE, chart.FIXED_STAR):
-                self.out_of_bounds = calculate.is_out_of_bounds(object=object, obliquity=obliquity)
+        if object['type'] not in (chart.HOUSE, chart.ANGLE, chart.FIXED_STAR):
+            self.out_of_bounds = out_of_bounds
 
         if 'size' in object:
             self.size = object['size']
 
-        if objects is not None and object['type'] == chart.PLANET and is_daytime is not None and calc.PLANETS.issubset(objects):
-            dignity_state = dignity.all(object=object, objects=objects, is_daytime=is_daytime)
+        if in_sect is not None:
+            self.in_sect = in_sect
+
+        if dignity_state is not None:
             self.dignities = DignityState(object=object, dignity_state=dignity_state)
             self.score = dignity.score(dignity_state)
+
 
     def __str__(self) -> str:
         formatted = _('{name} {longitude} in {sign}').format(
@@ -310,10 +322,10 @@ class Subject:
 
 
 class Weightings:
-    def __init__(self, objects: dict, houses: dict) -> None:
-        self.elements = Elements(weighting.elements(objects))
-        self.modalities = Modalities(weighting.modalities(objects))
-        self.quadrants = Quadrants(weighting.quadrants(objects, houses))
+    def __init__(self, elements: dict, modalities: dict, quadrants: dict) -> None:
+        self.elements = Elements(elements)
+        self.modalities = Modalities(modalities)
+        self.quadrants = Quadrants(quadrants)
 
     def __str__(self) -> str:
         return f'{self.elements}\n{self.modalities}\n{self.quadrants}'

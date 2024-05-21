@@ -113,6 +113,21 @@ def relative_position(object1: dict | float, object2: dict | float) -> int:
     return calc.OCCIDENTAL if swe.difdegn(lon1, lon2) > 180 else calc.ORIENTAL
 
 
+def is_in_sect(object: dict, is_daytime: bool, sun: dict | float = None) -> bool:
+    """ Returns whether the passed planet is in sect. """
+    if object['index'] in (chart.SUN, chart.JUPITER, chart.SATURN):
+        return is_daytime
+
+    if object['index'] in (chart.MOON, chart.VENUS, chart.MARS):
+        return not is_daytime
+
+    if object['index'] == chart.MERCURY:
+        sun_mercury_position = relative_position(sun, object)
+        return sun_mercury_position == calc.ORIENTAL if is_daytime else sun_mercury_position == calc.OCCIDENTAL
+
+    return False
+
+
 def is_out_of_bounds(object: dict | float, jd: float = None, obliquity: float = None) -> bool:
     """ Returns whether the passed object is out of bounds either on the passed
     Julian date or relative to the passed obliquity. """
