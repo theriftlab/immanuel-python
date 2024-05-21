@@ -44,7 +44,17 @@ from immanuel import charts
 native = charts.Subject(
         date_time='2000-01-01 10:00',
         latitude='32n43',
-        longitude='117w09'
+        longitude='117w09',
+    )
+
+# or, alternatively...
+
+from datetime import datetime
+
+native = charts.Subject(
+        date_time=datetime(2000, 1, 1, 10, 0, 0),
+        latitude=32.71667,
+        longitude=-117.15,
     )
 
 natal = charts.Natal(native)
@@ -182,6 +192,7 @@ Which will output each of the chart's objects in this format:
         "seconds": 45
     },
     "out_of_bounds": false,
+    "in_sect": true,
     "dignities": {
         "ruler": false,
         "exalted": false,

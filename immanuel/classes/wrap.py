@@ -183,7 +183,6 @@ class MoonPhase:
 
 
 class Object:
-    # def __init__(self, object: dict, objects: dict = None, houses: dict = None, is_daytime: bool = None, obliquity: float = None) -> None:
     def __init__(
         self,
         object: dict,
@@ -241,7 +240,6 @@ class Object:
         if dignity_state is not None:
             self.dignities = DignityState(object=object, dignity_state=dignity_state)
             self.score = dignity.score(dignity_state)
-
 
     def __str__(self) -> str:
         formatted = _('{name} {longitude} in {sign}').format(

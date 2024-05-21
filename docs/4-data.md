@@ -167,6 +167,7 @@ The core of any chart, the `objects` property is a dict of Python objects repres
         "seconds": 45
     },
     "out_of_bounds": false,
+    "in_sect": true,
     "dignities": {
         "ruler": false,
         "exalted": false,
@@ -192,6 +193,7 @@ The core of any chart, the `objects` property is a dict of Python objects repres
 Some differences between object types include:
 
 * Only planets get dignities & a score.
+* Only the traditional seven planets get an `in_sect` boolean.
 * Houses, primary angles, and fixed stars do not have `out_of_bounds` or `movement` (retrograde / stationary / direct).
 * Houses alone have a `size` measured in degrees.
 

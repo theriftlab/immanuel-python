@@ -155,6 +155,16 @@ Defaults:
 }
 ```
 
+### `angle_precision`
+
+Rounding for formatted angles. This only applies to stringified object output and to the `formatted` key of any angle attributes. Available options:
+
+* `calc.SECOND`
+* `calc.MINUTE`
+* `calc.DEGREE`
+
+Default: `calc.SECOND`
+
 ### `house_system`
 
 Which house system to use. Available options:
