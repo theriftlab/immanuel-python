@@ -79,7 +79,7 @@ def object_movement(object: dict | float) -> int:
     return calc.DIRECT if speed > calc.STATION_SPEED else calc.RETROGRADE
 
 
-def object_movement_typical(object: dict) -> bool:
+def is_object_movement_typical(object: dict) -> bool:
     """ Returns whether an object's movement is typical, ie. direct for planets,
     retrograde for nodes, stationary for Parts and eclipses. """
     if object['index'] in (

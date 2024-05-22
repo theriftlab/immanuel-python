@@ -20,7 +20,8 @@ from zoneinfo import ZoneInfo
 from pytest import fixture
 
 from immanuel import charts
-from immanuel.const import calc, chart, names
+from immanuel.classes import wrap
+from immanuel.const import calc, chart, dignities, names
 from immanuel.setup import settings
 from immanuel.tools import convert
 
@@ -93,6 +94,167 @@ def test_subject(dob, lat, lon, native, julian_date):
     ambiguous_date_time = datetime(2022, 11, 6, 1, 30)
     ambiguous_native = charts.Subject(ambiguous_date_time, lat, lon)
     assert ambiguous_native.date_time_ambiguous == True
+
+
+def test_wrapped_data(native):
+    settings.objects.append(chart.PRE_NATAL_LUNAR_ECLIPSE)
+    natal_chart = charts.Natal(native)
+
+    # Angle
+    longitude = natal_chart.objects[chart.SUN].longitude
+    assert longitude.raw == 280.6237802656368
+    assert longitude.formatted == '280°37\'26"'
+    assert longitude.direction == '+'
+    assert longitude.degrees == 280
+    assert longitude.minutes == 37
+    assert longitude.seconds == 26
+
+    # Aspect
+    aspect = natal_chart.aspects[chart.SUN][chart.MOON]
+    assert aspect.active == chart.MOON
+    assert aspect.passive == chart.SUN
+    assert aspect.type == names.ASPECTS[calc.SEXTILE]
+    assert aspect.aspect == calc.SEXTILE
+    assert aspect.orb == settings.planet_orbs[calc.SEXTILE]
+    assert type(aspect.distance) is wrap.Angle                      # Tested separately, just ensure type
+    assert type(aspect.difference) is wrap.Angle                    # Tested separately, just ensure type
+
+    # AspectCondition
+    assert aspect.condition.associate == True
+    assert aspect.condition.dissociate == False
+    assert aspect.condition.formatted == names.ASPECT_CONDITIONS[calc.ASSOCIATE]
+
+    # AspectMovement
+    assert aspect.movement.applicative == False
+    assert aspect.movement.exact == False
+    assert aspect.movement.separative == True
+    assert aspect.movement.formatted == names.ASPECT_MOVEMENTS[calc.SEPARATIVE]
+
+    # Coordinates
+    assert type(natal_chart.native.coordinates.latitude) is wrap.Angle      # Tested separately, just ensure type
+    assert type(natal_chart.native.coordinates.longitude) is wrap.Angle     # Tested separately, just ensure type
+
+    # DateTime
+    date_time = natal_chart.native.date_time
+    assert type(date_time.datetime) is datetime
+    assert date_time.timezone == 'PST'
+    assert date_time.ambiguous == False
+    assert date_time.julian == 2451545.25
+    assert date_time.deltat == 0.0007387629899254968
+    assert date_time.sidereal_time == '16:54:13'
+
+    # MoonPhase
+    moon_phase = natal_chart.moon_phase
+    assert moon_phase.new_moon == False
+    assert moon_phase.waxing_crescent == False
+    assert moon_phase.first_quarter == False
+    assert moon_phase.waxing_gibbous == False
+    assert moon_phase.full_moon == False
+    assert moon_phase.disseminating == False
+    assert moon_phase.third_quarter == True
+    assert moon_phase.balsamic == False
+    assert moon_phase.formatted == names.MOON_PHASES[calc.THIRD_QUARTER]
+
+    # Object
+    sun = natal_chart.objects[chart.SUN]
+    assert sun.index == chart.SUN
+    assert sun.name == names.PLANETS[chart.SUN]
+    assert sun.distance == 0.9833259257690341
+    assert sun.speed == 1.0194579691359147
+    assert sun.out_of_bounds == False
+    assert sun.in_sect == True
+    assert sun.score == 3
+
+    assert type(sun.latitude) is wrap.Angle             # Tested separately, just ensure type
+    assert type(sun.longitude) is wrap.Angle            # Tested separately, just ensure type
+    assert type(sun.sign_longitude) is wrap.Angle       # Tested separately, just ensure type
+    assert type(sun.declination) is wrap.Angle          # Tested separately, just ensure type
+
+    # ObjectType
+    assert sun.type.index == chart.PLANET
+    assert sun.type.name == names.OBJECTS[chart.PLANET]
+
+    # Sign
+    assert sun.sign.number == chart.CAPRICORN
+    assert sun.sign.name == names.SIGNS[chart.CAPRICORN]
+    assert sun.sign.element == names.ELEMENTS[chart.EARTH]
+    assert sun.sign.modality == names.MODALITIES[chart.CARDINAL]
+
+    # Decan
+    assert sun.decan.number == chart.DECAN2
+    assert sun.decan.name == names.DECANS[chart.DECAN2]
+
+    # House
+    assert sun.house.index == chart.HOUSE11
+    assert sun.house.number == 11
+    assert sun.house.name == names.HOUSES[chart.HOUSE11]
+
+    # ObjectMovement
+    assert sun.movement.direct == True
+    assert sun.movement.stationary == False
+    assert sun.movement.retrograde == False
+    assert sun.movement.typical == True
+    assert sun.movement.formatted == names.OBJECT_MOVEMENTS[calc.DIRECT]
+
+    # DignityState
+    assert sun.dignities.ruler == False
+    assert sun.dignities.exalted == False
+    assert sun.dignities.triplicity_ruler == False
+    assert sun.dignities.term_ruler == False
+    assert sun.dignities.face_ruler == False
+    assert sun.dignities.mutual_reception_ruler == False
+    assert sun.dignities.mutual_reception_exalted == False
+    assert sun.dignities.mutual_reception_triplicity_ruler == True
+    assert sun.dignities.mutual_reception_term_ruler == False
+    assert sun.dignities.mutual_reception_face_ruler == False
+    assert sun.dignities.detriment == False
+    assert sun.dignities.fall == False
+    assert sun.dignities.peregrine == False
+    assert sun.dignities.formatted == [
+        names.DIGNITIES[dignities.MUTUAL_RECEPTION_TRIPLICITY_RULER],
+    ]
+
+    # EclipseType
+    eclipse = natal_chart.objects[chart.PRE_NATAL_LUNAR_ECLIPSE]
+    assert eclipse.eclipse_type.total == False
+    assert eclipse.eclipse_type.annular == False
+    assert eclipse.eclipse_type.partial == True
+    assert eclipse.eclipse_type.annular_total == False
+    assert eclipse.eclipse_type.penumbral == False
+    assert eclipse.eclipse_type.formatted == names.ECLIPSE_TYPES[chart.PARTIAL]
+
+    assert type(eclipse.date_time) is wrap.DateTime         # Tested separately, just ensure type
+
+    # Subject
+    subject = natal_chart.native
+    assert type(subject.date_time) is wrap.DateTime         # Tested separately, just ensure type
+    assert type(subject.coordinates) is wrap.Coordinates    # Tested separately, just ensure type
+
+    # Weightings
+    weightings = natal_chart.weightings
+    assert type(weightings.elements) is wrap.Elements       # Tested separately, just ensure type
+    assert type(weightings.modalities) is wrap.Modalities   # Tested separately, just ensure type
+    assert type(weightings.quadrants) is wrap.Quadrants     # Tested separately, just ensure type
+
+    # Elements
+    elements = natal_chart.weightings.elements
+    assert type(elements.fire) is list
+    assert type(elements.earth) is list
+    assert type(elements.air) is list
+    assert type(elements.water) is list
+
+    # Modalities
+    modalities = natal_chart.weightings.modalities
+    assert type(modalities.cardinal) is list
+    assert type(modalities.fixed) is list
+    assert type(modalities.mutable) is list
+
+    # Quadrants
+    quadrants = natal_chart.weightings.quadrants
+    assert type(quadrants.first) is list
+    assert type(quadrants.second) is list
+    assert type(quadrants.third) is list
+    assert type(quadrants.fourth) is list
 
 
 def test_natal(native, lat, lon):

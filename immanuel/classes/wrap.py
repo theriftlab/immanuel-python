@@ -263,7 +263,7 @@ class ObjectMovement:
         self.direct = self._movement == calc.DIRECT
         self.stationary = self._movement == calc.STATIONARY
         self.retrograde = self._movement == calc.RETROGRADE
-        self.typical = calculate.object_movement_typical(object)
+        self.typical = calculate.is_object_movement_typical(object)
         self.formatted = _(names.OBJECT_MOVEMENTS[self._movement], gender(object['index']))
 
     def __str__(self) -> str:
