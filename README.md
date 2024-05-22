@@ -57,6 +57,8 @@ native = charts.Subject(
         longitude=-117.15,
     )
 
+# and then...
+
 natal = charts.Natal(native)
 
 for object in natal.objects.values():
