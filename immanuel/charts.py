@@ -122,7 +122,7 @@ class Chart:
                     object=object,
                     objects=self._objects,
                     is_daytime=self._diurnal,
-                ) if object['type'] == chart.PLANET and self._diurnal and calc.PLANETS.issubset(self._objects) else None
+                ) if object['type'] == chart.PLANET and calc.PLANETS.issubset(self._objects) else None
             date_time = date.to_datetime(
                     dt=object['jd'],
                     lat=self._native.latitude,
