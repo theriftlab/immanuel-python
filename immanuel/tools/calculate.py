@@ -89,7 +89,7 @@ def is_object_movement_typical(object: dict) -> bool:
             chart.PRE_NATAL_SOLAR_ECLIPSE,
             chart.PRE_NATAL_LUNAR_ECLIPSE,
             chart.POST_NATAL_SOLAR_ECLIPSE,
-            chart.POST_NATAL_SOLAR_ECLIPSE
+            chart.POST_NATAL_SOLAR_ECLIPSE,
         ):
         return object['speed'] == 0.0
 
@@ -99,7 +99,7 @@ def is_object_movement_typical(object: dict) -> bool:
             chart.NORTH_NODE,
             chart.SOUTH_NODE,
             chart.TRUE_NORTH_NODE,
-            chart.TRUE_SOUTH_NODE
+            chart.TRUE_SOUTH_NODE,
         )
 
     return movement == calc.RETROGRADE if is_node else movement == calc.DIRECT
