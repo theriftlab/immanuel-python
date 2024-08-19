@@ -443,14 +443,26 @@ class Composite(Chart):
     def set_wrapped_partner(self):
         self.partner = wrap.Subject(self._partner)
 
-
 class Transits(Chart):
-    """ Chart of the moment for the given coordinates. Structurally identical
-    to the natal chart. Coordinates default to those specified in settings. """
-    def __init__(self, latitude: float | list | tuple | str = settings.default_latitude, longitude: float | list | tuple | str = settings.default_longitude, aspects_to: Chart = None) -> None:
+    """ Chart of the moment for the given coordinates or for a specified datetime.
+    Structurally identical to the natal chart. Coordinates default to those specified in settings. """
+    
+    def __init__(self, 
+                 latitude: float | list | tuple | str = settings.default_latitude,
+                 longitude: float | list | tuple | str = settings.default_longitude,
+                 aspects_to: Chart = None, 
+                 date_time: datetime = None) -> None:
         lat, lon = (convert.to_dec(v) for v in (latitude, longitude))
         timezone = date.timezone(lat, lon)
-        date_time = datetime.now(tz=ZoneInfo(timezone))
+        
+        # If no datetime object is passed, use the current datetime
+        if date_time is None:
+            date_time = datetime.now(tz=ZoneInfo(timezone))
+        else:
+            # Ensure the passed datetime is timezone-aware
+            if date_time.tzinfo is None:
+                date_time = date_time.replace(tzinfo=ZoneInfo(timezone))
+        
         self._native = Subject(date_time, lat, lon)
         super().__init__(chart.TRANSITS, aspects_to)
 
