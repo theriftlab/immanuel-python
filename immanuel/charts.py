@@ -30,14 +30,15 @@ from immanuel.tools import calculate, convert, date, ephemeris, forecast, midpoi
 class Subject:
     """ Simple class to model a chart subject - essentially just
     a time and place. """
-    def __init__(self, date_time: datetime | str, latitude: float | list | tuple | str, longitude: float | list | tuple | str, time_is_dst: bool = None) -> None:
+    def __init__(self, date_time: str | float | datetime, latitude: float | list | tuple | str, longitude: float | list | tuple | str, timezone_offset: float = None, time_is_dst: bool = None) -> None:
         self.latitude, self.longitude = (convert.to_dec(v) for v in (latitude, longitude))
         self.time_is_dst = time_is_dst
         self.date_time = date.to_datetime(
                 dt=date_time,
                 lat=self.latitude,
                 lon=self.longitude,
-                is_dst=time_is_dst
+                offset=timezone_offset,
+                is_dst=time_is_dst,
             )
         self.date_time_ambiguous = date.ambiguous(self.date_time) and time_is_dst is None
         self.julian_date = date.to_jd(self.date_time)
@@ -449,7 +450,7 @@ class Transits(Chart):
     to the natal chart. Coordinates default to those specified in settings. """
     def __init__(self, latitude: float | list | tuple | str = settings.default_latitude, longitude: float | list | tuple | str = settings.default_longitude, aspects_to: Chart = None) -> None:
         lat, lon = (convert.to_dec(v) for v in (latitude, longitude))
-        timezone = date.timezone(lat, lon)
+        timezone = date.timezone_name(lat, lon)
         date_time = datetime.now(tz=ZoneInfo(timezone))
         self._native = Subject(date_time, lat, lon)
         super().__init__(chart.TRANSITS, aspects_to)

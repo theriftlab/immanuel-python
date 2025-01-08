@@ -14,7 +14,7 @@
 
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 import swisseph as swe
@@ -29,37 +29,39 @@ def ambiguous(dt: datetime) -> bool:
     return tz.datetime_ambiguous(dt)
 
 
-def timezone(lat: float, lon: float) -> str:
+def timezone_name(lat: float, lon: float) -> str:
     """ Returns a timezone string based on decimal lat/lon coordinates. """
     return TimezoneFinder().timezone_at(lat=lat, lng=lon)
 
 
-def localize(dt: datetime, lat: float, lon: float, is_dst: bool = None) -> datetime:
-    """ Localizes a naive datetime based on decimal lat/lon coordinates. """
-    return dt.replace(tzinfo=ZoneInfo(timezone(lat, lon)), fold=1 if is_dst is False else 0)
+def localize(dt: datetime, lat: float, lon: float, offset: float = None, is_dst: bool = None) -> datetime:
+    """ Localizes a naive datetime based on either decimal lat/lon
+    coordinates or an explicit UTC offset. """
+    zone = ZoneInfo(timezone_name(lat, lon)) if offset is None else timezone(timedelta(hours=offset))
+    return dt.replace(tzinfo=zone, fold=1 if is_dst is False else 0)
 
 
-def to_datetime(dt: str | float | datetime, lat: float = None, lon: float = None, is_dst: bool = None) -> datetime:
+def to_datetime(dt: str | float | datetime, lat: float = None, lon: float = None, offset: float = None, is_dst: bool = None) -> datetime:
     """ Convert an unknown into a datetime. Unknowns can be either an
     ISO-formatted string, a Julian Date, or already a datetime. """
     no_coords = lat is None or lon is None
     if isinstance(dt, str):
         date_time = datetime.fromisoformat(dt)
-        return date_time.replace(tzinfo=ZoneInfo('UTC')) if no_coords else localize(date_time, lat, lon, is_dst)
+        return date_time.replace(tzinfo=ZoneInfo('UTC')) if no_coords else localize(date_time, lat, lon, offset, is_dst)
     if isinstance(dt, float):
         ut = swe.revjul(dt)
         time = convert.dec_to_dms(ut[3])[1:]
         date_time = datetime(*ut[:3], *time, tzinfo=ZoneInfo('UTC'))
-        return date_time if no_coords else date_time.astimezone(ZoneInfo(timezone(lat, lon)))
+        return date_time if no_coords else date_time.astimezone(ZoneInfo(timezone_name(lat, lon)))
     if isinstance(dt, datetime):
         if no_coords:
             return dt.replace(tzinfo=ZoneInfo('UTC')) if dt.tzinfo is None else dt
         else:
-            return localize(dt, lat, lon, is_dst)
+            return localize(dt, lat, lon, offset, is_dst)
     return None
 
 
-def to_jd(dt: str | float | datetime, lat: float = None, lon: float = None, is_dst: bool = None) -> float:
+def to_jd(dt: str | float | datetime, lat: float = None, lon: float = None, offset: float = None, is_dst: bool = None) -> float:
     """ Convert an unknown into a Julian date. Unknowns can be either an
     ISO-formatted string, already a Julian Date, or a datetime. """
     if isinstance(dt, float):
@@ -72,7 +74,7 @@ def to_jd(dt: str | float | datetime, lat: float = None, lon: float = None, is_d
         return None
 
     if lat is not None and lon is not None:
-        date_time = localize(date_time, lat, lon, is_dst)
+        date_time = localize(date_time, lat, lon, offset, is_dst)
     elif date_time.tzinfo is None:
         date_time = date_time.replace(tzinfo=ZoneInfo('UTC'))
 

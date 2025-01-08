@@ -50,11 +50,11 @@ def jd():
 
 
 def test_timezone_gmt(gmt_coords):
-    assert date.timezone(*gmt_coords) == 'Europe/London'
+    assert date.timezone_name(*gmt_coords) == 'Europe/London'
 
 
 def test_timezone_pst(pst_coords):
-    assert date.timezone(*pst_coords) == 'America/Los_Angeles'
+    assert date.timezone_name(*pst_coords) == 'America/Los_Angeles'
 
 
 def test_localize(pst_coords):
@@ -64,8 +64,8 @@ def test_localize(pst_coords):
 
 
 def test_localize_dst(ambiguous_date, pst_coords):
-    dt_no_dst = date.localize(ambiguous_date, *pst_coords, False)
-    dt_dst = date.localize(ambiguous_date, *pst_coords, True)
+    dt_no_dst = date.localize(ambiguous_date, *pst_coords, is_dst=False)
+    dt_dst = date.localize(ambiguous_date, *pst_coords, is_dst=True)
     jd_no_dst = date.to_jd(dt_no_dst)
     jd_dst = date.to_jd(dt_dst)
     assert dt_no_dst.hour == dt_dst.hour
