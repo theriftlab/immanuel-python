@@ -24,6 +24,8 @@ native = charts.Subject(
 
 The optional `time_is_dst` parameter is a boolean to clarify ambiguous times - for example 1:30am on a night when switching to US daylight savings could be in either the standard or the DST timezone. To specify which one, pass either `True` or `False` to this argument. For all other non-ambiguous times, `time_is_dst` can safely be omitted.
 
+There is also an optional `timezone_offset` parameter. This is a float which explicitly sets the UTC offset in hours for the location specified by the passed coordinates. While Immanuel will do its best to look up the correct timezone for the coordinates, it might not always be accurate, especially when boundaries or offsets have changed since the given birth date. This parameter can safely be ignored for most use cases.
+
 To generate one of each type of supported chart, you could do the following:
 
 ```python
