@@ -49,17 +49,17 @@ def localize(dt: datetime, lat: float, lon: float, offset: float = None, is_dst:
 def to_datetime(dt: str | float | datetime, lat: float = None, lon: float = None, offset: float = None, is_dst: bool = None) -> datetime:
     """ Convert an unknown into a datetime. Unknowns can be either an
     ISO-formatted string, a Julian Date, or already a datetime. """
-    no_coords = lat is None or lon is None
+    no_tz = (lat is None or lon is None) and offset is None
     if isinstance(dt, str):
         date_time = datetime.fromisoformat(dt)
-        return date_time.replace(tzinfo=ZoneInfo('UTC')) if no_coords and offset is None else localize(date_time, lat, lon, offset, is_dst)
+        return date_time.replace(tzinfo=ZoneInfo('UTC')) if no_tz else localize(date_time, lat, lon, offset, is_dst)
     if isinstance(dt, float):
         ut = swe.revjul(dt)
         time = convert.dec_to_dms(ut[3])[1:]
         date_time = datetime(*ut[:3], *time, tzinfo=ZoneInfo('UTC'))
-        return date_time if no_coords else date_time.astimezone(get_timezone(lat, lon, offset))
+        return date_time if no_tz else date_time.astimezone(get_timezone(lat, lon, offset))
     if isinstance(dt, datetime):
-        if no_coords:
+        if no_tz:
             return dt.replace(tzinfo=ZoneInfo('UTC')) if dt.tzinfo is None else dt
         else:
             return localize(dt, lat, lon, offset, is_dst)
