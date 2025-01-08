@@ -34,11 +34,16 @@ def timezone_name(lat: float, lon: float) -> str:
     return TimezoneFinder().timezone_at(lat=lat, lng=lon)
 
 
+def get_timezone(lat: float, lon: float, offset: float) -> ZoneInfo | timezone:
+    """ Returns a timezone object based on either decimal lat/lon
+    coordinates or an explicit UTC offset. """
+    return ZoneInfo(timezone_name(lat, lon)) if offset is None else timezone(timedelta(hours=offset))
+
+
 def localize(dt: datetime, lat: float, lon: float, offset: float = None, is_dst: bool = None) -> datetime:
     """ Localizes a naive datetime based on either decimal lat/lon
     coordinates or an explicit UTC offset. """
-    zone = ZoneInfo(timezone_name(lat, lon)) if offset is None else timezone(timedelta(hours=offset))
-    return dt.replace(tzinfo=zone, fold=1 if is_dst is False else 0)
+    return dt.replace(tzinfo=get_timezone(lat, lon, offset), fold=1 if is_dst is False else 0)
 
 
 def to_datetime(dt: str | float | datetime, lat: float = None, lon: float = None, offset: float = None, is_dst: bool = None) -> datetime:
@@ -47,12 +52,12 @@ def to_datetime(dt: str | float | datetime, lat: float = None, lon: float = None
     no_coords = lat is None or lon is None
     if isinstance(dt, str):
         date_time = datetime.fromisoformat(dt)
-        return date_time.replace(tzinfo=ZoneInfo('UTC')) if no_coords else localize(date_time, lat, lon, offset, is_dst)
+        return date_time.replace(tzinfo=ZoneInfo('UTC')) if no_coords and offset is None else localize(date_time, lat, lon, offset, is_dst)
     if isinstance(dt, float):
         ut = swe.revjul(dt)
         time = convert.dec_to_dms(ut[3])[1:]
         date_time = datetime(*ut[:3], *time, tzinfo=ZoneInfo('UTC'))
-        return date_time if no_coords else date_time.astimezone(ZoneInfo(timezone_name(lat, lon)))
+        return date_time if no_coords else date_time.astimezone(get_timezone(lat, lon, offset))
     if isinstance(dt, datetime):
         if no_coords:
             return dt.replace(tzinfo=ZoneInfo('UTC')) if dt.tzinfo is None else dt
