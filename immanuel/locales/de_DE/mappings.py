@@ -1,6 +1,6 @@
 """
     This file is part of immanuel - (C) The Rift Lab
-    Authors: Robert Davies (robert@theriftlab.com) and Nathan Octavio
+    Authors: Robert Davies (robert@theriftlab.com) and comosandapi
 
 
     Gendered list of relevant nouns for correct adjective translation.
@@ -65,5 +65,4 @@ GENDERS = {
     calc.QUINCUNX: genders.NEUTER,
     calc.QUINTILE: genders.NEUTER,
     calc.BIQUINTILE: genders.NEUTER,
-
 }
