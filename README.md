@@ -20,6 +20,7 @@ Immanuel's output is currently available in the following locales / languages:
 * **en_US:** (default) US English
 * **pt_BR:** Brazilian Portuguese
 * **es_ES:** Spanish
+* **de_DE:** German
 
 See [here](https://github.com/theriftlab/immanuel-python/tree/v1.4.2/docs/5-settings.md#locale) for details on how to switch. The documentation itself is not currently available in other translations. To contribute in-software translations, see [here](https://github.com/theriftlab/immanuel-python/tree/v1.4.2/docs/7-contributions.md).
 
@@ -289,7 +290,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 Immanuel is forever indebted to the pioneering work of Alois Treindl and Dieter Koch at Astrodienst, and to João Ventura for the incredibly detailed [flatlib](https://github.com/flatangle/flatlib) which first inspired the development of this package.
 
-A big thank-you goes to Nathan Octavio who suggested translations, and who translated Immanuel into both Brazilian Portuguese and Spanish.
+A big thank-you goes to Nathan Octavio who suggested translations, and who translated Immanuel into both Brazilian Portuguese and Spanish. Thanks also goes to [@cosmosandapi](https://github.com/comosandapi) who provided the German translation.
 
 ## Contact
 

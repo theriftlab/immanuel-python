@@ -78,6 +78,7 @@ A string specifying the locale for all output on any subsequently-generated char
 
 * `pt_BR` - Brazilian Portuguese
 * `es_ES` - Spanish
+* `de_DE` - German
 
 Default: `None` (effectively `en_US`)
 
