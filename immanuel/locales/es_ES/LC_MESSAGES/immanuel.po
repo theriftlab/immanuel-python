@@ -1,5 +1,5 @@
 # Immanuel translatable strings for Spanish
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the Immanuel package.
 #
 #, fuzzy
 msgid ""
