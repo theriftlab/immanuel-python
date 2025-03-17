@@ -49,6 +49,7 @@ _SWE = {
     chart.MOON: swe.MOON,
     chart.MERCURY: swe.MERCURY,
     chart.VENUS: swe.VENUS,
+    chart.TERRA: swe.EARTH,
     chart.MARS: swe.MARS,
     chart.JUPITER: swe.JUPITER,
     chart.SATURN: swe.SATURN,
@@ -488,6 +489,17 @@ def deltat(jd: float, seconds: bool = False) -> float:
     return swe.deltat(jd) if not seconds else swe.deltat(jd) * 24 * 3600
 
 
+def sidereal_period(index: int, jd: float) -> float:
+    """ Returns the passed object's sidereal orbital period in
+    tropical years. """
+    return _orbital_elements(index, jd)[10]
+
+
+def orbital_eccentricity(index: int, jd: float) -> float:
+    """ Returns the passed object's orbital eccentricity. """
+    return _orbital_elements(index, jd)[1]
+
+
 def is_daytime(jd: float, lat: float, lon: float) -> bool:
     """ Returns whether the sun is above the horizon line at the time and
     place specified. """
@@ -675,6 +687,11 @@ def _swisseph_point(index: int, jd: float) -> dict:
         'speed': speed,
         'dec': dec,
     }
+
+
+@cache
+def _orbital_elements(index: int, jd: float) -> tuple:
+    return swe.get_orbital_elements(jd, _SWE[index], swe.FLG_SWIEPH)
 
 
 def _type(index: int) -> int:

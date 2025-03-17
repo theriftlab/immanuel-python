@@ -116,6 +116,7 @@ PLANETS = {
     chart.MOON: 'Moon',
     chart.MERCURY: 'Mercury',
     chart.VENUS: 'Venus',
+    chart.TERRA: 'Earth',
     chart.MARS: 'Mars',
     chart.JUPITER: 'Jupiter',
     chart.SATURN: 'Saturn',

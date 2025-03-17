@@ -242,6 +242,9 @@ msgstr ""
 msgid "Venus"
 msgstr ""
 
+msgid "Earth"
+msgstr ""
+
 msgid "Mars"
 msgstr ""
 
