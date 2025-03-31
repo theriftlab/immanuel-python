@@ -22,6 +22,7 @@ dependencies = [
     "pyswisseph~=2.10",
     "python-dateutil",
     "timezonefinder~=5.2",
+    'scipy',
     "pytest",
 ]
 

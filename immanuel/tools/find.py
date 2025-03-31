@@ -14,7 +14,7 @@
 
     The previous/next new and full moon functions are designed to
     fast-rewind and fast-forward to a close approximation of each aspect
-    before handing off to _find()'s loop. Since the Sun and Moon have
+    before handing off to _linear_find()'s loop. Since the Sun and Moon have
     relatively stable daily motions and never retrograde, these are the only
     two bodies predictable enough to safely perform this with.
 
@@ -25,9 +25,10 @@
 import math
 
 import swisseph as swe
+from scipy.optimize import brentq
 
 from immanuel.const import calc, chart
-from immanuel.tools import ephemeris
+from immanuel.tools import calculate, ephemeris
 
 
 PREVIOUS = 0
@@ -42,16 +43,16 @@ _SWE = {
 }
 
 
-def previous(first: int, second: int, jd: float, aspect: float) -> float:
-    """ Returns the Julian day of the requested transit previous
-    to the passed Julian day. """
-    return _find(first, second, jd, aspect, PREVIOUS)
+# def previous(first: int, second: int, jd: float, aspect: float) -> float:
+#     """ Returns the Julian day of the requested transit previous
+#     to the passed Julian day. """
+#     return _find(first, second, jd, aspect, PREVIOUS)
 
 
-def next(first: int, second: int, jd: float, aspect: float) -> float:
-    """ Returns the Julian day of the requested transit after
-    the passed Julian day. """
-    return _find(first, second, jd, aspect, NEXT)
+# def next(first: int, second: int, jd: float, aspect: float) -> float:
+#     """ Returns the Julian day of the requested transit after
+#     the passed Julian day. """
+#     return _find(first, second, jd, aspect, NEXT)
 
 
 def previous_new_moon(jd: float) -> float:
@@ -60,7 +61,7 @@ def previous_new_moon(jd: float) -> float:
     moon = ephemeris.planet(chart.MOON, jd)
     distance = swe.difdegn(moon['lon'], sun['lon'])
     jd -= math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
-    return previous(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
+    return _linear_find(chart.SUN, chart.MOON, jd, calc.CONJUNCTION, PREVIOUS)
 
 
 def previous_full_moon(jd: float) -> float:
@@ -69,7 +70,7 @@ def previous_full_moon(jd: float) -> float:
     moon = ephemeris.planet(chart.MOON, jd)
     distance = swe.difdegn(moon['lon'], sun['lon']+180)
     jd -= math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
-    return previous(chart.SUN, chart.MOON, jd, calc.OPPOSITION)
+    return _linear_find(chart.SUN, chart.MOON, jd, calc.OPPOSITION, PREVIOUS)
 
 
 def next_new_moon(jd: float) -> float:
@@ -78,7 +79,7 @@ def next_new_moon(jd: float) -> float:
     moon = ephemeris.planet(chart.MOON, jd)
     distance = swe.difdegn(sun['lon'], moon['lon'])
     jd += math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
-    return next(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
+    return _linear_find(chart.SUN, chart.MOON, jd, calc.CONJUNCTION, NEXT)
 
 
 def next_full_moon(jd: float) -> float:
@@ -87,7 +88,7 @@ def next_full_moon(jd: float) -> float:
     moon = ephemeris.planet(chart.MOON, jd)
     distance = swe.difdegn(sun['lon']+180, moon['lon'])
     jd += math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
-    return next(chart.SUN, chart.MOON, jd, calc.OPPOSITION)
+    return _linear_find(chart.SUN, chart.MOON, jd, calc.OPPOSITION, NEXT)
 
 
 def previous_solar_eclipse(jd: float) -> tuple:
@@ -122,9 +123,49 @@ def next_lunar_eclipse(jd: float) -> float:
     return _eclipse_type(res), tret[0]
 
 
-def _find(first: int, second: int, jd: float, aspect: float, direction: int) -> float:
-    """ Returns the Julian date of the previous/next requested aspect.
-    Accurate to within one arc-second. """
+def next_conjunction(object1: int, object2: int, jd: float) -> list:
+    """ Temp function - returns a list of Julian dates for the next conjunction
+    between the two passed objects. If a retrograde will result in multiple
+    conjunctions, this function attempts to return all three dates. """
+    diff = _diff(object1, object2, jd)
+
+    sidereal_period1 = ephemeris.sidereal_period(object1, jd)
+    sidereal_period2 = ephemeris.sidereal_period(object2, jd)
+    max_retrograde_period = calculate.retrograde_period(object1, jd) + calculate.retrograde_period(object2, jd)
+
+    # Calculate how far the fastest object must travel
+    if sidereal_period1 < sidereal_period2:
+        diff = 360 - diff
+
+    # If the fastest object hasn't long passed the slowest, check for a retrograde
+    if diff > 270:
+        jd_start = jd
+        jd_end = jd + (max_retrograde_period * 365)
+        something = _sign_changes(object1, object2, jd_start, jd_end, 100)
+
+        if not all(x is None for x in something):
+            return something
+
+    # Bracket the conjunction date with min & max synodic periods
+    synodic_period_min = calculate.synodic_period(object1, object2, jd, calculate.SYNODIC_MIN)
+    years = diff / 360 * synodic_period_min
+    years -= max_retrograde_period
+    days = years * 365.25
+    jd_start = max(jd, jd + days)
+
+    synodic_period_max = calculate.synodic_period(object1, object2, jd, calculate.SYNODIC_MAX)
+    years = diff / 360 * synodic_period_max
+    years += max_retrograde_period
+    days = years * 365.25
+    jd_end = jd + days
+
+    return _sign_changes(object1, object2, jd_start, jd_end)
+
+
+def _linear_find(first: int, second: int, jd: float, aspect: float, direction: int) -> float:
+    """ Iteratively searches for and returns the Julian date of the previous
+    or next requested aspect. Useful for short dates and fast planets but too
+    expensive for anything more advanced. """
     multiplier = 1 if direction == NEXT else -1
 
     while True:
@@ -143,6 +184,63 @@ def _find(first: int, second: int, jd: float, aspect: float, direction: int) -> 
             add *= diff / 180
 
         jd += add
+
+
+def _diff(object1: int, object2: int, jd: float) -> float:
+    """ Return the angular difference between two objects. """
+    lon1 = ephemeris.get(object1, jd)['lon']
+    lon2 = ephemeris.get(object2, jd)['lon']
+
+    return swe.difdegn(lon1, lon2)
+
+
+def _ndiff(jd: float, object1: int, object2: int) -> float:
+    """ Callback for brentq() - returns the normalized angular difference
+    between two objects. """
+    lon1 = ephemeris.get(object1, jd)['lon']
+    lon2 = ephemeris.get(object2, jd)['lon']
+
+    return swe.difdeg2n(lon1, lon2)
+
+
+def _ingress_egress_bracket(object1: int, object2: int, jd_start: float, jd_end: float, steps: int) -> tuple:
+    """ Returns a refined Julian date bracket of size step_size. """
+    initial_ndiff = _ndiff(jd_start, object1, object2)
+    jd_ingress = jd_egress = jd_start
+    bracket_size = jd_end - jd_start
+    step_size = bracket_size / steps
+
+    while _ndiff(jd_egress, object1, object2) * initial_ndiff > 0 and jd_egress < jd_end:
+        jd_ingress = jd_egress
+        jd_egress += step_size
+
+    if jd_egress == jd_end:
+        return None
+
+    return jd_ingress, jd_egress
+
+
+def _sign_changes(object1: int, object2: int, jd_start: float, jd_end: float, steps: int = 1000) -> list:
+    """ Returns a list of Julian dates of diff value +/- sign changes within
+    the time bracket. """
+    jd_matches = []
+    jd_bracket_start = jd_start
+
+    while (bracket := _ingress_egress_bracket(object1, object2, jd_bracket_start, jd_end, steps)) is not None and len(jd_matches) < 3:
+        jd_matches.append(bracket)
+        jd_bracket_start = bracket[1]
+
+    matches = []
+
+    for jd_ingress, jd_egress in jd_matches:
+        try:
+            jd_match = brentq(_ndiff, jd_ingress, jd_egress, args=(object1, object2), xtol=calc.MAX_ERROR)
+        except:
+            jd_match = None
+
+        matches.append(jd_match)
+
+    return matches
 
 
 def _eclipse_type(swe_index: int) -> int:

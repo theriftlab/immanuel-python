@@ -25,20 +25,20 @@ def jd(coords):
     return date.to_jd('2000-01-01 10:00', *coords)
 
 
-def test_previous(jd, coords):
-    # Check for previous Sun / Moon conjunction so we can use the same
-    # test date/time as test_previous_new_moon()
-    tr_jd = find.previous(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
-    tr_dt = date.to_datetime(tr_jd, *coords)
-    assert tr_dt.strftime('%Y-%m-%d %H:%M') == '1999-12-07 14:31'
+# def test_previous(jd, coords):
+#     # Check for previous Sun / Moon conjunction so we can use the same
+#     # test date/time as test_previous_new_moon()
+#     tr_jd = find.previous(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
+#     tr_dt = date.to_datetime(tr_jd, *coords)
+#     assert tr_dt.strftime('%Y-%m-%d %H:%M') == '1999-12-07 14:31'
 
 
-def test_next(jd, coords):
-    # Check for next Sun / Moon conjunction so we can use the same
-    # test date/time as test_next_new_moon()
-    tr_jd = find.next(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
-    tr_dt = date.to_datetime(tr_jd, *coords)
-    assert tr_dt.strftime('%Y-%m-%d %H:%M') == '2000-01-06 10:13'
+# def test_next(jd, coords):
+#     # Check for next Sun / Moon conjunction so we can use the same
+#     # test date/time as test_next_new_moon()
+#     tr_jd = find.next(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
+#     tr_dt = date.to_datetime(tr_jd, *coords)
+#     assert tr_dt.strftime('%Y-%m-%d %H:%M') == '2000-01-06 10:13'
 
 
 def test_previous_new_moon(jd, coords):
