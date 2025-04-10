@@ -448,11 +448,12 @@ class Composite(Chart):
 class Transits(Chart):
     """ Chart of the moment for the given coordinates. Structurally identical
     to the natal chart. Coordinates default to those specified in settings. """
-    def __init__(self, latitude: float | list | tuple | str = settings.default_latitude, longitude: float | list | tuple | str = settings.default_longitude, aspects_to: Chart = None) -> None:
+    def __init__(self, latitude: float | list | tuple | str = settings.default_latitude, longitude: float | list | tuple | str = settings.default_longitude, aspects_to: Chart = None, houses_for_aspected: bool = False) -> None:
         lat, lon = (convert.to_dec(v) for v in (latitude, longitude))
         timezone = date.timezone_name(lat, lon)
         date_time = datetime.now(tz=ZoneInfo(timezone))
         self._native = Subject(date_time, lat, lon)
+        self._houses_for_aspected = houses_for_aspected
         super().__init__(chart.TRANSITS, aspects_to)
 
     def generate(self) -> None:
@@ -483,4 +484,4 @@ class Transits(Chart):
                 lat=self._native.latitude,
                 lon=self._native.longitude,
                 house_system=settings.house_system,
-            )
+            ) if self._aspects_to is None or self._houses_for_aspected is False else self._aspects_to._houses

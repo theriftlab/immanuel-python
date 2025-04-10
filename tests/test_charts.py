@@ -595,7 +595,7 @@ def test_composite(native, lat, lon, partner, partner_lat, partner_lon):
     settings.house_system = chart.PLACIDUS
 
 
-def test_transits(lat, lon):
+def test_transits(native, lat, lon):
     transits_chart = charts.Transits(lat, lon)
 
     assert transits_chart.type == names.CHART_TYPES[chart.TRANSITS]
@@ -609,6 +609,12 @@ def test_transits(lat, lon):
 
     assert default_transits_chart.native.coordinates.latitude.raw == settings.default_latitude
     assert default_transits_chart.native.coordinates.longitude.raw == settings.default_longitude
+
+    # Spot-check houses_for_aspected
+    native_chart = charts.Natal(native)
+    native_houses_transits_chart = charts.Transits(lat, lon, aspects_to=native_chart, houses_for_aspected=True)
+
+    assert [str(h) for h in native_chart.houses.values()] == [str(h) for h in native_houses_transits_chart.houses.values()]
 
 
 def test_synastry(native, partner):
