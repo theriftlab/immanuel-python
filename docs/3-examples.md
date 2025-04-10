@@ -61,6 +61,8 @@ Now `native_chart`'s planets/objects will aspect `partner_chart`'s planets/objec
 
 All chart instances additionally feature a `house_for()` method which takes a chart object as a parameter. This simply returns the index of the current chart's house where the passed chart object would appear. This can be useful in conjunction with the above functionality to see which houses a transiting planet is in, or which houses in your chart a partner's planets appear.
 
+Similarly, the `Transits` chart class features an additional `houses_for_aspected` boolean parameter. This will give the transits chart the same houses as the `aspected_to` chart for easy transit tracking.
+
 ## Human-Readable
 
 You can simply print out a chart's property to see human-readable data, eg.:

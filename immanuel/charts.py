@@ -12,7 +12,9 @@
 
     Instead of a dedicated synastry chart, the optional aspects_to parameter
     in each chart type's constructor takes another Chart instance and forms its
-    aspects to the planets in that chart rather than its own.
+    aspects to the planets in that chart rather than its own. An additional
+    houses_for_aspected boolean is available on the Transits chart to use the
+    houses of the passed aspects_to chart.
 
 """
 
