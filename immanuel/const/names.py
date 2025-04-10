@@ -76,6 +76,16 @@ HOUSE_SYSTEMS = {
     chart.REGIOMONTANUS: 'Regiomontanus',
     chart.VEHLOW_EQUAL: 'Vehlow Equal House',
     chart.WHOLE_SIGN: 'Whole Sign',
+    chart.SUN_ON_FIRST: 'Sun On First',
+    chart.MOON_ON_FIRST: 'Moon On First',
+    chart.MERCURY_ON_FIRST: 'Mercury On First',
+    chart.VENUS_ON_FIRST: 'Venus On First',
+    chart.MARS_ON_FIRST: 'Mars On First',
+    chart.JUPITER_ON_FIRST: 'Jupiter On First',
+    chart.SATURN_ON_FIRST: 'Saturn On First',
+    chart.URANUS_ON_FIRST: 'Uranus On First',
+    chart.NEPTUNE_ON_FIRST: 'Neptune On First',
+    chart.PLUTO_ON_FIRST: 'Pluto On First',
 }
 
 HOUSES = {

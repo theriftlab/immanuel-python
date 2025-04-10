@@ -11,11 +11,11 @@
 
 from datetime import datetime
 
+from immanuel.classes.localize import gender, localize as _
 from immanuel.const import calc, chart, dignities, names
 from immanuel.reports import dignity
 from immanuel.setup import settings
 from immanuel.tools import calculate, convert, date, ephemeris, position
-from immanuel.classes.localize import gender, _
 
 
 class Angle:

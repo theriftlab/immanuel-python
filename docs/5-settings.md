@@ -183,6 +183,16 @@ Which house system to use. Available options:
 * `chart.REGIOMONTANUS`
 * `chart.VEHLOW_EQUAL`
 * `chart.WHOLE_SIGN`
+* `chart.SUN_ON_FIRST`
+* `chart.MOON_ON_FIRST`
+* `chart.MERCURY_ON_FIRST`
+* `chart.VENUS_ON_FIRST`
+* `chart.MARS_ON_FIRST`
+* `chart.JUPITER_ON_FIRST`
+* `chart.SATURN_ON_FIRST`
+* `chart.URANUS_ON_FIRST`
+* `chart.NEPTUNE_ON_FIRST`
+* `chart.PLUTO_ON_FIRST`
 
 Default: `chart.PLACIDUS`
 

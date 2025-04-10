@@ -22,7 +22,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from immanuel.classes import wrap
-from immanuel.classes.localize import _
+from immanuel.classes.localize import localize as _
 from immanuel.const import calc, chart, names
 from immanuel.reports import aspect, dignity, pattern, weighting
 from immanuel.setup import settings

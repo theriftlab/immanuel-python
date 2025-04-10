@@ -299,6 +299,15 @@ def test_armc_house(jd, coords, armc, all_houses):
     assert ephemeris.armc_house(ephemeris.ALL, armc, coords[0], obliquity, chart.PLACIDUS) == ephemeris.armc_houses(armc, coords[0], obliquity, chart.PLACIDUS)
 
 
+def test_planet_on_first_house(jd, coords):
+    sun = ephemeris.planet(chart.SUN, jd)
+    first_house = ephemeris.house(chart.HOUSE1, jd, *coords, chart.SUN_ON_FIRST)
+    second_house = ephemeris.house(chart.HOUSE2, jd, *coords, chart.SUN_ON_FIRST)
+
+    assert sun['lon'] == first_house['lon']
+    assert sun['lon'] + 30 == second_house['lon']
+
+
 def test_point(jd, coords, all_points):
     for index in all_points:
         point = ephemeris.point(index, jd, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)

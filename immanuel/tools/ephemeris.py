@@ -16,10 +16,10 @@
 
 import swisseph as swe
 
-from immanuel.const import chart, names
 from immanuel.classes.cache import cache
+from immanuel.classes.localize import localize as _
+from immanuel.const import chart, names
 from immanuel.tools import calculate, find
-from immanuel.classes.localize import _
 
 
 ALL = -1
@@ -333,10 +333,12 @@ def _angle(index: int, jd: float, lat: float, lon: float, house_system: int, arm
 
 def _house(index: int, jd: float, lat: float, lon: float, house_system: int, armc: float, armc_obliquity: float) -> dict:
     """ Function for house() and armc_house(). """
+    first_house_lon = get(_first_house_planet(house_system), jd)['lon'] if house_system > chart.PLANET_ON_FIRST else None
+
     if armc is not None:
-        houses = _angles_houses_vertex_armc(armc, lat, armc_obliquity, house_system)['houses']
+        houses = _angles_houses_vertex_armc(armc, lat, armc_obliquity, house_system, first_house_lon)['houses']
     else:
-        houses = _angles_houses_vertex(jd, lat, lon, house_system)['houses']
+        houses = _angles_houses_vertex(jd, lat, lon, house_system, first_house_lon)['houses']
 
     if index == ALL:
         return houses
@@ -519,22 +521,24 @@ def _is_daytime(jd: float, lat: float, lon: float, armc: float, armc_obliquity: 
 
 
 @cache
-def _angles_houses_vertex(jd: float, lat: float, lon: float, house_system: int) -> dict:
-    """ Returns ecliptic longitudes for the houses, main angles,
-    and the vertex, along with their speeds. Based on Julian
-    date and lat / lon coordinates. """
-    return _angles_houses_vertex_from_swe(obliquity(jd), *swe.houses_ex2(jd, lat, lon, _SWE[house_system]))
+def _angles_houses_vertex(jd: float, lat: float, lon: float, house_system: int, first_house_lon: float = None) -> dict:
+    """ Returns ecliptic longitudes for the houses, main angles, and the vertex,
+    along with their speeds. Defaults to Placidus for main angles & vertex if
+    an PLANET_ON_FIRST house system is chosen. Based on Julian date and
+    lat / lon coordinates. """
+    return _angles_houses_vertex_from_swe(obliquity(jd), *swe.houses_ex2(jd, lat, lon, _SWE[house_system if house_system < chart.PLANET_ON_FIRST else chart.PLACIDUS]), first_house_lon)
 
 
 @cache
-def _angles_houses_vertex_armc(armc: float, lat: float, obliquity: float, house_system: int) -> dict:
-    """ Returns ecliptic longitudes for the houses, main angles,
-    and the vertex, along with their speeds. Based on ARMC, latitude
-    and ecliptic obliquity. """
-    return _angles_houses_vertex_from_swe(obliquity, *swe.houses_armc_ex2(armc, lat, obliquity, _SWE[house_system]))
+def _angles_houses_vertex_armc(armc: float, lat: float, obliquity: float, house_system: int, first_house_lon: float = None) -> dict:
+    """ Returns ecliptic longitudes for the houses, main angles, and the vertex,
+    along with their speeds. Defaults to Placidus for main angles & vertex if
+    an PLANET_ON_FIRST house system is chosen. Based on ARMC, latitude and
+    ecliptic obliquity. """
+    return _angles_houses_vertex_from_swe(obliquity, *swe.houses_armc_ex2(armc, lat, obliquity, _SWE[house_system if house_system < chart.PLANET_ON_FIRST else chart.PLACIDUS]), first_house_lon)
 
 
-def _angles_houses_vertex_from_swe(obliquity: float, cusps: tuple, ascmc: tuple, cuspsspeed: tuple, ascmcspeed: tuple) -> dict:
+def _angles_houses_vertex_from_swe(obliquity: float, cusps: tuple, ascmc: tuple, cuspsspeed: tuple, ascmcspeed: tuple, first_house_lon: float) -> dict:
     """ Get houses, angles & vertex direct from pyswisseph. """
     angles = {}
 
@@ -566,11 +570,19 @@ def _angles_houses_vertex_from_swe(obliquity: float, cusps: tuple, ascmc: tuple,
 
     houses = {}
 
-    for i, lon in enumerate(cusps, start=1):
+    for i in range(1, 13):
         index = chart.HOUSE + i
-        size = swe.difdeg2n(cusps[i if i < 12 else 0], lon)
-        speed = cuspsspeed[i-1]
-        dec = swe.cotrans((lon, 0, 0), -obliquity)[1]
+
+        if first_house_lon is not None:
+            lon = swe.degnorm(first_house_lon + (30 * (i-1)))
+            size = 30
+            speed = 0
+            dec = 0
+        else:
+            lon = cusps[i-1]
+            size = swe.difdeg2n(cusps[i if i < 12 else 0], lon)
+            speed = cuspsspeed[i-1]
+            dec = swe.cotrans((lon, 0, 0), -obliquity)[1]
 
         houses[index] = {
             'index': index,
@@ -668,3 +680,8 @@ def _swisseph_point(index: int, jd: float) -> dict:
 def _type(index: int) -> int:
     """ Return the type index of a given object's index. """
     return round(index, -2)
+
+
+def _first_house_planet(house_system: int) -> int:
+    """ Return the index of the planet that marks the first house. """
+    return (house_system - chart.PLANET_ON_FIRST) + chart.PLANET

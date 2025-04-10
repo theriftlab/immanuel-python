@@ -14,7 +14,7 @@ from pytest import fixture
 from immanuel import charts
 from immanuel.classes import wrap
 from immanuel.classes.cache import FunctionCache
-from immanuel.classes.localize import _
+from immanuel.classes.localize import localize as _
 from immanuel.const import calc, chart, dignities
 from immanuel.setup import settings
 
