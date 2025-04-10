@@ -31,7 +31,7 @@ from immanuel.const import calc, chart
 from immanuel.tools import calculate, ephemeris
 
 
-PREVIOUS = 0
+PREVIOUS = -1
 NEXT = 1
 
 _SWE = {
@@ -123,7 +123,7 @@ def next_lunar_eclipse(jd: float) -> float:
     return _eclipse_type(res), tret[0]
 
 
-def next_conjunction(object1: int, object2: int, jd: float) -> list:
+def next_conjunction(object1: int, object2: int, jd: float, direction: int = NEXT) -> list:
     """ Temp function - returns a list of Julian dates for the next conjunction
     between the two passed objects. If a retrograde will result in multiple
     conjunctions, this function attempts to return all three dates. """
@@ -140,11 +140,11 @@ def next_conjunction(object1: int, object2: int, jd: float) -> list:
     # If the fastest object hasn't long passed the slowest, check for a retrograde
     if diff > 270:
         jd_start = jd
-        jd_end = jd + (max_retrograde_period * 365)
-        something = _sign_changes(object1, object2, jd_start, jd_end, 100)
+        jd_end = jd + max_retrograde_period * 365
+        sign_changes = _sign_changes(object1, object2, jd_start, jd_end, 100)
 
-        if not all(x is None for x in something):
-            return something
+        if not all(x is None for x in sign_changes):
+            return sign_changes
 
     # Bracket the conjunction date with min & max synodic periods
     synodic_period_min = calculate.synodic_period(object1, object2, jd, calculate.SYNODIC_MIN)
@@ -166,8 +166,6 @@ def _linear_find(first: int, second: int, jd: float, aspect: float, direction: i
     """ Iteratively searches for and returns the Julian date of the previous
     or next requested aspect. Useful for short dates and fast planets but too
     expensive for anything more advanced. """
-    multiplier = 1 if direction == NEXT else -1
-
     while True:
         first_object = ephemeris.get(first, jd)
         second_object = ephemeris.get(second, jd)
@@ -177,7 +175,7 @@ def _linear_find(first: int, second: int, jd: float, aspect: float, direction: i
         if diff <= calc.MAX_ERROR:
             return jd
 
-        add = 1 * multiplier
+        add = direction
         speed = abs(max(first_object['speed'], second_object['speed']) - min(first_object['speed'], second_object['speed']))
 
         if diff < speed:
