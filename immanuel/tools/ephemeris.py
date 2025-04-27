@@ -77,7 +77,7 @@ _SWE = {
 }
 
 
-def objects(object_list: tuple, jd: float, lat: float = None, lon: float = None, house_system: int = None, part_formula: int = None) -> dict:
+def objects(object_list: tuple, jd: float, lat: float | None = None, lon: float | None = None, house_system: int | None = None, part_formula: int | None = None) -> dict:
     """ Helper function returns a dict of all passed chart objects. """
     return _objects(
         object_list=object_list,
@@ -91,7 +91,7 @@ def objects(object_list: tuple, jd: float, lat: float = None, lon: float = None,
     )
 
 
-def armc_objects(object_list: tuple, jd: float, armc: float, lat: float = None, lon: float = None, obliquity: float = None, house_system: int = None, part_formula: int = None) -> dict:
+def armc_objects(object_list: tuple, jd: float, armc: float, lat: float | None = None, lon: float | None = None, obliquity: float | None = None, house_system: int | None = None, part_formula: int | None = None) -> dict:
     """ Helper function returns a dict of all passed chart objects
     with points & angles calculated from the passed ARMC. """
     return _objects(
@@ -106,7 +106,7 @@ def armc_objects(object_list: tuple, jd: float, armc: float, lat: float = None, 
     )
 
 
-def get(index: int | str, jd: float, lat: float = None, lon: float = None, house_system: int = None, part_formula: int = None) -> dict:
+def get(index: int | str, jd: float, lat: float | None = None, lon: float | None = None, house_system: int | None = None, part_formula: int | None = None) -> dict:
     """ Helper function to retrieve an angle, house, planet, point,
     asteroid, or fixed star. """
     return _get(
@@ -121,7 +121,7 @@ def get(index: int | str, jd: float, lat: float = None, lon: float = None, house
     )
 
 
-def armc_get(index: int | str, jd: float, armc: float, lat: float = None, lon: float = None, obliquity: float = None, house_system: int = None, part_formula: int = None) -> dict:
+def armc_get(index: int | str, jd: float, armc: float, lat: float | None = None, lon: float | None = None, obliquity: float | None = None, house_system: int | None = None, part_formula: int | None = None) -> dict:
     """ Helper function to retrieve an angle, house, planet, point,
     asteroid, or fixed star with houses & angles calculated from the
     passed ARMC. """
@@ -245,7 +245,7 @@ def armc_house(index: int, armc: float, lat: float, obliquity: float, house_syst
     )
 
 
-def point(index: int, jd: float, lat: float = None, lon: float = None, house_system: int = None, part_formula: int = None) -> dict:
+def point(index: int, jd: float, lat: float | None = None, lon: float | None = None, house_system: int | None = None, part_formula: int | None = None) -> dict:
     """ Returns a calculated point by Julian date, and additionally by lat / lon
     coordinates. """
     return _point(
@@ -260,7 +260,7 @@ def point(index: int, jd: float, lat: float = None, lon: float = None, house_sys
     )
 
 
-def armc_point(index: int, jd: float, armc: float, lat: float, obliquity: float, house_system: int = None, part_formula: int = None) -> dict:
+def armc_point(index: int, jd: float, armc: float, lat: float, obliquity: float, house_system: int | None = None, part_formula: int | None = None) -> dict:
     """ Returns a calculated point by Julian date, and additionally by the
     passed ARMC. """
     return _point(
@@ -521,7 +521,7 @@ def _is_daytime(jd: float, lat: float, lon: float, armc: float, armc_obliquity: 
 
 
 @cache
-def _angles_houses_vertex(jd: float, lat: float, lon: float, house_system: int, first_house_lon: float = None) -> dict:
+def _angles_houses_vertex(jd: float, lat: float, lon: float, house_system: int, first_house_lon: float | None = None) -> dict:
     """ Returns ecliptic longitudes for the houses, main angles, and the vertex,
     along with their speeds. Defaults to Placidus for main angles & vertex if
     an PLANET_ON_FIRST house system is chosen. Based on Julian date and
@@ -530,7 +530,7 @@ def _angles_houses_vertex(jd: float, lat: float, lon: float, house_system: int, 
 
 
 @cache
-def _angles_houses_vertex_armc(armc: float, lat: float, obliquity: float, house_system: int, first_house_lon: float = None) -> dict:
+def _angles_houses_vertex_armc(armc: float, lat: float, obliquity: float, house_system: int, first_house_lon: float | None = None) -> dict:
     """ Returns ecliptic longitudes for the houses, main angles, and the vertex,
     along with their speeds. Defaults to Placidus for main angles & vertex if
     an PLANET_ON_FIRST house system is chosen. Based on ARMC, latitude and
@@ -637,7 +637,7 @@ def _syzygy(jd: float) -> dict:
 
 
 @cache
-def _part(index: int, jd: float, lat: float, lon: float, formula: int, armc: float = None, armc_obliquity: float = None) -> dict:
+def _part(index: int, jd: float, lat: float, lon: float, formula: int, armc: float | None = None, armc_obliquity: float | None = None) -> dict:
     """ Calculates Parts of Fortune, Spirit, and Eros. """
     sun = planet(chart.SUN, jd)
     moon = planet(chart.MOON, jd)

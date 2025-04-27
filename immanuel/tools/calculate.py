@@ -128,7 +128,7 @@ def is_in_sect(object: dict, is_daytime: bool, sun: dict | float = None) -> bool
     return False
 
 
-def is_out_of_bounds(object: dict | float, jd: float = None, obliquity: float = None) -> bool:
+def is_out_of_bounds(object: dict | float, jd: float | None = None, obliquity: float | None = None) -> bool:
     """ Returns whether the passed object is out of bounds either on the passed
     Julian date or relative to the passed obliquity. """
     if isinstance(object, dict):

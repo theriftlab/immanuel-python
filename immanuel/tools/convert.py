@@ -40,7 +40,7 @@ def dec_to_dms(dec: float, round_to: tuple = ROUND_SECOND, pad_rounded: bool = F
     return dms + (0,) * (3-round_to[0]) if pad_rounded else dms
 
 
-def dms_to_string(dms: list | tuple, format: int = FORMAT_DMS, round_to: tuple = ROUND_SECOND, pad_rounded: bool = None) -> str:
+def dms_to_string(dms: list | tuple, format: int = FORMAT_DMS, round_to: tuple = ROUND_SECOND, pad_rounded: bool | None = None) -> str:
     """ Returns a D:M:S list as either a D:M:S, D°M'S" or
     lat/lon coordinate string. """
     pad_rounded = True if format in (FORMAT_LAT, FORMAT_LON) or (pad_rounded is None and format != FORMAT_DMS) else pad_rounded
@@ -66,7 +66,7 @@ def string_to_dms(string: str, round_to: tuple = ROUND_SECOND, pad_rounded: bool
     return dec_to_dms(string_to_dec(string), round_to, pad_rounded)
 
 
-def dec_to_string(dec: float, format: int = FORMAT_DMS, round_to: tuple = ROUND_SECOND, pad_rounded: bool = None) -> str:
+def dec_to_string(dec: float, format: int = FORMAT_DMS, round_to: tuple = ROUND_SECOND, pad_rounded: bool | None = None) -> str:
     """ Returns a decimal float as either a D:M:S or a D°M'S" string. """
     return dms_to_string(dec_to_dms(dec, round_to), format, round_to, pad_rounded)
 
@@ -108,7 +108,7 @@ def to_dms(value: float | list | tuple | str, round_to: tuple = ROUND_SECOND, pa
     return None
 
 
-def to_string(value: float | list | tuple | str, format: int = FORMAT_DMS, round_to: tuple = ROUND_SECOND, pad_rounded: bool = None) -> str:
+def to_string(value: float | list | tuple | str, format: int = FORMAT_DMS, round_to: tuple = ROUND_SECOND, pad_rounded: bool | None = None) -> str:
     """ If the input type is unknown, this will guess and convert. """
     if isinstance(value, float):
         return dec_to_string(value, format, round_to, pad_rounded)

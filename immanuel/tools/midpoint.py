@@ -15,7 +15,7 @@ import swisseph as swe
 from immanuel.tools import ephemeris
 
 
-def all(objects1: dict, objects2: dict, obliquity: float = None) -> dict:
+def all(objects1: dict, objects2: dict, obliquity: float | None = None) -> dict:
     """ Takes two dicts of chart objects typically returned by the ephemeris
     module and returns the averaged data for both sets as a third dict of
     composite objects. """
@@ -27,7 +27,7 @@ def all(objects1: dict, objects2: dict, obliquity: float = None) -> dict:
     return objects
 
 
-def composite(object1: dict, object2: dict, obliquity: float = None) -> dict:
+def composite(object1: dict, object2: dict, obliquity: float | None = None) -> dict:
     """ Given two chart objects typically returned by the ephemeris module,
     this function will return a composite object. """
     object = object1 | {

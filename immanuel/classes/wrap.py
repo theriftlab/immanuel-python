@@ -94,7 +94,7 @@ class Coordinates:
 
 
 class DateTime:
-    def __init__(self, dt: datetime | float, armc: dict | float = None, latitude: float = None, longitude: float = None, time_is_dst: bool = None) -> None:
+    def __init__(self, dt: datetime | float, armc: dict | float = None, latitude: float | None = None, longitude: float | None = None, time_is_dst: bool | None = None) -> None:
         self.datetime = date.to_datetime(dt, latitude, longitude)
         self.timezone = self.datetime.tzname()
         self.ambiguous = date.ambiguous(self.datetime) and time_is_dst is None
@@ -186,11 +186,11 @@ class Object:
     def __init__(
         self,
         object: dict,
-        date_time: datetime = None,
-        house: int = None,
-        out_of_bounds: bool = None,
-        in_sect: bool = None,
-        dignity_state: dict = None,
+        date_time: datetime | None = None,
+        house: int | None = None,
+        out_of_bounds: bool | None = None,
+        in_sect: bool | None = None,
+        dignity_state: dict | None = None,
     ) -> None:
         self.index = object['index']
 

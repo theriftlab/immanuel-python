@@ -51,7 +51,7 @@ class Localize:
         MAPPINGS = {}
 
 
-def localize(input: str, context: str = None) -> str:
+def localize(input: str, context: str | None = None) -> str:
     if Localize.translation is None:
         return input
 

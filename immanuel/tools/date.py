@@ -40,13 +40,13 @@ def get_timezone(lat: float, lon: float, offset: float) -> ZoneInfo | timezone:
     return ZoneInfo(timezone_name(lat, lon)) if offset is None else timezone(timedelta(hours=offset))
 
 
-def localize(dt: datetime, lat: float, lon: float, offset: float = None, is_dst: bool = None) -> datetime:
+def localize(dt: datetime, lat: float, lon: float, offset: float | None = None, is_dst: bool | None = None) -> datetime:
     """ Localizes a naive datetime based on either decimal lat/lon
     coordinates or an explicit UTC offset. """
     return dt.replace(tzinfo=get_timezone(lat, lon, offset), fold=1 if is_dst is False else 0)
 
 
-def to_datetime(dt: str | float | datetime, lat: float = None, lon: float = None, offset: float = None, is_dst: bool = None) -> datetime:
+def to_datetime(dt: str | float | datetime, lat: float | None = None, lon: float | None = None, offset: float | None = None, is_dst: bool | None = None) -> datetime:
     """ Convert an unknown into a datetime. Unknowns can be either an
     ISO-formatted string, a Julian Date, or already a datetime. """
     no_tz = (lat is None or lon is None) and offset is None
@@ -66,7 +66,7 @@ def to_datetime(dt: str | float | datetime, lat: float = None, lon: float = None
     return None
 
 
-def to_jd(dt: str | float | datetime, lat: float = None, lon: float = None, offset: float = None, is_dst: bool = None) -> float:
+def to_jd(dt: str | float | datetime, lat: float | None = None, lon: float | None = None, offset: float | None = None, is_dst: bool | None = None) -> float:
     """ Convert an unknown into a Julian date. Unknowns can be either an
     ISO-formatted string, already a Julian Date, or a datetime. """
     if isinstance(dt, float):

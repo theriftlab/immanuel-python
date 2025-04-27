@@ -32,7 +32,7 @@ from immanuel.tools import calculate, convert, date, ephemeris, forecast, midpoi
 class Subject:
     """ Simple class to model a chart subject - essentially just
     a time and place. """
-    def __init__(self, date_time: str | float | datetime, latitude: float | list | tuple | str, longitude: float | list | tuple | str, timezone_offset: float = None, time_is_dst: bool = None) -> None:
+    def __init__(self, date_time: str | float | datetime, latitude: float | list | tuple | str, longitude: float | list | tuple | str, timezone_offset: float | None = None, time_is_dst: bool | None = None) -> None:
         self.latitude, self.longitude = (convert.to_dec(v) for v in (latitude, longitude))
         self.time_is_dst = time_is_dst
         self.date_time = date.to_datetime(
@@ -159,7 +159,7 @@ class Chart:
 class Natal(Chart):
     """ Standard natal chart generates data straight from the passed
     native information. """
-    def __init__(self, native: Subject, aspects_to: Chart = None) -> None:
+    def __init__(self, native: Subject, aspects_to: Chart | None = None) -> None:
         self._native = native
         super().__init__(chart.NATAL, aspects_to)
 
@@ -196,7 +196,7 @@ class Natal(Chart):
 
 class SolarReturn(Chart):
     """ Solar return chart for the given year. """
-    def __init__(self, native: Subject, year: int, aspects_to: Chart = None) -> None:
+    def __init__(self, native: Subject, year: int, aspects_to: Chart | None = None) -> None:
         self._native = native
         self._solar_return_year = year
         super().__init__(chart.SOLAR_RETURN, aspects_to)
@@ -254,7 +254,7 @@ class SolarReturn(Chart):
 class Progressed(Chart):
     """ Secondary progression chart uses the MC progression method from
     settings. """
-    def __init__(self, native: Subject, date_time: datetime | str, aspects_to: Chart = None) -> None:
+    def __init__(self, native: Subject, date_time: datetime | str, aspects_to: Chart | None = None) -> None:
         self._native = native
         self._date_time = date_time
         super().__init__(chart.PROGRESSED, aspects_to)
@@ -334,7 +334,7 @@ class Progressed(Chart):
 
 class Composite(Chart):
     """ Generates a midpoint chart based on the two passed sets of data. """
-    def __init__(self, native: Subject, partner: Subject, aspects_to: Chart = None) -> None:
+    def __init__(self, native: Subject, partner: Subject, aspects_to: Chart | None = None) -> None:
         self._native = native
         self._partner = partner
         super().__init__(chart.COMPOSITE, aspects_to)
@@ -450,7 +450,7 @@ class Composite(Chart):
 class Transits(Chart):
     """ Chart of the moment for the given coordinates. Structurally identical
     to the natal chart. Coordinates default to those specified in settings. """
-    def __init__(self, latitude: float | list | tuple | str = settings.default_latitude, longitude: float | list | tuple | str = settings.default_longitude, aspects_to: Chart = None, houses_for_aspected: bool = False) -> None:
+    def __init__(self, latitude: float | list | tuple | str = settings.default_latitude, longitude: float | list | tuple | str = settings.default_longitude, aspects_to: Chart | None = None, houses_for_aspected: bool = False) -> None:
         lat, lon = (convert.to_dec(v) for v in (latitude, longitude))
         timezone = date.timezone_name(lat, lon)
         date_time = datetime.now(tz=ZoneInfo(timezone))
