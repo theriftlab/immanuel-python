@@ -30,7 +30,7 @@ from immanuel.const import calc, chart
 from immanuel.tools import ephemeris
 
 
-PREVIOUS = 0
+PREVIOUS = -1
 NEXT = 1
 
 _SWE = {
@@ -45,13 +45,13 @@ _SWE = {
 def previous(first: int, second: int, jd: float, aspect: float) -> float:
     """Returns the Julian day of the requested transit previous
     to the passed Julian day."""
-    return _find(first, second, jd, aspect, PREVIOUS)
+    return _linear_find(first, second, jd, aspect, PREVIOUS)
 
 
 def next(first: int, second: int, jd: float, aspect: float) -> float:
     """Returns the Julian day of the requested transit after
     the passed Julian day."""
-    return _find(first, second, jd, aspect, NEXT)
+    return _linear_find(first, second, jd, aspect, NEXT)
 
 
 def previous_new_moon(jd: float) -> float:
@@ -124,24 +124,25 @@ def next_lunar_eclipse(jd: float) -> float:
     return _eclipse_type(res), tret[0]
 
 
-def _find(first: int, second: int, jd: float, aspect: float, direction: int) -> float:
-    """Returns the Julian date of the previous/next requested aspect.
-    Accurate to within one arc-second."""
-    multiplier = 1 if direction == NEXT else -1
-
+def _linear_find(
+    object1: int, object2: int, jd: float, aspect: float, direction: int
+) -> float:
+    """Iteratively searches for and returns the Julian date of the previous
+    or next requested aspect. Useful for short dates and fast planets but too
+    expensive for anything more advanced."""
     while True:
-        first_object = ephemeris.get(first, jd)
-        second_object = ephemeris.get(second, jd)
-        distance = abs(swe.difdeg2n(first_object["lon"], second_object["lon"]))
+        planet1 = ephemeris.planet(object1, jd)
+        planet2 = ephemeris.planet(object2, jd)
+        distance = abs(swe.difdeg2n(planet1["lon"], planet2["lon"]))
         diff = abs(aspect - distance)
 
         if diff <= calc.MAX_ERROR:
             return jd
 
-        add = 1 * multiplier
+        add = direction
         speed = abs(
-            max(first_object["speed"], second_object["speed"])
-            - min(first_object["speed"], second_object["speed"])
+            max(planet1["speed"], planet2["speed"])
+            - min(planet1["speed"], planet2["speed"])
         )
 
         if diff < speed:
