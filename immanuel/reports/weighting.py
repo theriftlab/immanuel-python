@@ -13,8 +13,8 @@ from immanuel.tools import position
 
 
 def elements(objects: dict) -> dict:
-    """ Returns data on the amount of chart objects
-    belonging to each element. """
+    """Returns data on the amount of chart objects
+    belonging to each element."""
     weightings = {
         chart.FIRE: [],
         chart.EARTH: [],
@@ -23,14 +23,14 @@ def elements(objects: dict) -> dict:
     }
 
     for object in objects.values():
-        weightings[position.element(object)].append(object['index'])
+        weightings[position.element(object)].append(object["index"])
 
     return weightings
 
 
 def modalities(objects: dict) -> dict:
-    """ Returns data on the amount of chart objects
-    belonging to each modality. """
+    """Returns data on the amount of chart objects
+    belonging to each modality."""
     weightings = {
         chart.CARDINAL: [],
         chart.FIXED: [],
@@ -38,14 +38,14 @@ def modalities(objects: dict) -> dict:
     }
 
     for object in objects.values():
-        weightings[position.modality(object)].append(object['index'])
+        weightings[position.modality(object)].append(object["index"])
 
     return weightings
 
 
 def quadrants(objects: dict, houses: dict) -> dict:
-    """ Returns data on the amount of chart objects
-    belonging to each of the chart's house quadrants. """
+    """Returns data on the amount of chart objects
+    belonging to each of the chart's house quadrants."""
     weightings = {
         1: [],
         2: [],
@@ -55,7 +55,7 @@ def quadrants(objects: dict, houses: dict) -> dict:
 
     for object in objects.values():
         house = position.house(object, houses)
-        quadrant = int((house['number']-1) / 3) + 1
-        weightings[quadrant].append(object['index'])
+        quadrant = int((house["number"] - 1) / 3) + 1
+        weightings[quadrant].append(object["index"])
 
     return weightings

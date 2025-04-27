@@ -28,49 +28,59 @@ from immanuel.tools import convert
 
 @fixture
 def dob():
-    return '2000-01-01 10:00'
+    return "2000-01-01 10:00"
+
 
 @fixture
 def partner_dob():
-    return '2001-02-16 06:00'
+    return "2001-02-16 06:00"
+
 
 @fixture
 def lat():
-    return '32N43.0'
+    return "32N43.0"
+
 
 @fixture
 def partner_lat():
-    return '38N35.0'
+    return "38N35.0"
+
 
 @fixture
 def lon():
-    return '117W9.0'
+    return "117W9.0"
+
 
 @fixture
 def partner_lon():
-    return '121W30.0'
+    return "121W30.0"
+
 
 @fixture
 def native(dob, lat, lon):
     return charts.Subject(dob, lat, lon)
 
+
 @fixture
 def partner(partner_dob, partner_lat, partner_lon):
     return charts.Subject(partner_dob, partner_lat, partner_lon)
 
+
 @fixture
 def julian_date():
-    return 2451545.25               # 2000-01-01 18:00 UT
+    return 2451545.25  # 2000-01-01 18:00 UT
+
 
 @fixture
 def solar_return_year():
     return 2030
 
+
 @fixture
 def pdt():
     # We compare against astro.com which assumes UTC for progressions date
     # so we knock 8 hours off midnight 2023-06-21 to account for Pacific Time
-    return '2025-06-20 17:00:00'
+    return "2025-06-20 17:00:00"
 
 
 def teardown_function():
@@ -78,7 +88,7 @@ def teardown_function():
 
 
 def test_subject(dob, lat, lon, native, julian_date):
-    date_time = datetime.fromisoformat(f'{dob} -08:00')
+    date_time = datetime.fromisoformat(f"{dob} -08:00")
     latitude, longitude = (convert.string_to_dec(v) for v in (lat, lon))
     assert native.date_time.year == date_time.year
     assert native.date_time.month == date_time.month
@@ -103,8 +113,8 @@ def test_wrapped_data(native):
     # Angle
     longitude = natal_chart.objects[chart.SUN].longitude
     assert longitude.raw == 280.6237802656368
-    assert longitude.formatted == '280°37\'26"'
-    assert longitude.direction == '+'
+    assert longitude.formatted == "280°37'26\""
+    assert longitude.direction == "+"
     assert longitude.degrees == 280
     assert longitude.minutes == 37
     assert longitude.seconds == 26
@@ -116,8 +126,8 @@ def test_wrapped_data(native):
     assert aspect.type == names.ASPECTS[calc.SEXTILE]
     assert aspect.aspect == calc.SEXTILE
     assert aspect.orb == settings.planet_orbs[calc.SEXTILE]
-    assert type(aspect.distance) is wrap.Angle                      # Tested separately, just ensure type
-    assert type(aspect.difference) is wrap.Angle                    # Tested separately, just ensure type
+    assert type(aspect.distance) is wrap.Angle  # Tested separately, just ensure type
+    assert type(aspect.difference) is wrap.Angle  # Tested separately, just ensure type
 
     # AspectCondition
     assert aspect.condition.associate == True
@@ -131,17 +141,21 @@ def test_wrapped_data(native):
     assert aspect.movement.formatted == names.ASPECT_MOVEMENTS[calc.SEPARATIVE]
 
     # Coordinates
-    assert type(natal_chart.native.coordinates.latitude) is wrap.Angle      # Tested separately, just ensure type
-    assert type(natal_chart.native.coordinates.longitude) is wrap.Angle     # Tested separately, just ensure type
+    assert (
+        type(natal_chart.native.coordinates.latitude) is wrap.Angle
+    )  # Tested separately, just ensure type
+    assert (
+        type(natal_chart.native.coordinates.longitude) is wrap.Angle
+    )  # Tested separately, just ensure type
 
     # DateTime
     date_time = natal_chart.native.date_time
     assert type(date_time.datetime) is datetime
-    assert date_time.timezone == 'PST'
+    assert date_time.timezone == "PST"
     assert date_time.ambiguous == False
     assert date_time.julian == 2451545.25
     assert date_time.deltat == 0.0007387629899254968
-    assert date_time.sidereal_time == '16:54:13'
+    assert date_time.sidereal_time == "16:54:13"
 
     # MoonPhase
     moon_phase = natal_chart.moon_phase
@@ -165,10 +179,10 @@ def test_wrapped_data(native):
     assert sun.in_sect == True
     assert sun.score == 3
 
-    assert type(sun.latitude) is wrap.Angle             # Tested separately, just ensure type
-    assert type(sun.longitude) is wrap.Angle            # Tested separately, just ensure type
-    assert type(sun.sign_longitude) is wrap.Angle       # Tested separately, just ensure type
-    assert type(sun.declination) is wrap.Angle          # Tested separately, just ensure type
+    assert type(sun.latitude) is wrap.Angle  # Tested separately, just ensure type
+    assert type(sun.longitude) is wrap.Angle  # Tested separately, just ensure type
+    assert type(sun.sign_longitude) is wrap.Angle  # Tested separately, just ensure type
+    assert type(sun.declination) is wrap.Angle  # Tested separately, just ensure type
 
     # ObjectType
     assert sun.type.index == chart.PLANET
@@ -223,18 +237,30 @@ def test_wrapped_data(native):
     assert eclipse.eclipse_type.penumbral == False
     assert eclipse.eclipse_type.formatted == names.ECLIPSE_TYPES[chart.PARTIAL]
 
-    assert type(eclipse.date_time) is wrap.DateTime         # Tested separately, just ensure type
+    assert (
+        type(eclipse.date_time) is wrap.DateTime
+    )  # Tested separately, just ensure type
 
     # Subject
     subject = natal_chart.native
-    assert type(subject.date_time) is wrap.DateTime         # Tested separately, just ensure type
-    assert type(subject.coordinates) is wrap.Coordinates    # Tested separately, just ensure type
+    assert (
+        type(subject.date_time) is wrap.DateTime
+    )  # Tested separately, just ensure type
+    assert (
+        type(subject.coordinates) is wrap.Coordinates
+    )  # Tested separately, just ensure type
 
     # Weightings
     weightings = natal_chart.weightings
-    assert type(weightings.elements) is wrap.Elements       # Tested separately, just ensure type
-    assert type(weightings.modalities) is wrap.Modalities   # Tested separately, just ensure type
-    assert type(weightings.quadrants) is wrap.Quadrants     # Tested separately, just ensure type
+    assert (
+        type(weightings.elements) is wrap.Elements
+    )  # Tested separately, just ensure type
+    assert (
+        type(weightings.modalities) is wrap.Modalities
+    )  # Tested separately, just ensure type
+    assert (
+        type(weightings.quadrants) is wrap.Quadrants
+    )  # Tested separately, just ensure type
 
     # Elements
     elements = natal_chart.weightings.elements
@@ -262,8 +288,13 @@ def test_natal(native, lat, lon):
 
     assert natal_chart.type == names.CHART_TYPES[chart.NATAL]
 
-    assert round(natal_chart.native.date_time.julian + natal_chart.native.date_time.deltat, 6) == 2451545.250739
-    assert natal_chart.native.date_time.timezone == 'PST'
+    assert (
+        round(
+            natal_chart.native.date_time.julian + natal_chart.native.date_time.deltat, 6
+        )
+        == 2451545.250739
+    )
+    assert natal_chart.native.date_time.timezone == "PST"
 
     assert natal_chart.native.coordinates.latitude.formatted == lat
     assert natal_chart.native.coordinates.longitude.formatted == lon
@@ -276,15 +307,24 @@ def test_natal(native, lat, lon):
     # Spot-check for correct object positions against astro.com
     assert natal_chart.objects[chart.SUN].name == names.PLANETS[chart.SUN]
     assert natal_chart.objects[chart.SUN].sign.name == names.SIGNS[chart.CAPRICORN]
-    assert natal_chart.objects[chart.SUN].sign_longitude.formatted == '10°37\'26"'
+    assert natal_chart.objects[chart.SUN].sign_longitude.formatted == "10°37'26\""
 
     assert natal_chart.objects[chart.MOON].name == names.PLANETS[chart.MOON]
     assert natal_chart.objects[chart.MOON].sign.name == names.SIGNS[chart.SCORPIO]
-    assert natal_chart.objects[chart.MOON].sign_longitude.formatted == '16°19\'29"'
+    assert natal_chart.objects[chart.MOON].sign_longitude.formatted == "16°19'29\""
 
-    assert natal_chart.objects[chart.PART_OF_FORTUNE].name == names.POINTS[chart.PART_OF_FORTUNE]
-    assert natal_chart.objects[chart.PART_OF_FORTUNE].sign.name == names.SIGNS[chart.CAPRICORN]
-    assert natal_chart.objects[chart.PART_OF_FORTUNE].sign_longitude.formatted == '11°18\'41"'
+    assert (
+        natal_chart.objects[chart.PART_OF_FORTUNE].name
+        == names.POINTS[chart.PART_OF_FORTUNE]
+    )
+    assert (
+        natal_chart.objects[chart.PART_OF_FORTUNE].sign.name
+        == names.SIGNS[chart.CAPRICORN]
+    )
+    assert (
+        natal_chart.objects[chart.PART_OF_FORTUNE].sign_longitude.formatted
+        == "11°18'41\""
+    )
 
     # Spot-check for correct object data against astro.com & Astro Gold
     assert natal_chart.objects[chart.SATURN].movement.retrograde is True
@@ -294,16 +334,16 @@ def test_natal(native, lat, lon):
     # Spot-check for correct angle positions against astro.com
     assert natal_chart.objects[chart.ASC].name == names.ANGLES[chart.ASC]
     assert natal_chart.objects[chart.ASC].sign.name == names.SIGNS[chart.PISCES]
-    assert natal_chart.objects[chart.ASC].sign_longitude.formatted == '05°36\'38"'
+    assert natal_chart.objects[chart.ASC].sign_longitude.formatted == "05°36'38\""
 
     assert natal_chart.objects[chart.MC].name == names.ANGLES[chart.MC]
     assert natal_chart.objects[chart.MC].sign.name == names.SIGNS[chart.SAGITTARIUS]
-    assert natal_chart.objects[chart.MC].sign_longitude.formatted == '14°50\'44"'
+    assert natal_chart.objects[chart.MC].sign_longitude.formatted == "14°50'44\""
 
     # Spot-check for correct 2nd house position against astro.com
     assert natal_chart.houses[chart.HOUSE2].name == names.HOUSES[chart.HOUSE2]
     assert natal_chart.houses[chart.HOUSE2].sign.name == names.SIGNS[chart.ARIES]
-    assert natal_chart.houses[chart.HOUSE2].sign_longitude.formatted == '17°59\'40"'
+    assert natal_chart.houses[chart.HOUSE2].sign_longitude.formatted == "17°59'40\""
 
     # Spot-check for correct aspects against astro.com
     assert chart.SUN in natal_chart.aspects
@@ -325,11 +365,25 @@ def test_solar_return(native, lat, lon, solar_return_year):
 
     assert solar_return_chart.type == names.CHART_TYPES[chart.SOLAR_RETURN]
 
-    assert round(solar_return_chart.native.date_time.julian + solar_return_chart.native.date_time.deltat, 6) == 2451545.250739
-    assert solar_return_chart.native.date_time.timezone == 'PST'
+    assert (
+        round(
+            solar_return_chart.native.date_time.julian
+            + solar_return_chart.native.date_time.deltat,
+            6,
+        )
+        == 2451545.250739
+    )
+    assert solar_return_chart.native.date_time.timezone == "PST"
 
-    assert round(solar_return_chart.solar_return_date_time.julian + solar_return_chart.solar_return_date_time.deltat, 6) == 2462502.521823
-    assert solar_return_chart.solar_return_date_time.timezone == 'PST'
+    assert (
+        round(
+            solar_return_chart.solar_return_date_time.julian
+            + solar_return_chart.solar_return_date_time.deltat,
+            6,
+        )
+        == 2462502.521823
+    )
+    assert solar_return_chart.solar_return_date_time.timezone == "PST"
 
     assert solar_return_chart.native.coordinates.latitude.formatted == lat
     assert solar_return_chart.native.coordinates.longitude.formatted == lon
@@ -341,16 +395,33 @@ def test_solar_return(native, lat, lon, solar_return_year):
 
     # Spot-check for correct object positions against astro.com
     assert solar_return_chart.objects[chart.SUN].name == names.PLANETS[chart.SUN]
-    assert solar_return_chart.objects[chart.SUN].sign.name == names.SIGNS[chart.CAPRICORN]
-    assert solar_return_chart.objects[chart.SUN].sign_longitude.formatted == '10°37\'26"'
+    assert (
+        solar_return_chart.objects[chart.SUN].sign.name == names.SIGNS[chart.CAPRICORN]
+    )
+    assert (
+        solar_return_chart.objects[chart.SUN].sign_longitude.formatted == "10°37'26\""
+    )
 
     assert solar_return_chart.objects[chart.MOON].name == names.PLANETS[chart.MOON]
-    assert solar_return_chart.objects[chart.MOON].sign.name == names.SIGNS[chart.SCORPIO]
-    assert solar_return_chart.objects[chart.MOON].sign_longitude.formatted == '28°43\'43"'
+    assert (
+        solar_return_chart.objects[chart.MOON].sign.name == names.SIGNS[chart.SCORPIO]
+    )
+    assert (
+        solar_return_chart.objects[chart.MOON].sign_longitude.formatted == "28°43'43\""
+    )
 
-    assert solar_return_chart.objects[chart.PART_OF_FORTUNE].name == names.POINTS[chart.PART_OF_FORTUNE]
-    assert solar_return_chart.objects[chart.PART_OF_FORTUNE].sign.name == names.SIGNS[chart.TAURUS]
-    assert solar_return_chart.objects[chart.PART_OF_FORTUNE].sign_longitude.formatted == '24°41\'28"'
+    assert (
+        solar_return_chart.objects[chart.PART_OF_FORTUNE].name
+        == names.POINTS[chart.PART_OF_FORTUNE]
+    )
+    assert (
+        solar_return_chart.objects[chart.PART_OF_FORTUNE].sign.name
+        == names.SIGNS[chart.TAURUS]
+    )
+    assert (
+        solar_return_chart.objects[chart.PART_OF_FORTUNE].sign_longitude.formatted
+        == "24°41'28\""
+    )
 
     # Spot-check for correct object data against astro.com & Astro Gold
     assert solar_return_chart.objects[chart.SATURN].movement.retrograde is True
@@ -360,16 +431,22 @@ def test_solar_return(native, lat, lon, solar_return_year):
     # Spot-check for correct angle positions against astro.com
     assert solar_return_chart.objects[chart.ASC].name == names.ANGLES[chart.ASC]
     assert solar_return_chart.objects[chart.ASC].sign.name == names.SIGNS[chart.CANCER]
-    assert solar_return_chart.objects[chart.ASC].sign_longitude.formatted == '06°35\'11"'
+    assert (
+        solar_return_chart.objects[chart.ASC].sign_longitude.formatted == "06°35'11\""
+    )
 
     assert solar_return_chart.objects[chart.MC].name == names.ANGLES[chart.MC]
     assert solar_return_chart.objects[chart.MC].sign.name == names.SIGNS[chart.PISCES]
-    assert solar_return_chart.objects[chart.MC].sign_longitude.formatted == '20°21\'06"'
+    assert solar_return_chart.objects[chart.MC].sign_longitude.formatted == "20°21'06\""
 
     # Spot-check for correct 2nd house position against astro.com
     assert solar_return_chart.houses[chart.HOUSE2].name == names.HOUSES[chart.HOUSE2]
-    assert solar_return_chart.houses[chart.HOUSE2].sign.name == names.SIGNS[chart.CANCER]
-    assert solar_return_chart.houses[chart.HOUSE2].sign_longitude.formatted == '28°17\'34"'
+    assert (
+        solar_return_chart.houses[chart.HOUSE2].sign.name == names.SIGNS[chart.CANCER]
+    )
+    assert (
+        solar_return_chart.houses[chart.HOUSE2].sign_longitude.formatted == "28°17'34\""
+    )
 
     # Spot-check for correct aspects against astro.com
     assert chart.SUN in solar_return_chart.aspects
@@ -391,18 +468,37 @@ def test_progressed(native, lat, lon, pdt):
     progressed_chart = charts.Progressed(native, pdt)
 
     assert progressed_chart.type == names.CHART_TYPES[chart.PROGRESSED]
-    assert progressed_chart.progression_method == names.PROGRESSION_METHODS[settings.mc_progression_method]
+    assert (
+        progressed_chart.progression_method
+        == names.PROGRESSION_METHODS[settings.mc_progression_method]
+    )
 
-    assert round(progressed_chart.native.date_time.julian + progressed_chart.native.date_time.deltat, 6) == 2451545.250739
-    assert progressed_chart.native.date_time.timezone == 'PST'
+    assert (
+        round(
+            progressed_chart.native.date_time.julian
+            + progressed_chart.native.date_time.deltat,
+            6,
+        )
+        == 2451545.250739
+    )
+    assert progressed_chart.native.date_time.timezone == "PST"
 
-    assert progressed_chart.progression_date_time.timezone == 'PDT'
-    pdt_utc = progressed_chart.progression_date_time.datetime.astimezone(ZoneInfo('UTC'))
+    assert progressed_chart.progression_date_time.timezone == "PDT"
+    pdt_utc = progressed_chart.progression_date_time.datetime.astimezone(
+        ZoneInfo("UTC")
+    )
     assert (pdt_utc.year, pdt_utc.month, pdt_utc.day, pdt_utc.hour) == (2025, 6, 21, 0)
 
     # Progressed date tested against astro.com
-    assert round(progressed_chart.progressed_date_time.julian + progressed_chart.progressed_date_time.deltat, 6) == 2451570.719456
-    assert progressed_chart.progressed_date_time.timezone == 'PST'
+    assert (
+        round(
+            progressed_chart.progressed_date_time.julian
+            + progressed_chart.progressed_date_time.deltat,
+            6,
+        )
+        == 2451570.719456
+    )
+    assert progressed_chart.progressed_date_time.timezone == "PST"
 
     # Ensure coords have been converted back into correct string
     assert progressed_chart.native.coordinates.latitude.formatted == lat
@@ -416,15 +512,24 @@ def test_progressed(native, lat, lon, pdt):
     # Spot-check for correct object positions against astro.com
     assert progressed_chart.objects[chart.SUN].name == names.PLANETS[chart.SUN]
     assert progressed_chart.objects[chart.SUN].sign.name == names.SIGNS[chart.AQUARIUS]
-    assert progressed_chart.objects[chart.SUN].sign_longitude.formatted == '06°33\'41"'
+    assert progressed_chart.objects[chart.SUN].sign_longitude.formatted == "06°33'41\""
 
     assert progressed_chart.objects[chart.MOON].name == names.PLANETS[chart.MOON]
     assert progressed_chart.objects[chart.MOON].sign.name == names.SIGNS[chart.LIBRA]
-    assert progressed_chart.objects[chart.MOON].sign_longitude.formatted == '23°50\'57"'
+    assert progressed_chart.objects[chart.MOON].sign_longitude.formatted == "23°50'57\""
 
-    assert progressed_chart.objects[chart.PART_OF_FORTUNE].name == names.POINTS[chart.PART_OF_FORTUNE]
-    assert progressed_chart.objects[chart.PART_OF_FORTUNE].sign.name == names.SIGNS[chart.CAPRICORN]
-    assert progressed_chart.objects[chart.PART_OF_FORTUNE].sign_longitude.formatted == '00°17\'45"'
+    assert (
+        progressed_chart.objects[chart.PART_OF_FORTUNE].name
+        == names.POINTS[chart.PART_OF_FORTUNE]
+    )
+    assert (
+        progressed_chart.objects[chart.PART_OF_FORTUNE].sign.name
+        == names.SIGNS[chart.CAPRICORN]
+    )
+    assert (
+        progressed_chart.objects[chart.PART_OF_FORTUNE].sign_longitude.formatted
+        == "00°17'45\""
+    )
 
     # Spot-check for correct object data against Astro Gold
     assert progressed_chart.objects[chart.SUN].dignities.detriment is True
@@ -434,16 +539,18 @@ def test_progressed(native, lat, lon, pdt):
     # Spot-check for correct angle positions against astro.com
     assert progressed_chart.objects[chart.ASC].name == names.ANGLES[chart.ASC]
     assert progressed_chart.objects[chart.ASC].sign.name == names.SIGNS[chart.ARIES]
-    assert progressed_chart.objects[chart.ASC].sign_longitude.formatted == '13°00\'29"'
+    assert progressed_chart.objects[chart.ASC].sign_longitude.formatted == "13°00'29\""
 
     assert progressed_chart.objects[chart.MC].name == names.ANGLES[chart.MC]
     assert progressed_chart.objects[chart.MC].sign.name == names.SIGNS[chart.CAPRICORN]
-    assert progressed_chart.objects[chart.MC].sign_longitude.formatted == '07°57\'07"'
+    assert progressed_chart.objects[chart.MC].sign_longitude.formatted == "07°57'07\""
 
     # Spot-check for correct 2nd house position against astro.com
     assert progressed_chart.houses[chart.HOUSE2].name == names.HOUSES[chart.HOUSE2]
     assert progressed_chart.houses[chart.HOUSE2].sign.name == names.SIGNS[chart.TAURUS]
-    assert progressed_chart.houses[chart.HOUSE2].sign_longitude.formatted == '18°52\'16"'
+    assert (
+        progressed_chart.houses[chart.HOUSE2].sign_longitude.formatted == "18°52'16\""
+    )
 
     # Spot-check for correct aspects against astro.com
     assert chart.SUN in progressed_chart.aspects
@@ -465,11 +572,25 @@ def test_composite(native, lat, lon, partner, partner_lat, partner_lon):
 
     assert composite_chart.type == names.CHART_TYPES[chart.COMPOSITE]
 
-    assert round(composite_chart.native.date_time.julian + composite_chart.native.date_time.deltat, 6) == 2451545.250739
-    assert composite_chart.native.date_time.timezone == 'PST'
+    assert (
+        round(
+            composite_chart.native.date_time.julian
+            + composite_chart.native.date_time.deltat,
+            6,
+        )
+        == 2451545.250739
+    )
+    assert composite_chart.native.date_time.timezone == "PST"
 
-    assert round(composite_chart.partner.date_time.julian + composite_chart.partner.date_time.deltat, 6) == 2451957.084075
-    assert composite_chart.partner.date_time.timezone == 'PST'
+    assert (
+        round(
+            composite_chart.partner.date_time.julian
+            + composite_chart.partner.date_time.deltat,
+            6,
+        )
+        == 2451957.084075
+    )
+    assert composite_chart.partner.date_time.timezone == "PST"
 
     assert composite_chart.native.coordinates.latitude.formatted == lat
     assert composite_chart.native.coordinates.longitude.formatted == lon
@@ -484,19 +605,30 @@ def test_composite(native, lat, lon, partner, partner_lat, partner_lon):
     # Spot-check for correct object positions against astro.com
     assert composite_chart.objects[chart.ASC].name == names.ANGLES[chart.ASC]
     assert composite_chart.objects[chart.ASC].sign.name == names.SIGNS[chart.AQUARIUS]
-    assert composite_chart.objects[chart.ASC].sign_longitude.formatted == '21°26\'55"'
+    assert composite_chart.objects[chart.ASC].sign_longitude.formatted == "21°26'55\""
 
     assert composite_chart.objects[chart.SUN].name == names.PLANETS[chart.SUN]
     assert composite_chart.objects[chart.SUN].sign.name == names.SIGNS[chart.AQUARIUS]
-    assert composite_chart.objects[chart.SUN].sign_longitude.formatted == '04°17\'35"'
+    assert composite_chart.objects[chart.SUN].sign_longitude.formatted == "04°17'35\""
 
     assert composite_chart.objects[chart.MOON].name == names.PLANETS[chart.MOON]
-    assert composite_chart.objects[chart.MOON].sign.name == names.SIGNS[chart.SAGITTARIUS]
-    assert composite_chart.objects[chart.MOON].sign_longitude.formatted == '00°22\'35"'
+    assert (
+        composite_chart.objects[chart.MOON].sign.name == names.SIGNS[chart.SAGITTARIUS]
+    )
+    assert composite_chart.objects[chart.MOON].sign_longitude.formatted == "00°22'35\""
 
-    assert composite_chart.objects[chart.PART_OF_FORTUNE].name == names.POINTS[chart.PART_OF_FORTUNE]
-    assert composite_chart.objects[chart.PART_OF_FORTUNE].sign.name == names.SIGNS[chart.PISCES]
-    assert composite_chart.objects[chart.PART_OF_FORTUNE].sign_longitude.formatted == '01°03\'58"'
+    assert (
+        composite_chart.objects[chart.PART_OF_FORTUNE].name
+        == names.POINTS[chart.PART_OF_FORTUNE]
+    )
+    assert (
+        composite_chart.objects[chart.PART_OF_FORTUNE].sign.name
+        == names.SIGNS[chart.PISCES]
+    )
+    assert (
+        composite_chart.objects[chart.PART_OF_FORTUNE].sign_longitude.formatted
+        == "01°03'58\""
+    )
 
     # Spot-check for correct object data against Astro Gold
     assert composite_chart.objects[chart.SUN].dignities.detriment is True
@@ -506,16 +638,16 @@ def test_composite(native, lat, lon, partner, partner_lat, partner_lon):
     # Spot-check for correct angle positions against astro.com
     assert composite_chart.objects[chart.ASC].name == names.ANGLES[chart.ASC]
     assert composite_chart.objects[chart.ASC].sign.name == names.SIGNS[chart.AQUARIUS]
-    assert composite_chart.objects[chart.ASC].sign_longitude.formatted == '21°26\'55"'
+    assert composite_chart.objects[chart.ASC].sign_longitude.formatted == "21°26'55\""
 
     assert composite_chart.objects[chart.MC].name == names.ANGLES[chart.MC]
     assert composite_chart.objects[chart.MC].sign.name == names.SIGNS[chart.SAGITTARIUS]
-    assert composite_chart.objects[chart.MC].sign_longitude.formatted == '06°07\'28"'
+    assert composite_chart.objects[chart.MC].sign_longitude.formatted == "06°07'28\""
 
     # Spot-check for correct 2nd house position against astro.com
     assert composite_chart.houses[chart.HOUSE2].name == names.HOUSES[chart.HOUSE2]
     assert composite_chart.houses[chart.HOUSE2].sign.name == names.SIGNS[chart.ARIES]
-    assert composite_chart.houses[chart.HOUSE2].sign_longitude.formatted == '05°32\'57"'
+    assert composite_chart.houses[chart.HOUSE2].sign_longitude.formatted == "05°32'57\""
 
     # Spot-check for correct aspects against astro.com
     assert chart.SUN in composite_chart.aspects
@@ -537,60 +669,60 @@ def test_composite(native, lat, lon, partner, partner_lat, partner_lon):
     composite_chart = charts.Composite(native, partner)
 
     assert composite_chart.objects[chart.ASC].sign.name == names.SIGNS[chart.AQUARIUS]
-    assert composite_chart.objects[chart.ASC].sign_longitude.formatted == '21°26\'55"'
-    assert composite_chart.objects[chart.ASC].declination.formatted == '-14°21\'10"'
+    assert composite_chart.objects[chart.ASC].sign_longitude.formatted == "21°26'55\""
+    assert composite_chart.objects[chart.ASC].declination.formatted == "-14°21'10\""
 
     assert composite_chart.objects[chart.MC].sign.name == names.SIGNS[chart.SAGITTARIUS]
-    assert composite_chart.objects[chart.MC].sign_longitude.formatted == '06°07\'28"'
-    assert composite_chart.objects[chart.MC].declination.formatted == '-21°19\'44"'
+    assert composite_chart.objects[chart.MC].sign_longitude.formatted == "06°07'28\""
+    assert composite_chart.objects[chart.MC].declination.formatted == "-21°19'44\""
 
     assert composite_chart.houses[chart.HOUSE1].sign.name == names.SIGNS[chart.AQUARIUS]
-    assert composite_chart.houses[chart.HOUSE1].sign_longitude.formatted == '21°26\'55"'
-    assert composite_chart.houses[chart.HOUSE1].declination.formatted == '-14°21\'10"'
+    assert composite_chart.houses[chart.HOUSE1].sign_longitude.formatted == "21°26'55\""
+    assert composite_chart.houses[chart.HOUSE1].declination.formatted == "-14°21'10\""
 
     assert composite_chart.houses[chart.HOUSE2].sign.name == names.SIGNS[chart.PISCES]
-    assert composite_chart.houses[chart.HOUSE2].sign_longitude.formatted == '21°26\'55"'
-    assert composite_chart.houses[chart.HOUSE2].declination.formatted == '-03°23\'27"'
+    assert composite_chart.houses[chart.HOUSE2].sign_longitude.formatted == "21°26'55\""
+    assert composite_chart.houses[chart.HOUSE2].declination.formatted == "-03°23'27\""
 
     settings.house_system = chart.VEHLOW_EQUAL
 
     composite_chart = charts.Composite(native, partner)
 
     assert composite_chart.objects[chart.ASC].sign.name == names.SIGNS[chart.AQUARIUS]
-    assert composite_chart.objects[chart.ASC].sign_longitude.formatted == '21°26\'55"'
-    assert composite_chart.objects[chart.ASC].declination.formatted == '-14°21\'10"'
+    assert composite_chart.objects[chart.ASC].sign_longitude.formatted == "21°26'55\""
+    assert composite_chart.objects[chart.ASC].declination.formatted == "-14°21'10\""
 
     assert composite_chart.objects[chart.MC].sign.name == names.SIGNS[chart.SAGITTARIUS]
-    assert composite_chart.objects[chart.MC].sign_longitude.formatted == '06°07\'28"'
-    assert composite_chart.objects[chart.MC].declination.formatted == '-21°19\'44"'
+    assert composite_chart.objects[chart.MC].sign_longitude.formatted == "06°07'28\""
+    assert composite_chart.objects[chart.MC].declination.formatted == "-21°19'44\""
 
     assert composite_chart.houses[chart.HOUSE1].sign.name == names.SIGNS[chart.AQUARIUS]
-    assert composite_chart.houses[chart.HOUSE1].sign_longitude.formatted == '06°26\'55"'
-    assert composite_chart.houses[chart.HOUSE1].declination.formatted == '-18°39\'36"'
+    assert composite_chart.houses[chart.HOUSE1].sign_longitude.formatted == "06°26'55\""
+    assert composite_chart.houses[chart.HOUSE1].declination.formatted == "-18°39'36\""
 
     assert composite_chart.houses[chart.HOUSE2].sign.name == names.SIGNS[chart.PISCES]
-    assert composite_chart.houses[chart.HOUSE2].sign_longitude.formatted == '06°26\'55"'
-    assert composite_chart.houses[chart.HOUSE2].declination.formatted == '-09°08\'42"'
+    assert composite_chart.houses[chart.HOUSE2].sign_longitude.formatted == "06°26'55\""
+    assert composite_chart.houses[chart.HOUSE2].declination.formatted == "-09°08'42\""
 
     settings.house_system = chart.WHOLE_SIGN
 
     composite_chart = charts.Composite(native, partner)
 
     assert composite_chart.objects[chart.ASC].sign.name == names.SIGNS[chart.AQUARIUS]
-    assert composite_chart.objects[chart.ASC].sign_longitude.formatted == '21°26\'55"'
-    assert composite_chart.objects[chart.ASC].declination.formatted == '-14°21\'10"'
+    assert composite_chart.objects[chart.ASC].sign_longitude.formatted == "21°26'55\""
+    assert composite_chart.objects[chart.ASC].declination.formatted == "-14°21'10\""
 
     assert composite_chart.objects[chart.MC].sign.name == names.SIGNS[chart.SAGITTARIUS]
-    assert composite_chart.objects[chart.MC].sign_longitude.formatted == '06°07\'28"'
-    assert composite_chart.objects[chart.MC].declination.formatted == '-21°19\'44"'
+    assert composite_chart.objects[chart.MC].sign_longitude.formatted == "06°07'28\""
+    assert composite_chart.objects[chart.MC].declination.formatted == "-21°19'44\""
 
     assert composite_chart.houses[chart.HOUSE1].sign.name == names.SIGNS[chart.AQUARIUS]
-    assert composite_chart.houses[chart.HOUSE1].sign_longitude.formatted == '00°00\'00"'
-    assert composite_chart.houses[chart.HOUSE1].declination.formatted == '-20°08\'58"'
+    assert composite_chart.houses[chart.HOUSE1].sign_longitude.formatted == "00°00'00\""
+    assert composite_chart.houses[chart.HOUSE1].declination.formatted == "-20°08'58\""
 
     assert composite_chart.houses[chart.HOUSE2].sign.name == names.SIGNS[chart.PISCES]
-    assert composite_chart.houses[chart.HOUSE2].sign_longitude.formatted == '00°00\'00"'
-    assert composite_chart.houses[chart.HOUSE2].declination.formatted == '-11°28\'17"'
+    assert composite_chart.houses[chart.HOUSE2].sign_longitude.formatted == "00°00'00\""
+    assert composite_chart.houses[chart.HOUSE2].declination.formatted == "-11°28'17\""
 
     settings.house_system = chart.PLACIDUS
 
@@ -607,18 +739,30 @@ def test_transits(native, lat, lon):
 
     default_transits_chart = charts.Transits()
 
-    assert default_transits_chart.native.coordinates.latitude.raw == settings.default_latitude
-    assert default_transits_chart.native.coordinates.longitude.raw == settings.default_longitude
+    assert (
+        default_transits_chart.native.coordinates.latitude.raw
+        == settings.default_latitude
+    )
+    assert (
+        default_transits_chart.native.coordinates.longitude.raw
+        == settings.default_longitude
+    )
 
     # Check houses_for_aspected
     native_chart = charts.Natal(native)
-    native_houses_transits_chart = charts.Transits(lat, lon, aspects_to=native_chart, houses_for_aspected=True)
+    native_houses_transits_chart = charts.Transits(
+        lat, lon, aspects_to=native_chart, houses_for_aspected=True
+    )
 
-    assert [str(h) for h in native_chart.houses.values()] == [str(h) for h in native_houses_transits_chart.houses.values()]
+    assert [str(h) for h in native_chart.houses.values()] == [
+        str(h) for h in native_houses_transits_chart.houses.values()
+    ]
 
     transit_houses_transits_chart = charts.Transits(lat, lon, aspects_to=native_chart)
 
-    assert [str(h) for h in native_chart.houses.values()] != [str(h) for h in transit_houses_transits_chart.houses.values()]
+    assert [str(h) for h in native_chart.houses.values()] != [
+        str(h) for h in transit_houses_transits_chart.houses.values()
+    ]
 
 
 def test_synastry(native, partner):

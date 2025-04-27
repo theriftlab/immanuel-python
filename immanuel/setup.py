@@ -19,11 +19,13 @@ from immanuel.const import calc, chart, data, dignities
 
 class BaseSettings:
     def __init__(self) -> None:
-        """ Set locale. """
+        """Set locale."""
         self._locale = None
 
         """ Default ephemeris file path. """
-        self._file_path = f'{os.path.dirname(__file__)}{os.sep}resources{os.sep}ephemeris'
+        self._file_path = (
+            f"{os.path.dirname(__file__)}{os.sep}resources{os.sep}ephemeris"
+        )
 
         """ Data that should be included for each chart type's output. """
         self.chart_data = {
@@ -109,24 +111,49 @@ class BaseSettings:
 
         """ Which planets, points etc. to show. """
         self.objects = [
-            chart.ASC, chart.DESC, chart.MC, chart.IC,
-            chart.TRUE_NORTH_NODE, chart.TRUE_SOUTH_NODE,
-            chart.VERTEX, chart.PART_OF_FORTUNE,
+            chart.ASC,
+            chart.DESC,
+            chart.MC,
+            chart.IC,
+            chart.TRUE_NORTH_NODE,
+            chart.TRUE_SOUTH_NODE,
+            chart.VERTEX,
+            chart.PART_OF_FORTUNE,
             chart.TRUE_LILITH,
-            chart.SUN, chart.MOON, chart.MERCURY, chart.VENUS, chart.MARS,
-            chart.JUPITER, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.PLUTO,
+            chart.SUN,
+            chart.MOON,
+            chart.MERCURY,
+            chart.VENUS,
+            chart.MARS,
+            chart.JUPITER,
+            chart.SATURN,
+            chart.URANUS,
+            chart.NEPTUNE,
+            chart.PLUTO,
             chart.CHIRON,
         ]
 
         """ Which planets, points etc. to use in chart shape calculations. """
         self.chart_shape_objects = [
-            chart.SUN, chart.MOON, chart.MERCURY, chart.VENUS, chart.MARS,
-            chart.JUPITER, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.PLUTO,
+            chart.SUN,
+            chart.MOON,
+            chart.MERCURY,
+            chart.VENUS,
+            chart.MARS,
+            chart.JUPITER,
+            chart.SATURN,
+            chart.URANUS,
+            chart.NEPTUNE,
+            chart.PLUTO,
         ]
 
         """ Which aspects to calculate. """
         self.aspects = [
-            calc.CONJUNCTION, calc.OPPOSITION, calc.SQUARE, calc.TRINE, calc.SEXTILE,
+            calc.CONJUNCTION,
+            calc.OPPOSITION,
+            calc.SQUARE,
+            calc.TRINE,
+            calc.SEXTILE,
             calc.QUINCUNX,
         ]
 
@@ -221,10 +248,10 @@ class BaseSettings:
 
     @property
     def default_aspect_rule(self) -> dict:
-        """ Cascading setting - default aspects allowed for objects. """
-        return  {
-            'initiate': self.aspects,
-            'receive': self.aspects,
+        """Cascading setting - default aspects allowed for objects."""
+        return {
+            "initiate": self.aspects,
+            "receive": self.aspects,
         } | self._default_aspect_rule
 
     @default_aspect_rule.setter
@@ -233,10 +260,10 @@ class BaseSettings:
 
     @property
     def planet_aspect_rule(self) -> dict:
-        """ Cascading setting - default aspects allowed for planets. """
-        return  {
-            'initiate': self.aspects,
-            'receive': self.aspects,
+        """Cascading setting - default aspects allowed for planets."""
+        return {
+            "initiate": self.aspects,
+            "receive": self.aspects,
         } | self._planet_aspect_rule
 
     @planet_aspect_rule.setter
@@ -245,10 +272,12 @@ class BaseSettings:
 
     @property
     def point_aspect_rule(self) -> dict:
-        """ Cascading setting - default aspects allowed for points. """
-        return  {
-            'initiate': [calc.CONJUNCTION,],
-            'receive': self.aspects,
+        """Cascading setting - default aspects allowed for points."""
+        return {
+            "initiate": [
+                calc.CONJUNCTION,
+            ],
+            "receive": self.aspects,
         } | self._point_aspect_rule
 
     @point_aspect_rule.setter
@@ -257,13 +286,12 @@ class BaseSettings:
 
     @property
     def aspect_rules(self) -> dict:
-        """ Cascading setting - explicit aspects allowed per object. """
+        """Cascading setting - explicit aspects allowed per object."""
         return {
             chart.ASC: self.point_aspect_rule,
             chart.DESC: self.point_aspect_rule,
             chart.MC: self.point_aspect_rule,
             chart.IC: self.point_aspect_rule,
-
             chart.SUN: self.planet_aspect_rule,
             chart.MOON: self.planet_aspect_rule,
             chart.MERCURY: self.planet_aspect_rule,
@@ -274,7 +302,6 @@ class BaseSettings:
             chart.URANUS: self.planet_aspect_rule,
             chart.NEPTUNE: self.planet_aspect_rule,
             chart.PLUTO: self.planet_aspect_rule,
-
             chart.NORTH_NODE: self.point_aspect_rule,
             chart.SOUTH_NODE: self.point_aspect_rule,
             chart.TRUE_NORTH_NODE: self.point_aspect_rule,
@@ -295,13 +322,12 @@ class BaseSettings:
 
     @property
     def orbs(self) -> dict:
-        """ Cascading setting - explicit orbs allowed per object. """
+        """Cascading setting - explicit orbs allowed per object."""
         return {
             chart.ASC: self.planet_orbs,
             chart.DESC: self.planet_orbs,
             chart.MC: self.planet_orbs,
             chart.IC: self.planet_orbs,
-
             chart.SUN: self.planet_orbs,
             chart.MOON: self.planet_orbs,
             chart.MERCURY: self.planet_orbs,
@@ -312,7 +338,6 @@ class BaseSettings:
             chart.URANUS: self.planet_orbs,
             chart.NEPTUNE: self.planet_orbs,
             chart.PLUTO: self.planet_orbs,
-
             chart.NORTH_NODE: self.point_orbs,
             chart.SOUTH_NODE: self.point_orbs,
             chart.TRUE_NORTH_NODE: self.point_orbs,
@@ -332,11 +357,11 @@ class BaseSettings:
         self._orbs = value
 
     def add_filepath(self, path: str, default: bool = False) -> None:
-        """ Add an ephemeris file path. """
+        """Add an ephemeris file path."""
         if default:
             self._file_path = path
         else:
-            extra_path = f'{os.pathsep}{path}'
+            extra_path = f"{os.pathsep}{path}"
 
             if self._file_path.endswith(extra_path):
                 return
@@ -346,23 +371,24 @@ class BaseSettings:
         self.set_swe_filepath()
 
     def set_swe_filepath(self) -> None:
-        """ Pass defined path(s) to swisseph. """
+        """Pass defined path(s) to swisseph."""
         swe.set_ephe_path(self._file_path)
 
 
 class StaticSingleton(type):
-    """ Metaclass to ensure singleton behavior & route everything to
-    our BaseSettings instance to emulate static behavior. """
+    """Metaclass to ensure singleton behavior & route everything to
+    our BaseSettings instance to emulate static behavior."""
+
     _instance = BaseSettings()
 
     def reset(cls) -> None:
-        """ Reset all settings to default. """
+        """Reset all settings to default."""
         StaticSingleton._instance = BaseSettings()
         StaticSingleton._instance.set_swe_filepath()
         Localize.reset()
 
     def set(cls, values: dict) -> None:
-        """ Helper mass-set method. """
+        """Helper mass-set method."""
         for key, value in values.items():
             setattr(StaticSingleton._instance, key, value)
 
@@ -374,5 +400,6 @@ class StaticSingleton(type):
 
 
 class settings(metaclass=StaticSingleton):
-    """ Expose actual class for import. """
+    """Expose actual class for import."""
+
     pass

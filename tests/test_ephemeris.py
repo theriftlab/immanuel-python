@@ -22,16 +22,19 @@ from immanuel.tools import convert, date, ephemeris, position
 @fixture
 def coords():
     # San Diego coords as used by astro.com
-    return [convert.string_to_dec(v) for v in ('32n43', '117w09')]
+    return [convert.string_to_dec(v) for v in ("32n43", "117w09")]
+
 
 @fixture
 def jd(coords):
-    return date.to_jd('2000-01-01 10:00', *coords)
+    return date.to_jd("2000-01-01 10:00", *coords)
+
 
 @fixture
 def armc():
     # ARMC longitude on the above Julian date
     return 253.55348499294269
+
 
 @fixture
 def all_angles():
@@ -42,6 +45,7 @@ def all_angles():
         chart.IC,
         chart.ARMC,
     )
+
 
 @fixture
 def all_houses():
@@ -60,6 +64,7 @@ def all_houses():
         chart.HOUSE12,
     )
 
+
 @fixture
 def all_points():
     return (
@@ -74,6 +79,7 @@ def all_points():
         chart.SYZYGY,
         chart.PART_OF_FORTUNE,
     )
+
 
 @fixture
 def all_planets():
@@ -90,6 +96,7 @@ def all_planets():
         chart.PLUTO,
     )
 
+
 @fixture
 def all_asteroids():
     return (
@@ -102,85 +109,86 @@ def all_asteroids():
         1181,
     )
 
+
 @fixture
 def astro():
-    """ Results copied from astro.com chart table. We spot-check
-    chart objects by picking one of each type. """
+    """Results copied from astro.com chart table. We spot-check
+    chart objects by picking one of each type."""
     return {
         # angle
-        'asc': {
-            'lon': '05°36\'38"',
+        "asc": {
+            "lon": "05°36'38\"",
             # This is the only figure disagreeing with astro.com (~1 arcsec) and nobody knows why
             # 'dec': '-09°27\'13"',
         },
         # house
-        'house_2': {
-            'lon': '17°59\'40"',
-            'dec': '07°03\'29"',
+        "house_2": {
+            "lon": "17°59'40\"",
+            "dec": "07°03'29\"",
         },
         # planet
-        'sun': {
-            'lon': '10°37\'26"',
-            'lat': '00°00\'01"',
-            'speed': '01°01\'10"',
-            'dec': '-23°00\'45"',
+        "sun": {
+            "lon": "10°37'26\"",
+            "lat": "00°00'01\"",
+            "speed": "01°01'10\"",
+            "dec": "-23°00'45\"",
         },
         # point
-        'pof': {
-            'lon': '11°18\'41"',
-            'dec': '-22°57\'22"',
+        "pof": {
+            "lon": "11°18'41\"",
+            "dec": "-22°57'22\"",
         },
         # default asteroid
-        'juno': {
-            'lon': '08°05\'21"',
-            'lat': '09°26\'57"',
-            'speed': '00°22\'21"',
-            'dec': '-13°45\'30"',
+        "juno": {
+            "lon": "08°05'21\"",
+            "lat": "09°26'57\"",
+            "speed": "00°22'21\"",
+            "dec": "-13°45'30\"",
         },
         # external asteroid
-        'lilith': {
-            'lon': '18°16\'47"',
-            'lat': '04°49\'07"',
-            'speed': '00°24\'37"',
-            'dec': '-00°11\'50"',
+        "lilith": {
+            "lon": "18°16'47\"",
+            "lat": "04°49'07\"",
+            "speed": "00°24'37\"",
+            "dec": "-00°11'50\"",
         },
         # fixed star
-        'antares': {
-            'lon': '09°45\'12"',
-            'lat': '-04°34\'11"',
+        "antares": {
+            "lon": "09°45'12\"",
+            "lat": "-04°34'11\"",
         },
         # eclipses
-        'pre_natal_solar_eclipse': {
-            'lon': '18°20\'59"',
-            'lat': '00°00\'00"',
-            'speed': '00°00\'00"',
-            'dec': '15°19\'40"',
-            'eclipse_type': chart.TOTAL,
-            'date': '11 August',
+        "pre_natal_solar_eclipse": {
+            "lon": "18°20'59\"",
+            "lat": "00°00'00\"",
+            "speed": "00°00'00\"",
+            "dec": "15°19'40\"",
+            "eclipse_type": chart.TOTAL,
+            "date": "11 August",
         },
-        'pre_natal_lunar_eclipse': {
-            'lon': '05°02\'21"',
-            'lat': '00°43\'35"',
-            'speed': '00°00\'00"',
-            'dec': '-18°18\'03"',
-            'eclipse_type': chart.PARTIAL,
-            'date': '28 July',
+        "pre_natal_lunar_eclipse": {
+            "lon": "05°02'21\"",
+            "lat": "00°43'35\"",
+            "speed": "00°00'00\"",
+            "dec": "-18°18'03\"",
+            "eclipse_type": chart.PARTIAL,
+            "date": "28 July",
         },
-        'post_natal_solar_eclipse': {
-            'lon': '16°01\'14"',
-            'lat': '00°00\'00"',
-            'speed': '00°00\'00"',
-            'dec': '-16°02\'00"',
-            'eclipse_type': chart.PARTIAL,
-            'date': '05 February',
+        "post_natal_solar_eclipse": {
+            "lon": "16°01'14\"",
+            "lat": "00°00'00\"",
+            "speed": "00°00'00\"",
+            "dec": "-16°02'00\"",
+            "eclipse_type": chart.PARTIAL,
+            "date": "05 February",
         },
-        'post_natal_lunar_eclipse': {
-            'lon': '00°28\'04"',
-            'lat': '-00°17\'53"',
-            'speed': '00°00\'00"',
-            'dec': '19°45\'29"',
-            'eclipse_type': chart.TOTAL,
-            'date': '20 January',
+        "post_natal_lunar_eclipse": {
+            "lon": "00°28'04\"",
+            "lat": "-00°17'53\"",
+            "speed": "00°00'00\"",
+            "dec": "19°45'29\"",
+            "eclipse_type": chart.TOTAL,
+            "date": "20 January",
         },
     }
 
@@ -191,36 +199,83 @@ def teardown_function():
 
 """ These tests simply check the correct chart objects are being
 returned. Data is checked separately afterwards. """
+
+
 def test_objects(jd, coords):
-    chart_objects = (chart.SUN, chart.MOON, chart.PART_OF_FORTUNE, chart.SYZYGY, chart.NORTH_NODE, chart.ASC)
-    objects = ephemeris.objects(chart_objects, jd, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
+    chart_objects = (
+        chart.SUN,
+        chart.MOON,
+        chart.PART_OF_FORTUNE,
+        chart.SYZYGY,
+        chart.NORTH_NODE,
+        chart.ASC,
+    )
+    objects = ephemeris.objects(
+        chart_objects, jd, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA
+    )
     assert tuple(objects.keys()) == chart_objects
 
 
 def test_armc_objects(jd, coords, armc):
-    chart_objects = (chart.SUN, chart.MOON, chart.PART_OF_FORTUNE, chart.SYZYGY, chart.NORTH_NODE, chart.ASC)
-    objects = ephemeris.armc_objects(chart_objects, jd, armc, *coords, None, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
+    chart_objects = (
+        chart.SUN,
+        chart.MOON,
+        chart.PART_OF_FORTUNE,
+        chart.SYZYGY,
+        chart.NORTH_NODE,
+        chart.ASC,
+    )
+    objects = ephemeris.armc_objects(
+        chart_objects, jd, armc, *coords, None, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA
+    )
     assert tuple(objects.keys()) == chart_objects
 
 
 def test_get(jd, coords):
     settings.add_filepath(os.path.dirname(__file__))
-    assert ephemeris.get(chart.ASC, jd, *coords, chart.PLACIDUS)['index'] == chart.ASC
-    assert ephemeris.get(chart.HOUSE2, jd, *coords, chart.PLACIDUS)['index'] == chart.HOUSE2
-    assert ephemeris.get(chart.SUN, jd)['index'] == chart.SUN
-    assert ephemeris.get(chart.PART_OF_FORTUNE, jd, *coords, part_formula=calc.DAY_NIGHT_FORMULA)['index'] == chart.PART_OF_FORTUNE
-    assert ephemeris.get(chart.JUNO, jd)['index'] == chart.JUNO   # Included with planets
-    lilith = ephemeris.get(1181, jd)                              # From external file
-    antares = ephemeris.get('Antares', jd)
-    assert lilith['index'] == 1181 and lilith['type'] == chart.ASTEROID
-    assert antares['index'] == 'Antares' and antares['type'] == chart.FIXED_STAR
+    assert ephemeris.get(chart.ASC, jd, *coords, chart.PLACIDUS)["index"] == chart.ASC
+    assert (
+        ephemeris.get(chart.HOUSE2, jd, *coords, chart.PLACIDUS)["index"]
+        == chart.HOUSE2
+    )
+    assert ephemeris.get(chart.SUN, jd)["index"] == chart.SUN
+    assert (
+        ephemeris.get(
+            chart.PART_OF_FORTUNE, jd, *coords, part_formula=calc.DAY_NIGHT_FORMULA
+        )["index"]
+        == chart.PART_OF_FORTUNE
+    )
+    assert ephemeris.get(chart.JUNO, jd)["index"] == chart.JUNO  # Included with planets
+    lilith = ephemeris.get(1181, jd)  # From external file
+    antares = ephemeris.get("Antares", jd)
+    assert lilith["index"] == 1181 and lilith["type"] == chart.ASTEROID
+    assert antares["index"] == "Antares" and antares["type"] == chart.FIXED_STAR
 
 
 def test_armc_get(jd, coords, armc):
     settings.add_filepath(os.path.dirname(__file__))
-    assert ephemeris.armc_get(chart.ASC, jd, armc, coords[0], house_system=chart.PLACIDUS)['index'] == chart.ASC
-    assert ephemeris.armc_get(chart.HOUSE2, jd, armc, coords[0], house_system=chart.PLACIDUS)['index'] == chart.HOUSE2
-    assert ephemeris.armc_get(chart.PART_OF_FORTUNE, jd, armc, coords[0], part_formula=calc.DAY_NIGHT_FORMULA)['index'] == chart.PART_OF_FORTUNE
+    assert (
+        ephemeris.armc_get(chart.ASC, jd, armc, coords[0], house_system=chart.PLACIDUS)[
+            "index"
+        ]
+        == chart.ASC
+    )
+    assert (
+        ephemeris.armc_get(
+            chart.HOUSE2, jd, armc, coords[0], house_system=chart.PLACIDUS
+        )["index"]
+        == chart.HOUSE2
+    )
+    assert (
+        ephemeris.armc_get(
+            chart.PART_OF_FORTUNE,
+            jd,
+            armc,
+            coords[0],
+            part_formula=calc.DAY_NIGHT_FORMULA,
+        )["index"]
+        == chart.PART_OF_FORTUNE
+    )
 
 
 def test_get_angles(jd, coords, all_angles):
@@ -229,7 +284,9 @@ def test_get_angles(jd, coords, all_angles):
 
 
 def test_armc_get_angles(jd, coords, armc, all_angles):
-    angles = ephemeris.armc_get(chart.ANGLE, jd, armc, *coords, ephemeris.obliquity(jd), chart.PLACIDUS)
+    angles = ephemeris.armc_get(
+        chart.ANGLE, jd, armc, *coords, ephemeris.obliquity(jd), chart.PLACIDUS
+    )
     assert sorted(all_angles) == sorted(angles)
 
 
@@ -239,7 +296,9 @@ def test_get_houses(jd, coords, all_houses):
 
 
 def test_armc_get_houses(jd, coords, armc, all_houses):
-    houses = ephemeris.armc_get(chart.HOUSE, jd, armc, *coords, ephemeris.obliquity(jd), chart.PLACIDUS)
+    houses = ephemeris.armc_get(
+        chart.HOUSE, jd, armc, *coords, ephemeris.obliquity(jd), chart.PLACIDUS
+    )
     assert sorted(all_houses) == sorted(houses)
 
 
@@ -249,16 +308,20 @@ def test_angles(jd, coords, all_angles):
 
 
 def test_armc_angles(jd, coords, armc, all_angles):
-    angles = ephemeris.armc_angles(armc, coords[0], ephemeris.obliquity(jd), chart.PLACIDUS)
+    angles = ephemeris.armc_angles(
+        armc, coords[0], ephemeris.obliquity(jd), chart.PLACIDUS
+    )
     assert sorted(all_angles) == sorted(angles)
 
 
 def test_angle(jd, coords, all_angles):
     for index in all_angles:
         angle = ephemeris.angle(index, jd, *coords, chart.PLACIDUS)
-        assert angle['index'] == index and angle['type'] == chart.ANGLE
+        assert angle["index"] == index and angle["type"] == chart.ANGLE
 
-    assert ephemeris.angle(ephemeris.ALL, jd, *coords, chart.PLACIDUS) == ephemeris.angles(jd, *coords, chart.PLACIDUS)
+    assert ephemeris.angle(
+        ephemeris.ALL, jd, *coords, chart.PLACIDUS
+    ) == ephemeris.angles(jd, *coords, chart.PLACIDUS)
 
 
 def test_armc_angle(jd, coords, armc, all_angles):
@@ -266,9 +329,11 @@ def test_armc_angle(jd, coords, armc, all_angles):
 
     for index in all_angles:
         angle = ephemeris.armc_angle(index, armc, coords[0], obliquity, chart.PLACIDUS)
-        assert angle['index'] == index and angle['type'] == chart.ANGLE
+        assert angle["index"] == index and angle["type"] == chart.ANGLE
 
-    assert ephemeris.armc_angle(ephemeris.ALL, armc, coords[0], obliquity, chart.PLACIDUS) == ephemeris.armc_angles(armc, coords[0], obliquity, chart.PLACIDUS)
+    assert ephemeris.armc_angle(
+        ephemeris.ALL, armc, coords[0], obliquity, chart.PLACIDUS
+    ) == ephemeris.armc_angles(armc, coords[0], obliquity, chart.PLACIDUS)
 
 
 def test_houses(jd, coords, all_houses):
@@ -277,16 +342,20 @@ def test_houses(jd, coords, all_houses):
 
 
 def test_armc_houses(jd, coords, armc, all_houses):
-    houses = ephemeris.armc_houses(armc, coords[0], ephemeris.obliquity(jd), chart.PLACIDUS)
+    houses = ephemeris.armc_houses(
+        armc, coords[0], ephemeris.obliquity(jd), chart.PLACIDUS
+    )
     assert sorted(all_houses) == sorted(houses)
 
 
 def test_house(jd, coords, all_houses):
     for index in all_houses:
         house = ephemeris.house(index, jd, *coords, chart.PLACIDUS)
-        assert house['index'] == index and house['type'] == chart.HOUSE
+        assert house["index"] == index and house["type"] == chart.HOUSE
 
-    assert ephemeris.house(ephemeris.ALL, jd, *coords, chart.PLACIDUS) == ephemeris.houses(jd, *coords, chart.PLACIDUS)
+    assert ephemeris.house(
+        ephemeris.ALL, jd, *coords, chart.PLACIDUS
+    ) == ephemeris.houses(jd, *coords, chart.PLACIDUS)
 
 
 def test_armc_house(jd, coords, armc, all_houses):
@@ -294,9 +363,11 @@ def test_armc_house(jd, coords, armc, all_houses):
 
     for index in all_houses:
         house = ephemeris.armc_house(index, armc, coords[0], obliquity, chart.PLACIDUS)
-        assert house['index'] == index and house['type'] == chart.HOUSE
+        assert house["index"] == index and house["type"] == chart.HOUSE
 
-    assert ephemeris.armc_house(ephemeris.ALL, armc, coords[0], obliquity, chart.PLACIDUS) == ephemeris.armc_houses(armc, coords[0], obliquity, chart.PLACIDUS)
+    assert ephemeris.armc_house(
+        ephemeris.ALL, armc, coords[0], obliquity, chart.PLACIDUS
+    ) == ephemeris.armc_houses(armc, coords[0], obliquity, chart.PLACIDUS)
 
 
 def test_planet_on_first_house(jd, coords):
@@ -304,26 +375,36 @@ def test_planet_on_first_house(jd, coords):
     first_house = ephemeris.house(chart.HOUSE1, jd, *coords, chart.SUN_ON_FIRST)
     second_house = ephemeris.house(chart.HOUSE2, jd, *coords, chart.SUN_ON_FIRST)
 
-    assert sun['lon'] == first_house['lon']
-    assert sun['lon'] + 30 == second_house['lon']
+    assert sun["lon"] == first_house["lon"]
+    assert sun["lon"] + 30 == second_house["lon"]
 
 
 def test_point(jd, coords, all_points):
     for index in all_points:
-        point = ephemeris.point(index, jd, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
-        assert point['index'] == index and point['type'] == chart.POINT
+        point = ephemeris.point(
+            index, jd, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA
+        )
+        assert point["index"] == index and point["type"] == chart.POINT
 
 
 def test_armc_point(jd, coords, armc, all_points):
     for index in all_points:
-        point = ephemeris.armc_point(index, jd, armc, coords[0], ephemeris.obliquity(jd), chart.PLACIDUS, calc.DAY_NIGHT_FORMULA)
-        assert point['index'] == index and point['type'] == chart.POINT
+        point = ephemeris.armc_point(
+            index,
+            jd,
+            armc,
+            coords[0],
+            ephemeris.obliquity(jd),
+            chart.PLACIDUS,
+            calc.DAY_NIGHT_FORMULA,
+        )
+        assert point["index"] == index and point["type"] == chart.POINT
 
 
 def test_planet(jd, all_planets):
     for index in all_planets:
         planet = ephemeris.planet(index, jd)
-        assert planet['index'] == index and planet['type'] == chart.PLANET
+        assert planet["index"] == index and planet["type"] == chart.PLANET
 
 
 def test_asteroid(jd, all_asteroids):
@@ -331,65 +412,73 @@ def test_asteroid(jd, all_asteroids):
 
     for index in all_asteroids:
         asteroid = ephemeris.asteroid(index, jd)
-        assert asteroid['index'] == index and asteroid['type'] == chart.ASTEROID
+        assert asteroid["index"] == index and asteroid["type"] == chart.ASTEROID
 
 
 def test_fixed_star(jd):
     # So many fixed stars we just test one
-    fixed_star = ephemeris.fixed_star('Antares', jd)
-    assert fixed_star['index'] == 'Antares' and fixed_star['type'] == chart.FIXED_STAR
+    fixed_star = ephemeris.fixed_star("Antares", jd)
+    assert fixed_star["index"] == "Antares" and fixed_star["type"] == chart.FIXED_STAR
 
 
 def test_eclipse(jd):
     pre_solar = ephemeris.eclipse(chart.PRE_NATAL_SOLAR_ECLIPSE, jd)
-    assert pre_solar['type'] == chart.ECLIPSE
-    assert pre_solar['index'] == chart.PRE_NATAL_SOLAR_ECLIPSE
+    assert pre_solar["type"] == chart.ECLIPSE
+    assert pre_solar["index"] == chart.PRE_NATAL_SOLAR_ECLIPSE
 
     pre_lunar = ephemeris.eclipse(chart.PRE_NATAL_LUNAR_ECLIPSE, jd)
-    assert pre_lunar['type'] == chart.ECLIPSE
-    assert pre_lunar['index'] == chart.PRE_NATAL_LUNAR_ECLIPSE
+    assert pre_lunar["type"] == chart.ECLIPSE
+    assert pre_lunar["index"] == chart.PRE_NATAL_LUNAR_ECLIPSE
 
     post_solar = ephemeris.eclipse(chart.POST_NATAL_SOLAR_ECLIPSE, jd)
-    assert post_solar['type'] == chart.ECLIPSE
-    assert post_solar['index'] == chart.POST_NATAL_SOLAR_ECLIPSE
+    assert post_solar["type"] == chart.ECLIPSE
+    assert post_solar["index"] == chart.POST_NATAL_SOLAR_ECLIPSE
 
     post_lunar = ephemeris.eclipse(chart.POST_NATAL_LUNAR_ECLIPSE, jd)
-    assert post_lunar['type'] == chart.ECLIPSE
-    assert post_lunar['index'] == chart.POST_NATAL_LUNAR_ECLIPSE
+    assert post_lunar["type"] == chart.ECLIPSE
+    assert post_lunar["index"] == chart.POST_NATAL_LUNAR_ECLIPSE
 
 
 """ Now we are satisfied the correct chart objects are being returned,
 we can test the accuracy of the module's data. """
+
+
 def test_get_data(coords, jd, astro):
     settings.add_filepath(os.path.dirname(__file__))
 
     data = {
-        'asc': ephemeris.angle(chart.ASC, jd, *coords, chart.PLACIDUS),
-        'house_2': ephemeris.house(chart.HOUSE2, jd, *coords, chart.PLACIDUS),
-        'sun': ephemeris.planet(chart.SUN, jd),
-        'pof': ephemeris.point(chart.PART_OF_FORTUNE, jd, *coords, part_formula=calc.DAY_NIGHT_FORMULA),
-        'juno': ephemeris.asteroid(chart.JUNO, jd),    # Included with planets
-        'lilith': ephemeris.asteroid(1181, jd),        # From external file
-        'antares': ephemeris.fixed_star('Antares', jd),
-        'pre_natal_solar_eclipse': ephemeris.eclipse(chart.PRE_NATAL_SOLAR_ECLIPSE, jd),
-        'pre_natal_lunar_eclipse': ephemeris.eclipse(chart.PRE_NATAL_LUNAR_ECLIPSE, jd),
-        'post_natal_solar_eclipse': ephemeris.eclipse(chart.POST_NATAL_SOLAR_ECLIPSE, jd),
-        'post_natal_lunar_eclipse': ephemeris.eclipse(chart.POST_NATAL_LUNAR_ECLIPSE, jd),
+        "asc": ephemeris.angle(chart.ASC, jd, *coords, chart.PLACIDUS),
+        "house_2": ephemeris.house(chart.HOUSE2, jd, *coords, chart.PLACIDUS),
+        "sun": ephemeris.planet(chart.SUN, jd),
+        "pof": ephemeris.point(
+            chart.PART_OF_FORTUNE, jd, *coords, part_formula=calc.DAY_NIGHT_FORMULA
+        ),
+        "juno": ephemeris.asteroid(chart.JUNO, jd),  # Included with planets
+        "lilith": ephemeris.asteroid(1181, jd),  # From external file
+        "antares": ephemeris.fixed_star("Antares", jd),
+        "pre_natal_solar_eclipse": ephemeris.eclipse(chart.PRE_NATAL_SOLAR_ECLIPSE, jd),
+        "pre_natal_lunar_eclipse": ephemeris.eclipse(chart.PRE_NATAL_LUNAR_ECLIPSE, jd),
+        "post_natal_solar_eclipse": ephemeris.eclipse(
+            chart.POST_NATAL_SOLAR_ECLIPSE, jd
+        ),
+        "post_natal_lunar_eclipse": ephemeris.eclipse(
+            chart.POST_NATAL_LUNAR_ECLIPSE, jd
+        ),
     }
 
     for key, eph_object in data.items():
         # Convert ecliptical longitude to sign-based
         object = eph_object.copy()
-        object['lon'] = position.sign_longitude(object)
+        object["lon"] = position.sign_longitude(object)
 
         # Format properties to string to match astro.com front-end output
-        for property_key in ('lon', 'lat', 'speed', 'dec'):
+        for property_key in ("lon", "lat", "speed", "dec"):
             if property_key in object:
                 object[property_key] = convert.dec_to_string(object[property_key])
 
         # For eclipse dates
-        if 'date' in astro[key]:
-            object['date'] = date.to_datetime(object['jd'], *coords).strftime('%d %B')
+        if "date" in astro[key]:
+            object["date"] = date.to_datetime(object["jd"], *coords).strftime("%d %B")
 
         for property, value in astro[key].items():
             assert object[property] == value
@@ -401,18 +490,29 @@ def test_armc_get_data(coords, jd, astro, armc):
     obliquity = ephemeris.obliquity(jd)
 
     data = {
-        'asc': ephemeris.armc_angle(chart.ASC, armc, coords[0], obliquity, chart.PLACIDUS),
-        'house_2': ephemeris.armc_house(chart.HOUSE2, armc, coords[0], obliquity, chart.PLACIDUS),
-        'pof': ephemeris.armc_point(chart.PART_OF_FORTUNE, jd, armc, coords[0], obliquity, part_formula=calc.DAY_NIGHT_FORMULA),
+        "asc": ephemeris.armc_angle(
+            chart.ASC, armc, coords[0], obliquity, chart.PLACIDUS
+        ),
+        "house_2": ephemeris.armc_house(
+            chart.HOUSE2, armc, coords[0], obliquity, chart.PLACIDUS
+        ),
+        "pof": ephemeris.armc_point(
+            chart.PART_OF_FORTUNE,
+            jd,
+            armc,
+            coords[0],
+            obliquity,
+            part_formula=calc.DAY_NIGHT_FORMULA,
+        ),
     }
 
     for key, eph_object in data.items():
         # Convert ecliptic longitude to sign-based
         object = eph_object.copy()
-        object['lon'] = position.sign_longitude(object)
+        object["lon"] = position.sign_longitude(object)
 
         # Format properties to string to match astro.com front-end output
-        for property_key in ('lon', 'lat', 'speed', 'dec'):
+        for property_key in ("lon", "lat", "speed", "dec"):
             if property_key in object:
                 object[property_key] = convert.dec_to_string(object[property_key])
 
@@ -422,7 +522,9 @@ def test_armc_get_data(coords, jd, astro, armc):
 
 def test_moon_phase(jd):
     # Courtesy of https://stardate.org/nightsky/moon
-    assert ephemeris.moon_phase(jd) == calc.THIRD_QUARTER             # third quarter = waning crescent
+    assert (
+        ephemeris.moon_phase(jd) == calc.THIRD_QUARTER
+    )  # third quarter = waning crescent
 
 
 def test_obliquity(jd):
