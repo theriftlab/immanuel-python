@@ -16,7 +16,6 @@ GENDERS = {
     chart.MC: genders.MASCULINE,
     chart.IC: genders.MASCULINE,
     chart.ARMC: genders.MASCULINE,
-
     chart.SUN: genders.MASCULINE,
     chart.MOON: genders.FEMININE,
     chart.MERCURY: genders.MASCULINE,
@@ -27,14 +26,12 @@ GENDERS = {
     chart.URANUS: genders.MASCULINE,
     chart.NEPTUNE: genders.MASCULINE,
     chart.PLUTO: genders.MASCULINE,
-
     chart.CHIRON: genders.MASCULINE,
     chart.PHOLUS: genders.MASCULINE,
     chart.CERES: genders.FEMININE,
     chart.PALLAS: genders.FEMININE,
     chart.JUNO: genders.FEMININE,
     chart.VESTA: genders.FEMININE,
-
     chart.NORTH_NODE: genders.MASCULINE,
     chart.SOUTH_NODE: genders.MASCULINE,
     chart.TRUE_NORTH_NODE: genders.MASCULINE,
@@ -47,12 +44,10 @@ GENDERS = {
     chart.PART_OF_FORTUNE: genders.FEMININE,
     chart.PART_OF_SPIRIT: genders.FEMININE,
     chart.PART_OF_EROS: genders.FEMININE,
-
     chart.PRE_NATAL_SOLAR_ECLIPSE: genders.MASCULINE,
     chart.PRE_NATAL_LUNAR_ECLIPSE: genders.MASCULINE,
     chart.POST_NATAL_SOLAR_ECLIPSE: genders.MASCULINE,
     chart.POST_NATAL_LUNAR_ECLIPSE: genders.MASCULINE,
-
     calc.CONJUNCTION: genders.FEMININE,
     calc.OPPOSITION: genders.FEMININE,
     calc.SQUARE: genders.FEMININE,

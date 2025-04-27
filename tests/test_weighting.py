@@ -17,11 +17,13 @@ from immanuel.tools import convert, date, ephemeris
 @fixture
 def coords():
     # San Diego coords as used by astro.com
-    return [convert.string_to_dec(v) for v in ('32n43', '117w09')]
+    return [convert.string_to_dec(v) for v in ("32n43", "117w09")]
+
 
 @fixture
 def jd(coords):
-    return date.to_jd('2000-01-01 10:00', *coords)
+    return date.to_jd("2000-01-01 10:00", *coords)
+
 
 @fixture
 def objects(coords, jd):
@@ -43,6 +45,7 @@ def objects(coords, jd):
     )
     return ephemeris.objects(object_indices, jd, *coords, chart.PLACIDUS)
 
+
 @fixture
 def houses(coords, jd):
     return ephemeris.houses(jd, *coords, chart.PLACIDUS)
@@ -50,7 +53,14 @@ def houses(coords, jd):
 
 def test_elements(objects):
     elements = weighting.elements(objects)
-    assert elements[chart.FIRE] == [chart.MC, chart.VENUS, chart.JUPITER, chart.PLUTO, chart.TRUE_NORTH_NODE, chart.CHIRON]
+    assert elements[chart.FIRE] == [
+        chart.MC,
+        chart.VENUS,
+        chart.JUPITER,
+        chart.PLUTO,
+        chart.TRUE_NORTH_NODE,
+        chart.CHIRON,
+    ]
     assert elements[chart.EARTH] == [chart.SUN, chart.MERCURY, chart.SATURN]
     assert elements[chart.AIR] == [chart.MARS, chart.URANUS, chart.NEPTUNE]
     assert elements[chart.WATER] == [chart.ASC, chart.MOON]
@@ -59,8 +69,21 @@ def test_elements(objects):
 def test_modalities(objects):
     modalities = weighting.modalities(objects)
     assert modalities[chart.CARDINAL] == [chart.SUN, chart.MERCURY, chart.JUPITER]
-    assert modalities[chart.FIXED] == [chart.MOON, chart.MARS, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.TRUE_NORTH_NODE]
-    assert modalities[chart.MUTABLE] == [chart.ASC, chart.MC, chart.VENUS, chart.PLUTO, chart.CHIRON]
+    assert modalities[chart.FIXED] == [
+        chart.MOON,
+        chart.MARS,
+        chart.SATURN,
+        chart.URANUS,
+        chart.NEPTUNE,
+        chart.TRUE_NORTH_NODE,
+    ]
+    assert modalities[chart.MUTABLE] == [
+        chart.ASC,
+        chart.MC,
+        chart.VENUS,
+        chart.PLUTO,
+        chart.CHIRON,
+    ]
 
 
 def test_quadrants(objects, houses):
@@ -68,4 +91,11 @@ def test_quadrants(objects, houses):
     assert quadrants[1] == [chart.ASC, chart.JUPITER, chart.SATURN]
     assert quadrants[2] == [chart.TRUE_NORTH_NODE]
     assert quadrants[3] == [chart.MOON, chart.VENUS, chart.PLUTO, chart.CHIRON]
-    assert quadrants[4] == [chart.MC, chart.SUN, chart.MERCURY, chart.MARS, chart.URANUS, chart.NEPTUNE]
+    assert quadrants[4] == [
+        chart.MC,
+        chart.SUN,
+        chart.MERCURY,
+        chart.MARS,
+        chart.URANUS,
+        chart.NEPTUNE,
+    ]

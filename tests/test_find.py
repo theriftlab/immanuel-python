@@ -18,11 +18,12 @@ from immanuel.tools import convert, date, find
 @fixture
 def coords():
     # San Diego coords as used by astro.com
-    return [convert.string_to_dec(v) for v in ('32n43', '117w09')]
+    return [convert.string_to_dec(v) for v in ("32n43", "117w09")]
+
 
 @fixture
 def jd(coords):
-    return date.to_jd('2000-01-01 10:00', *coords)
+    return date.to_jd("2000-01-01 10:00", *coords)
 
 
 def test_previous(jd, coords):
@@ -30,7 +31,7 @@ def test_previous(jd, coords):
     # test date/time as test_previous_new_moon()
     tr_jd = find.previous(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
     tr_dt = date.to_datetime(tr_jd, *coords)
-    assert tr_dt.strftime('%Y-%m-%d %H:%M') == '1999-12-07 14:31'
+    assert tr_dt.strftime("%Y-%m-%d %H:%M") == "1999-12-07 14:31"
 
 
 def test_next(jd, coords):
@@ -38,35 +39,35 @@ def test_next(jd, coords):
     # test date/time as test_next_new_moon()
     tr_jd = find.next(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
     tr_dt = date.to_datetime(tr_jd, *coords)
-    assert tr_dt.strftime('%Y-%m-%d %H:%M') == '2000-01-06 10:13'
+    assert tr_dt.strftime("%Y-%m-%d %H:%M") == "2000-01-06 10:13"
 
 
 def test_previous_new_moon(jd, coords):
     # https://www.timeanddate.com/moon/phases/?year=1999
     nm_jd = find.previous_new_moon(jd)
     nm_dt = date.to_datetime(nm_jd, *coords)
-    assert nm_dt.strftime('%Y-%m-%d %H:%M') == '1999-12-07 14:31'
+    assert nm_dt.strftime("%Y-%m-%d %H:%M") == "1999-12-07 14:31"
 
 
 def test_previous_full_moon(jd, coords):
     # https://www.timeanddate.com/moon/phases/?year=1999
     nm_jd = find.previous_full_moon(jd)
     nm_dt = date.to_datetime(nm_jd, *coords)
-    assert nm_dt.strftime('%Y-%m-%d %H:%M') == '1999-12-22 09:31'
+    assert nm_dt.strftime("%Y-%m-%d %H:%M") == "1999-12-22 09:31"
 
 
 def test_next_new_moon(jd, coords):
     # https://www.timeanddate.com/moon/phases/?year=2000
     nm_jd = find.next_new_moon(jd)
     nm_dt = date.to_datetime(nm_jd, *coords)
-    assert nm_dt.strftime('%Y-%m-%d %H:%M') == '2000-01-06 10:13'
+    assert nm_dt.strftime("%Y-%m-%d %H:%M") == "2000-01-06 10:13"
 
 
 def test_next_full_moon(jd, coords):
     # https://www.timeanddate.com/moon/phases/?year=2000
     nm_jd = find.next_full_moon(jd)
     nm_dt = date.to_datetime(nm_jd, *coords)
-    assert nm_dt.strftime('%Y-%m-%d %H:%M') == '2000-01-20 20:40'
+    assert nm_dt.strftime("%Y-%m-%d %H:%M") == "2000-01-20 20:40"
 
 
 def test_previous_solar_eclipse(jd, coords):
@@ -75,7 +76,7 @@ def test_previous_solar_eclipse(jd, coords):
     ec_type, ec_jd = find.previous_solar_eclipse(jd)
     ec_dt = date.to_datetime(ec_jd, *coords)
     assert ec_type == chart.TOTAL
-    assert ec_dt.strftime('%Y-%m-%d %H:%M') == '1999-08-11 04:03'
+    assert ec_dt.strftime("%Y-%m-%d %H:%M") == "1999-08-11 04:03"
 
 
 def test_previous_lunar_eclipse(jd, coords):
@@ -84,7 +85,7 @@ def test_previous_lunar_eclipse(jd, coords):
     ec_type, ec_jd = find.previous_lunar_eclipse(jd)
     ec_dt = date.to_datetime(ec_jd, *coords)
     assert ec_type == chart.PARTIAL
-    assert ec_dt.strftime('%Y-%m-%d %H:%M') == '1999-07-28 04:33'
+    assert ec_dt.strftime("%Y-%m-%d %H:%M") == "1999-07-28 04:33"
 
 
 def test_next_solar_eclipse(jd, coords):
@@ -93,7 +94,7 @@ def test_next_solar_eclipse(jd, coords):
     ec_type, ec_jd = find.next_solar_eclipse(jd)
     ec_dt = date.to_datetime(ec_jd, *coords)
     assert ec_type == chart.PARTIAL
-    assert ec_dt.strftime('%Y-%m-%d %H:%M') == '2000-02-05 04:49'
+    assert ec_dt.strftime("%Y-%m-%d %H:%M") == "2000-02-05 04:49"
 
 
 def test_next_lunar_eclipse(jd, coords):
@@ -102,4 +103,4 @@ def test_next_lunar_eclipse(jd, coords):
     ec_type, ec_jd = find.next_lunar_eclipse(jd)
     ec_dt = date.to_datetime(ec_jd, *coords)
     assert ec_type == chart.TOTAL
-    assert ec_dt.strftime('%Y-%m-%d %H:%M') == '2000-01-20 20:43'
+    assert ec_dt.strftime("%Y-%m-%d %H:%M") == "2000-01-20 20:43"

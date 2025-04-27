@@ -18,49 +18,56 @@ from immanuel.tools import date
 
 @fixture
 def gmt_date():
-    return datetime(2000, 1, 1, 18, tzinfo=ZoneInfo('Europe/London'))
+    return datetime(2000, 1, 1, 18, tzinfo=ZoneInfo("Europe/London"))
+
 
 @fixture
 def pst_date():
-    return datetime(2000, 1, 1, 10, tzinfo=ZoneInfo('America/Los_Angeles'))
+    return datetime(2000, 1, 1, 10, tzinfo=ZoneInfo("America/Los_Angeles"))
+
 
 @fixture
 def str_gmt_date():
-    return '2000-01-01 18:00:00'
+    return "2000-01-01 18:00:00"
+
 
 @fixture
 def str_pst_date():
-    return '2000-01-01 10:00:00'
+    return "2000-01-01 10:00:00"
+
 
 @fixture
 def ambiguous_date():
-    return datetime(2022, 11, 6, 1, 30, tzinfo=ZoneInfo('America/Los_Angeles'))
+    return datetime(2022, 11, 6, 1, 30, tzinfo=ZoneInfo("America/Los_Angeles"))
+
 
 @fixture
 def gmt_coords():
-    return 51.509865, -0.118092     # London lat/lon
+    return 51.509865, -0.118092  # London lat/lon
+
 
 @fixture
 def pst_coords():
-    return 32.715736, -117.161087   # San Diego lat/lon
+    return 32.715736, -117.161087  # San Diego lat/lon
+
 
 @fixture
 def jd():
-    return 2451545.25               # 2000-01-01 18:00 UT
+    return 2451545.25  # 2000-01-01 18:00 UT
 
 
 def test_timezone_name_gmt(gmt_coords):
-    assert date.timezone_name(*gmt_coords) == 'Europe/London'
+    assert date.timezone_name(*gmt_coords) == "Europe/London"
 
 
 def test_timezone_name_pst(pst_coords):
-    assert date.timezone_name(*pst_coords) == 'America/Los_Angeles'
+    assert date.timezone_name(*pst_coords) == "America/Los_Angeles"
 
 
 def test_localize_coords(pst_coords):
     dt = datetime(2000, 1, 1, 18)
     aware = date.localize(dt, *pst_coords)
-    assert aware.tzinfo == ZoneInfo('America/Los_Angeles')
+    assert aware.tzinfo == ZoneInfo("America/Los_Angeles")
 
 
 def test_localize_offset(gmt_coords, jd):
@@ -75,7 +82,7 @@ def test_localize_dst(ambiguous_date, pst_coords):
     jd_no_dst = date.to_jd(dt_no_dst)
     jd_dst = date.to_jd(dt_dst)
     assert dt_no_dst.hour == dt_dst.hour
-    assert jd_no_dst - jd_dst == approx(1/24)
+    assert jd_no_dst - jd_dst == approx(1 / 24)
 
 
 def test_ambiguous(ambiguous_date, pst_date):
@@ -99,7 +106,7 @@ def test_to_datetime_gmt(gmt_date, str_gmt_date, gmt_coords, jd):
     assert dt_original.hour == 18
     assert dt_original.minute == 0
     assert dt_original.second == 0
-    assert dt_original.tzinfo == ZoneInfo('Europe/London')
+    assert dt_original.tzinfo == ZoneInfo("Europe/London")
 
     dt_from_str = date.to_datetime(str_gmt_date, *gmt_coords)
     assert dt_from_str.year == 2000
@@ -108,7 +115,7 @@ def test_to_datetime_gmt(gmt_date, str_gmt_date, gmt_coords, jd):
     assert dt_from_str.hour == 18
     assert dt_from_str.minute == 0
     assert dt_from_str.second == 0
-    assert dt_from_str.tzinfo == ZoneInfo('Europe/London')
+    assert dt_from_str.tzinfo == ZoneInfo("Europe/London")
 
     dt_from_jd = date.to_datetime(jd, *gmt_coords)
     assert dt_from_jd.year == 2000
@@ -117,7 +124,7 @@ def test_to_datetime_gmt(gmt_date, str_gmt_date, gmt_coords, jd):
     assert dt_from_jd.hour == 18
     assert dt_from_jd.minute == 0
     assert dt_from_jd.second == 0
-    assert dt_from_jd.tzinfo == ZoneInfo('Europe/London')
+    assert dt_from_jd.tzinfo == ZoneInfo("Europe/London")
 
     utc_dt_from_jd = date.to_datetime(jd)
     assert utc_dt_from_jd.year == 2000
@@ -126,7 +133,7 @@ def test_to_datetime_gmt(gmt_date, str_gmt_date, gmt_coords, jd):
     assert utc_dt_from_jd.hour == 18
     assert utc_dt_from_jd.minute == 0
     assert utc_dt_from_jd.second == 0
-    assert utc_dt_from_jd.tzinfo == ZoneInfo('UTC')
+    assert utc_dt_from_jd.tzinfo == ZoneInfo("UTC")
 
 
 def test_to_datetime_pst(pst_date, str_pst_date, pst_coords, gmt_coords, jd):
@@ -137,7 +144,7 @@ def test_to_datetime_pst(pst_date, str_pst_date, pst_coords, gmt_coords, jd):
     assert dt_original.hour == 10
     assert dt_original.minute == 0
     assert dt_original.second == 0
-    assert dt_original.tzinfo == ZoneInfo('America/Los_Angeles')
+    assert dt_original.tzinfo == ZoneInfo("America/Los_Angeles")
 
     dt_from_str = date.to_datetime(str_pst_date, *pst_coords)
     assert dt_from_str.year == 2000
@@ -146,7 +153,7 @@ def test_to_datetime_pst(pst_date, str_pst_date, pst_coords, gmt_coords, jd):
     assert dt_from_str.hour == 10
     assert dt_from_str.minute == 0
     assert dt_from_str.second == 0
-    assert dt_from_str.tzinfo == ZoneInfo('America/Los_Angeles')
+    assert dt_from_str.tzinfo == ZoneInfo("America/Los_Angeles")
 
     dt_from_jd = date.to_datetime(jd, *pst_coords)
     assert dt_from_jd.year == 2000
@@ -155,7 +162,7 @@ def test_to_datetime_pst(pst_date, str_pst_date, pst_coords, gmt_coords, jd):
     assert dt_from_jd.hour == 10
     assert dt_from_jd.minute == 0
     assert dt_from_jd.second == 0
-    assert dt_from_jd.tzinfo == ZoneInfo('America/Los_Angeles')
+    assert dt_from_jd.tzinfo == ZoneInfo("America/Los_Angeles")
 
     dt_from_offset = date.to_datetime(jd, *gmt_coords, offset=-8.0)
     assert dt_from_offset.year == 2000

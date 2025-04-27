@@ -7,7 +7,7 @@
 
 """
 
-MASCULINE = 'masculine'
-FEMININE = 'feminine'
-NEUTER = 'neuter'
-AMBIGUOUS = 'ambiguous'
+MASCULINE = "masculine"
+FEMININE = "feminine"
+NEUTER = "neuter"
+AMBIGUOUS = "ambiguous"

@@ -22,23 +22,27 @@ MAPPINGS = {}
 class Localize:
     lcid = None
     translation = None
-    localedir = f'{os.path.dirname(__file__)}{os.sep}..{os.sep}locales'
+    localedir = f"{os.path.dirname(__file__)}{os.sep}..{os.sep}locales"
 
     def set_locale(lcid: str) -> None:
         FunctionCache.clear_all()
 
         languages = (lcid, lcid[:2])
-        translation = gettext.translation('immanuel', localedir=Localize.localedir, languages=languages, fallback=True)
+        translation = gettext.translation(
+            "immanuel", localedir=Localize.localedir, languages=languages, fallback=True
+        )
 
         if isinstance(translation, gettext.GNUTranslations):
             Localize.lcid = lcid
             Localize.translation = translation
             locale.setlocale(locale.LC_TIME, lcid)
 
-            mappings_path = f'{Localize.localedir}{os.sep}{Localize.lcid}{os.sep}mappings.py'
+            mappings_path = (
+                f"{Localize.localedir}{os.sep}{Localize.lcid}{os.sep}mappings.py"
+            )
 
             if os.path.isfile(mappings_path):
-                with open(mappings_path, 'r') as mappings:
+                with open(mappings_path, "r") as mappings:
                     exec(mappings.read(), MAPPINGS)
         else:
             Localize.reset()
@@ -47,7 +51,7 @@ class Localize:
         FunctionCache.clear_all()
         Localize.lcid = None
         Localize.translation = None
-        locale.setlocale(locale.LC_TIME, 'en_US')
+        locale.setlocale(locale.LC_TIME, "en_US")
         MAPPINGS = {}
 
 
@@ -59,11 +63,19 @@ def localize(input: str, context: str | None = None) -> str:
         return Localize.translation.gettext(input)
     else:
         contextualized = Localize.translation.pgettext(context, input)
-        return contextualized if contextualized != input else Localize.translation.gettext(input)
+        return (
+            contextualized
+            if contextualized != input
+            else Localize.translation.gettext(input)
+        )
 
 
-def gender(index: int|float) -> str:
+def gender(index: int | float) -> str:
     if Localize.translation is None:
         return None
 
-    return MAPPINGS['GENDERS'][index] if index in MAPPINGS['GENDERS'] else genders.AMBIGUOUS
+    return (
+        MAPPINGS["GENDERS"][index]
+        if index in MAPPINGS["GENDERS"]
+        else genders.AMBIGUOUS
+    )
