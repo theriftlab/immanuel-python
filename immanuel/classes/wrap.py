@@ -27,7 +27,7 @@ class Angle:
 
     def __init__(self, angle: float, format: int = convert.FORMAT_DMS, round_to: int = calc.SECOND) -> None:
         self.raw = angle
-        self.formatted = convert.dec_to_string(angle, format, Angle.precision[round_to])
+        self.formatted = convert.dec_to_string(angle, format=format, round_to=Angle.precision[round_to])
         self.direction = None
         self.degrees = None
         self.minutes = None
@@ -86,8 +86,8 @@ class AspectMovement:
 
 class Coordinates:
     def __init__(self, latitude: float, longitude: float) -> None:
-        self.latitude = Angle(latitude, convert.FORMAT_LAT)
-        self.longitude = Angle(longitude, convert.FORMAT_LON)
+        self.latitude = Angle(latitude, format=convert.FORMAT_LAT)
+        self.longitude = Angle(longitude, format=convert.FORMAT_LON)
 
     def __str__(self) -> str:
         return f'{self.latitude}, {self.longitude}'
@@ -102,7 +102,7 @@ class DateTime:
         self.deltat = ephemeris.deltat(self.julian)
 
         if armc is not None:
-            self.sidereal_time = convert.dec_to_string(calculate.sidereal_time(armc), convert.FORMAT_TIME)
+            self.sidereal_time = convert.dec_to_string(calculate.sidereal_time(armc), format=convert.FORMAT_TIME)
 
     def __str__(self) -> str:
         str = f"{self.datetime.strftime('%a %b %d %Y %H:%M:%S')} {self.timezone}"
@@ -238,7 +238,7 @@ class Object:
             self.in_sect = in_sect
 
         if dignity_state is not None:
-            self.dignities = DignityState(object=object, dignity_state=dignity_state)
+            self.dignities = DignityState(object, dignity_state=dignity_state)
             self.score = dignity.score(dignity_state)
 
     def __str__(self) -> str:

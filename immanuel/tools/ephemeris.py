@@ -275,17 +275,17 @@ def armc_point(index: int, jd: float, armc: float, lat: float, obliquity: float,
     )
 
 
-def _objects(object_list: tuple, jd: float, lat: float, lon: float, house_system: int, part_formula: int, armc: float, armc_obliquity: float) -> dict:
+def _objects(object_list: tuple, jd: float, lat: float | None, lon: float | None, house_system: int | None, part_formula: int | None, armc: float | None, armc_obliquity: float | None) -> dict:
     """ Function for items() and armc_items(). """
     objects = {}
 
     for index in object_list:
-        objects[index] = _get(index, jd, lat, lon, house_system, part_formula, armc, armc_obliquity)
+        objects[index] = _get(index=index, jd=jd, lat=lat, lon=lon, house_system=house_system, part_formula=part_formula, armc=armc, armc_obliquity=armc_obliquity)
 
     return objects
 
 
-def _get(index: int | str, jd: float, lat: float, lon: float, house_system: int, part_formula: int, armc: float, armc_obliquity: float) -> dict:
+def _get(index: int | str, jd: float, lat: float | None, lon: float | None, house_system: int | None, part_formula: int | None, armc: float | None, armc_obliquity: float | None) -> dict:
     """ Function for get() and armc_get(). """
     if armc is not None and armc_obliquity is None:
         armc_obliquity = obliquity(jd)
@@ -315,7 +315,7 @@ def _get(index: int | str, jd: float, lat: float, lon: float, house_system: int,
         return fixed_star(index, jd)
 
 
-def _angle(index: int, jd: float, lat: float, lon: float, house_system: int, armc: float, armc_obliquity: float) -> dict:
+def _angle(index: int, jd: float | None, lat: float, lon: float | None, house_system: int, armc: float | None, armc_obliquity: float | None) -> dict:
     """ Function for angle() and armc_angle(). """
     if armc is not None:
         angles = _angles_houses_vertex_armc(armc, lat, armc_obliquity, house_system)['angles']
@@ -331,9 +331,9 @@ def _angle(index: int, jd: float, lat: float, lon: float, house_system: int, arm
     return None
 
 
-def _house(index: int, jd: float, lat: float, lon: float, house_system: int, armc: float, armc_obliquity: float) -> dict:
+def _house(index: int, jd: float | None, lat: float, lon: float | None, house_system: int, armc: float | None, armc_obliquity: float | None) -> dict:
     """ Function for house() and armc_house(). """
-    first_house_lon = get(_first_house_planet(house_system), jd)['lon'] if house_system > chart.PLANET_ON_FIRST else None
+    first_house_lon = planet(_first_house_planet(house_system), jd)['lon'] if house_system > chart.PLANET_ON_FIRST else None
 
     if armc is not None:
         houses = _angles_houses_vertex_armc(armc, lat, armc_obliquity, house_system, first_house_lon)['houses']
@@ -349,7 +349,7 @@ def _house(index: int, jd: float, lat: float, lon: float, house_system: int, arm
     return None
 
 
-def _point(index: int, jd: float, lat: float, lon: float, house_system: int, part_formula: int, armc: float, armc_obliquity: float) -> dict:
+def _point(index: int, jd: float | None, lat: float, lon: float | None, house_system: int | None, part_formula: int | None, armc: float | None, armc_obliquity: float | None) -> dict:
     """ Function for point() and armc_point(). """
     if index == chart.VERTEX:
         if armc is not None:
@@ -513,7 +513,7 @@ def armc_is_daytime(jd: float, armc: float, lat: float, obliquity: float) -> boo
 
 
 @cache
-def _is_daytime(jd: float, lat: float, lon: float, armc: float, armc_obliquity: float) -> bool:
+def _is_daytime(jd: float | None, lat: float, lon: float | None, armc: float | None, armc_obliquity: float | None) -> bool:
     """ Function for is_daytime() and armc_is_daytime(). """
     sun = planet(chart.SUN, jd)
     asc = _angle(chart.ASC, jd, lat, lon, chart.PLACIDUS, armc, armc_obliquity)
@@ -538,7 +538,7 @@ def _angles_houses_vertex_armc(armc: float, lat: float, obliquity: float, house_
     return _angles_houses_vertex_from_swe(obliquity, *swe.houses_armc_ex2(armc, lat, obliquity, _SWE[house_system if house_system < chart.PLANET_ON_FIRST else chart.PLACIDUS]), first_house_lon)
 
 
-def _angles_houses_vertex_from_swe(obliquity: float, cusps: tuple, ascmc: tuple, cuspsspeed: tuple, ascmcspeed: tuple, first_house_lon: float) -> dict:
+def _angles_houses_vertex_from_swe(obliquity: float, cusps: tuple, ascmc: tuple, cuspsspeed: tuple, ascmcspeed: tuple, first_house_lon: float | None) -> dict:
     """ Get houses, angles & vertex direct from pyswisseph. """
     angles = {}
 
@@ -637,7 +637,7 @@ def _syzygy(jd: float) -> dict:
 
 
 @cache
-def _part(index: int, jd: float, lat: float, lon: float, formula: int, armc: float | None = None, armc_obliquity: float | None = None) -> dict:
+def _part(index: int, jd: float, lat: float, lon: float | None, formula: int, armc: float | None = None, armc_obliquity: float | None = None) -> dict:
     """ Calculates Parts of Fortune, Spirit, and Eros. """
     sun = planet(chart.SUN, jd)
     moon = planet(chart.MOON, jd)
