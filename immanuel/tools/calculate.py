@@ -7,12 +7,22 @@
     and object information from the data returned from the ephemeris module.
     These functions will accept both an object and a float.
 
+    The retrograde_period() function's calculation is based on
+    https://physics.stackexchange.com/a/476286.
+
 """
+
+import math
 
 import swisseph as swe
 
 from immanuel.const import calc, chart
 from immanuel.tools import ephemeris
+
+
+SYNODIC_AVG = 0
+SYNODIC_MIN = 1
+SYNODIC_MAX = 2
 
 
 def moon_phase(sun: dict | float, moon: dict | float) -> int:
@@ -174,6 +184,53 @@ def is_out_of_bounds(
         return None
 
     return not -obliquity < dec < obliquity
+
+
+def synodic_period(
+    object1: dict | int, object2: dict | int, jd: float, type: int = SYNODIC_AVG
+) -> float:
+    """Returns the approximate synodic period in tropical years of the two
+    passed objects."""
+    index1 = object1["index"] if isinstance(object1, dict) else object1
+    index2 = object2["index"] if isinstance(object2, dict) else object2
+
+    sidereal_period1 = ephemeris.sidereal_period(index1, jd)
+    sidereal_period2 = ephemeris.sidereal_period(index2, jd)
+
+    orbital_eccentricity1 = ephemeris.orbital_eccentricity(index1, jd)
+    orbital_eccentricity2 = ephemeris.orbital_eccentricity(index2, jd)
+
+    avg = 1 / abs(1 / sidereal_period1 - 1 / sidereal_period2)
+
+    if type == SYNODIC_MIN:
+        return avg * (1 - (orbital_eccentricity1 + orbital_eccentricity2) / 2)
+
+    if type == SYNODIC_MAX:
+        return avg * (1 + (orbital_eccentricity1 + orbital_eccentricity2) / 2)
+
+    return avg
+
+
+def retrograde_period(object: dict | int, jd: float) -> float:
+    """Returns an approximate estimate of a planet's retrograde period in
+    tropical years."""
+    index = object["index"] if isinstance(object, dict) else object
+
+    if index in (chart.SUN, chart.MOON):
+        return 0.0
+
+    t1 = ephemeris.sidereal_period(chart.TERRA, jd)
+    t2 = ephemeris.sidereal_period(index, jd)
+
+    a1 = (t1**2) ** (1 / 3)
+    a2 = (t2**2) ** (1 / 3)
+    r = a2 / a1
+
+    num = math.acos((math.sqrt(r) + 1) / (r + (1 / math.sqrt(r))))
+    den = math.pi * (1 - (1 / (r ** (3 / 2))))
+    t_retro = t1 * (num / den)
+
+    return abs(t_retro)
 
 
 def solar_year_length(jd: float) -> float:

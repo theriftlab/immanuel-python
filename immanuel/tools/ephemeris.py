@@ -47,6 +47,7 @@ _SWE = {
     chart.MOON: swe.MOON,
     chart.MERCURY: swe.MERCURY,
     chart.VENUS: swe.VENUS,
+    chart.TERRA: swe.EARTH,
     chart.MARS: swe.MARS,
     chart.JUPITER: swe.JUPITER,
     chart.SATURN: swe.SATURN,
@@ -72,6 +73,11 @@ _SWE = {
     chart.PART_OF_SPIRIT: chart.PART_OF_SPIRIT,
     chart.PART_OF_EROS: chart.PART_OF_EROS,
 }
+
+
+def type(index: int) -> int:
+    """Return the type index of a given object's index."""
+    return round(index, -2)
 
 
 def objects(
@@ -375,7 +381,7 @@ def _get(
         if index == chart.HOUSE:
             return _house(ALL, jd, lat, lon, house_system, armc, armc_obliquity)
 
-        match _type(index):
+        match type(index):
             case chart.ANGLE:
                 return _angle(index, jd, lat, lon, house_system, armc, armc_obliquity)
             case chart.HOUSE:
@@ -494,7 +500,7 @@ def planet(index: int, jd: float) -> dict:
     a separate ephemeris file."""
     ec_res = swe.calc_ut(jd, _SWE[index])[0]
     eq_res = swe.cotrans((ec_res[0], ec_res[1], ec_res[2]), -obliquity(jd))
-    asteroid = _type(index) == chart.ASTEROID
+    asteroid = type(index) == chart.ASTEROID
 
     return {
         "index": index,
@@ -513,7 +519,7 @@ def asteroid(index: int, jd: float) -> dict:
     """Returns an asteroid by Julian date and pyswisseph index
     from an external asteroid's ephemeris file as specified
     in the setup module."""
-    if _type(index) == chart.ASTEROID:
+    if type(index) == chart.ASTEROID:
         return planet(index, jd)
 
     swe_index = index + swe.AST_OFFSET
@@ -607,6 +613,17 @@ def deltat(jd: float, seconds: bool = False) -> float:
     """Return the Delta-T value of the passed Julian date. Optionally it
     will return this value in seconds."""
     return swe.deltat(jd) if not seconds else swe.deltat(jd) * 24 * 3600
+
+
+def sidereal_period(index: int, jd: float) -> float:
+    """Returns the passed object's sidereal orbital period in
+    tropical years."""
+    return _orbital_elements(index, jd)[10]
+
+
+def orbital_eccentricity(index: int, jd: float) -> float:
+    """Returns the passed object's orbital eccentricity."""
+    return _orbital_elements(index, jd)[1]
 
 
 def is_daytime(jd: float, lat: float, lon: float) -> bool:
@@ -861,9 +878,9 @@ def _swisseph_point(index: int, jd: float) -> dict:
     }
 
 
-def _type(index: int) -> int:
-    """Return the type index of a given object's index."""
-    return round(index, -2)
+@cache
+def _orbital_elements(index: int, jd: float) -> tuple:
+    return swe.get_orbital_elements(jd, _SWE[index], swe.FLG_SWIEPH)
 
 
 def _first_house_planet(house_system: int) -> int:
