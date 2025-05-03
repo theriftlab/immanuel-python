@@ -15,7 +15,7 @@ from immanuel.classes.localize import gender, localize as _
 from immanuel.const import calc, chart, dignities, names
 from immanuel.reports import dignity
 from immanuel.setup import settings
-from immanuel.tools import calculate, convert, date, ephemeris, position
+from immanuel.tools import convert, date, ephemeris, position
 
 
 class Angle:
@@ -130,7 +130,7 @@ class DateTime:
 
         if armc is not None:
             self.sidereal_time = convert.dec_to_string(
-                calculate.sidereal_time(armc), format=convert.FORMAT_TIME
+                ephemeris.get_sidereal_time(armc), format=convert.FORMAT_TIME
             )
 
     def __str__(self) -> str:
@@ -304,11 +304,11 @@ class Object:
 
 class ObjectMovement:
     def __init__(self, object: dict) -> None:
-        self._movement = calculate.object_movement(object)
+        self._movement = ephemeris.get_object_movement(object)
         self.direct = self._movement == calc.DIRECT
         self.stationary = self._movement == calc.STATIONARY
         self.retrograde = self._movement == calc.RETROGRADE
-        self.typical = calculate.is_object_movement_typical(object)
+        self.typical = ephemeris.get_object_movement_typical(object)
         self.formatted = _(
             names.OBJECT_MOVEMENTS[self._movement], gender(object["index"])
         )

@@ -10,7 +10,7 @@
 import swisseph as swe
 
 from immanuel.const import calc, chart
-from immanuel.tools import calculate, date, ephemeris
+from immanuel.tools import date, ephemeris
 
 
 JD = 0
@@ -38,7 +38,7 @@ def progression(
     jd: float, lat: float, lon: float, pjd: float, house_system: int, method: int
 ) -> tuple:
     """Returns the progressed Julian date and MC right ascension."""
-    year_days = calculate.solar_year_length(jd)
+    year_days = ephemeris.calculate_solar_year_length(jd)
     years = (pjd - jd) / year_days
     progressed_jd = jd + years
 
@@ -48,7 +48,9 @@ def progression(
                 chart.ARMC, progressed_jd, lat, lon, house_system
             )["lon"]
         case calc.NAIBOD:
-            natal_armc = ephemeris.get_angle(chart.ARMC, jd, lat, lon, house_system)["lon"]
+            natal_armc = ephemeris.get_angle(chart.ARMC, jd, lat, lon, house_system)[
+                "lon"
+            ]
             progressed_armc_lon = swe.degnorm(
                 natal_armc + years * calc.MEAN_MOTIONS[chart.SUN]
             )

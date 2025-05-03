@@ -27,7 +27,6 @@ from immanuel.const import calc, chart, names
 from immanuel.reports import aspect, dignity, pattern, weighting
 from immanuel.setup import settings
 from immanuel.tools import (
-    calculate,
     convert,
     date,
     ephemeris,
@@ -133,12 +132,12 @@ class Chart:
                 object=object,
                 houses=self._houses,
             )
-            out_of_bounds = calculate.is_out_of_bounds(
+            out_of_bounds = ephemeris.get_out_of_bounds(
                 object=object,
                 obliquity=self._obliquity,
             )
             in_sect = (
-                calculate.is_in_sect(
+                ephemeris.get_in_sect(
                     object=object,
                     is_daytime=self._diurnal,
                     sun=self._triad[chart.SUN],
@@ -226,8 +225,12 @@ class Natal(Chart):
     def generate(self) -> None:
         self._obliquity = ephemeris.get_obliquity(self._native.julian_date)
 
-        self._triad[chart.SUN] = ephemeris.get_planet(chart.SUN, self._native.julian_date)
-        self._triad[chart.MOON] = ephemeris.get_planet(chart.MOON, self._native.julian_date)
+        self._triad[chart.SUN] = ephemeris.get_planet(
+            chart.SUN, self._native.julian_date
+        )
+        self._triad[chart.MOON] = ephemeris.get_planet(
+            chart.MOON, self._native.julian_date
+        )
         self._triad[chart.ASC] = ephemeris.get_angle(
             index=chart.ASC,
             jd=self._native.julian_date,
@@ -236,10 +239,10 @@ class Natal(Chart):
             house_system=settings.house_system,
         )
 
-        self._diurnal = calculate.is_daytime(
+        self._diurnal = ephemeris.calculate_daytime(
             self._triad[chart.SUN], self._triad[chart.ASC]
         )
-        self._moon_phase = calculate.moon_phase(
+        self._moon_phase = ephemeris.calculate_moon_phase(
             self._triad[chart.SUN], self._triad[chart.MOON]
         )
         self._objects = ephemeris.get_objects(
@@ -282,7 +285,9 @@ class SolarReturn(Chart):
         )
 
         self._triad[chart.SUN] = ephemeris.get_planet(chart.SUN, self._solar_return_jd)
-        self._triad[chart.MOON] = ephemeris.get_planet(chart.MOON, self._solar_return_jd)
+        self._triad[chart.MOON] = ephemeris.get_planet(
+            chart.MOON, self._solar_return_jd
+        )
         self._triad[chart.ASC] = ephemeris.get_angle(
             index=chart.ASC,
             jd=self._solar_return_jd,
@@ -291,10 +296,10 @@ class SolarReturn(Chart):
             house_system=settings.house_system,
         )
 
-        self._diurnal = calculate.is_daytime(
+        self._diurnal = ephemeris.calculate_daytime(
             self._triad[chart.SUN], self._triad[chart.ASC]
         )
-        self._moon_phase = calculate.moon_phase(
+        self._moon_phase = ephemeris.calculate_moon_phase(
             self._triad[chart.SUN], self._triad[chart.MOON]
         )
         self._objects = ephemeris.get_objects(
@@ -374,10 +379,10 @@ class Progressed(Chart):
             house_system=settings.house_system,
         )
 
-        self._diurnal = calculate.is_daytime(
+        self._diurnal = ephemeris.calculate_daytime(
             self._triad[chart.SUN], self._triad[chart.ASC]
         )
-        self._moon_phase = calculate.moon_phase(
+        self._moon_phase = ephemeris.calculate_moon_phase(
             self._triad[chart.SUN], self._triad[chart.MOON]
         )
         self._objects = ephemeris.get_armc_objects(
@@ -536,10 +541,10 @@ class Composite(Chart):
                 native_moon, partner_moon, self._obliquity
             )
 
-        self._diurnal = calculate.is_daytime(
+        self._diurnal = ephemeris.calculate_daytime(
             self._triad[chart.SUN], self._triad[chart.ASC]
         )
-        self._moon_phase = calculate.moon_phase(
+        self._moon_phase = ephemeris.calculate_moon_phase(
             self._triad[chart.SUN], self._triad[chart.MOON]
         )
 
@@ -568,8 +573,12 @@ class Transits(Chart):
     def generate(self) -> None:
         self._obliquity = ephemeris.get_obliquity(self._native.julian_date)
 
-        self._triad[chart.SUN] = ephemeris.get_planet(chart.SUN, self._native.julian_date)
-        self._triad[chart.MOON] = ephemeris.get_planet(chart.MOON, self._native.julian_date)
+        self._triad[chart.SUN] = ephemeris.get_planet(
+            chart.SUN, self._native.julian_date
+        )
+        self._triad[chart.MOON] = ephemeris.get_planet(
+            chart.MOON, self._native.julian_date
+        )
         self._triad[chart.ASC] = ephemeris.get_angle(
             index=chart.ASC,
             jd=self._native.julian_date,
@@ -578,10 +587,10 @@ class Transits(Chart):
             house_system=settings.house_system,
         )
 
-        self._diurnal = calculate.is_daytime(
+        self._diurnal = ephemeris.calculate_daytime(
             self._triad[chart.SUN], self._triad[chart.ASC]
         )
-        self._moon_phase = calculate.moon_phase(
+        self._moon_phase = ephemeris.calculate_moon_phase(
             self._triad[chart.SUN], self._triad[chart.MOON]
         )
         self._objects = ephemeris.get_objects(

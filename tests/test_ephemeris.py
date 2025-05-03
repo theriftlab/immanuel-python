@@ -31,8 +31,18 @@ def jd(coords):
 
 
 @fixture
+def day_jd(coords):
+    return date.to_jd("2000-01-01 10:00", *coords)
+
+
+@fixture
+def night_jd(coords):
+    return date.to_jd("2000-01-01 00:00", *coords)
+
+
+@fixture
 def armc():
-    # ARMC longitude on the above Julian date
+    # ARMC longitude on the above jd / day_jd
     return 253.55348499294269
 
 
@@ -520,11 +530,20 @@ def test_armc_get_data(coords, jd, astro, armc):
             assert object[property] == value
 
 
-def test_moon_phase(jd):
+def test_get_moon_phase(jd):
     # Courtesy of https://stardate.org/nightsky/moon
     assert (
         ephemeris.get_moon_phase(jd) == calc.THIRD_QUARTER
-    )  # third quarter = waning crescent
+    ) is True # third quarter = waning crescent
+
+
+def test_calculate_moon_phase(jd):
+    # Courtesy of https://stardate.org/nightsky/moon
+    sun = ephemeris.get_planet(chart.SUN, jd)
+    moon = ephemeris.get_planet(chart.MOON, jd)
+    assert (
+        ephemeris.calculate_moon_phase(sun, moon) == calc.THIRD_QUARTER
+    ) is True # third quarter = waning crescent
 
 
 def test_obliquity(jd):
@@ -533,16 +552,326 @@ def test_obliquity(jd):
     assert ephemeris.get_obliquity(jd, True) == approx(23.4392911408)
 
 
-def test_is_daytime(jd, coords):
+def test_get_daytime(day_jd, night_jd, coords):
     # Sun above ascendant in astro.com chart visual
-    assert ephemeris.get_daytime(jd, *coords)
+    assert ephemeris.get_daytime(day_jd, *coords) is True
+    # Sun below ascendant in astro.com chart visual
+    assert ephemeris.get_daytime(night_jd, *coords) is False
 
 
-def test_armc_is_daytime(jd, coords, armc):
+def test_calculate_daytime(day_jd, night_jd, coords):
+    sun, asc = ephemeris.get_objects(
+        (chart.SUN, chart.ASC), day_jd, *coords, chart.PLACIDUS
+    ).values()
+    assert ephemeris.calculate_daytime(sun, asc) is True
+
+    sun, asc = ephemeris.get_objects(
+        (chart.SUN, chart.ASC), night_jd, *coords, chart.PLACIDUS
+    ).values()
+    assert ephemeris.calculate_daytime(sun, asc) is False
+
+
+def test_armc_is_daytime(day_jd, coords, armc):
     # Sun above ascendant in astro.com chart visual
-    assert ephemeris.get_armc_daytime(jd, armc, coords[0], ephemeris.get_obliquity(jd))
+    assert ephemeris.get_armc_daytime(day_jd, armc, coords[0], ephemeris.get_obliquity(day_jd)) is True
+
+
+def test_part_of_fortune_day_formula(day_jd, coords):
+    sun, moon, asc = ephemeris.get_objects(
+        (chart.SUN, chart.MOON, chart.ASC), day_jd, *coords, chart.PLACIDUS
+    ).values()
+    pof = ephemeris.get_part_longitude(
+        chart.PART_OF_FORTUNE, sun, moon, asc, formula=calc.DAY_FORMULA
+    )
+    sign = position.sign(pof)
+    lon = position.sign_longitude(pof)
+    assert sign == chart.CAPRICORN
+    assert convert.dec_to_string(lon) == "11°18'41\""
+
+
+def test_part_of_fortune_night_formula(night_jd, coords):
+    sun, moon, asc = ephemeris.get_objects(
+        (chart.SUN, chart.MOON, chart.ASC), night_jd, *coords, chart.PLACIDUS
+    ).values()
+    pof = ephemeris.get_part_longitude(
+        chart.PART_OF_FORTUNE, sun, moon, asc, formula=calc.NIGHT_FORMULA
+    )
+    sign = position.sign(pof)
+    lon = position.sign_longitude(pof)
+    assert sign == chart.SAGITTARIUS
+    assert convert.dec_to_string(lon) == "10°04'30\""
+
+
+def test_part_of_spirit_day_formula(day_jd, coords):
+    # Courtesy of astro-seek.com which does not include arc-seconds
+    sun, moon, asc = ephemeris.get_objects(
+        (chart.SUN, chart.MOON, chart.ASC), day_jd, *coords, chart.PLACIDUS
+    ).values()
+    pos = ephemeris.get_part_longitude(
+        chart.PART_OF_SPIRIT, sun, moon, asc, formula=calc.DAY_FORMULA
+    )
+    sign = position.sign(pos)
+    lon = position.sign_longitude(pos)
+    assert sign == chart.ARIES
+    # Since astro-seek does all its calculations without arc-seconds, we will have to be approximate
+    assert round(lon, 1) == round(convert.to_dec("29°54'"), 1)
+
+
+def test_part_of_spirit_night_formula(night_jd, coords):
+    # Courtesy of astro-seek.com which does not include arc-seconds
+    sun, moon, asc = ephemeris.get_objects(
+        (chart.SUN, chart.MOON, chart.ASC), night_jd, *coords, chart.PLACIDUS
+    ).values()
+    pos = ephemeris.get_part_longitude(
+        chart.PART_OF_SPIRIT, sun, moon, asc, formula=calc.NIGHT_FORMULA
+    )
+    sign = position.sign(pos)
+    lon = position.sign_longitude(pos)
+    assert sign == chart.LEO
+    # Since astro-seek does all its calculations without arc-seconds, we will have to be approximate
+    assert round(lon, 1) == round(convert.to_dec("12°18'"), 1)
+
+
+def test_part_of_eros_day_formula(day_jd, coords):
+    # Courtesy of astro-seek.com which does not include arc-seconds
+    sun, moon, asc, venus = ephemeris.get_objects(
+        (chart.SUN, chart.MOON, chart.ASC, chart.VENUS), day_jd, *coords, chart.PLACIDUS
+    ).values()
+    poe = ephemeris.get_part_longitude(
+        chart.PART_OF_EROS, sun, moon, asc, venus, formula=calc.DAY_FORMULA
+    )
+    sign = position.sign(poe)
+    lon = position.sign_longitude(poe)
+    assert sign == chart.LIBRA
+    # Since astro-seek does all its calculations without arc-seconds, we will have to be approximate
+    assert round(lon, 1) == round(convert.to_dec("07°34'"), 1)
+
+
+def test_part_of_eros_night_formula(night_jd, coords):
+    # Courtesy of astro-seek.com which does not include arc-seconds
+    sun, moon, asc, venus = ephemeris.get_objects(
+        (chart.SUN, chart.MOON, chart.ASC, chart.VENUS),
+        night_jd,
+        *coords,
+        chart.PLACIDUS,
+    ).values()
+    poe = ephemeris.get_part_longitude(
+        chart.PART_OF_EROS, sun, moon, asc, venus, formula=calc.NIGHT_FORMULA
+    )
+    sign = position.sign(poe)
+    lon = position.sign_longitude(poe)
+    assert sign == chart.GEMINI
+    # Since astro-seek does all its calculations without arc-seconds, we will have to be approximate
+    assert round(lon, 1) == round(convert.to_dec("22°08'"), 1)
+
+
+def test_calculate_sidereal_time(jd, coords):
+    armc = ephemeris.get_angle(chart.ARMC, jd, *coords, chart.PLACIDUS)
+    sidereal_time = ephemeris.get_sidereal_time(armc)
+    assert convert.dec_to_string(sidereal_time, convert.FORMAT_TIME) == "16:54:13"
+
+
+def test_object_movement(jd, coords):
+    sun, moon, saturn, true_north_node, part_of_fortune = ephemeris.get_objects(
+        (
+            chart.SUN,
+            chart.MOON,
+            chart.SATURN,
+            chart.TRUE_NORTH_NODE,
+            chart.PART_OF_FORTUNE,
+        ),
+        jd,
+        *coords,
+        chart.PLACIDUS,
+        calc.DAY_NIGHT_FORMULA,
+    ).values()
+    assert ephemeris.get_object_movement(sun) == calc.DIRECT
+    assert ephemeris.get_object_movement(moon) == calc.DIRECT
+    assert ephemeris.get_object_movement(saturn) == calc.RETROGRADE
+    assert ephemeris.get_object_movement(true_north_node) == calc.RETROGRADE
+    assert ephemeris.get_object_movement(part_of_fortune) == calc.STATIONARY
+
+
+def test_is_object_movement_typical(jd, coords):
+    sun, north_node, part_of_fortune = ephemeris.get_objects(
+        (chart.SUN, chart.NORTH_NODE, chart.PART_OF_FORTUNE),
+        jd,
+        *coords,
+        chart.PLACIDUS,
+        calc.DAY_NIGHT_FORMULA,
+    ).values()
+    # Direct
+    assert ephemeris.get_object_movement_typical(sun) == True
+    sun["speed"] *= -1
+    assert ephemeris.get_object_movement_typical(sun) == False
+    # Retrograde
+    assert ephemeris.get_object_movement_typical(north_node) == True
+    north_node["speed"] *= -1
+    assert ephemeris.get_object_movement_typical(north_node) == False
+    # Stationed
+    assert ephemeris.get_object_movement_typical(part_of_fortune) == True
+    part_of_fortune["speed"] *= -1
+    assert ephemeris.get_object_movement_typical(part_of_fortune) == True
+
+
+def test_relative_position(day_jd, coords):
+    sun, mercury, neptune = ephemeris.get_objects(
+        (chart.SUN, chart.MERCURY, chart.NEPTUNE), day_jd, *coords
+    ).values()
+    assert ephemeris.get_relative_position(sun, mercury) == calc.ORIENTAL
+    assert ephemeris.get_relative_position(sun, neptune) == calc.OCCIDENTAL
+    assert ephemeris.get_relative_position(mercury, neptune) == calc.OCCIDENTAL
+    assert ephemeris.get_relative_position(neptune, mercury) == calc.ORIENTAL
+
+
+def test_is_in_sect_day(day_jd, coords):
+    sun, moon, mercury, venus, mars, jupiter, saturn = ephemeris.get_objects(
+        (
+            chart.SUN,
+            chart.MOON,
+            chart.MERCURY,
+            chart.VENUS,
+            chart.MARS,
+            chart.JUPITER,
+            chart.SATURN,
+        ),
+        day_jd,
+        *coords,
+    ).values()
+    assert ephemeris.get_in_sect(sun, True) == True
+    assert ephemeris.get_in_sect(jupiter, True) == True
+    assert ephemeris.get_in_sect(saturn, True) == True
+    assert ephemeris.get_in_sect(moon, True) == False
+    assert ephemeris.get_in_sect(venus, True) == False
+    assert ephemeris.get_in_sect(mars, True) == False
+    assert ephemeris.get_in_sect(mercury, True, sun) == (
+        ephemeris.get_relative_position(sun, mercury) == calc.ORIENTAL
+    )
+
+
+def test_is_in_sect_night(night_jd, coords):
+    sun, moon, mercury, venus, mars, jupiter, saturn = ephemeris.get_objects(
+        (
+            chart.SUN,
+            chart.MOON,
+            chart.MERCURY,
+            chart.VENUS,
+            chart.MARS,
+            chart.JUPITER,
+            chart.SATURN,
+        ),
+        night_jd,
+        *coords,
+    ).values()
+    assert ephemeris.get_in_sect(sun, False) == False
+    assert ephemeris.get_in_sect(jupiter, False) == False
+    assert ephemeris.get_in_sect(saturn, False) == False
+    assert ephemeris.get_in_sect(moon, False) == True
+    assert ephemeris.get_in_sect(venus, False) == True
+    assert ephemeris.get_in_sect(mars, False) == True
+    assert ephemeris.get_in_sect(mercury, False, sun) == (
+        ephemeris.get_relative_position(sun, mercury) == calc.OCCIDENTAL
+    )
+
+
+def test_is_out_of_bounds(day_jd, coords):
+    sun, mercury = ephemeris.get_objects(
+        (chart.SUN, chart.MERCURY), day_jd, *coords, chart.PLACIDUS
+    ).values()
+    assert ephemeris.get_out_of_bounds(sun, day_jd) is False
+    assert ephemeris.get_out_of_bounds(mercury, day_jd) is True
 
 
 def test_deltat(jd):
     # Courtesy of astro.com "Additional Tables"
     assert round(ephemeris.get_deltat(jd, True), 1) == 63.8
+
+
+def test_solar_year_length():
+    """This one is difficult to test in isolation since it's only used for
+    secondary progressions. For now we'll leave it to the forecast module
+    tests to check the correct progressed Julian dates."""
+    pass
+
+
+
+
+
+def test_previous(jd, coords):
+    # Check for previous Sun / Moon conjunction so we can use the same
+    # test date/time as test_previous_new_moon()
+    tr_jd = ephemeris.previous(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
+    tr_dt = date.to_datetime(tr_jd, *coords)
+    assert tr_dt.strftime("%Y-%m-%d %H:%M") == "1999-12-07 14:31"
+
+
+def test_next(jd, coords):
+    # Check for next Sun / Moon conjunction so we can use the same
+    # test date/time as test_next_new_moon()
+    tr_jd = ephemeris.next(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
+    tr_dt = date.to_datetime(tr_jd, *coords)
+    assert tr_dt.strftime("%Y-%m-%d %H:%M") == "2000-01-06 10:13"
+
+
+def test_previous_new_moon(jd, coords):
+    # https://www.timeanddate.com/moon/phases/?year=1999
+    nm_jd = ephemeris.previous_new_moon(jd)
+    nm_dt = date.to_datetime(nm_jd, *coords)
+    assert nm_dt.strftime("%Y-%m-%d %H:%M") == "1999-12-07 14:31"
+
+
+def test_previous_full_moon(jd, coords):
+    # https://www.timeanddate.com/moon/phases/?year=1999
+    nm_jd = ephemeris.previous_full_moon(jd)
+    nm_dt = date.to_datetime(nm_jd, *coords)
+    assert nm_dt.strftime("%Y-%m-%d %H:%M") == "1999-12-22 09:31"
+
+
+def test_next_new_moon(jd, coords):
+    # https://www.timeanddate.com/moon/phases/?year=2000
+    nm_jd = ephemeris.next_new_moon(jd)
+    nm_dt = date.to_datetime(nm_jd, *coords)
+    assert nm_dt.strftime("%Y-%m-%d %H:%M") == "2000-01-06 10:13"
+
+
+def test_next_full_moon(jd, coords):
+    # https://www.timeanddate.com/moon/phases/?year=2000
+    nm_jd = ephemeris.next_full_moon(jd)
+    nm_dt = date.to_datetime(nm_jd, *coords)
+    assert nm_dt.strftime("%Y-%m-%d %H:%M") == "2000-01-20 20:40"
+
+
+def test_previous_solar_eclipse(jd, coords):
+    # https://www.timeanddate.com/eclipse/list.html?starty=1990
+    # https://www.timeanddate.com/eclipse/solar/1999-august-11
+    ec_type, ec_jd = ephemeris.previous_solar_eclipse(jd)
+    ec_dt = date.to_datetime(ec_jd, *coords)
+    assert ec_type == chart.TOTAL
+    assert ec_dt.strftime("%Y-%m-%d %H:%M") == "1999-08-11 04:03"
+
+
+def test_previous_lunar_eclipse(jd, coords):
+    # https://www.timeanddate.com/eclipse/list.html?starty=1990
+    # https://www.timeanddate.com/eclipse/lunar/1999-july-28
+    ec_type, ec_jd = ephemeris.previous_lunar_eclipse(jd)
+    ec_dt = date.to_datetime(ec_jd, *coords)
+    assert ec_type == chart.PARTIAL
+    assert ec_dt.strftime("%Y-%m-%d %H:%M") == "1999-07-28 04:33"
+
+
+def test_next_solar_eclipse(jd, coords):
+    # https://www.timeanddate.com/eclipse/list.html?starty=2000
+    # https://www.timeanddate.com/eclipse/solar/2000-february-5
+    ec_type, ec_jd = ephemeris.next_solar_eclipse(jd)
+    ec_dt = date.to_datetime(ec_jd, *coords)
+    assert ec_type == chart.PARTIAL
+    assert ec_dt.strftime("%Y-%m-%d %H:%M") == "2000-02-05 04:49"
+
+
+def test_next_lunar_eclipse(jd, coords):
+    # https://www.timeanddate.com/eclipse/list.html?starty=2000
+    # https://www.timeanddate.com/eclipse/lunar/2000-january-21
+    ec_type, ec_jd = ephemeris.next_lunar_eclipse(jd)
+    ec_dt = date.to_datetime(ec_jd, *coords)
+    assert ec_type == chart.TOTAL
+    assert ec_dt.strftime("%Y-%m-%d %H:%M") == "2000-01-20 20:43"
