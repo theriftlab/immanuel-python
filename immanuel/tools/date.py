@@ -19,7 +19,6 @@ from zoneinfo import ZoneInfo
 
 import swisseph as swe
 from dateutil import tz
-from timezonefinder import TimezoneFinder
 
 from immanuel.tools import convert
 
@@ -31,6 +30,7 @@ def ambiguous(dt: datetime) -> bool:
 
 def timezone_name(lat: float, lon: float) -> str:
     """Returns a timezone string based on decimal lat/lon coordinates."""
+    from timezonefinder import TimezoneFinder
     return TimezoneFinder().timezone_at(lat=lat, lng=lon)
 
 
