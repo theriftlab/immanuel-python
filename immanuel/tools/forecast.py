@@ -22,10 +22,10 @@ def solar_return(jd: float, year: int) -> float:
     dt = date.to_datetime(jd)
     year_diff = year - dt.year
     sr_jd = jd + year_diff * calc.YEAR_DAYS
-    natal_sun = ephemeris.planet(chart.SUN, jd)
+    natal_sun = ephemeris.get_planet(chart.SUN, jd)
 
     while True:
-        sr_sun = ephemeris.planet(chart.SUN, sr_jd)
+        sr_sun = ephemeris.get_planet(chart.SUN, sr_jd)
         distance = swe.difdeg2n(natal_sun["lon"], sr_sun["lon"])
         if abs(distance) <= calc.MAX_ERROR:
             break
@@ -44,20 +44,20 @@ def progression(
 
     match method:
         case calc.DAILY_HOUSES:
-            progressed_armc_lon = ephemeris.angle(
+            progressed_armc_lon = ephemeris.get_angle(
                 chart.ARMC, progressed_jd, lat, lon, house_system
             )["lon"]
         case calc.NAIBOD:
-            natal_armc = ephemeris.angle(chart.ARMC, jd, lat, lon, house_system)["lon"]
+            natal_armc = ephemeris.get_angle(chart.ARMC, jd, lat, lon, house_system)["lon"]
             progressed_armc_lon = swe.degnorm(
                 natal_armc + years * calc.MEAN_MOTIONS[chart.SUN]
             )
         case calc.SOLAR_ARC:
-            natal_mc = ephemeris.angle(chart.MC, jd, lat, lon, house_system)
-            natal_sun = ephemeris.planet(chart.SUN, jd)
-            progressed_sun = ephemeris.planet(chart.SUN, progressed_jd)
+            natal_mc = ephemeris.get_angle(chart.MC, jd, lat, lon, house_system)
+            natal_sun = ephemeris.get_planet(chart.SUN, jd)
+            progressed_sun = ephemeris.get_planet(chart.SUN, progressed_jd)
             distance = swe.difdeg2n(progressed_sun["lon"], natal_sun["lon"])
-            obliquity = ephemeris.obliquity(progressed_jd)
+            obliquity = ephemeris.get_obliquity(progressed_jd)
             progressed_armc_lon = swe.cotrans(
                 (natal_mc["lon"] + distance, 0, 1), -obliquity
             )[0]

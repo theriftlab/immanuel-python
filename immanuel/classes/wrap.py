@@ -126,7 +126,7 @@ class DateTime:
         self.timezone = self.datetime.tzname()
         self.ambiguous = date.ambiguous(self.datetime) and time_is_dst is None
         self.julian = date.to_jd(dt)
-        self.deltat = ephemeris.deltat(self.julian)
+        self.deltat = ephemeris.get_deltat(self.julian)
 
         if armc is not None:
             self.sidereal_time = convert.dec_to_string(
@@ -339,7 +339,7 @@ class Sign:
 
 class Subject:
     def __init__(self, subject: "Subject") -> None:
-        armc = ephemeris.angle(
+        armc = ephemeris.get_angle(
             index=chart.ARMC,
             jd=subject.julian_date,
             lat=subject.latitude,

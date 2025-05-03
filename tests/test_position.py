@@ -36,15 +36,15 @@ def data(jd, coords):
     settings.add_filepath(os.path.dirname(__file__))
 
     return {
-        "asc": ephemeris.angle(chart.ASC, jd, *coords, chart.PLACIDUS),
-        "house_2": ephemeris.house(chart.HOUSE2, jd, *coords, chart.PLACIDUS),
-        "sun": ephemeris.planet(chart.SUN, jd),
-        "pof": ephemeris.point(
+        "asc": ephemeris.get_angle(chart.ASC, jd, *coords, chart.PLACIDUS),
+        "house_2": ephemeris.get_house(chart.HOUSE2, jd, *coords, chart.PLACIDUS),
+        "sun": ephemeris.get_planet(chart.SUN, jd),
+        "pof": ephemeris.get_point(
             chart.PART_OF_FORTUNE, jd, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA
         ),
-        "juno": ephemeris.asteroid(chart.JUNO, jd),  # Included with planets
-        "lilith": ephemeris.asteroid(1181, jd),  # From its own file
-        "antares": ephemeris.fixed_star("Antares", jd),
+        "juno": ephemeris.get_asteroid(chart.JUNO, jd),  # Included with planets
+        "lilith": ephemeris.get_asteroid(1181, jd),  # From its own file
+        "antares": ephemeris.get_fixed_star("Antares", jd),
     }
 
 
@@ -154,14 +154,14 @@ def test_decan(data, astro):
 
 
 def test_house(jd, coords, data, astro):
-    houses = ephemeris.houses(jd, *coords, chart.PLACIDUS)
+    houses = ephemeris.get_houses(jd, *coords, chart.PLACIDUS)
 
     for key, object in {k: v for k, v in data.items() if "house" in v}:
         assert position.house(object, houses) == astro[key]["house"]
 
 
 def test_opposite_house(jd, coords, data, astro):
-    houses = ephemeris.houses(jd, *coords, chart.PLACIDUS)
+    houses = ephemeris.get_houses(jd, *coords, chart.PLACIDUS)
 
     for key, object in {k: v for k, v in data.items() if "house" in v}:
         assert position.opposite_house(object, houses) == astro[key]["opposite_house"]

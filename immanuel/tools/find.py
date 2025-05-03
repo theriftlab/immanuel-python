@@ -57,8 +57,8 @@ def next(first: int, second: int, jd: float, aspect: float) -> float:
 
 def previous_new_moon(jd: float) -> float:
     """Fast rewind to approximate conjunction."""
-    sun = ephemeris.planet(chart.SUN, jd)
-    moon = ephemeris.planet(chart.MOON, jd)
+    sun = ephemeris.get_planet(chart.SUN, jd)
+    moon = ephemeris.get_planet(chart.MOON, jd)
     distance = swe.difdegn(moon["lon"], sun["lon"])
     jd -= math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
     return previous(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
@@ -66,8 +66,8 @@ def previous_new_moon(jd: float) -> float:
 
 def previous_full_moon(jd: float) -> float:
     """Fast rewind to approximate opposition."""
-    sun = ephemeris.planet(chart.SUN, jd)
-    moon = ephemeris.planet(chart.MOON, jd)
+    sun = ephemeris.get_planet(chart.SUN, jd)
+    moon = ephemeris.get_planet(chart.MOON, jd)
     distance = swe.difdegn(moon["lon"], sun["lon"] + 180)
     jd -= math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
     return previous(chart.SUN, chart.MOON, jd, calc.OPPOSITION)
@@ -75,8 +75,8 @@ def previous_full_moon(jd: float) -> float:
 
 def next_new_moon(jd: float) -> float:
     """Fast forward to approximate conjunction."""
-    sun = ephemeris.planet(chart.SUN, jd)
-    moon = ephemeris.planet(chart.MOON, jd)
+    sun = ephemeris.get_planet(chart.SUN, jd)
+    moon = ephemeris.get_planet(chart.MOON, jd)
     distance = swe.difdegn(sun["lon"], moon["lon"])
     jd += math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
     return next(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
@@ -84,8 +84,8 @@ def next_new_moon(jd: float) -> float:
 
 def next_full_moon(jd: float) -> float:
     """Fast forward to approximate opposition."""
-    sun = ephemeris.planet(chart.SUN, jd)
-    moon = ephemeris.planet(chart.MOON, jd)
+    sun = ephemeris.get_planet(chart.SUN, jd)
+    moon = ephemeris.get_planet(chart.MOON, jd)
     distance = swe.difdegn(sun["lon"] + 180, moon["lon"])
     jd += math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
     return next(chart.SUN, chart.MOON, jd, calc.OPPOSITION)
@@ -154,8 +154,8 @@ def _linear_search(
     or next requested aspect. Useful for short dates and fast planets but too
     expensive for anything more advanced."""
     while True:
-        planet1 = ephemeris.planet(object1, jd)
-        planet2 = ephemeris.planet(object2, jd)
+        planet1 = ephemeris.get_planet(object1, jd)
+        planet2 = ephemeris.get_planet(object2, jd)
         distance = abs(swe.difdeg2n(planet1["lon"], planet2["lon"]))
         diff = abs(aspect - distance)
 
@@ -180,8 +180,8 @@ def _advanced_search(
     """Advanced find function that uses a more complex algorithm to find the
     Julian date of the previous or next requested aspect. Useful for long dates
     and slow planets."""
-    sidereal_period1 = ephemeris.sidereal_period(object1, jd)
-    sidereal_period2 = ephemeris.sidereal_period(object2, jd)
+    sidereal_period1 = ephemeris.get_sidereal_period(object1, jd)
+    sidereal_period2 = ephemeris.get_sidereal_period(object2, jd)
 
     if (sidereal_period1 < sidereal_period2 and direction == NEXT) or (
         sidereal_period1 > sidereal_period2 and direction == PREVIOUS
@@ -240,8 +240,8 @@ def _advanced_search(
 
 def _diff(object1: int, object2: int, jd: float) -> float:
     """Return the angular difference between two objects."""
-    lon1 = ephemeris.planet(object1, jd)["lon"]
-    lon2 = ephemeris.planet(object2, jd)["lon"]
+    lon1 = ephemeris.get_planet(object1, jd)["lon"]
+    lon2 = ephemeris.get_planet(object2, jd)["lon"]
 
     return swe.difdegn(lon1, lon2)
 
@@ -249,8 +249,8 @@ def _diff(object1: int, object2: int, jd: float) -> float:
 def _ndiff(jd: float, object1: int, object2: int) -> float:
     """Callback for brentq() - returns the normalized angular difference
     between two objects."""
-    lon1 = ephemeris.planet(object1, jd)["lon"]
-    lon2 = ephemeris.planet(object2, jd)["lon"]
+    lon1 = ephemeris.get_planet(object1, jd)["lon"]
+    lon2 = ephemeris.get_planet(object2, jd)["lon"]
 
     return swe.difdeg2n(lon1, lon2)
 

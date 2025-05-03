@@ -179,7 +179,7 @@ def is_out_of_bounds(
         dec = object
 
     if jd is not None:
-        obliquity = ephemeris.obliquity(jd)
+        obliquity = ephemeris.get_obliquity(jd)
     elif obliquity is None:
         return None
 
@@ -194,11 +194,11 @@ def synodic_period(
     index1 = object1["index"] if isinstance(object1, dict) else object1
     index2 = object2["index"] if isinstance(object2, dict) else object2
 
-    sidereal_period1 = ephemeris.sidereal_period(index1, jd)
-    sidereal_period2 = ephemeris.sidereal_period(index2, jd)
+    sidereal_period1 = ephemeris.get_sidereal_period(index1, jd)
+    sidereal_period2 = ephemeris.get_sidereal_period(index2, jd)
 
-    orbital_eccentricity1 = ephemeris.orbital_eccentricity(index1, jd)
-    orbital_eccentricity2 = ephemeris.orbital_eccentricity(index2, jd)
+    orbital_eccentricity1 = ephemeris.get_orbital_eccentricity(index1, jd)
+    orbital_eccentricity2 = ephemeris.get_orbital_eccentricity(index2, jd)
 
     avg = 1 / abs(1 / sidereal_period1 - 1 / sidereal_period2)
 
@@ -219,8 +219,8 @@ def retrograde_period(object: dict | int, jd: float) -> float:
     if index in (chart.SUN, chart.MOON):
         return 0.0
 
-    t1 = ephemeris.sidereal_period(chart.TERRA, jd)
-    t2 = ephemeris.sidereal_period(index, jd)
+    t1 = ephemeris.get_sidereal_period(chart.TERRA, jd)
+    t2 = ephemeris.get_sidereal_period(index, jd)
 
     a1 = (t1**2) ** (1 / 3)
     a2 = (t2**2) ** (1 / 3)

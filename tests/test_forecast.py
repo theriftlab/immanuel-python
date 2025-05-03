@@ -190,15 +190,15 @@ def test_solar_return_lon(jd):
     """We use approx() here since the longitudes match
     to ~8 decimal places, but the longitudes maintain 13 places."""
     sr_jd = forecast.solar_return(jd, 2030)
-    natal_sun = ephemeris.planet(chart.SUN, jd)
-    sr_sun = ephemeris.planet(chart.SUN, sr_jd)
+    natal_sun = ephemeris.get_planet(chart.SUN, jd)
+    sr_sun = ephemeris.get_planet(chart.SUN, sr_jd)
     assert natal_sun["lon"] == approx(sr_sun["lon"])
 
 
 def test_solar_return_date(jd):
     """Solar return date copied from astro.com"""
     sr_jd = forecast.solar_return(jd, 2030)
-    assert round(sr_jd + ephemeris.deltat(sr_jd), 6) == 2462502.521823
+    assert round(sr_jd + ephemeris.get_deltat(sr_jd), 6) == 2462502.521823
 
 
 def test_progression_date(jd, pjd, coords):
@@ -209,7 +209,7 @@ def test_progression_date(jd, pjd, coords):
     progressed_jd = forecast.progression(jd, *coords, pjd, chart.PLACIDUS, calc.NAIBOD)[
         forecast.JD
     ]
-    assert round(progressed_jd + ephemeris.deltat(progressed_jd), 6) == 2451570.719456
+    assert round(progressed_jd + ephemeris.get_deltat(progressed_jd), 6) == 2451570.719456
 
 
 def test_progression(jd, pjd, coords, astro):
@@ -220,11 +220,11 @@ def test_progression(jd, pjd, coords, astro):
         )
 
         for index, data in results.items():
-            house = ephemeris.armc_house(
+            house = ephemeris.get_armc_house(
                 index,
                 progressed_armc_lon,
                 coords[0],
-                ephemeris.obliquity(progressed_jd),
+                ephemeris.get_obliquity(progressed_jd),
                 chart.PLACIDUS,
             )
             sign = position.sign(house)

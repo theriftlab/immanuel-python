@@ -43,12 +43,12 @@ def objects(coords, jd):
         chart.TRUE_NORTH_NODE,
         chart.CHIRON,
     )
-    return ephemeris.objects(object_indices, jd, *coords, chart.PLACIDUS)
+    return ephemeris.get_objects(object_indices, jd, *coords, chart.PLACIDUS)
 
 
 @fixture
 def houses(coords, jd):
-    return ephemeris.houses(jd, *coords, chart.PLACIDUS)
+    return ephemeris.get_houses(jd, *coords, chart.PLACIDUS)
 
 
 def test_elements(objects):

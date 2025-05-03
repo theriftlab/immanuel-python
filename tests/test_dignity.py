@@ -45,12 +45,12 @@ def objects(jd):
         chart.NEPTUNE,
         chart.PLUTO,
     )
-    return ephemeris.objects(objects, jd)
+    return ephemeris.get_objects(objects, jd)
 
 
 @fixture
 def is_daytime(jd, coords):
-    return ephemeris.is_daytime(jd, *coords)
+    return ephemeris.get_daytime(jd, *coords)
 
 
 def teardown_function():

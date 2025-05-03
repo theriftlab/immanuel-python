@@ -224,11 +224,11 @@ class Natal(Chart):
         super().__init__(chart.NATAL, aspects_to)
 
     def generate(self) -> None:
-        self._obliquity = ephemeris.obliquity(self._native.julian_date)
+        self._obliquity = ephemeris.get_obliquity(self._native.julian_date)
 
-        self._triad[chart.SUN] = ephemeris.planet(chart.SUN, self._native.julian_date)
-        self._triad[chart.MOON] = ephemeris.planet(chart.MOON, self._native.julian_date)
-        self._triad[chart.ASC] = ephemeris.angle(
+        self._triad[chart.SUN] = ephemeris.get_planet(chart.SUN, self._native.julian_date)
+        self._triad[chart.MOON] = ephemeris.get_planet(chart.MOON, self._native.julian_date)
+        self._triad[chart.ASC] = ephemeris.get_angle(
             index=chart.ASC,
             jd=self._native.julian_date,
             lat=self._native.latitude,
@@ -242,7 +242,7 @@ class Natal(Chart):
         self._moon_phase = calculate.moon_phase(
             self._triad[chart.SUN], self._triad[chart.MOON]
         )
-        self._objects = ephemeris.objects(
+        self._objects = ephemeris.get_objects(
             object_list=settings.objects,
             jd=self._native.julian_date,
             lat=self._native.latitude,
@@ -250,7 +250,7 @@ class Natal(Chart):
             house_system=settings.house_system,
             part_formula=settings.part_formula,
         )
-        self._houses = ephemeris.houses(
+        self._houses = ephemeris.get_houses(
             jd=self._native.julian_date,
             lat=self._native.latitude,
             lon=self._native.longitude,
@@ -272,8 +272,8 @@ class SolarReturn(Chart):
         self._solar_return_jd = forecast.solar_return(
             self._native.julian_date, self._solar_return_year
         )
-        self._obliquity = ephemeris.obliquity(self._solar_return_jd)
-        self._solar_return_armc = ephemeris.angle(
+        self._obliquity = ephemeris.get_obliquity(self._solar_return_jd)
+        self._solar_return_armc = ephemeris.get_angle(
             index=chart.ARMC,
             jd=self._solar_return_jd,
             lat=self._native.latitude,
@@ -281,9 +281,9 @@ class SolarReturn(Chart):
             house_system=settings.house_system,
         )
 
-        self._triad[chart.SUN] = ephemeris.planet(chart.SUN, self._solar_return_jd)
-        self._triad[chart.MOON] = ephemeris.planet(chart.MOON, self._solar_return_jd)
-        self._triad[chart.ASC] = ephemeris.angle(
+        self._triad[chart.SUN] = ephemeris.get_planet(chart.SUN, self._solar_return_jd)
+        self._triad[chart.MOON] = ephemeris.get_planet(chart.MOON, self._solar_return_jd)
+        self._triad[chart.ASC] = ephemeris.get_angle(
             index=chart.ASC,
             jd=self._solar_return_jd,
             lat=self._native.latitude,
@@ -297,7 +297,7 @@ class SolarReturn(Chart):
         self._moon_phase = calculate.moon_phase(
             self._triad[chart.SUN], self._triad[chart.MOON]
         )
-        self._objects = ephemeris.objects(
+        self._objects = ephemeris.get_objects(
             object_list=settings.objects,
             jd=self._solar_return_jd,
             lat=self._native.latitude,
@@ -305,7 +305,7 @@ class SolarReturn(Chart):
             house_system=settings.house_system,
             part_formula=settings.part_formula,
         )
-        self._houses = ephemeris.houses(
+        self._houses = ephemeris.get_houses(
             jd=self._solar_return_jd,
             lat=self._native.latitude,
             lon=self._native.longitude,
@@ -345,7 +345,7 @@ class Progressed(Chart):
             lon=self._native.longitude,
         )
         progression_jd = date.to_jd(self._progression_date_time)
-        progression_armc = ephemeris.angle(
+        progression_armc = ephemeris.get_angle(
             index=chart.ARMC,
             jd=progression_jd,
             lat=self._native.latitude,
@@ -362,11 +362,11 @@ class Progressed(Chart):
             house_system=settings.house_system,
             method=settings.mc_progression_method,
         )
-        self._obliquity = ephemeris.obliquity(self._progressed_jd)
+        self._obliquity = ephemeris.get_obliquity(self._progressed_jd)
 
-        self._triad[chart.SUN] = ephemeris.planet(chart.SUN, self._progressed_jd)
-        self._triad[chart.MOON] = ephemeris.planet(chart.MOON, self._progressed_jd)
-        self._triad[chart.ASC] = ephemeris.armc_angle(
+        self._triad[chart.SUN] = ephemeris.get_planet(chart.SUN, self._progressed_jd)
+        self._triad[chart.MOON] = ephemeris.get_planet(chart.MOON, self._progressed_jd)
+        self._triad[chart.ASC] = ephemeris.get_armc_angle(
             index=chart.ASC,
             armc=self._progressed_armc_longitude,
             lat=self._native.latitude,
@@ -380,7 +380,7 @@ class Progressed(Chart):
         self._moon_phase = calculate.moon_phase(
             self._triad[chart.SUN], self._triad[chart.MOON]
         )
-        self._objects = ephemeris.armc_objects(
+        self._objects = ephemeris.get_armc_objects(
             object_list=settings.objects,
             jd=self._progressed_jd,
             armc=self._progressed_armc_longitude,
@@ -390,7 +390,7 @@ class Progressed(Chart):
             house_system=settings.house_system,
             part_formula=settings.part_formula,
         )
-        self._houses = ephemeris.armc_houses(
+        self._houses = ephemeris.get_armc_houses(
             armc=self._progressed_armc_longitude,
             lat=self._native.latitude,
             obliquity=self._obliquity,
@@ -432,7 +432,7 @@ class Composite(Chart):
             self._native.julian_date, self._partner.julian_date
         )
 
-        native_objects = ephemeris.objects(
+        native_objects = ephemeris.get_objects(
             object_list=settings.objects,
             jd=self._native.julian_date,
             lat=self._native.latitude,
@@ -440,7 +440,7 @@ class Composite(Chart):
             house_system=settings.house_system,
             part_formula=settings.part_formula,
         )
-        partner_objects = ephemeris.objects(
+        partner_objects = ephemeris.get_objects(
             object_list=settings.objects,
             jd=self._partner.julian_date,
             lat=self._partner.latitude,
@@ -455,14 +455,14 @@ class Composite(Chart):
         )
 
         if settings.house_system == chart.WHOLE_SIGN:
-            native_armc = ephemeris.angle(
+            native_armc = ephemeris.get_angle(
                 index=chart.ARMC,
                 jd=self._native.julian_date,
                 lat=self._native.latitude,
                 lon=self._native.longitude,
                 house_system=settings.house_system,
             )
-            partner_armc = ephemeris.angle(
+            partner_armc = ephemeris.get_angle(
                 index=chart.ARMC,
                 jd=self._partner.julian_date,
                 lat=self._partner.latitude,
@@ -472,20 +472,20 @@ class Composite(Chart):
             armc = midpoint.composite(native_armc, partner_armc, self._obliquity)["lon"]
             latitude = (self._native.latitude + self._partner.latitude) / 2
 
-            self._houses = ephemeris.armc_houses(
+            self._houses = ephemeris.get_armc_houses(
                 armc=armc,
                 lat=latitude,
                 obliquity=self._obliquity,
                 house_system=settings.house_system,
             )
         else:
-            native_houses = ephemeris.houses(
+            native_houses = ephemeris.get_houses(
                 jd=self._native.julian_date,
                 lat=self._native.latitude,
                 lon=self._native.longitude,
                 house_system=settings.house_system,
             )
-            partner_houses = ephemeris.houses(
+            partner_houses = ephemeris.get_houses(
                 jd=self._partner.julian_date,
                 lat=self._partner.latitude,
                 lon=self._partner.longitude,
@@ -500,14 +500,14 @@ class Composite(Chart):
         if chart.ASC in self._objects:
             self._triad[chart.ASC] = self._objects[chart.ASC]
         else:
-            native_asc = ephemeris.angle(
+            native_asc = ephemeris.get_angle(
                 index=chart.ASC,
                 jd=self._native.julian_date,
                 lat=self._native.latitude,
                 lon=self._native.longitude,
                 house_system=settings.house_system,
             )
-            partner_asc = ephemeris.angle(
+            partner_asc = ephemeris.get_angle(
                 index=chart.ASC,
                 jd=self._partner.julian_date,
                 lat=self._partner.latitude,
@@ -521,8 +521,8 @@ class Composite(Chart):
         if chart.SUN in self._objects:
             self._triad[chart.SUN] = self._objects[chart.SUN]
         else:
-            native_sun = ephemeris.planet(chart.SUN, self._native.julian_date)
-            partner_sun = ephemeris.planet(chart.SUN, self._partner.julian_date)
+            native_sun = ephemeris.get_planet(chart.SUN, self._native.julian_date)
+            partner_sun = ephemeris.get_planet(chart.SUN, self._partner.julian_date)
             self._triad[chart.SUN] = midpoint.composite(
                 native_sun, partner_sun, self._obliquity
             )
@@ -530,8 +530,8 @@ class Composite(Chart):
         if chart.MOON in self._objects:
             self._triad[chart.MOON] = self._objects[chart.MOON]
         else:
-            native_moon = ephemeris.planet(chart.MOON, self._native.julian_date)
-            partner_moon = ephemeris.planet(chart.MOON, self._partner.julian_date)
+            native_moon = ephemeris.get_planet(chart.MOON, self._native.julian_date)
+            partner_moon = ephemeris.get_planet(chart.MOON, self._partner.julian_date)
             self._triad[chart.MOON] = midpoint.composite(
                 native_moon, partner_moon, self._obliquity
             )
@@ -566,11 +566,11 @@ class Transits(Chart):
         super().__init__(chart.TRANSITS, aspects_to)
 
     def generate(self) -> None:
-        self._obliquity = ephemeris.obliquity(self._native.julian_date)
+        self._obliquity = ephemeris.get_obliquity(self._native.julian_date)
 
-        self._triad[chart.SUN] = ephemeris.planet(chart.SUN, self._native.julian_date)
-        self._triad[chart.MOON] = ephemeris.planet(chart.MOON, self._native.julian_date)
-        self._triad[chart.ASC] = ephemeris.angle(
+        self._triad[chart.SUN] = ephemeris.get_planet(chart.SUN, self._native.julian_date)
+        self._triad[chart.MOON] = ephemeris.get_planet(chart.MOON, self._native.julian_date)
+        self._triad[chart.ASC] = ephemeris.get_angle(
             index=chart.ASC,
             jd=self._native.julian_date,
             lat=self._native.latitude,
@@ -584,7 +584,7 @@ class Transits(Chart):
         self._moon_phase = calculate.moon_phase(
             self._triad[chart.SUN], self._triad[chart.MOON]
         )
-        self._objects = ephemeris.objects(
+        self._objects = ephemeris.get_objects(
             object_list=settings.objects,
             jd=self._native.julian_date,
             lat=self._native.latitude,
@@ -593,7 +593,7 @@ class Transits(Chart):
             part_formula=settings.part_formula,
         )
         self._houses = (
-            ephemeris.houses(
+            ephemeris.get_houses(
                 jd=self._native.julian_date,
                 lat=self._native.latitude,
                 lon=self._native.longitude,

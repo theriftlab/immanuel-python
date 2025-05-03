@@ -80,7 +80,7 @@ def type(index: int) -> int:
     return round(index, -2)
 
 
-def objects(
+def get_objects(
     object_list: tuple,
     jd: float,
     lat: float | None = None,
@@ -89,7 +89,7 @@ def objects(
     part_formula: int | None = None,
 ) -> dict:
     """Helper function returns a dict of all passed chart objects."""
-    return _objects(
+    return _get_objects(
         object_list=object_list,
         jd=jd,
         lat=lat,
@@ -101,7 +101,7 @@ def objects(
     )
 
 
-def armc_objects(
+def get_armc_objects(
     object_list: tuple,
     jd: float,
     armc: float,
@@ -113,7 +113,7 @@ def armc_objects(
 ) -> dict:
     """Helper function returns a dict of all passed chart objects
     with points & angles calculated from the passed ARMC."""
-    return _objects(
+    return _get_objects(
         object_list=object_list,
         jd=jd,
         lat=lat,
@@ -172,9 +172,9 @@ def armc_get(
     )
 
 
-def angles(jd: float, lat: float, lon: float, house_system: int) -> dict:
+def get_angles(jd: float, lat: float, lon: float, house_system: int) -> dict:
     """Returns all four main chart angles & ARMC."""
-    return _angle(
+    return _get_angle(
         index=ALL,
         jd=jd,
         lat=lat,
@@ -185,10 +185,10 @@ def angles(jd: float, lat: float, lon: float, house_system: int) -> dict:
     )
 
 
-def armc_angles(armc: float, lat: float, obliquity: float, house_system: int) -> dict:
+def get_armc_angles(armc: float, lat: float, obliquity: float, house_system: int) -> dict:
     """Returns all four main chart angles calculated from the
     passed ARMC."""
-    return _angle(
+    return _get_angle(
         index=ALL,
         jd=None,
         lat=lat,
@@ -199,10 +199,10 @@ def armc_angles(armc: float, lat: float, obliquity: float, house_system: int) ->
     )
 
 
-def angle(index: int, jd: float, lat: float, lon: float, house_system: int) -> dict:
+def get_angle(index: int, jd: float, lat: float, lon: float, house_system: int) -> dict:
     """Returns one of the four main chart angles & its speed. Also stores
     the ARMC for further calculations. Returns all if index == ALL."""
-    return _angle(
+    return _get_angle(
         index=index,
         jd=jd,
         lat=lat,
@@ -213,12 +213,12 @@ def angle(index: int, jd: float, lat: float, lon: float, house_system: int) -> d
     )
 
 
-def armc_angle(
+def get_armc_angle(
     index: int, armc: float, lat: float, obliquity: float, house_system: int
 ) -> dict:
     """Returns one of the four main chart angles & its speed, calculated from
     the passed ARMC. Returns all if index == ALL."""
-    return _angle(
+    return _get_angle(
         index=index,
         jd=None,
         lat=lat,
@@ -229,9 +229,9 @@ def armc_angle(
     )
 
 
-def houses(jd: float, lat: float, lon: float, house_system: int) -> dict:
+def get_houses(jd: float, lat: float, lon: float, house_system: int) -> dict:
     """Returns all houses."""
-    return _house(
+    return _get_house(
         index=ALL,
         jd=jd,
         lat=lat,
@@ -242,9 +242,9 @@ def houses(jd: float, lat: float, lon: float, house_system: int) -> dict:
     )
 
 
-def armc_houses(armc: float, lat: float, obliquity: float, house_system: int) -> dict:
+def get_armc_houses(armc: float, lat: float, obliquity: float, house_system: int) -> dict:
     """Returns all houses calculated from the passed ARMC."""
-    return _house(
+    return _get_house(
         index=ALL,
         jd=None,
         lat=lat,
@@ -255,9 +255,9 @@ def armc_houses(armc: float, lat: float, obliquity: float, house_system: int) ->
     )
 
 
-def house(index: int, jd: float, lat: float, lon: float, house_system: int) -> dict:
+def get_house(index: int, jd: float, lat: float, lon: float, house_system: int) -> dict:
     """Returns a house cusp & its speed, or all houses if index == ALL."""
-    return _house(
+    return _get_house(
         index=index,
         jd=jd,
         lat=lat,
@@ -268,12 +268,12 @@ def house(index: int, jd: float, lat: float, lon: float, house_system: int) -> d
     )
 
 
-def armc_house(
+def get_armc_house(
     index: int, armc: float, lat: float, obliquity: float, house_system: int
 ) -> dict:
     """Returns a house cusp & its speed, or all houses if index == ALL,
     calculated from passed ARMC."""
-    return _house(
+    return _get_house(
         index=index,
         jd=None,
         lat=lat,
@@ -284,7 +284,7 @@ def armc_house(
     )
 
 
-def point(
+def get_point(
     index: int,
     jd: float,
     lat: float | None = None,
@@ -294,7 +294,7 @@ def point(
 ) -> dict:
     """Returns a calculated point by Julian date, and additionally by lat / lon
     coordinates."""
-    return _point(
+    return _get_point(
         index=index,
         jd=jd,
         lat=lat,
@@ -306,7 +306,7 @@ def point(
     )
 
 
-def armc_point(
+def get_armc_point(
     index: int,
     jd: float,
     armc: float,
@@ -317,7 +317,7 @@ def armc_point(
 ) -> dict:
     """Returns a calculated point by Julian date, and additionally by the
     passed ARMC."""
-    return _point(
+    return _get_point(
         index=index,
         jd=jd,
         lat=lat,
@@ -329,7 +329,7 @@ def armc_point(
     )
 
 
-def _objects(
+def _get_objects(
     object_list: tuple,
     jd: float,
     lat: float | None,
@@ -369,25 +369,25 @@ def _get(
 ) -> dict:
     """Function for get() and armc_get()."""
     if armc is not None and armc_obliquity is None:
-        armc_obliquity = obliquity(jd)
+        armc_obliquity = get_obliquity(jd)
 
     if isinstance(index, int):
         if index < chart.TYPE_MULTIPLIER:
-            return asteroid(index, jd)
+            return get_asteroid(index, jd)
 
         if index == chart.ANGLE:
-            return _angle(ALL, jd, lat, lon, house_system, armc, armc_obliquity)
+            return _get_angle(ALL, jd, lat, lon, house_system, armc, armc_obliquity)
 
         if index == chart.HOUSE:
-            return _house(ALL, jd, lat, lon, house_system, armc, armc_obliquity)
+            return _get_house(ALL, jd, lat, lon, house_system, armc, armc_obliquity)
 
         match type(index):
             case chart.ANGLE:
-                return _angle(index, jd, lat, lon, house_system, armc, armc_obliquity)
+                return _get_angle(index, jd, lat, lon, house_system, armc, armc_obliquity)
             case chart.HOUSE:
-                return _house(index, jd, lat, lon, house_system, armc, armc_obliquity)
+                return _get_house(index, jd, lat, lon, house_system, armc, armc_obliquity)
             case chart.POINT:
-                return _point(
+                return _get_point(
                     index,
                     jd,
                     lat,
@@ -398,14 +398,14 @@ def _get(
                     armc_obliquity,
                 )
             case chart.ECLIPSE:
-                return eclipse(index, jd)
+                return get_eclipse(index, jd)
             case (chart.ASTEROID | chart.PLANET):
-                return planet(index, jd)
+                return get_planet(index, jd)
     else:
-        return fixed_star(index, jd)
+        return get_fixed_star(index, jd)
 
 
-def _angle(
+def _get_angle(
     index: int,
     jd: float | None,
     lat: float,
@@ -416,11 +416,11 @@ def _angle(
 ) -> dict:
     """Function for angle() and armc_angle()."""
     if armc is not None:
-        angles = _angles_houses_vertex_armc(armc, lat, armc_obliquity, house_system)[
+        angles = _get_angles_houses_vertex_armc(armc, lat, armc_obliquity, house_system)[
             "angles"
         ]
     else:
-        angles = _angles_houses_vertex(jd, lat, lon, house_system)["angles"]
+        angles = _get_angles_houses_vertex(jd, lat, lon, house_system)["angles"]
 
     if index == ALL:
         return angles
@@ -431,7 +431,7 @@ def _angle(
     return None
 
 
-def _house(
+def _get_house(
     index: int,
     jd: float | None,
     lat: float,
@@ -442,17 +442,17 @@ def _house(
 ) -> dict:
     """Function for house() and armc_house()."""
     first_house_lon = (
-        planet(_first_house_planet(house_system), jd)["lon"]
+        get_planet(_get_first_house_planet(house_system), jd)["lon"]
         if house_system > chart.PLANET_ON_FIRST
         else None
     )
 
     if armc is not None:
-        houses = _angles_houses_vertex_armc(
+        houses = _get_angles_houses_vertex_armc(
             armc, lat, armc_obliquity, house_system, first_house_lon
         )["houses"]
     else:
-        houses = _angles_houses_vertex(jd, lat, lon, house_system, first_house_lon)[
+        houses = _get_angles_houses_vertex(jd, lat, lon, house_system, first_house_lon)[
             "houses"
         ]
 
@@ -465,7 +465,7 @@ def _house(
     return None
 
 
-def _point(
+def _get_point(
     index: int,
     jd: float | None,
     lat: float,
@@ -478,28 +478,28 @@ def _point(
     """Function for point() and armc_point()."""
     if index == chart.VERTEX:
         if armc is not None:
-            return _angles_houses_vertex_armc(armc, lat, armc_obliquity, house_system)[
+            return _get_angles_houses_vertex_armc(armc, lat, armc_obliquity, house_system)[
                 "vertex"
             ]
         else:
-            return _angles_houses_vertex(jd, lat, lon, house_system)["vertex"]
+            return _get_angles_houses_vertex(jd, lat, lon, house_system)["vertex"]
 
     if index == chart.SYZYGY:
-        return _syzygy(jd)
+        return _get_syzygy(jd)
 
     if index in (chart.PART_OF_FORTUNE, chart.PART_OF_SPIRIT, chart.PART_OF_EROS):
-        return _part(index, jd, lat, lon, part_formula, armc, armc_obliquity)
+        return _get_part(index, jd, lat, lon, part_formula, armc, armc_obliquity)
 
-    return _swisseph_point(index, jd)
+    return _get_swisseph_point(index, jd)
 
 
 @cache
-def planet(index: int, jd: float) -> dict:
+def get_planet(index: int, jd: float) -> dict:
     """Returns a pyswisseph object by Julian date. Can be used to
     return the six major asteroids supported by pyswisseph without using
     a separate ephemeris file."""
     ec_res = swe.calc_ut(jd, _SWE[index])[0]
-    eq_res = swe.cotrans((ec_res[0], ec_res[1], ec_res[2]), -obliquity(jd))
+    eq_res = swe.cotrans((ec_res[0], ec_res[1], ec_res[2]), -get_obliquity(jd))
     asteroid = type(index) == chart.ASTEROID
 
     return {
@@ -515,18 +515,18 @@ def planet(index: int, jd: float) -> dict:
 
 
 @cache
-def asteroid(index: int, jd: float) -> dict:
+def get_asteroid(index: int, jd: float) -> dict:
     """Returns an asteroid by Julian date and pyswisseph index
     from an external asteroid's ephemeris file as specified
     in the setup module."""
     if type(index) == chart.ASTEROID:
-        return planet(index, jd)
+        return get_planet(index, jd)
 
     swe_index = index + swe.AST_OFFSET
     name = swe.get_planet_name(swe_index)
 
     ec_res = swe.calc_ut(jd, swe_index)[0]
-    eq_res = swe.cotrans((ec_res[0], ec_res[1], ec_res[2]), -obliquity(jd))
+    eq_res = swe.cotrans((ec_res[0], ec_res[1], ec_res[2]), -get_obliquity(jd))
 
     return {
         "index": index,
@@ -541,7 +541,7 @@ def asteroid(index: int, jd: float) -> dict:
 
 
 @cache
-def fixed_star(name: str, jd: float) -> dict:
+def get_fixed_star(name: str, jd: float) -> dict:
     """Returns a fixed star by Julian date and name."""
     res, stnam = swe.fixstar2_ut(name, jd)[:2]
     name = stnam.partition(",")[0]
@@ -558,7 +558,7 @@ def fixed_star(name: str, jd: float) -> dict:
 
 
 @cache
-def eclipse(index: int, jd: float) -> dict:
+def get_eclipse(index: int, jd: float) -> dict:
     """Returns a calculated object based on the moon's or sun's position
     during a pre or post-natal lunar or solar eclipse. The declination
     value is based on the natal date."""
@@ -576,7 +576,7 @@ def eclipse(index: int, jd: float) -> dict:
             eclipse_type, eclipse_jd = find.next_lunar_eclipse(jd)
             ec_res = swe.calc_ut(eclipse_jd, swe.MOON)[0]
 
-    eq_res = swe.cotrans((ec_res[0], ec_res[1], ec_res[2]), -obliquity(jd))
+    eq_res = swe.cotrans((ec_res[0], ec_res[1], ec_res[2]), -get_obliquity(jd))
 
     return {
         "index": index,
@@ -593,15 +593,15 @@ def eclipse(index: int, jd: float) -> dict:
 
 
 @cache
-def moon_phase(jd: float) -> int:
+def get_moon_phase(jd: float) -> int:
     """Returns the moon phase at the given Julian date."""
-    sun = planet(chart.SUN, jd)
-    moon = planet(chart.MOON, jd)
+    sun = get_planet(chart.SUN, jd)
+    moon = get_planet(chart.MOON, jd)
     return calculate.moon_phase(sun, moon)
 
 
 @cache
-def obliquity(jd: float, mean: bool = False) -> float:
+def get_obliquity(jd: float, mean: bool = False) -> float:
     """Returns the earth's true or mean obliquity at the
     given Julian date."""
     ecl_nut = swe.calc_ut(jd, swe.ECL_NUT)[0]
@@ -609,37 +609,37 @@ def obliquity(jd: float, mean: bool = False) -> float:
 
 
 @cache
-def deltat(jd: float, seconds: bool = False) -> float:
+def get_deltat(jd: float, seconds: bool = False) -> float:
     """Return the Delta-T value of the passed Julian date. Optionally it
     will return this value in seconds."""
     return swe.deltat(jd) if not seconds else swe.deltat(jd) * 24 * 3600
 
 
-def sidereal_period(index: int, jd: float) -> float:
+def get_sidereal_period(index: int, jd: float) -> float:
     """Returns the passed object's sidereal orbital period in
     tropical years."""
-    return _orbital_elements(index, jd)[10]
+    return _get_orbital_elements(index, jd)[10]
 
 
-def orbital_eccentricity(index: int, jd: float) -> float:
+def get_orbital_eccentricity(index: int, jd: float) -> float:
     """Returns the passed object's orbital eccentricity."""
-    return _orbital_elements(index, jd)[1]
+    return _get_orbital_elements(index, jd)[1]
 
 
-def is_daytime(jd: float, lat: float, lon: float) -> bool:
+def get_daytime(jd: float, lat: float, lon: float) -> bool:
     """Returns whether the sun is above the horizon line at the time and
     place specified."""
-    return _is_daytime(jd=jd, lat=lat, lon=lon, armc=None, armc_obliquity=None)
+    return _get_daytime(jd=jd, lat=lat, lon=lon, armc=None, armc_obliquity=None)
 
 
-def armc_is_daytime(jd: float, armc: float, lat: float, obliquity: float) -> bool:
+def get_armc_daytime(jd: float, armc: float, lat: float, obliquity: float) -> bool:
     """Returns whether the sun is above the horizon line at the time and
     place specified, as calculated by the passed ARMC."""
-    return _is_daytime(jd=jd, lat=lat, lon=None, armc=armc, armc_obliquity=obliquity)
+    return _get_daytime(jd=jd, lat=lat, lon=None, armc=armc, armc_obliquity=obliquity)
 
 
 @cache
-def _is_daytime(
+def _get_daytime(
     jd: float | None,
     lat: float,
     lon: float | None,
@@ -647,13 +647,13 @@ def _is_daytime(
     armc_obliquity: float | None,
 ) -> bool:
     """Function for is_daytime() and armc_is_daytime()."""
-    sun = planet(chart.SUN, jd)
-    asc = _angle(chart.ASC, jd, lat, lon, chart.PLACIDUS, armc, armc_obliquity)
+    sun = get_planet(chart.SUN, jd)
+    asc = _get_angle(chart.ASC, jd, lat, lon, chart.PLACIDUS, armc, armc_obliquity)
     return calculate.is_daytime(sun, asc)
 
 
 @cache
-def _angles_houses_vertex(
+def _get_angles_houses_vertex(
     jd: float,
     lat: float,
     lon: float,
@@ -664,8 +664,8 @@ def _angles_houses_vertex(
     along with their speeds. Defaults to Placidus for main angles & vertex if
     an PLANET_ON_FIRST house system is chosen. Based on Julian date and
     lat / lon coordinates."""
-    return _angles_houses_vertex_from_swe(
-        obliquity(jd),
+    return _get_angles_houses_vertex_from_swe(
+        get_obliquity(jd),
         *swe.houses_ex2(
             jd,
             lat,
@@ -679,7 +679,7 @@ def _angles_houses_vertex(
 
 
 @cache
-def _angles_houses_vertex_armc(
+def _get_angles_houses_vertex_armc(
     armc: float,
     lat: float,
     obliquity: float,
@@ -690,7 +690,7 @@ def _angles_houses_vertex_armc(
     along with their speeds. Defaults to Placidus for main angles & vertex if
     an PLANET_ON_FIRST house system is chosen. Based on ARMC, latitude and
     ecliptic obliquity."""
-    return _angles_houses_vertex_from_swe(
+    return _get_angles_houses_vertex_from_swe(
         obliquity,
         *swe.houses_armc_ex2(
             armc,
@@ -704,7 +704,7 @@ def _angles_houses_vertex_armc(
     )
 
 
-def _angles_houses_vertex_from_swe(
+def _get_angles_houses_vertex_from_swe(
     obliquity: float,
     cusps: tuple,
     ascmc: tuple,
@@ -789,16 +789,16 @@ def _angles_houses_vertex_from_swe(
 
 
 @cache
-def _syzygy(jd: float) -> dict:
+def _get_syzygy(jd: float) -> dict:
     """Calculate prenatal full/new moon - this can potentially
     be an expensive calculation so should be cached."""
-    sun = planet(chart.SUN, jd)
-    moon = planet(chart.MOON, jd)
+    sun = get_planet(chart.SUN, jd)
+    moon = get_planet(chart.MOON, jd)
     distance = swe.difdeg2n(moon["lon"], sun["lon"])
     syzygy_jd = (
         find.previous_new_moon(jd) if distance > 0 else find.previous_full_moon(jd)
     )
-    syzygy_moon = planet(chart.MOON, syzygy_jd)
+    syzygy_moon = get_planet(chart.MOON, syzygy_jd)
 
     return {
         "index": chart.SYZYGY,
@@ -812,7 +812,7 @@ def _syzygy(jd: float) -> dict:
 
 
 @cache
-def _part(
+def _get_part(
     index: int,
     jd: float,
     lat: float,
@@ -822,16 +822,16 @@ def _part(
     armc_obliquity: float | None = None,
 ) -> dict:
     """Calculates Parts of Fortune, Spirit, and Eros."""
-    sun = planet(chart.SUN, jd)
-    moon = planet(chart.MOON, jd)
-    venus = planet(chart.VENUS, jd) if index == chart.PART_OF_EROS else None
+    sun = get_planet(chart.SUN, jd)
+    moon = get_planet(chart.MOON, jd)
+    venus = get_planet(chart.VENUS, jd) if index == chart.PART_OF_EROS else None
     asc = (
-        angle(chart.ASC, jd, lat, lon, chart.PLACIDUS)
+        get_angle(chart.ASC, jd, lat, lon, chart.PLACIDUS)
         if armc is None
-        else armc_angle(chart.ASC, armc, lat, armc_obliquity, chart.PLACIDUS)
+        else get_armc_angle(chart.ASC, armc, lat, armc_obliquity, chart.PLACIDUS)
     )
     lon = calculate.part_longitude(index, sun, moon, asc, venus, formula)
-    dec = swe.cotrans((lon, 0, 0), -obliquity(jd))[1]
+    dec = swe.cotrans((lon, 0, 0), -get_obliquity(jd))[1]
 
     return {
         "index": index,
@@ -845,7 +845,7 @@ def _part(
 
 
 @cache
-def _swisseph_point(index: int, jd: float) -> dict:
+def _get_swisseph_point(index: int, jd: float) -> dict:
     """Pull any remaining non-calculated points straight from pyswisseph."""
     res = swe.calc_ut(jd, _SWE[index])[0]
     lon = (
@@ -865,7 +865,7 @@ def _swisseph_point(index: int, jd: float) -> dict:
         else 0.0
     )
     speed = res[3]
-    dec = swe.cotrans((lon, lat, 0), -obliquity(jd))[1]
+    dec = swe.cotrans((lon, lat, 0), -get_obliquity(jd))[1]
 
     return {
         "index": index,
@@ -879,10 +879,10 @@ def _swisseph_point(index: int, jd: float) -> dict:
 
 
 @cache
-def _orbital_elements(index: int, jd: float) -> tuple:
+def _get_orbital_elements(index: int, jd: float) -> tuple:
     return swe.get_orbital_elements(jd, _SWE[index], swe.FLG_SWIEPH)
 
 
-def _first_house_planet(house_system: int) -> int:
+def _get_first_house_planet(house_system: int) -> int:
     """Return the index of the planet that marks the first house."""
     return (house_system - chart.PLANET_ON_FIRST) + chart.PLANET

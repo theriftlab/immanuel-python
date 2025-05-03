@@ -33,26 +33,26 @@ def night_jd(coords):
 
 def test_moon_phase(day_jd):
     # Courtesy of https://stardate.org/nightsky/moon
-    sun = ephemeris.planet(chart.SUN, day_jd)
-    moon = ephemeris.planet(chart.MOON, day_jd)
+    sun = ephemeris.get_planet(chart.SUN, day_jd)
+    moon = ephemeris.get_planet(chart.MOON, day_jd)
     assert (
         calculate.moon_phase(sun, moon) == calc.THIRD_QUARTER
     )  # third quarter = waning crescent
 
 
 def test_is_daytime(day_jd, night_jd, coords):
-    sun, asc = ephemeris.objects(
+    sun, asc = ephemeris.get_objects(
         (chart.SUN, chart.ASC), day_jd, *coords, chart.PLACIDUS
     ).values()
     assert calculate.is_daytime(sun, asc) is True
-    sun, asc = ephemeris.objects(
+    sun, asc = ephemeris.get_objects(
         (chart.SUN, chart.ASC), night_jd, *coords, chart.PLACIDUS
     ).values()
     assert calculate.is_daytime(sun, asc) is False
 
 
 def test_part_of_fortune_day_formula(day_jd, coords):
-    sun, moon, asc = ephemeris.objects(
+    sun, moon, asc = ephemeris.get_objects(
         (chart.SUN, chart.MOON, chart.ASC), day_jd, *coords, chart.PLACIDUS
     ).values()
     pof = calculate.part_longitude(
@@ -65,7 +65,7 @@ def test_part_of_fortune_day_formula(day_jd, coords):
 
 
 def test_part_of_fortune_night_formula(night_jd, coords):
-    sun, moon, asc = ephemeris.objects(
+    sun, moon, asc = ephemeris.get_objects(
         (chart.SUN, chart.MOON, chart.ASC), night_jd, *coords, chart.PLACIDUS
     ).values()
     pof = calculate.part_longitude(
@@ -79,7 +79,7 @@ def test_part_of_fortune_night_formula(night_jd, coords):
 
 def test_part_of_spirit_day_formula(day_jd, coords):
     # Courtesy of astro-seek.com which does not include arc-seconds
-    sun, moon, asc = ephemeris.objects(
+    sun, moon, asc = ephemeris.get_objects(
         (chart.SUN, chart.MOON, chart.ASC), day_jd, *coords, chart.PLACIDUS
     ).values()
     pos = calculate.part_longitude(
@@ -94,7 +94,7 @@ def test_part_of_spirit_day_formula(day_jd, coords):
 
 def test_part_of_spirit_night_formula(night_jd, coords):
     # Courtesy of astro-seek.com which does not include arc-seconds
-    sun, moon, asc = ephemeris.objects(
+    sun, moon, asc = ephemeris.get_objects(
         (chart.SUN, chart.MOON, chart.ASC), night_jd, *coords, chart.PLACIDUS
     ).values()
     pos = calculate.part_longitude(
@@ -109,7 +109,7 @@ def test_part_of_spirit_night_formula(night_jd, coords):
 
 def test_part_of_eros_day_formula(day_jd, coords):
     # Courtesy of astro-seek.com which does not include arc-seconds
-    sun, moon, asc, venus = ephemeris.objects(
+    sun, moon, asc, venus = ephemeris.get_objects(
         (chart.SUN, chart.MOON, chart.ASC, chart.VENUS), day_jd, *coords, chart.PLACIDUS
     ).values()
     poe = calculate.part_longitude(
@@ -124,7 +124,7 @@ def test_part_of_eros_day_formula(day_jd, coords):
 
 def test_part_of_eros_night_formula(night_jd, coords):
     # Courtesy of astro-seek.com which does not include arc-seconds
-    sun, moon, asc, venus = ephemeris.objects(
+    sun, moon, asc, venus = ephemeris.get_objects(
         (chart.SUN, chart.MOON, chart.ASC, chart.VENUS),
         night_jd,
         *coords,
@@ -141,13 +141,13 @@ def test_part_of_eros_night_formula(night_jd, coords):
 
 
 def test_sidereal_time(day_jd, coords):
-    armc = ephemeris.angle(chart.ARMC, day_jd, *coords, chart.PLACIDUS)
+    armc = ephemeris.get_angle(chart.ARMC, day_jd, *coords, chart.PLACIDUS)
     sidereal_time = calculate.sidereal_time(armc)
     assert convert.dec_to_string(sidereal_time, convert.FORMAT_TIME) == "16:54:13"
 
 
 def test_object_movement(day_jd, coords):
-    sun, moon, saturn, true_north_node, part_of_fortune = ephemeris.objects(
+    sun, moon, saturn, true_north_node, part_of_fortune = ephemeris.get_objects(
         (
             chart.SUN,
             chart.MOON,
@@ -168,7 +168,7 @@ def test_object_movement(day_jd, coords):
 
 
 def test_is_object_movement_typical(day_jd, coords):
-    sun, north_node, part_of_fortune = ephemeris.objects(
+    sun, north_node, part_of_fortune = ephemeris.get_objects(
         (chart.SUN, chart.NORTH_NODE, chart.PART_OF_FORTUNE),
         day_jd,
         *coords,
@@ -190,7 +190,7 @@ def test_is_object_movement_typical(day_jd, coords):
 
 
 def test_relative_position(day_jd, coords):
-    sun, mercury, neptune = ephemeris.objects(
+    sun, mercury, neptune = ephemeris.get_objects(
         (chart.SUN, chart.MERCURY, chart.NEPTUNE), day_jd, *coords
     ).values()
     assert calculate.relative_position(sun, mercury) == calc.ORIENTAL
@@ -200,7 +200,7 @@ def test_relative_position(day_jd, coords):
 
 
 def test_is_in_sect_day(day_jd, coords):
-    sun, moon, mercury, venus, mars, jupiter, saturn = ephemeris.objects(
+    sun, moon, mercury, venus, mars, jupiter, saturn = ephemeris.get_objects(
         (
             chart.SUN,
             chart.MOON,
@@ -225,7 +225,7 @@ def test_is_in_sect_day(day_jd, coords):
 
 
 def test_is_in_sect_night(night_jd, coords):
-    sun, moon, mercury, venus, mars, jupiter, saturn = ephemeris.objects(
+    sun, moon, mercury, venus, mars, jupiter, saturn = ephemeris.get_objects(
         (
             chart.SUN,
             chart.MOON,
@@ -250,7 +250,7 @@ def test_is_in_sect_night(night_jd, coords):
 
 
 def test_is_out_of_bounds(day_jd, coords):
-    sun, mercury = ephemeris.objects(
+    sun, mercury = ephemeris.get_objects(
         (chart.SUN, chart.MERCURY), day_jd, *coords, chart.PLACIDUS
     ).values()
     assert calculate.is_out_of_bounds(sun, day_jd) is False

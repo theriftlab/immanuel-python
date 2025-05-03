@@ -89,5 +89,5 @@ def test_chart_shape(object_indices, birth_data):
         )
         dob_dt = date.localize(datetime.fromisoformat(data["dob"]), lat, lon)
         jd = date.to_jd(dob_dt)
-        objects = ephemeris.objects(object_indices, jd, lat, lon, chart.PLACIDUS)
+        objects = ephemeris.get_objects(object_indices, jd, lat, lon, chart.PLACIDUS)
         assert pattern.chart_shape(objects) == chart_shape
