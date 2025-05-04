@@ -99,7 +99,7 @@ def string_to_dec(string: str) -> float:
     return dms_to_dec(["-" if char in "SW" or floats[0] < 0 else "+", *floats])
 
 
-def to_dec(value: float | list | tuple | str) -> float:
+def to_dec(value: float | list | tuple | str) -> float | None:
     """If the input type is unknown, this will guess and convert."""
     if isinstance(value, float):
         return value
@@ -115,7 +115,7 @@ def to_dec(value: float | list | tuple | str) -> float:
 
 def to_dms(
     value: float | list | tuple | str, round_to: tuple = ROUND_SECOND, pad_rounded=False
-) -> tuple:
+) -> tuple | None:
     """If the input type is unknown, this will guess and convert."""
     if isinstance(value, float):
         return dec_to_dms(value, round_to, pad_rounded)
@@ -134,7 +134,7 @@ def to_string(
     format: int = FORMAT_DMS,
     round_to: tuple = ROUND_SECOND,
     pad_rounded: bool | None = None,
-) -> str:
+) -> str | None:
     """If the input type is unknown, this will guess and convert."""
     if isinstance(value, float):
         return dec_to_string(value, format, round_to, pad_rounded)
@@ -146,6 +146,13 @@ def to_string(
         else:
             return dec_to_string(string_to_dec(value), format, round_to, pad_rounded)
     return None
+
+
+def coordinates(
+    lat: float | list | tuple | str, lon: float | list | tuple | str
+) -> tuple | None:
+    """Shortcut function to convert latitude and longitude to decimal."""
+    return to_dec(lat), to_dec(lon)
 
 
 def _dms_to_string_format_dms(dms: list | tuple) -> str:

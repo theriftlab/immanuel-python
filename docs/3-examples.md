@@ -24,6 +24,8 @@ native = charts.Subject(
 
 The optional `time_is_dst` parameter is a boolean to clarify ambiguous times - for example 1:30am on a night when switching to US daylight savings could be in either the standard or the DST timezone. To specify which one, pass either `True` or `False` to this argument. For all other non-ambiguous times, `time_is_dst` can safely be omitted.
 
+You may provide a string argument to the optional `timezone` parameter if you'd like to bypass the coordinate lookup. This will speed up chart generation and could potentially be more accurate if your own timezone data is more up to date than Immanuel's offline lookup.
+
 There is also an optional `timezone_offset` parameter. This is a float which explicitly sets the UTC offset in hours for the location specified by the passed coordinates. While Immanuel will do its best to look up the correct timezone for the coordinates, it might not always be accurate, especially when boundaries or offsets have changed since the given birth date. This parameter can safely be ignored for most use cases.
 
 To generate one of each type of supported chart, you could do the following:
@@ -117,7 +119,7 @@ print(natal.native.coordinates.latitude.raw)
 Will look like this:
 
 ```
-Sat Jan 01 2000 10:00:00 AM PST at 32N43.0, 117W9.0
+Sat Jan 01 2000 10:00:00 AM America/Los_Angeles at 32N43.0, 117W9.0
 32N43.0, 117W9.0
 32N43.0
 32.71666666666667
@@ -145,7 +147,7 @@ This will output the following JSON:
 {
     "date_time": {
         "datetime": "2000-01-01 10:00:00-08:00",
-        "timezone": "PST",
+        "timezone": "America/Los_Angeles",
         "ambiguous": false,
         "julian": 2451545.25,
         "deltat": 0.0007387629899254968,

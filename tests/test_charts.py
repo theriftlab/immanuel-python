@@ -151,7 +151,7 @@ def test_wrapped_data(native):
     # DateTime
     date_time = natal_chart.native.date_time
     assert type(date_time.datetime) is datetime
-    assert date_time.timezone == "PST"
+    assert date_time.timezone == "America/Los_Angeles"
     assert date_time.ambiguous == False
     assert date_time.julian == 2451545.25
     assert date_time.deltat == 0.0007387629899254968
@@ -294,7 +294,7 @@ def test_natal(native, lat, lon):
         )
         == 2451545.250739
     )
-    assert natal_chart.native.date_time.timezone == "PST"
+    assert natal_chart.native.date_time.timezone == "America/Los_Angeles"
 
     assert natal_chart.native.coordinates.latitude.formatted == lat
     assert natal_chart.native.coordinates.longitude.formatted == lon
@@ -373,7 +373,7 @@ def test_solar_return(native, lat, lon, solar_return_year):
         )
         == 2451545.250739
     )
-    assert solar_return_chart.native.date_time.timezone == "PST"
+    assert solar_return_chart.native.date_time.timezone == "America/Los_Angeles"
 
     assert (
         round(
@@ -383,7 +383,7 @@ def test_solar_return(native, lat, lon, solar_return_year):
         )
         == 2462502.521823
     )
-    assert solar_return_chart.solar_return_date_time.timezone == "PST"
+    assert solar_return_chart.solar_return_date_time.timezone == "America/Los_Angeles"
 
     assert solar_return_chart.native.coordinates.latitude.formatted == lat
     assert solar_return_chart.native.coordinates.longitude.formatted == lon
@@ -481,9 +481,9 @@ def test_progressed(native, lat, lon, pdt):
         )
         == 2451545.250739
     )
-    assert progressed_chart.native.date_time.timezone == "PST"
+    assert progressed_chart.native.date_time.timezone == "America/Los_Angeles"
 
-    assert progressed_chart.progression_date_time.timezone == "PDT"
+    assert progressed_chart.progression_date_time.timezone == "America/Los_Angeles"
     pdt_utc = progressed_chart.progression_date_time.datetime.astimezone(
         ZoneInfo("UTC")
     )
@@ -498,7 +498,7 @@ def test_progressed(native, lat, lon, pdt):
         )
         == 2451570.719456
     )
-    assert progressed_chart.progressed_date_time.timezone == "PST"
+    assert progressed_chart.progressed_date_time.timezone == "America/Los_Angeles"
 
     # Ensure coords have been converted back into correct string
     assert progressed_chart.native.coordinates.latitude.formatted == lat
@@ -580,7 +580,7 @@ def test_composite(native, lat, lon, partner, partner_lat, partner_lon):
         )
         == 2451545.250739
     )
-    assert composite_chart.native.date_time.timezone == "PST"
+    assert composite_chart.native.date_time.timezone == "America/Los_Angeles"
 
     assert (
         round(
@@ -590,7 +590,7 @@ def test_composite(native, lat, lon, partner, partner_lat, partner_lon):
         )
         == 2451957.084075
     )
-    assert composite_chart.partner.date_time.timezone == "PST"
+    assert composite_chart.partner.date_time.timezone == "America/Los_Angeles"
 
     assert composite_chart.native.coordinates.latitude.formatted == lat
     assert composite_chart.native.coordinates.longitude.formatted == lon

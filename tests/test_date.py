@@ -56,12 +56,12 @@ def jd():
     return 2451545.25  # 2000-01-01 18:00 UT
 
 
-def test_timezone_name_gmt(gmt_coords):
-    assert date.timezone_name(*gmt_coords) == "Europe/London"
+def test_timezone_lookup_gmt(gmt_coords):
+    assert date.timezone_lookup(*gmt_coords) == "Europe/London"
 
 
-def test_timezone_name_pst(pst_coords):
-    assert date.timezone_name(*pst_coords) == "America/Los_Angeles"
+def test_timezone_lookup_pst(pst_coords):
+    assert date.timezone_lookup(*pst_coords) == "America/Los_Angeles"
 
 
 def test_localize_coords(pst_coords):
@@ -70,15 +70,15 @@ def test_localize_coords(pst_coords):
     assert aware.tzinfo == ZoneInfo("America/Los_Angeles")
 
 
-def test_localize_offset(gmt_coords, jd):
+def test_localize_offset(jd):
     dt = datetime(2000, 1, 1, 10)
-    aware = date.localize(dt, *gmt_coords, offset=-8.0)
+    aware = date.localize(dt, offset=-8.0)
     assert date.to_jd(aware) == jd
 
 
-def test_localize_time_zone(gmt_coords, jd):
+def test_localize_timezone(jd):
     dt = datetime(2000, 1, 1, 10)
-    aware = date.localize(dt, *gmt_coords, time_zone='America/Los_Angeles')
+    aware = date.localize(dt, time_zone='America/Los_Angeles')
     assert date.to_jd(aware) == jd
 
 

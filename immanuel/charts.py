@@ -46,17 +46,19 @@ class Subject:
         latitude: float | list | tuple | str,
         longitude: float | list | tuple | str,
         timezone_offset: float | None = None,
+        timezone: str | None = None,
         time_is_dst: bool | None = None,
     ) -> None:
-        self.latitude, self.longitude = (
-            convert.to_dec(v) for v in (latitude, longitude)
-        )
+        self.latitude, self.longitude = convert.coordinates(latitude, longitude)
+        self.timezone_offset = timezone_offset
+        self.timezone = timezone
         self.time_is_dst = time_is_dst
         self.date_time = date.to_datetime(
             dt=date_time,
             lat=self.latitude,
             lon=self.longitude,
             offset=timezone_offset,
+            time_zone=timezone,
             is_dst=time_is_dst,
         )
         self.date_time_ambiguous = (
@@ -169,6 +171,8 @@ class Chart:
                     dt=object["jd"],
                     lat=self._native.latitude,
                     lon=self._native.longitude,
+                    offset=self._native.timezone_offset,
+                    time_zone=self._native.timezone,
                 )
                 if "jd" in object
                 else None
@@ -326,6 +330,8 @@ class SolarReturn(Chart):
             armc=self._solar_return_armc,
             latitude=self._native.latitude,
             longitude=self._native.longitude,
+            offset=self._native.timezone_offset,
+            timezone=self._native.timezone,
         )
 
 
@@ -348,6 +354,8 @@ class Progressed(Chart):
             dt=self._date_time,
             lat=self._native.latitude,
             lon=self._native.longitude,
+            offset=self._native.timezone_offset,
+            time_zone=self._native.timezone,
         )
         progression_jd = date.to_jd(self._progression_date_time)
         progression_armc = ephemeris.get_angle(
@@ -414,6 +422,8 @@ class Progressed(Chart):
             armc=self._progressed_armc_longitude,
             latitude=self._native.latitude,
             longitude=self._native.longitude,
+            offset=self._native.timezone_offset,
+            timezone=self._native.timezone,
         )
 
     def set_wrapped_progression_method(self) -> None:
@@ -560,13 +570,14 @@ class Transits(Chart):
         self,
         latitude: float | list | tuple | str = settings.default_latitude,
         longitude: float | list | tuple | str = settings.default_longitude,
+        offset: float | None = None,
+        timezone: str | None = None,
         aspects_to: Chart | None = None,
         houses_for_aspected: bool = False,
     ) -> None:
-        lat, lon = (convert.to_dec(v) for v in (latitude, longitude))
-        timezone = date.timezone_name(lat, lon)
-        date_time = datetime.now(tz=ZoneInfo(timezone))
-        self._native = Subject(date_time, lat, lon)
+        lat, lon = convert.coordinates(latitude, longitude)
+        date_time = date.localize(datetime.now(), lat, lon, offset, timezone)
+        self._native = Subject(date_time, lat, lon, offset, timezone)
         self._houses_for_aspected = houses_for_aspected
         super().__init__(chart.TRANSITS, aspects_to)
 

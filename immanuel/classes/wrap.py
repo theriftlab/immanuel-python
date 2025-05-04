@@ -120,10 +120,12 @@ class DateTime:
         armc: dict | float = None,
         latitude: float | None = None,
         longitude: float | None = None,
+        offset: float | None = None,
+        timezone: str | None = None,
         time_is_dst: bool | None = None,
     ) -> None:
-        self.datetime = date.to_datetime(dt, latitude, longitude)
-        self.timezone = self.datetime.tzname()
+        self.datetime = date.to_datetime(dt, latitude, longitude, offset, timezone)
+        self.timezone = date.timezone_name(self.datetime)
         self.ambiguous = date.ambiguous(self.datetime) and time_is_dst is None
         self.julian = date.to_jd(dt)
         self.deltat = ephemeris.get_deltat(self.julian)
@@ -351,6 +353,8 @@ class Subject:
             armc=armc,
             latitude=subject.latitude,
             longitude=subject.longitude,
+            offset=subject.timezone_offset,
+            timezone=subject.timezone,
             time_is_dst=subject.time_is_dst,
         )
         self.coordinates = Coordinates(

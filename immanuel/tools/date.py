@@ -14,51 +14,13 @@
 
 """
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, tzinfo
 from zoneinfo import ZoneInfo
 
 import swisseph as swe
 from dateutil import tz
 
 from immanuel.tools import convert
-
-
-def ambiguous(dt: datetime) -> bool:
-    """Returns whether an aware datetime is ambiguous."""
-    return tz.datetime_ambiguous(dt)
-
-
-def timezone_name(lat: float, lon: float) -> str:
-    """Returns a timezone string based on decimal lat/lon coordinates."""
-    from timezonefinder import TimezoneFinder
-    return TimezoneFinder().timezone_at(lat=lat, lng=lon)
-
-
-def get_timezone(lat: float | None, lon: float | None, offset: float | None, time_zone: str | None) -> ZoneInfo | timezone | None:
-    """Returns a timezone object based on either decimal lat/lon
-    coordinates or an explicit UTC offset."""
-    if time_zone is not None:
-        return ZoneInfo(time_zone)
-    if offset is not None:
-        return timezone(timedelta(hours=offset))
-    if lat is not None and lon is not None:
-        return ZoneInfo(timezone_name(lat, lon))
-    return None
-
-
-def localize(
-    dt: datetime,
-    lat: float | None = None,
-    lon: float | None = None,
-    offset: float | None = None,
-    time_zone: str | None = None,
-    is_dst: bool | None = None,
-) -> datetime:
-    """Localizes a naive datetime based on either decimal lat/lon
-    coordinates or an explicit UTC offset."""
-    return dt.replace(
-        tzinfo=get_timezone(lat, lon, offset, time_zone), fold=1 if is_dst is False else 0
-    )
 
 
 def to_datetime(
@@ -84,7 +46,9 @@ def to_datetime(
         time = convert.dec_to_dms(ut[3])[1:]
         date_time = datetime(*ut[:3], *time, tzinfo=ZoneInfo("UTC"))
         return (
-            date_time if no_tz else date_time.astimezone(get_timezone(lat, lon, offset, time_zone))
+            date_time
+            if no_tz
+            else date_time.astimezone(get_timezone(lat, lon, offset, time_zone))
         )
     if isinstance(dt, datetime):
         if no_tz:
@@ -123,3 +87,51 @@ def to_jd(
         ("+", date_time_utc.hour, date_time_utc.minute, date_time_utc.second)
     )
     return swe.julday(*date_time_utc.timetuple()[0:3], hour)
+
+
+def localize(
+    dt: datetime,
+    lat: float | None = None,
+    lon: float | None = None,
+    offset: float | None = None,
+    time_zone: str | None = None,
+    is_dst: bool | None = None,
+) -> datetime:
+    """Localizes a naive datetime based on either decimal lat/lon
+    coordinates or an explicit UTC offset."""
+    return dt.replace(
+        tzinfo=get_timezone(lat, lon, offset, time_zone),
+        fold=1 if is_dst is False else 0,
+    )
+
+
+def get_timezone(
+    lat: float | None, lon: float | None, offset: float | None, time_zone: str | None
+) -> tzinfo | None:
+    """Returns a timezone object based on either decimal lat/lon
+    coordinates or an explicit UTC offset."""
+    if time_zone is not None:
+        return ZoneInfo(time_zone)
+    if offset is not None:
+        return timezone(timedelta(hours=offset))
+    if lat is not None and lon is not None:
+        return ZoneInfo(timezone_lookup(lat, lon))
+    return None
+
+
+def timezone_lookup(lat: float, lon: float) -> str:
+    """Returns a timezone string based on decimal lat/lon coordinates."""
+    print("Looking up timezone")
+    from timezonefinder import TimezoneFinder
+
+    return TimezoneFinder().timezone_at(lat=lat, lng=lon)
+
+
+def timezone_name(dt: datetime) -> str | None:
+    """Returns a timezone name based on a datetime object."""
+    return str(dt.tzinfo) if dt.tzinfo is not None else None
+
+
+def ambiguous(dt: datetime) -> bool:
+    """Returns whether an aware datetime is ambiguous."""
+    return tz.datetime_ambiguous(dt)

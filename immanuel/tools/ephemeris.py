@@ -21,6 +21,7 @@ import swisseph as swe
 from immanuel.classes.cache import cache
 from immanuel.classes.localize import localize as _
 from immanuel.const import calc, chart, names
+
 # from immanuel.tools import find
 
 
@@ -715,7 +716,8 @@ def get_object_movement_typical(object: dict) -> bool:
 def get_relative_position(object1: dict | float, object2: dict | float) -> int:
     """Calculate which side of object1 object2 is."""
     lon1, lon2 = (
-        object["lon"] if isinstance(object, dict) else object for object in (object1, object2)
+        object["lon"] if isinstance(object, dict) else object
+        for object in (object1, object2)
     )
 
     return calc.OCCIDENTAL if swe.difdegn(lon1, lon2) > 180 else calc.ORIENTAL
@@ -775,8 +777,7 @@ def get_part_longitude(
         for object in (sun, moon, asc)
     )
     night = formula == calc.NIGHT_FORMULA or (
-        formula == calc.DAY_NIGHT_FORMULA
-        and not calculate_daytime(sun_lon, asc_lon)
+        formula == calc.DAY_NIGHT_FORMULA and not calculate_daytime(sun_lon, asc_lon)
     )
 
     if index == chart.PART_OF_FORTUNE:
@@ -1041,9 +1042,7 @@ def _get_syzygy(jd: float) -> dict:
     sun = get_planet(chart.SUN, jd)
     moon = get_planet(chart.MOON, jd)
     distance = swe.difdeg2n(moon["lon"], sun["lon"])
-    syzygy_jd = (
-        previous_new_moon(jd) if distance > 0 else previous_full_moon(jd)
-    )
+    syzygy_jd = previous_new_moon(jd) if distance > 0 else previous_full_moon(jd)
     syzygy_moon = get_planet(chart.MOON, syzygy_jd)
 
     return {
@@ -1132,11 +1131,6 @@ def _get_orbital_elements(index: int, jd: float) -> tuple:
 def _get_first_house_planet(house_system: int) -> int:
     """Return the index of the planet that marks the first house."""
     return (house_system - chart.PLANET_ON_FIRST) + chart.PLANET
-
-
-
-
-
 
 
 PREVIOUS = -1
@@ -1320,12 +1314,8 @@ def _advanced_search(
             return transit_crossings[0] if direction == NEXT else transit_crossings[-1]
 
     # Bracket the conjunction date with min & max periods
-    synodic_period_min = calculate_synodic_period(
-        object1, object2, jd, SYNODIC_MIN
-    )
-    synodic_period_max = calculate_synodic_period(
-        object1, object2, jd, SYNODIC_MAX
-    )
+    synodic_period_min = calculate_synodic_period(object1, object2, jd, SYNODIC_MIN)
+    synodic_period_max = calculate_synodic_period(object1, object2, jd, SYNODIC_MAX)
 
     years_min = diff / 360 * synodic_period_min - max_retrograde_period
     years_max = diff / 360 * synodic_period_max + max_retrograde_period

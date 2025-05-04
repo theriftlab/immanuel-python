@@ -16,7 +16,7 @@ The chart native, based on the date and coordinates you will have passed in when
 {
     "date_time": {
         "datetime": "2000-01-01 10:00:00-08:00",
-        "timezone": "PST",
+        "timezone": "America/Los_Angeles",
         "ambiguous": false,
         "julian": 2451545.25,
         "deltat": 0.0007387629899254968,

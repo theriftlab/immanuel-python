@@ -544,7 +544,7 @@ msgstr "Tägliche Häuser"
 
 # Formatted sentences & words
 
-# For datetimes, eg. Sun Nov 06 2022 01:30:00 AM PDT (ambiguous)
+# For datetimes, eg. Sun Nov 06 2022 01:30:00 AM America/Los_Angeles (ambiguous)
 msgid "ambiguous"
 msgstr "mehrdeutig"
 
@@ -557,7 +557,7 @@ msgstr "{active} {passive} {type} innerhalb von {difference} ({movement}, {condi
 msgid "{name} {longitude} in {sign}"
 msgstr "{name} {longitude} in {sign}"
 
-# For chart subjects, eg. Sat Jan 01 2000 10:00:00 AM PST at 32N43.0, 117W9.0
+# For chart subjects, eg. Sat Jan 01 2000 10:00:00 AM America/Los_Angeles at 32N43.0, 117W9.0
 msgid "{date_time} at {lat}, {lon}"
 msgstr "{date_time} um {lat}, {lon}" ""
 
