@@ -50,7 +50,7 @@ def objects(jd):
 
 @fixture
 def is_daytime(jd, coords):
-    return ephemeris.get_daytime(jd, *coords)
+    return ephemeris.is_daytime(jd, *coords)
 
 
 def teardown_function():

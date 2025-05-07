@@ -52,4 +52,6 @@ def composite(object1: dict, object2: dict, obliquity: float | None = None) -> d
 
 def obliquity(jd1: float, jd2: float, mean: bool = False) -> float:
     """Returns the mean obliquity of two dates."""
-    return (ephemeris.get_obliquity(jd1, mean) + ephemeris.get_obliquity(jd2, mean)) / 2
+    return (
+        ephemeris.earth_obliquity(jd1, mean) + ephemeris.earth_obliquity(jd2, mean)
+    ) / 2

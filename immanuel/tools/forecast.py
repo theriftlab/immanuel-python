@@ -38,7 +38,7 @@ def progression(
     jd: float, lat: float, lon: float, pjd: float, house_system: int, method: int
 ) -> tuple:
     """Returns the progressed Julian date and MC right ascension."""
-    year_days = ephemeris.calculate_solar_year_length(jd)
+    year_days = ephemeris.solar_year_length(jd)
     years = (pjd - jd) / year_days
     progressed_jd = jd + years
 
@@ -59,7 +59,7 @@ def progression(
             natal_sun = ephemeris.get_planet(chart.SUN, jd)
             progressed_sun = ephemeris.get_planet(chart.SUN, progressed_jd)
             distance = swe.difdeg2n(progressed_sun["lon"], natal_sun["lon"])
-            obliquity = ephemeris.get_obliquity(progressed_jd)
+            obliquity = ephemeris.earth_obliquity(progressed_jd)
             progressed_armc_lon = swe.cotrans(
                 (natal_mc["lon"] + distance, 0, 1), -obliquity
             )[0]

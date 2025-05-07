@@ -198,7 +198,7 @@ def test_solar_return_lon(jd):
 def test_solar_return_date(jd):
     """Solar return date copied from astro.com"""
     sr_jd = forecast.solar_return(jd, 2030)
-    assert round(sr_jd + ephemeris.get_deltat(sr_jd), 6) == 2462502.521823
+    assert round(sr_jd + ephemeris.deltat(sr_jd), 6) == 2462502.521823
 
 
 def test_progression_date(jd, pjd, coords):
@@ -209,7 +209,7 @@ def test_progression_date(jd, pjd, coords):
     progressed_jd = forecast.progression(jd, *coords, pjd, chart.PLACIDUS, calc.NAIBOD)[
         forecast.JD
     ]
-    assert round(progressed_jd + ephemeris.get_deltat(progressed_jd), 6) == 2451570.719456
+    assert round(progressed_jd + ephemeris.deltat(progressed_jd), 6) == 2451570.719456
 
 
 def test_progression(jd, pjd, coords, astro):
@@ -224,7 +224,7 @@ def test_progression(jd, pjd, coords, astro):
                 index,
                 progressed_armc_lon,
                 coords[0],
-                ephemeris.get_obliquity(progressed_jd),
+                ephemeris.earth_obliquity(progressed_jd),
                 chart.PLACIDUS,
             )
             sign = position.sign(house)

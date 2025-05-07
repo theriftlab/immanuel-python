@@ -128,11 +128,11 @@ class DateTime:
         self.timezone = date.timezone_name(self.datetime)
         self.ambiguous = date.ambiguous(self.datetime) and time_is_dst is None
         self.julian = date.to_jd(dt)
-        self.deltat = ephemeris.get_deltat(self.julian)
+        self.deltat = ephemeris.deltat(self.julian)
 
         if armc is not None:
             self.sidereal_time = convert.dec_to_string(
-                ephemeris.get_sidereal_time(armc), format=convert.FORMAT_TIME
+                ephemeris.sidereal_time(armc), format=convert.FORMAT_TIME
             )
 
     def __str__(self) -> str:
@@ -306,11 +306,11 @@ class Object:
 
 class ObjectMovement:
     def __init__(self, object: dict) -> None:
-        self._movement = ephemeris.get_object_movement(object)
+        self._movement = ephemeris.object_movement(object)
         self.direct = self._movement == calc.DIRECT
         self.stationary = self._movement == calc.STATIONARY
         self.retrograde = self._movement == calc.RETROGRADE
-        self.typical = ephemeris.get_object_movement_typical(object)
+        self.typical = ephemeris.is_object_movement_typical(object)
         self.formatted = _(
             names.OBJECT_MOVEMENTS[self._movement], gender(object["index"])
         )

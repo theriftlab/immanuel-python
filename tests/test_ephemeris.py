@@ -207,11 +207,16 @@ def teardown_function():
     settings.reset()
 
 
+"""
+CHART OBJECTS
+--------------------------------------------------------------------------------
+"""
+
 """ These tests simply check the correct chart objects are being
 returned. Data is checked separately afterwards. """
 
 
-def test_objects(jd, coords):
+def test_get_objects(jd, coords):
     chart_objects = (
         chart.SUN,
         chart.MOON,
@@ -226,7 +231,7 @@ def test_objects(jd, coords):
     assert tuple(objects.keys()) == chart_objects
 
 
-def test_armc_objects(jd, coords, armc):
+def test_get_armc_objects(jd, coords, armc):
     chart_objects = (
         chart.SUN,
         chart.MOON,
@@ -288,43 +293,43 @@ def test_armc_get(jd, coords, armc):
     )
 
 
-def test_get_angles(jd, coords, all_angles):
+def test_get_for_angles(jd, coords, all_angles):
     angles = ephemeris.get(chart.ANGLE, jd, *coords, chart.PLACIDUS)
     assert sorted(all_angles) == sorted(angles)
 
 
-def test_armc_get_angles(jd, coords, armc, all_angles):
+def test_armc_get_for_angles(jd, coords, armc, all_angles):
     angles = ephemeris.armc_get(
-        chart.ANGLE, jd, armc, *coords, ephemeris.get_obliquity(jd), chart.PLACIDUS
+        chart.ANGLE, jd, armc, *coords, ephemeris.earth_obliquity(jd), chart.PLACIDUS
     )
     assert sorted(all_angles) == sorted(angles)
 
 
-def test_get_houses(jd, coords, all_houses):
+def test_get_for_houses(jd, coords, all_houses):
     houses = ephemeris.get(chart.HOUSE, jd, *coords, chart.PLACIDUS)
     assert sorted(all_houses) == sorted(houses)
 
 
-def test_armc_get_houses(jd, coords, armc, all_houses):
+def test_armc_get_for_houses(jd, coords, armc, all_houses):
     houses = ephemeris.armc_get(
-        chart.HOUSE, jd, armc, *coords, ephemeris.get_obliquity(jd), chart.PLACIDUS
+        chart.HOUSE, jd, armc, *coords, ephemeris.earth_obliquity(jd), chart.PLACIDUS
     )
     assert sorted(all_houses) == sorted(houses)
 
 
-def test_angles(jd, coords, all_angles):
+def test_get_angles(jd, coords, all_angles):
     angles = ephemeris.get_angles(jd, *coords, chart.PLACIDUS)
     assert sorted(all_angles) == sorted(angles)
 
 
-def test_armc_angles(jd, coords, armc, all_angles):
+def test_get_armc_angles(jd, coords, armc, all_angles):
     angles = ephemeris.get_armc_angles(
-        armc, coords[0], ephemeris.get_obliquity(jd), chart.PLACIDUS
+        armc, coords[0], ephemeris.earth_obliquity(jd), chart.PLACIDUS
     )
     assert sorted(all_angles) == sorted(angles)
 
 
-def test_angle(jd, coords, all_angles):
+def test_get_angle(jd, coords, all_angles):
     for index in all_angles:
         angle = ephemeris.get_angle(index, jd, *coords, chart.PLACIDUS)
         assert angle["index"] == index and angle["type"] == chart.ANGLE
@@ -334,8 +339,8 @@ def test_angle(jd, coords, all_angles):
     ) == ephemeris.get_angles(jd, *coords, chart.PLACIDUS)
 
 
-def test_armc_angle(jd, coords, armc, all_angles):
-    obliquity = ephemeris.get_obliquity(jd)
+def test_get_armc_angle(jd, coords, armc, all_angles):
+    obliquity = ephemeris.earth_obliquity(jd)
 
     for index in all_angles:
         angle = ephemeris.get_armc_angle(index, armc, coords[0], obliquity, chart.PLACIDUS)
@@ -346,19 +351,19 @@ def test_armc_angle(jd, coords, armc, all_angles):
     ) == ephemeris.get_armc_angles(armc, coords[0], obliquity, chart.PLACIDUS)
 
 
-def test_houses(jd, coords, all_houses):
+def test_get_houses(jd, coords, all_houses):
     houses = ephemeris.get_houses(jd, *coords, chart.PLACIDUS)
     assert sorted(all_houses) == sorted(houses)
 
 
-def test_armc_houses(jd, coords, armc, all_houses):
+def test_get_armc_houses(jd, coords, armc, all_houses):
     houses = ephemeris.get_armc_houses(
-        armc, coords[0], ephemeris.get_obliquity(jd), chart.PLACIDUS
+        armc, coords[0], ephemeris.earth_obliquity(jd), chart.PLACIDUS
     )
     assert sorted(all_houses) == sorted(houses)
 
 
-def test_house(jd, coords, all_houses):
+def test_get_house(jd, coords, all_houses):
     for index in all_houses:
         house = ephemeris.get_house(index, jd, *coords, chart.PLACIDUS)
         assert house["index"] == index and house["type"] == chart.HOUSE
@@ -368,8 +373,8 @@ def test_house(jd, coords, all_houses):
     ) == ephemeris.get_houses(jd, *coords, chart.PLACIDUS)
 
 
-def test_armc_house(jd, coords, armc, all_houses):
-    obliquity = ephemeris.get_obliquity(jd)
+def test_get_armc_house(jd, coords, armc, all_houses):
+    obliquity = ephemeris.earth_obliquity(jd)
 
     for index in all_houses:
         house = ephemeris.get_armc_house(index, armc, coords[0], obliquity, chart.PLACIDUS)
@@ -389,7 +394,7 @@ def test_planet_on_first_house(jd, coords):
     assert sun["lon"] + 30 == second_house["lon"]
 
 
-def test_point(jd, coords, all_points):
+def test_get_point(jd, coords, all_points):
     for index in all_points:
         point = ephemeris.get_point(
             index, jd, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA
@@ -397,27 +402,27 @@ def test_point(jd, coords, all_points):
         assert point["index"] == index and point["type"] == chart.POINT
 
 
-def test_armc_point(jd, coords, armc, all_points):
+def test_get_armc_point(jd, coords, armc, all_points):
     for index in all_points:
         point = ephemeris.get_armc_point(
             index,
             jd,
             armc,
             coords[0],
-            ephemeris.get_obliquity(jd),
+            ephemeris.earth_obliquity(jd),
             chart.PLACIDUS,
             calc.DAY_NIGHT_FORMULA,
         )
         assert point["index"] == index and point["type"] == chart.POINT
 
 
-def test_planet(jd, all_planets):
+def test_get_planet(jd, all_planets):
     for index in all_planets:
         planet = ephemeris.get_planet(index, jd)
         assert planet["index"] == index and planet["type"] == chart.PLANET
 
 
-def test_asteroid(jd, all_asteroids):
+def test_get_asteroid(jd, all_asteroids):
     settings.add_filepath(os.path.dirname(__file__))
 
     for index in all_asteroids:
@@ -425,13 +430,13 @@ def test_asteroid(jd, all_asteroids):
         assert asteroid["index"] == index and asteroid["type"] == chart.ASTEROID
 
 
-def test_fixed_star(jd):
+def test_get_fixed_star(jd):
     # So many fixed stars we just test one
     fixed_star = ephemeris.get_fixed_star("Antares", jd)
     assert fixed_star["index"] == "Antares" and fixed_star["type"] == chart.FIXED_STAR
 
 
-def test_eclipse(jd):
+def test_get_eclipse(jd):
     pre_solar = ephemeris.get_eclipse(chart.PRE_NATAL_SOLAR_ECLIPSE, jd)
     assert pre_solar["type"] == chart.ECLIPSE
     assert pre_solar["index"] == chart.PRE_NATAL_SOLAR_ECLIPSE
@@ -497,7 +502,7 @@ def test_get_data(coords, jd, astro):
 def test_armc_get_data(coords, jd, astro, armc):
     settings.add_filepath(os.path.dirname(__file__))
 
-    obliquity = ephemeris.get_obliquity(jd)
+    obliquity = ephemeris.earth_obliquity(jd)
 
     data = {
         "asc": ephemeris.get_armc_angle(
@@ -530,57 +535,16 @@ def test_armc_get_data(coords, jd, astro, armc):
             assert object[property] == value
 
 
-def test_get_moon_phase(jd):
-    # Courtesy of https://stardate.org/nightsky/moon
-    assert (
-        ephemeris.get_moon_phase(jd) == calc.THIRD_QUARTER
-    ) is True # third quarter = waning crescent
-
-
-def test_calculate_moon_phase(jd):
-    # Courtesy of https://stardate.org/nightsky/moon
-    sun = ephemeris.get_planet(chart.SUN, jd)
-    moon = ephemeris.get_planet(chart.MOON, jd)
-    assert (
-        ephemeris.calculate_moon_phase(sun, moon) == calc.THIRD_QUARTER
-    ) is True # third quarter = waning crescent
-
-
-def test_obliquity(jd):
-    # Courtesy of http://neoprogrammics.com/obliquity_of_the_ecliptic/Obliquity_Of_The_Ecliptic_Calculator.php
-    assert ephemeris.get_obliquity(jd) == approx(23.4376888901)
-    assert ephemeris.get_obliquity(jd, True) == approx(23.4392911408)
-
-
-def test_get_daytime(day_jd, night_jd, coords):
-    # Sun above ascendant in astro.com chart visual
-    assert ephemeris.get_daytime(day_jd, *coords) is True
-    # Sun below ascendant in astro.com chart visual
-    assert ephemeris.get_daytime(night_jd, *coords) is False
-
-
-def test_calculate_daytime(day_jd, night_jd, coords):
-    sun, asc = ephemeris.get_objects(
-        (chart.SUN, chart.ASC), day_jd, *coords, chart.PLACIDUS
-    ).values()
-    assert ephemeris.calculate_daytime(sun, asc) is True
-
-    sun, asc = ephemeris.get_objects(
-        (chart.SUN, chart.ASC), night_jd, *coords, chart.PLACIDUS
-    ).values()
-    assert ephemeris.calculate_daytime(sun, asc) is False
-
-
-def test_armc_is_daytime(day_jd, coords, armc):
-    # Sun above ascendant in astro.com chart visual
-    assert ephemeris.get_armc_daytime(day_jd, armc, coords[0], ephemeris.get_obliquity(day_jd)) is True
-
+"""
+CALCULATIONS
+--------------------------------------------------------------------------------
+"""
 
 def test_part_of_fortune_day_formula(day_jd, coords):
     sun, moon, asc = ephemeris.get_objects(
         (chart.SUN, chart.MOON, chart.ASC), day_jd, *coords, chart.PLACIDUS
     ).values()
-    pof = ephemeris.get_part_longitude(
+    pof = ephemeris.part_longitude(
         chart.PART_OF_FORTUNE, sun, moon, asc, formula=calc.DAY_FORMULA
     )
     sign = position.sign(pof)
@@ -593,7 +557,7 @@ def test_part_of_fortune_night_formula(night_jd, coords):
     sun, moon, asc = ephemeris.get_objects(
         (chart.SUN, chart.MOON, chart.ASC), night_jd, *coords, chart.PLACIDUS
     ).values()
-    pof = ephemeris.get_part_longitude(
+    pof = ephemeris.part_longitude(
         chart.PART_OF_FORTUNE, sun, moon, asc, formula=calc.NIGHT_FORMULA
     )
     sign = position.sign(pof)
@@ -607,7 +571,7 @@ def test_part_of_spirit_day_formula(day_jd, coords):
     sun, moon, asc = ephemeris.get_objects(
         (chart.SUN, chart.MOON, chart.ASC), day_jd, *coords, chart.PLACIDUS
     ).values()
-    pos = ephemeris.get_part_longitude(
+    pos = ephemeris.part_longitude(
         chart.PART_OF_SPIRIT, sun, moon, asc, formula=calc.DAY_FORMULA
     )
     sign = position.sign(pos)
@@ -622,7 +586,7 @@ def test_part_of_spirit_night_formula(night_jd, coords):
     sun, moon, asc = ephemeris.get_objects(
         (chart.SUN, chart.MOON, chart.ASC), night_jd, *coords, chart.PLACIDUS
     ).values()
-    pos = ephemeris.get_part_longitude(
+    pos = ephemeris.part_longitude(
         chart.PART_OF_SPIRIT, sun, moon, asc, formula=calc.NIGHT_FORMULA
     )
     sign = position.sign(pos)
@@ -637,7 +601,7 @@ def test_part_of_eros_day_formula(day_jd, coords):
     sun, moon, asc, venus = ephemeris.get_objects(
         (chart.SUN, chart.MOON, chart.ASC, chart.VENUS), day_jd, *coords, chart.PLACIDUS
     ).values()
-    poe = ephemeris.get_part_longitude(
+    poe = ephemeris.part_longitude(
         chart.PART_OF_EROS, sun, moon, asc, venus, formula=calc.DAY_FORMULA
     )
     sign = position.sign(poe)
@@ -655,7 +619,7 @@ def test_part_of_eros_night_formula(night_jd, coords):
         *coords,
         chart.PLACIDUS,
     ).values()
-    poe = ephemeris.get_part_longitude(
+    poe = ephemeris.part_longitude(
         chart.PART_OF_EROS, sun, moon, asc, venus, formula=calc.NIGHT_FORMULA
     )
     sign = position.sign(poe)
@@ -665,9 +629,60 @@ def test_part_of_eros_night_formula(night_jd, coords):
     assert round(lon, 1) == round(convert.to_dec("22°08'"), 1)
 
 
-def test_calculate_sidereal_time(jd, coords):
+def test_is_daytime(day_jd, night_jd, coords):
+    # Sun above ascendant in astro.com chart visual
+    assert ephemeris.is_daytime(day_jd, *coords) is True
+    # Sun below ascendant in astro.com chart visual
+    assert ephemeris.is_daytime(night_jd, *coords) is False
+
+
+def test_armc_is_daytime(day_jd, coords, armc):
+    # Sun above ascendant in astro.com chart visual
+    assert ephemeris.armc_is_daytime(day_jd, armc, coords[0], ephemeris.earth_obliquity(day_jd)) is True
+
+
+def test_is_daytime_from(day_jd, night_jd, coords):
+    sun, asc = ephemeris.get_objects(
+        (chart.SUN, chart.ASC), day_jd, *coords, chart.PLACIDUS
+    ).values()
+    assert ephemeris.is_daytime_from(sun, asc) is True
+
+    sun, asc = ephemeris.get_objects(
+        (chart.SUN, chart.ASC), night_jd, *coords, chart.PLACIDUS
+    ).values()
+    assert ephemeris.is_daytime_from(sun, asc) is False
+
+
+def test_moon_phase(jd):
+    # Courtesy of https://stardate.org/nightsky/moon
+    assert (
+        ephemeris.moon_phase(jd) == calc.THIRD_QUARTER
+    ) is True # third quarter = waning crescent
+
+
+def test_moon_phase_from(jd):
+    # Courtesy of https://stardate.org/nightsky/moon
+    sun = ephemeris.get_planet(chart.SUN, jd)
+    moon = ephemeris.get_planet(chart.MOON, jd)
+    assert (
+        ephemeris.moon_phase_from(sun, moon) == calc.THIRD_QUARTER
+    ) is True # third quarter = waning crescent
+
+
+def test_earth_obliquity(jd):
+    # Courtesy of http://neoprogrammics.com/obliquity_of_the_ecliptic/Obliquity_Of_The_Ecliptic_Calculator.php
+    assert ephemeris.earth_obliquity(jd) == approx(23.4376888901)
+    assert ephemeris.earth_obliquity(jd, True) == approx(23.4392911408)
+
+
+def test_deltat(jd):
+    # Courtesy of astro.com "Additional Tables"
+    assert round(ephemeris.deltat(jd, True), 1) == 63.8
+
+
+def test_sidereal_time(jd, coords):
     armc = ephemeris.get_angle(chart.ARMC, jd, *coords, chart.PLACIDUS)
-    sidereal_time = ephemeris.get_sidereal_time(armc)
+    sidereal_time = ephemeris.sidereal_time(armc)
     assert convert.dec_to_string(sidereal_time, convert.FORMAT_TIME) == "16:54:13"
 
 
@@ -685,11 +700,11 @@ def test_object_movement(jd, coords):
         chart.PLACIDUS,
         calc.DAY_NIGHT_FORMULA,
     ).values()
-    assert ephemeris.get_object_movement(sun) == calc.DIRECT
-    assert ephemeris.get_object_movement(moon) == calc.DIRECT
-    assert ephemeris.get_object_movement(saturn) == calc.RETROGRADE
-    assert ephemeris.get_object_movement(true_north_node) == calc.RETROGRADE
-    assert ephemeris.get_object_movement(part_of_fortune) == calc.STATIONARY
+    assert ephemeris.object_movement(sun) == calc.DIRECT
+    assert ephemeris.object_movement(moon) == calc.DIRECT
+    assert ephemeris.object_movement(saturn) == calc.RETROGRADE
+    assert ephemeris.object_movement(true_north_node) == calc.RETROGRADE
+    assert ephemeris.object_movement(part_of_fortune) == calc.STATIONARY
 
 
 def test_is_object_movement_typical(jd, coords):
@@ -701,27 +716,25 @@ def test_is_object_movement_typical(jd, coords):
         calc.DAY_NIGHT_FORMULA,
     ).values()
     # Direct
-    assert ephemeris.get_object_movement_typical(sun) == True
+    assert ephemeris.is_object_movement_typical(sun) == True
     sun["speed"] *= -1
-    assert ephemeris.get_object_movement_typical(sun) == False
+    assert ephemeris.is_object_movement_typical(sun) == False
     # Retrograde
-    assert ephemeris.get_object_movement_typical(north_node) == True
+    assert ephemeris.is_object_movement_typical(north_node) == True
     north_node["speed"] *= -1
-    assert ephemeris.get_object_movement_typical(north_node) == False
+    assert ephemeris.is_object_movement_typical(north_node) == False
     # Stationed
-    assert ephemeris.get_object_movement_typical(part_of_fortune) == True
+    assert ephemeris.is_object_movement_typical(part_of_fortune) == True
     part_of_fortune["speed"] *= -1
-    assert ephemeris.get_object_movement_typical(part_of_fortune) == True
+    assert ephemeris.is_object_movement_typical(part_of_fortune) == True
 
 
-def test_relative_position(day_jd, coords):
-    sun, mercury, neptune = ephemeris.get_objects(
-        (chart.SUN, chart.MERCURY, chart.NEPTUNE), day_jd, *coords
+def test_is_out_of_bounds(day_jd, coords):
+    sun, mercury = ephemeris.get_objects(
+        (chart.SUN, chart.MERCURY), day_jd, *coords, chart.PLACIDUS
     ).values()
-    assert ephemeris.get_relative_position(sun, mercury) == calc.ORIENTAL
-    assert ephemeris.get_relative_position(sun, neptune) == calc.OCCIDENTAL
-    assert ephemeris.get_relative_position(mercury, neptune) == calc.OCCIDENTAL
-    assert ephemeris.get_relative_position(neptune, mercury) == calc.ORIENTAL
+    assert ephemeris.is_out_of_bounds(sun, day_jd) is False
+    assert ephemeris.is_out_of_bounds(mercury, day_jd) is True
 
 
 def test_is_in_sect_day(day_jd, coords):
@@ -738,14 +751,14 @@ def test_is_in_sect_day(day_jd, coords):
         day_jd,
         *coords,
     ).values()
-    assert ephemeris.get_in_sect(sun, True) == True
-    assert ephemeris.get_in_sect(jupiter, True) == True
-    assert ephemeris.get_in_sect(saturn, True) == True
-    assert ephemeris.get_in_sect(moon, True) == False
-    assert ephemeris.get_in_sect(venus, True) == False
-    assert ephemeris.get_in_sect(mars, True) == False
-    assert ephemeris.get_in_sect(mercury, True, sun) == (
-        ephemeris.get_relative_position(sun, mercury) == calc.ORIENTAL
+    assert ephemeris.is_in_sect(sun, True) == True
+    assert ephemeris.is_in_sect(jupiter, True) == True
+    assert ephemeris.is_in_sect(saturn, True) == True
+    assert ephemeris.is_in_sect(moon, True) == False
+    assert ephemeris.is_in_sect(venus, True) == False
+    assert ephemeris.is_in_sect(mars, True) == False
+    assert ephemeris.is_in_sect(mercury, True, sun) == (
+        ephemeris.relative_position(sun, mercury) == calc.ORIENTAL
     )
 
 
@@ -763,28 +776,25 @@ def test_is_in_sect_night(night_jd, coords):
         night_jd,
         *coords,
     ).values()
-    assert ephemeris.get_in_sect(sun, False) == False
-    assert ephemeris.get_in_sect(jupiter, False) == False
-    assert ephemeris.get_in_sect(saturn, False) == False
-    assert ephemeris.get_in_sect(moon, False) == True
-    assert ephemeris.get_in_sect(venus, False) == True
-    assert ephemeris.get_in_sect(mars, False) == True
-    assert ephemeris.get_in_sect(mercury, False, sun) == (
-        ephemeris.get_relative_position(sun, mercury) == calc.OCCIDENTAL
+    assert ephemeris.is_in_sect(sun, False) == False
+    assert ephemeris.is_in_sect(jupiter, False) == False
+    assert ephemeris.is_in_sect(saturn, False) == False
+    assert ephemeris.is_in_sect(moon, False) == True
+    assert ephemeris.is_in_sect(venus, False) == True
+    assert ephemeris.is_in_sect(mars, False) == True
+    assert ephemeris.is_in_sect(mercury, False, sun) == (
+        ephemeris.relative_position(sun, mercury) == calc.OCCIDENTAL
     )
 
 
-def test_is_out_of_bounds(day_jd, coords):
-    sun, mercury = ephemeris.get_objects(
-        (chart.SUN, chart.MERCURY), day_jd, *coords, chart.PLACIDUS
+def test_relative_position(day_jd, coords):
+    sun, mercury, neptune = ephemeris.get_objects(
+        (chart.SUN, chart.MERCURY, chart.NEPTUNE), day_jd, *coords
     ).values()
-    assert ephemeris.get_out_of_bounds(sun, day_jd) is False
-    assert ephemeris.get_out_of_bounds(mercury, day_jd) is True
-
-
-def test_deltat(jd):
-    # Courtesy of astro.com "Additional Tables"
-    assert round(ephemeris.get_deltat(jd, True), 1) == 63.8
+    assert ephemeris.relative_position(sun, mercury) == calc.ORIENTAL
+    assert ephemeris.relative_position(sun, neptune) == calc.OCCIDENTAL
+    assert ephemeris.relative_position(mercury, neptune) == calc.OCCIDENTAL
+    assert ephemeris.relative_position(neptune, mercury) == calc.ORIENTAL
 
 
 def test_solar_year_length():
@@ -794,21 +804,23 @@ def test_solar_year_length():
     pass
 
 
+"""
+PREDICTIVE CALCULATIONS
+--------------------------------------------------------------------------------
+"""
 
-
-
-def test_previous(jd, coords):
+def test_previous_aspect(jd, coords):
     # Check for previous Sun / Moon conjunction so we can use the same
     # test date/time as test_previous_new_moon()
-    tr_jd = ephemeris.previous(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
+    tr_jd = ephemeris.previous_aspect(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
     tr_dt = date.to_datetime(tr_jd, *coords)
     assert tr_dt.strftime("%Y-%m-%d %H:%M") == "1999-12-07 14:31"
 
 
-def test_next(jd, coords):
+def test_next_aspect(jd, coords):
     # Check for next Sun / Moon conjunction so we can use the same
     # test date/time as test_next_new_moon()
-    tr_jd = ephemeris.next(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
+    tr_jd = ephemeris.next_aspect(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
     tr_dt = date.to_datetime(tr_jd, *coords)
     assert tr_dt.strftime("%Y-%m-%d %H:%M") == "2000-01-06 10:13"
 
