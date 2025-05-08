@@ -28,6 +28,13 @@ ALL = -1
 PREVIOUS = -1
 NEXT = 1
 
+DAYS = 0
+TROPICAL_YEARS = 1
+
+SYNODIC_MIN = -1
+SYNODIC_AVG = 0
+SYNODIC_MAX = 1
+
 _SWE = {
     chart.ALCABITUS: b"B",
     chart.AZIMUTHAL: b"H",
@@ -1032,6 +1039,72 @@ def relative_position(object1: dict | float, object2: dict | float) -> int:
     return calc.OCCIDENTAL if swe.difdegn(lon1, lon2) > 180 else calc.ORIENTAL
 
 
+def orbital_eccentricity(index: int, jd: float) -> float:
+    """Returns the passed object's orbital eccentricity."""
+    return _orbital_elements(index, jd)[1]
+
+
+def sidereal_period(index: int, jd: float, unit: int = DAYS) -> float:
+    """Returns the passed object's sidereal orbital period."""
+    sidereal_period = _orbital_elements(index, jd)[10]
+    return sidereal_period * solar_year_length(jd) if unit == DAYS else sidereal_period
+
+
+def tropical_period(index: int, jd: float, unit: int = DAYS) -> float:
+    """Returns the passed object's tropical orbital period."""
+    tropical_period = _orbital_elements(index, jd)[12]
+    return tropical_period * solar_year_length(jd) if unit == DAYS else tropical_period
+
+
+def synodic_period(index: int, jd: float, unit: int = DAYS) -> float:
+    """Returns the passed object's synodic period."""
+    synodic_period = _orbital_elements(index, jd)[13]
+    return synodic_period if unit == DAYS else synodic_period / solar_year_length(jd)
+
+
+def synodic_period_between(
+    index1: int, index2: int, jd: float, type: int = SYNODIC_AVG, unit: int = DAYS
+) -> float:
+    """Returns the approximate synodic period between two objects."""
+    sidereal_period1 = sidereal_period(index1, jd)
+    sidereal_period2 = sidereal_period(index2, jd)
+
+    synodic_period = 1 / abs(1 / sidereal_period1 - 1 / sidereal_period2)
+
+    if type in (SYNODIC_MIN, SYNODIC_MAX):
+        orbital_eccentricity1 = orbital_eccentricity(index1, jd)
+        orbital_eccentricity2 = orbital_eccentricity(index2, jd)
+        synodic_period *= (
+            1 + ((orbital_eccentricity1 + orbital_eccentricity2) * type) / 2
+        )
+
+    return synodic_period if unit == DAYS else synodic_period / solar_year_length(jd)
+
+
+def retrograde_period(index: int, jd: float, unit: int = DAYS) -> float:
+    """Returns an approximate estimate of a planet's retrograde period. This is
+    very approximate and should not be used for anything precise since it is
+    based on Newtonian mechanics and perfect-circle orbit calculations. Formula
+    borrowed from https://physics.stackexchange.com/a/476286."""
+    if index in (chart.SUN, chart.MOON):
+        return 0.0
+
+    a1, *_, t1 = _orbital_elements(chart.TERRA, jd)[:11]
+    a2 = _orbital_elements(index, jd)[0]
+
+    r = a2 / a1
+
+    num = math.acos((math.sqrt(r) + 1) / (r + (1 / math.sqrt(r))))
+    den = math.pi * (1 - (1 / (r ** (3 / 2))))
+    t_retro = t1 * (num / den)
+
+    retrograde_period = abs(t_retro)
+
+    return (
+        retrograde_period * solar_year_length(jd) if unit == DAYS else retrograde_period
+    )
+
+
 def solar_year_length(jd: float) -> float:
     """Returns the tropical year length in days of the given Julian date.
     This is a direct copy of astro.com's calculations."""
@@ -1091,6 +1164,12 @@ def _is_daytime(
     return is_daytime_from(sun, asc)
 
 
+@cache
+def _orbital_elements(index: int, jd: float) -> tuple:
+    """Returns pyswisseph's orbital data for the passed object."""
+    return swe.get_orbital_elements(jd + swe.deltat(jd), _SWE[index], swe.FLG_SWIEPH)
+
+
 """
 PREDICTIVE CALCULATIONS
 --------------------------------------------------------------------------------
@@ -1098,16 +1177,16 @@ These functions deal with predicting aspects, moon phases, eclipses, etc.
 """
 
 
-def previous_aspect(first: int, second: int, jd: float, aspect: float) -> float:
+def previous_aspect(index1: int, index2: int, jd: float, aspect: float) -> float:
     """Returns the Julian day of the requested transit previous
     to the passed Julian day."""
-    return _search(first, second, jd, aspect, PREVIOUS)
+    return _search(index1, index2, jd, aspect, PREVIOUS)
 
 
-def next_aspect(first: int, second: int, jd: float, aspect: float) -> float:
+def next_aspect(index1: int, index2: int, jd: float, aspect: float) -> float:
     """Returns the Julian day of the requested transit after
     the passed Julian day."""
-    return _search(first, second, jd, aspect, NEXT)
+    return _search(index1, index2, jd, aspect, NEXT)
 
 
 def previous_new_moon(jd: float) -> float:
@@ -1188,14 +1267,14 @@ def _eclipse_type(swe_index: int) -> int:
 
 
 def _search(
-    object1: int, object2: int, jd: float, aspect: float, direction: int
+    index1: int, index2: int, jd: float, aspect: float, direction: int
 ) -> float:
     """Iteratively searches for and returns the Julian date of the previous
     or next requested aspect. Useful for short dates and fast planets but too
     expensive for anything more advanced."""
     while True:
-        planet1 = get_planet(object1, jd)
-        planet2 = get_planet(object2, jd)
+        planet1 = get_planet(index1, jd)
+        planet2 = get_planet(index2, jd)
         distance = abs(swe.difdeg2n(planet1["lon"], planet2["lon"]))
         diff = abs(aspect - distance)
 
