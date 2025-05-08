@@ -797,10 +797,41 @@ def test_relative_position(day_jd, coords):
     assert ephemeris.relative_position(neptune, mercury) == calc.ORIENTAL
 
 
+def test_orbital_eccentricity():
+    """Since it is difficult to find exact values in reliable 3rd-party sources
+    I'll leave these tests for future-me to worry about."""
+    pass
+
+
+def test_sidereal_period():
+    """See above."""
+    pass
+
+
+def test_tropical_period():
+    """See above."""
+    pass
+
+
+def test_synodic_period():
+    """See above."""
+    pass
+
+
+def test_synodic_period_between():
+    """See above."""
+    pass
+
+
+def test_retrograde_period():
+    """See above."""
+    pass
+
+
 def test_solar_year_length():
-    """This one is difficult to test in isolation since it's only used for
-    secondary progressions. For now we'll leave it to the forecast module
-    tests to check the correct progressed Julian dates."""
+    """See above. Yes I'm lazy. Also we can leave it to the forecast module
+    tests to check the correct progressed Julian dates that come from this
+    function."""
     pass
 
 
