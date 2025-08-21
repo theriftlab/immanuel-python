@@ -18,11 +18,13 @@
 
 """
 
+import json
 from datetime import datetime
-from zoneinfo import ZoneInfo
+from typing import TypeVar
 
 from immanuel.classes import wrap
 from immanuel.classes.localize import localize as _
+from immanuel.classes.serialize import ToJSON
 from immanuel.const import calc, chart, names
 from immanuel.reports import aspect, dignity, pattern, weighting
 from immanuel.setup import settings
@@ -34,6 +36,9 @@ from immanuel.tools import (
     midpoint,
     position,
 )
+
+
+ChartType = TypeVar("ChartType", bound="Chart")
 
 
 class Subject:
@@ -71,7 +76,7 @@ class Chart:
     """Base chart class. This acts as an abstract class for the actual chart
     classes to inherit from."""
 
-    def __init__(self, type: int, aspects_to: "Chart" = None) -> None:
+    def __init__(self, type: int, aspects_to: ChartType | None = None) -> None:
         self.type = _(names.CHART_TYPES[type])
         self._type = type
         self._aspects_to = aspects_to
@@ -216,6 +221,9 @@ class Chart:
             modalities=weighting.modalities(self._objects),
             quadrants=weighting.quadrants(self._objects, self._houses),
         )
+
+    def to_json(self, **kwargs) -> str:
+        return json.dumps(self, cls=ToJSON, **kwargs)
 
 
 class Natal(Chart):

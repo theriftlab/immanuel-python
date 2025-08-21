@@ -12,8 +12,8 @@ from json import JSONEncoder
 
 class ToJSON(JSONEncoder):
     def default(self, obj) -> dict | str | None:
-        if hasattr(obj, "to_json"):
-            return obj.to_json()
+        if hasattr(obj, "__json__"):
+            return obj.__json__()
 
         if hasattr(obj, "__dict__"):
             return {k: v for k, v in obj.__dict__.items() if k[0] != "_"}
