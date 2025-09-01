@@ -22,11 +22,11 @@ Immanuel's output is currently available in the following locales / languages:
 * **es_ES:** Spanish
 * **de_DE:** German
 
-See [here](https://github.com/theriftlab/immanuel-python/tree/v1.5.0/docs/5-settings.md#locale) for details on how to switch. The documentation itself is not currently available in other translations. To contribute in-software translations, see [here](https://github.com/theriftlab/immanuel-python/tree/v1.5.0/docs/7-contributions.md).
+See [here](https://github.com/theriftlab/immanuel-python/tree/v1.5.2/docs/5-settings.md#locale) for details on how to switch. The documentation itself is not currently available in other translations. To contribute in-software translations, see [here](https://github.com/theriftlab/immanuel-python/tree/v1.5.2/docs/7-contributions.md).
 
 ## Documentation
 
-Full documentation is available [here](https://github.com/theriftlab/immanuel-python/tree/v1.5.0/docs/0-contents.md), or follow the Quick Start below to see how to quickly generate a natal chart.
+Full documentation is available [here](https://github.com/theriftlab/immanuel-python/tree/v1.5.2/docs/0-contents.md), or follow the Quick Start below to see how to quickly generate a natal chart.
 
 ## Quick Start
 
