@@ -343,7 +343,9 @@ def test_get_armc_angle(jd, coords, armc, all_angles):
     obliquity = ephemeris.earth_obliquity(jd)
 
     for index in all_angles:
-        angle = ephemeris.get_armc_angle(index, armc, coords[0], obliquity, chart.PLACIDUS)
+        angle = ephemeris.get_armc_angle(
+            index, armc, coords[0], obliquity, chart.PLACIDUS
+        )
         assert angle["index"] == index and angle["type"] == chart.ANGLE
 
     assert ephemeris.get_armc_angle(
@@ -377,7 +379,9 @@ def test_get_armc_house(jd, coords, armc, all_houses):
     obliquity = ephemeris.earth_obliquity(jd)
 
     for index in all_houses:
-        house = ephemeris.get_armc_house(index, armc, coords[0], obliquity, chart.PLACIDUS)
+        house = ephemeris.get_armc_house(
+            index, armc, coords[0], obliquity, chart.PLACIDUS
+        )
         assert house["index"] == index and house["type"] == chart.HOUSE
 
     assert ephemeris.get_armc_house(
@@ -471,8 +475,12 @@ def test_get_data(coords, jd, astro):
         "juno": ephemeris.get_asteroid(chart.JUNO, jd),  # Included with planets
         "lilith": ephemeris.get_asteroid(1181, jd),  # From external file
         "antares": ephemeris.get_fixed_star("Antares", jd),
-        "pre_natal_solar_eclipse": ephemeris.get_eclipse(chart.PRE_NATAL_SOLAR_ECLIPSE, jd),
-        "pre_natal_lunar_eclipse": ephemeris.get_eclipse(chart.PRE_NATAL_LUNAR_ECLIPSE, jd),
+        "pre_natal_solar_eclipse": ephemeris.get_eclipse(
+            chart.PRE_NATAL_SOLAR_ECLIPSE, jd
+        ),
+        "pre_natal_lunar_eclipse": ephemeris.get_eclipse(
+            chart.PRE_NATAL_LUNAR_ECLIPSE, jd
+        ),
         "post_natal_solar_eclipse": ephemeris.get_eclipse(
             chart.POST_NATAL_SOLAR_ECLIPSE, jd
         ),
@@ -539,6 +547,7 @@ def test_armc_get_data(coords, jd, astro, armc):
 CALCULATIONS
 --------------------------------------------------------------------------------
 """
+
 
 def test_part_of_fortune_day_formula(day_jd, coords):
     sun, moon, asc = ephemeris.get_objects(
@@ -638,7 +647,12 @@ def test_is_daytime(day_jd, night_jd, coords):
 
 def test_armc_is_daytime(day_jd, coords, armc):
     # Sun above ascendant in astro.com chart visual
-    assert ephemeris.armc_is_daytime(day_jd, armc, coords[0], ephemeris.earth_obliquity(day_jd)) is True
+    assert (
+        ephemeris.armc_is_daytime(
+            day_jd, armc, coords[0], ephemeris.earth_obliquity(day_jd)
+        )
+        is True
+    )
 
 
 def test_is_daytime_from(day_jd, night_jd, coords):
@@ -657,7 +671,7 @@ def test_moon_phase(jd):
     # Courtesy of https://stardate.org/nightsky/moon
     assert (
         ephemeris.moon_phase(jd) == calc.THIRD_QUARTER
-    ) is True # third quarter = waning crescent
+    ) is True  # third quarter = waning crescent
 
 
 def test_moon_phase_from(jd):
@@ -666,7 +680,7 @@ def test_moon_phase_from(jd):
     moon = ephemeris.get_planet(chart.MOON, jd)
     assert (
         ephemeris.moon_phase_from(sun, moon) == calc.THIRD_QUARTER
-    ) is True # third quarter = waning crescent
+    ) is True  # third quarter = waning crescent
 
 
 def test_earth_obliquity(jd):
@@ -839,6 +853,7 @@ def test_solar_year_length():
 PREDICTIVE CALCULATIONS
 --------------------------------------------------------------------------------
 """
+
 
 def test_previous_aspect(jd, coords):
     # Check for previous Sun / Moon conjunction so we can use the same

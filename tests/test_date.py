@@ -78,7 +78,7 @@ def test_localize_offset(jd):
 
 def test_localize_timezone(jd):
     dt = datetime(2000, 1, 1, 10)
-    aware = date.localize(dt, time_zone='America/Los_Angeles')
+    aware = date.localize(dt, time_zone="America/Los_Angeles")
     assert date.to_jd(aware) == jd
 
 
@@ -100,7 +100,7 @@ def test_to_jd(str_pst_date, gmt_date, pst_date, pst_coords, gmt_coords, jd):
     assert date.to_jd(jd) == jd
     assert date.to_jd(str_pst_date, *pst_coords) == jd
     assert date.to_jd(str_pst_date, *gmt_coords, offset=-8.0) == jd
-    assert date.to_jd(str_pst_date, time_zone='America/Los_Angeles') == jd
+    assert date.to_jd(str_pst_date, time_zone="America/Los_Angeles") == jd
     assert date.to_jd(gmt_date) == jd
     assert date.to_jd(pst_date) == jd
 
@@ -179,7 +179,7 @@ def test_to_datetime_pst(pst_date, str_pst_date, pst_coords, gmt_coords, jd):
     assert dt_from_offset.minute == 0
     assert dt_from_offset.second == 0
 
-    dt_from_time_zone = date.to_datetime(jd, time_zone='America/Los_Angeles')
+    dt_from_time_zone = date.to_datetime(jd, time_zone="America/Los_Angeles")
     assert dt_from_time_zone.year == 2000
     assert dt_from_time_zone.month == 1
     assert dt_from_time_zone.day == 1

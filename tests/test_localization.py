@@ -180,7 +180,8 @@ def teardown_function():
 def test_date_locale(native):
     settings.locale = "pt_BR"
     assert (
-        str(wrap.Subject(native)) == "Sáb Jan 01 2000 10:00:00 America/Los_Angeles em 32N43.0, 117W9.0"
+        str(wrap.Subject(native))
+        == "Sáb Jan 01 2000 10:00:00 America/Los_Angeles em 32N43.0, 117W9.0"
     )
 
 
@@ -531,7 +532,10 @@ def test_formatted_ambiguous_datetime(lat, lon):
     settings.locale = "pt_BR"
     ambiguous_native = charts.Subject("2022-11-06 01:30", lat, lon)
     natal = charts.Natal(ambiguous_native)
-    assert str(natal.native.date_time) == "Dom Nov 06 2022 01:30:00 America/Los_Angeles (ambíguo)"
+    assert (
+        str(natal.native.date_time)
+        == "Dom Nov 06 2022 01:30:00 America/Los_Angeles (ambíguo)"
+    )
 
 
 def test_formatted_aspect(native):
@@ -554,7 +558,10 @@ def test_formatted_object(native):
 def test_formatted_subject(native):
     settings.locale = "pt_BR"
     natal = charts.Natal(native)
-    assert str(natal.native) == "Sáb Jan 01 2000 10:00:00 America/Los_Angeles em 32N43.0, 117W9.0"
+    assert (
+        str(natal.native)
+        == "Sáb Jan 01 2000 10:00:00 America/Los_Angeles em 32N43.0, 117W9.0"
+    )
 
 
 def test_formatted_weightings_elements(native):
