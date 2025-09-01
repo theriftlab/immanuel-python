@@ -207,8 +207,12 @@ class Chart:
             index: {
                 object_index: wrap.Aspect(
                     aspect=object_aspect,
-                    active_name=self._objects[object_aspect["active"]]["name"],
-                    passive_name=self._objects[object_aspect["passive"]]["name"],
+                    active_name=self._objects[object_aspect["active"]]["name"]
+                    if object_aspect["active"] in self._objects
+                    else self._aspects_to._objects[object_aspect["active"]]["name"],
+                    passive_name=self._objects[object_aspect["passive"]]["name"]
+                    if object_aspect["passive"] in self._objects
+                    else self._aspects_to._objects[object_aspect["passive"]]["name"],
                 )
                 for object_index, object_aspect in aspect_list.items()
             }
