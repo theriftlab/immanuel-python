@@ -25,7 +25,8 @@ from typing import TypeVar
 from immanuel.classes import wrap
 from immanuel.classes.localize import localize as _
 from immanuel.classes.serialize import ToJSON
-from immanuel.const import calc, chart, names
+from immanuel.classes.transit_events import TransitPeriod
+from immanuel.const import calc, chart, names, transits
 from immanuel.reports import aspect, dignity, pattern, weighting
 from immanuel.setup import settings
 from immanuel.tools import (
@@ -35,6 +36,7 @@ from immanuel.tools import (
     forecast,
     midpoint,
     position,
+    transit,
 )
 
 
@@ -633,4 +635,226 @@ class Transits(Chart):
             )
             if self._aspects_to is None or self._houses_for_aspected is False
             else self._aspects_to._houses
+        )
+
+
+class MundaneTransits(Chart):
+    """Calculates transits for a fixed geographic location over a time period.
+    Provides planetary positions and movements at regular intervals."""
+
+    def __init__(
+        self,
+        start_date: str | datetime,
+        end_date: str | datetime,
+        latitude: float | list | tuple | str = settings.default_latitude,
+        longitude: float | list | tuple | str = settings.default_longitude,
+        interval: transits.IntervalType = settings.transit_default_interval,
+        timezone_offset: float | None = None,
+        timezone: str | None = None,
+        aspects_to: Chart | None = None,
+    ) -> None:
+        # Convert coordinates
+        lat, lon = convert.coordinates(latitude, longitude)
+
+        # Store parameters for calculation
+        self._start_date = date.to_datetime(
+            dt=start_date,
+            lat=lat,
+            lon=lon,
+            offset=timezone_offset,
+            time_zone=timezone,
+        ) if isinstance(start_date, str) else start_date
+
+        self._end_date = date.to_datetime(
+            dt=end_date,
+            lat=lat,
+            lon=lon,
+            offset=timezone_offset,
+            time_zone=timezone,
+        ) if isinstance(end_date, str) else end_date
+
+        self._interval = interval
+        self._latitude = lat
+        self._longitude = lon
+        self._timezone_offset = timezone_offset
+        self._timezone = timezone
+
+        # Create a Subject for the location (using start date)
+        self._native = Subject(
+            self._start_date, lat, lon, timezone_offset, timezone
+        )
+
+        # Initialize transit calculator
+        self._calculator = transit.TransitCalculator(
+            precision=settings.transit_precision
+        )
+
+        super().__init__(chart.MUNDANE_TRANSITS, aspects_to)
+
+    def generate(self) -> None:
+        """Generate transit timeline for the specified period."""
+        # Calculate transit timeline
+        self._transit_period = self._calculator.calculate_transit_timeline(
+            objects=settings.objects,
+            start_date=self._start_date,
+            end_date=self._end_date,
+            interval=self._interval,
+            latitude=self._latitude,
+            longitude=self._longitude
+        )
+
+        # For consistency with other chart types, we need these values
+        # Use the midpoint of the period for calculations
+        mid_date = self._start_date + (self._end_date - self._start_date) / 2
+        mid_jd = date.to_jd(mid_date)
+
+        self._obliquity = ephemeris.earth_obliquity(mid_jd)
+
+        # Get Sun, Moon, and ASC for the midpoint
+        self._triad[chart.SUN] = ephemeris.get_planet(chart.SUN, mid_jd)
+        self._triad[chart.MOON] = ephemeris.get_planet(chart.MOON, mid_jd)
+        self._triad[chart.ASC] = ephemeris.get_angle(
+            index=chart.ASC,
+            jd=mid_jd,
+            lat=self._latitude,
+            lon=self._longitude,
+            house_system=settings.house_system,
+        )
+
+        self._diurnal = ephemeris.is_daytime_from(
+            self._triad[chart.SUN], self._triad[chart.ASC]
+        )
+        self._moon_phase = ephemeris.moon_phase_from(
+            self._triad[chart.SUN], self._triad[chart.MOON]
+        )
+
+        # Get objects and houses for the midpoint
+        self._objects = ephemeris.get_objects(
+            object_list=settings.objects,
+            jd=mid_jd,
+            lat=self._latitude,
+            lon=self._longitude,
+            house_system=settings.house_system,
+            part_formula=settings.part_formula,
+        )
+        self._houses = ephemeris.get_houses(
+            jd=mid_jd,
+            lat=self._latitude,
+            lon=self._longitude,
+            house_system=settings.house_system,
+        )
+
+    def set_wrapped_transit_period(self) -> None:
+        """Wrap the transit period data."""
+        self.transit_period = wrap.TransitPeriodWrapper(self._transit_period)
+
+    def set_wrapped_transit_events(self) -> None:
+        """Wrap the transit events data."""
+        self.transit_events = [
+            wrap.TransitEventWrapper(event)
+            for event in self._transit_period.events
+        ]
+
+    def set_wrapped_transit_statistics(self) -> None:
+        """Wrap the transit statistics."""
+        self.transit_statistics = wrap.TransitStatisticsWrapper(
+            self._transit_period.statistics
+        )
+
+
+class NatalTransits(Chart):
+    """Calculates transits to a natal chart over a time period.
+    Shows aspects between transiting planets and natal positions."""
+
+    def __init__(
+        self,
+        natal_chart: Chart,
+        start_date: str | datetime,
+        end_date: str | datetime,
+        interval: transits.IntervalType = settings.transit_default_interval,
+        aspects_to_calculate: list = None,
+        aspects_to: Chart | None = None,
+    ) -> None:
+        self._natal_chart = natal_chart
+        self._start_date = date.to_datetime(
+            dt=start_date,
+            lat=natal_chart._native.latitude,
+            lon=natal_chart._native.longitude,
+            offset=natal_chart._native.timezone_offset,
+            time_zone=natal_chart._native.timezone,
+        ) if isinstance(start_date, str) else start_date
+
+        self._end_date = date.to_datetime(
+            dt=end_date,
+            lat=natal_chart._native.latitude,
+            lon=natal_chart._native.longitude,
+            offset=natal_chart._native.timezone_offset,
+            time_zone=natal_chart._native.timezone,
+        ) if isinstance(end_date, str) else end_date
+
+        self._interval = interval
+        self._aspects_to_calculate = aspects_to_calculate or settings.aspects
+
+        # Use natal chart's location
+        self._native = natal_chart._native
+
+        # Initialize transit calculator
+        self._calculator = transit.TransitCalculator(
+            precision=settings.transit_precision
+        )
+
+        super().__init__(chart.NATAL_TRANSITS, aspects_to or natal_chart)
+
+    def generate(self) -> None:
+        """Generate transit timeline and calculate aspects to natal chart."""
+        # Calculate transit timeline
+        self._transit_period = self._calculator.calculate_transit_timeline(
+            objects=settings.objects,
+            start_date=self._start_date,
+            end_date=self._end_date,
+            interval=self._interval,
+            latitude=self._native.latitude,
+            longitude=self._native.longitude
+        )
+
+        # Use midpoint for chart consistency calculations
+        mid_date = self._start_date + (self._end_date - self._start_date) / 2
+        mid_jd = date.to_jd(mid_date)
+
+        self._obliquity = ephemeris.earth_obliquity(mid_jd)
+
+        # Use natal chart's triad
+        self._triad = self._natal_chart._triad.copy()
+
+        self._diurnal = self._natal_chart._diurnal
+        self._moon_phase = self._natal_chart._moon_phase
+
+        # Get current transiting objects
+        self._objects = ephemeris.get_objects(
+            object_list=settings.objects,
+            jd=mid_jd,
+            lat=self._native.latitude,
+            lon=self._native.longitude,
+            house_system=settings.house_system,
+            part_formula=settings.part_formula,
+        )
+
+        # Use natal houses
+        self._houses = self._natal_chart._houses
+
+    def set_wrapped_transit_period(self) -> None:
+        """Wrap the transit period data."""
+        self.transit_period = wrap.TransitPeriodWrapper(self._transit_period)
+
+    def set_wrapped_transit_events(self) -> None:
+        """Wrap the transit events data."""
+        self.transit_events = [
+            wrap.TransitEventWrapper(event)
+            for event in self._transit_period.events
+        ]
+
+    def set_wrapped_transit_statistics(self) -> None:
+        """Wrap the transit statistics."""
+        self.transit_statistics = wrap.TransitStatisticsWrapper(
+            self._transit_period.statistics
         )

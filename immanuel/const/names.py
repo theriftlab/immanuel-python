@@ -1,13 +1,13 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    User-facing names for chart data objects.
+User-facing names for chart data objects.
 
 """
 
-from immanuel.const import calc, chart, dignities
+from immanuel.const import calc, chart, dignities, transits
 
 
 CHART_TYPES = {
@@ -16,6 +16,8 @@ CHART_TYPES = {
     chart.PROGRESSED: "Progressed",
     chart.COMPOSITE: "Composite",
     chart.TRANSITS: "Transits",
+    chart.MUNDANE_TRANSITS: "Mundane Transits",
+    chart.NATAL_TRANSITS: "Natal Transits",
 }
 
 OBJECTS = {
@@ -237,4 +239,62 @@ PROGRESSION_METHODS = {
     calc.NAIBOD: "Naibod",
     calc.SOLAR_ARC: "Solar Arc",
     calc.DAILY_HOUSES: "Daily Houses",
+}
+
+TRANSIT_EVENT_TYPES = {
+    transits.EVENT_ASPECT: "Aspect",
+    transits.EVENT_INGRESS_SIGN: "Sign Ingress",
+    transits.EVENT_INGRESS_HOUSE: "House Ingress",
+    transits.EVENT_STATION: "Station",
+    transits.EVENT_ECLIPSE: "Eclipse",
+    transits.EVENT_PLANETARY_RETURN: "Planetary Return",
+}
+
+STATION_TYPES = {
+    transits.STATION_RETROGRADE: "Retrograde",
+    transits.STATION_DIRECT: "Direct",
+}
+
+PRECISION_LEVELS = {
+    transits.PRECISION_MINUTE: "Minute precision",
+    transits.PRECISION_SECOND: "Second precision",
+    transits.PRECISION_HIGH: "High precision",
+}
+
+TRANSIT_INTERVALS = {
+    "hourly": "Hourly",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+}
+
+# Additional transit-related terms
+TRANSIT_TERMS = {
+    "applying": "Applying",
+    "separating": "Separating",
+    "exact": "Exact",
+    "orb": "Orb",
+    "ingress": "Ingress",
+    "egress": "Egress",
+    "cazimi": "Cazimi",
+    "combust": "Combust",
+    "under_the_beams": "Under the Beams",
+    "out_of_bounds": "Out of Bounds",
+    "void_of_course": "Void of Course",
+    "partile": "Partile",
+    "platic": "Platic",
+    "moiety": "Moiety",
+}
+
+# Lunar phase names for transit calculations
+LUNAR_PHASES = {
+    "new_moon": "New Moon",
+    "waxing_crescent": "Waxing Crescent",
+    "first_quarter": "First Quarter",
+    "waxing_gibbous": "Waxing Gibbous",
+    "full_moon": "Full Moon",
+    "waning_gibbous": "Waning Gibbous",
+    "last_quarter": "Last Quarter",
+    "waning_crescent": "Waning Crescent",
 }

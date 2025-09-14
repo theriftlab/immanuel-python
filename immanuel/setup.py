@@ -14,7 +14,7 @@ from typing import Any
 import swisseph as swe
 
 from immanuel.classes.localize import Localize
-from immanuel.const import calc, chart, data, dignities
+from immanuel.const import calc, chart, data, dignities, transits
 
 
 class BaseSettings:
@@ -89,6 +89,23 @@ class BaseSettings:
                 data.HOUSES,
                 data.ASPECTS,
                 data.WEIGHTINGS,
+            ],
+            chart.MUNDANE_TRANSITS: [
+                data.NATIVE,
+                data.TRANSIT_PERIOD,
+                data.HOUSE_SYSTEM,
+                data.OBJECTS,
+                data.TRANSIT_EVENTS,
+                data.TRANSIT_STATISTICS,
+            ],
+            chart.NATAL_TRANSITS: [
+                data.NATIVE,
+                data.TRANSIT_PERIOD,
+                data.HOUSE_SYSTEM,
+                data.OBJECTS,
+                data.ASPECTS,
+                data.TRANSIT_EVENTS,
+                data.TRANSIT_STATISTICS,
             ],
         }
 
@@ -229,6 +246,15 @@ class BaseSettings:
             dignities.FALL: -4,
             dignities.PEREGRINE: -5,
         }
+
+        """ Transit calculation settings. """
+        self.transit_precision = transits.DEFAULT_PRECISION
+        self.transit_default_interval = transits.DEFAULT_INTERVAL
+        self.transit_search_step = transits.DEFAULT_SEARCH_STEP
+        self.transit_max_iterations = transits.MAX_ITERATIONS
+        self.transit_convergence_tolerance = transits.CONVERGENCE_TOLERANCE
+        self.transit_search_window = transits.DEFAULT_SEARCH_WINDOW
+        self.transit_max_search_window = transits.MAX_SEARCH_WINDOW
 
         """ Set up empty dicts for cascading settings. """
         self._default_aspect_rule = {}

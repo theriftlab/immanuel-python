@@ -12,10 +12,12 @@
 from datetime import datetime
 
 from immanuel.classes.localize import gender, localize as _
-from immanuel.const import calc, chart, dignities, names
+from immanuel.classes.transit_events import TransitEvent, TransitPeriod
+from immanuel.const import calc, chart, dignities, names, transits
 from immanuel.reports import dignity
 from immanuel.setup import settings
 from immanuel.tools import convert, date, ephemeris, position
+from immanuel.tools.names import get_object_name
 
 
 class Angle:
@@ -410,3 +412,86 @@ class Quadrants:
 
     def __str__(self) -> str:
         return f"{_('First')}: {len(self.first)}, {_('Second')}: {len(self.second)}, {_('Third')}: {len(self.third)}, {_('Fourth')}: {len(self.fourth)}"
+
+
+class TransitEventWrapper:
+    """Wrapper for transit event data to provide formatted output."""
+
+    def __init__(self, event: TransitEvent) -> None:
+        self.event_type = _(names.TRANSIT_EVENT_TYPES.get(event.event_type, event.event_type))
+        self.date_time = DateTime(dt=event.date_time)
+        self.julian_date = event.julian_date
+        self.transiting_object = get_object_name(event.transiting_object)
+        self.target_object = (
+            get_object_name(event.target_object)
+            if event.target_object is not None
+            else None
+        )
+        self.aspect_type = (
+            _(names.ASPECTS[event.aspect_type])
+            if event.aspect_type is not None
+            else None
+        )
+        self.orb = event.orb
+        self.exact = event.exact
+        self.longitude = Angle(event.longitude)
+        self.house = event.house
+        self.precision_achieved = _(names.PRECISION_LEVELS.get(event.precision_achieved, event.precision_achieved))
+        self.metadata = event.metadata
+
+
+    def __str__(self) -> str:
+        if self.event_type == _(names.TRANSIT_EVENT_TYPES[transits.EVENT_ASPECT]):
+            target_name = self.target_object or _("Unknown")
+            aspect_name = self.aspect_type or _("Aspect")
+            return f"{self.transiting_object} {aspect_name} {target_name} at {self.date_time}"
+        elif self.event_type == _(names.TRANSIT_EVENT_TYPES[transits.EVENT_INGRESS_SIGN]):
+            to_sign = self.metadata.get('to_position', 'Unknown Sign')
+            sign_name = _(names.SIGNS.get(to_sign, str(to_sign))) if isinstance(to_sign, int) else str(to_sign)
+            return f"{self.transiting_object} enters {sign_name} at {self.date_time}"
+        elif self.event_type == _(names.TRANSIT_EVENT_TYPES[transits.EVENT_STATION]):
+            station_type = self.metadata.get('station_type', 'station')
+            station_name = _(names.STATION_TYPES.get(station_type, station_type))
+            return f"{self.transiting_object} {station_name} at {self.date_time}"
+        elif self.event_type == _(names.TRANSIT_EVENT_TYPES[transits.EVENT_PLANETARY_RETURN]):
+            planet_name = self.transiting_object
+            return f"{planet_name} Return at {self.date_time}"
+        else:
+            return f"{self.transiting_object} {self.event_type} at {self.date_time}"
+
+
+class TransitPeriodWrapper:
+    """Wrapper for transit period data to provide formatted output."""
+
+    def __init__(self, period: TransitPeriod) -> None:
+        self.start_date = DateTime(dt=period.start_date)
+        self.end_date = DateTime(dt=period.end_date)
+        self.interval = _(names.TRANSIT_INTERVALS.get(period.interval, str(period.interval)))
+        self.events = [TransitEventWrapper(event) for event in period.events]
+        self.statistics = period.statistics
+
+    def __str__(self) -> str:
+        event_count = len(self.events)
+        return f"Transit period from {self.start_date} to {self.end_date} ({event_count} events)"
+
+
+class TransitStatisticsWrapper:
+    """Wrapper for transit statistics to provide formatted output."""
+
+    def __init__(self, stats: dict) -> None:
+        self.total_events = stats.get('total_events', 0)
+        self.event_type_counts = stats.get('event_type_counts', {})
+        self.object_counts = stats.get('object_counts', {})
+        self.first_event = (
+            DateTime(dt=stats['first_event'])
+            if 'first_event' in stats
+            else None
+        )
+        self.last_event = (
+            DateTime(dt=stats['last_event'])
+            if 'last_event' in stats
+            else None
+        )
+
+    def __str__(self) -> str:
+        return f"Transit statistics: {self.total_events} total events"
