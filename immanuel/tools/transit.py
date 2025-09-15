@@ -373,3 +373,271 @@ class TransitCalculator:
             current_dt += period_interval
 
         return TransitPeriod(start_date=start_date, end_date=end_date, events=events, interval=interval)
+
+    def find_solar_eclipses(
+        self, start_jd: float, end_jd: float, latitude: float = 0.0, longitude: float = 0.0
+    ) -> List[TransitEvent]:
+        """Find all solar eclipses within the given time period.
+
+        Args:
+            start_jd: Starting Julian day
+            end_jd: Ending Julian day
+            latitude: Observer latitude (for local visibility)
+            longitude: Observer longitude (for local visibility)
+
+        Returns:
+            List of solar eclipse TransitEvent objects
+        """
+        eclipses = []
+        current_jd = start_jd
+
+        while current_jd < end_jd:
+            try:
+                # Find next solar eclipse globally
+                eclipse_type, eclipse_times = swe.sol_eclipse_when_glob(
+                    current_jd, swe.ECL_ALLTYPES_SOLAR, 0
+                )
+
+                if eclipse_times[0] <= end_jd:
+                    eclipse_jd = eclipse_times[0]  # Maximum eclipse time
+                    eclipse_dt = date.to_datetime(eclipse_jd)
+
+                    # Get Sun position at eclipse time (eclipse longitude)
+                    sun_position = ephemeris.get_planet(chart.SUN, eclipse_jd)
+                    eclipse_longitude = sun_position['lon']
+
+                    # Calculate house position if coordinates provided
+                    eclipse_house = None
+                    if latitude != 0.0 or longitude != 0.0:
+                        try:
+                            houses = ephemeris.get_houses(
+                                jd=eclipse_jd,
+                                lat=latitude,
+                                lon=longitude,
+                                house_system=settings.house_system
+                            )
+                            eclipse_house = self._get_house_for_longitude(eclipse_longitude, houses)
+                        except:
+                            pass
+
+                    # Determine eclipse type
+                    eclipse_subtype = transits.ECLIPSE_PARTIAL
+                    if eclipse_type & swe.ECL_TOTAL:
+                        eclipse_subtype = transits.ECLIPSE_TOTAL
+                    elif eclipse_type & swe.ECL_ANNULAR:
+                        eclipse_subtype = transits.ECLIPSE_ANNULAR
+
+                    # Check local visibility if coordinates provided
+                    visibility = True
+                    if latitude != 0.0 or longitude != 0.0:
+                        try:
+                            local_type, local_times, local_attr = swe.sol_eclipse_when_loc(
+                                current_jd, latitude, longitude, 0
+                            )
+                            visibility = bool(local_type & swe.ECL_VISIBLE)
+                        except:
+                            visibility = False
+
+                    eclipse_event = create_transit_event(
+                        event_type=transits.EVENT_ECLIPSE,
+                        date_time=eclipse_dt,
+                        julian_date=eclipse_jd,
+                        transiting_object=chart.SUN,  # Solar eclipse
+                        target_object=chart.MOON,      # Moon blocks Sun
+                        longitude=eclipse_longitude,
+                        house=eclipse_house,
+                        exact=True,
+                        eclipse_type=eclipse_subtype,  # total, partial, annular
+                        visibility_info={'visible_from_location': visibility},
+                        magnitude=1.0,  # Can be calculated from eclipse_times if needed
+                        precision_achieved=self.precision,
+                        metadata={
+                            'eclipse_times': eclipse_times,
+                            'eclipse_type_flags': eclipse_type,
+                            'eclipse_category': transits.ECLIPSE_SOLAR,
+                            'global_eclipse': True,
+                        }
+                    )
+                    eclipses.append(eclipse_event)
+
+                    # Move to next search point
+                    current_jd = eclipse_jd + 1.0  # Move past this eclipse
+                else:
+                    break
+
+            except swe.Error:
+                # No more eclipses found in range
+                break
+
+        return eclipses
+
+    def find_lunar_eclipses(
+        self, start_jd: float, end_jd: float, latitude: float = 0.0, longitude: float = 0.0
+    ) -> List[TransitEvent]:
+        """Find all lunar eclipses within the given time period.
+
+        Args:
+            start_jd: Starting Julian day
+            end_jd: Ending Julian day
+            latitude: Observer latitude (for local visibility)
+            longitude: Observer longitude (for local visibility)
+
+        Returns:
+            List of lunar eclipse TransitEvent objects
+        """
+        eclipses = []
+        current_jd = start_jd
+
+        while current_jd < end_jd:
+            try:
+                # Find next lunar eclipse
+                eclipse_type, eclipse_times = swe.lun_eclipse_when(
+                    current_jd, swe.ECL_ALLTYPES_LUNAR, 0
+                )
+
+                if eclipse_times[0] <= end_jd:
+                    eclipse_jd = eclipse_times[0]  # Maximum eclipse time
+                    eclipse_dt = date.to_datetime(eclipse_jd)
+
+                    # Get Moon position at eclipse time (eclipse longitude)
+                    moon_position = ephemeris.get_planet(chart.MOON, eclipse_jd)
+                    eclipse_longitude = moon_position['lon']
+
+                    # Calculate house position if coordinates provided
+                    eclipse_house = None
+                    if latitude != 0.0 or longitude != 0.0:
+                        try:
+                            houses = ephemeris.get_houses(
+                                jd=eclipse_jd,
+                                lat=latitude,
+                                lon=longitude,
+                                house_system=settings.house_system
+                            )
+                            eclipse_house = self._get_house_for_longitude(eclipse_longitude, houses)
+                        except:
+                            pass
+
+                    # Determine eclipse type
+                    eclipse_subtype = transits.ECLIPSE_PARTIAL
+                    if eclipse_type & swe.ECL_TOTAL:
+                        eclipse_subtype = transits.ECLIPSE_TOTAL
+                    elif eclipse_type & swe.ECL_PENUMBRAL:
+                        eclipse_subtype = transits.ECLIPSE_PENUMBRAL
+
+                    # Check local visibility if coordinates provided
+                    visibility = True
+                    if latitude != 0.0 or longitude != 0.0:
+                        try:
+                            local_type, local_times, local_attr = swe.lun_eclipse_when_loc(
+                                current_jd, latitude, longitude, 0
+                            )
+                            visibility = bool(local_type & swe.ECL_VISIBLE)
+                        except:
+                            visibility = False
+
+                    eclipse_event = create_transit_event(
+                        event_type=transits.EVENT_ECLIPSE,
+                        date_time=eclipse_dt,
+                        julian_date=eclipse_jd,
+                        transiting_object=chart.MOON,  # Lunar eclipse
+                        target_object=chart.SUN,       # Earth's shadow
+                        longitude=eclipse_longitude,
+                        house=eclipse_house,
+                        exact=True,
+                        eclipse_type=eclipse_subtype,  # total, partial, penumbral
+                        visibility_info={'visible_from_location': visibility},
+                        magnitude=1.0,  # Can be calculated from eclipse_times if needed
+                        precision_achieved=self.precision,
+                        metadata={
+                            'eclipse_times': eclipse_times,
+                            'eclipse_type_flags': eclipse_type,
+                            'eclipse_category': transits.ECLIPSE_LUNAR,
+                            'global_eclipse': True,
+                        }
+                    )
+                    eclipses.append(eclipse_event)
+
+                    # Move to next search point
+                    current_jd = eclipse_jd + 1.0  # Move past this eclipse
+                else:
+                    break
+
+            except swe.Error:
+                # No more eclipses found in range
+                break
+
+        return eclipses
+
+    def find_all_eclipses(
+        self, start_jd: float, end_jd: float, latitude: float = 0.0, longitude: float = 0.0
+    ) -> List[TransitEvent]:
+        """Find all eclipses (solar and lunar) within the given time period.
+
+        Args:
+            start_jd: Starting Julian day
+            end_jd: Ending Julian day
+            latitude: Observer latitude (for local visibility)
+            longitude: Observer longitude (for local visibility)
+
+        Returns:
+            List of all eclipse TransitEvent objects, sorted by date
+        """
+        all_eclipses = []
+
+        # Find solar eclipses
+        solar_eclipses = self.find_solar_eclipses(start_jd, end_jd, latitude, longitude)
+        all_eclipses.extend(solar_eclipses)
+
+        # Find lunar eclipses
+        lunar_eclipses = self.find_lunar_eclipses(start_jd, end_jd, latitude, longitude)
+        all_eclipses.extend(lunar_eclipses)
+
+        # Sort by date
+        all_eclipses.sort(key=lambda e: e.julian_date)
+        return all_eclipses
+
+    def _get_house_for_longitude(self, longitude: float, houses: dict) -> Optional[int]:
+        """Determine which house a given longitude falls into.
+
+        Args:
+            longitude: The ecliptic longitude in degrees
+            houses: Dictionary of house cusps from ephemeris.get_houses()
+
+        Returns:
+            House number (1-12) or None if cannot be determined
+        """
+        if not houses:
+            return None
+
+        try:
+            # Get house cusps (1st house cusp, 2nd house cusp, etc.)
+            cusps = []
+            for house_num in range(1, 13):
+                if house_num in houses:
+                    cusps.append((house_num, houses[house_num]['lon']))
+
+            if not cusps:
+                return None
+
+            # Sort cusps by longitude
+            cusps.sort(key=lambda x: x[1])
+
+            # Find which house the longitude falls into
+            longitude = longitude % 360
+
+            for i, (house_num, cusp_lon) in enumerate(cusps):
+                next_cusp_lon = cusps[(i + 1) % 12][1]
+
+                # Handle wrap-around at 0/360 degrees
+                if cusp_lon <= next_cusp_lon:
+                    if cusp_lon <= longitude < next_cusp_lon:
+                        return house_num
+                else:  # Wrap around case
+                    if longitude >= cusp_lon or longitude < next_cusp_lon:
+                        return house_num
+
+            # Fallback - should not happen
+            return 1
+
+        except:
+            return None

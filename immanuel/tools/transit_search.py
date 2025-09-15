@@ -327,7 +327,10 @@ class TransitSearch:
         include_ingresses: bool = True,
         include_stations: bool = True,
         include_returns: bool = False,
+        include_eclipses: bool = False,
         planets: Optional[List[int]] = None,
+        latitude: float = 0.0,
+        longitude: float = 0.0,
     ) -> Dict[str, List[TransitEvent]]:
         """
         Perform a comprehensive search for multiple types of transit events.
@@ -337,7 +340,10 @@ class TransitSearch:
             include_ingresses: Search for sign ingresses
             include_stations: Search for planetary stations
             include_returns: Search for planetary returns
+            include_eclipses: Search for eclipses
             planets: List of planets to search, or None for default set
+            latitude: Observer latitude for eclipse visibility
+            longitude: Observer longitude for eclipse visibility
 
         Returns:
             Dictionary with event types as keys and lists of events as values
@@ -381,4 +387,128 @@ class TransitSearch:
                     if return_event:
                         results['returns'].append(return_event)
 
+        if include_eclipses:
+            results['eclipses'] = self.find_eclipses(
+                latitude=latitude, longitude=longitude
+            )
+
         return results
+
+    def find_eclipses(
+        self,
+        eclipse_types: Optional[List[str]] = None,
+        latitude: float = 0.0,
+        longitude: float = 0.0,
+        visible_only: bool = False,
+    ) -> List[TransitEvent]:
+        """Find eclipses within the search period.
+
+        Args:
+            eclipse_types: List of eclipse types to search for
+                          ('solar_eclipse', 'lunar_eclipse', or None for both)
+            latitude: Observer latitude for local visibility calculation
+            longitude: Observer longitude for local visibility calculation
+            visible_only: Only return eclipses visible from the specified location
+
+        Returns:
+            List of TransitEvent objects for found eclipses
+        """
+        start_jd = date.to_jd(self.start_date)
+        end_jd = date.to_jd(self.end_date)
+
+        # Default to both types if not specified
+        search_types = eclipse_types or [transits.ECLIPSE_SOLAR, transits.ECLIPSE_LUNAR]
+
+        all_eclipses = []
+
+        # Find solar eclipses if requested
+        if transits.ECLIPSE_SOLAR in search_types:
+            solar_eclipses = self.calculator.find_solar_eclipses(
+                start_jd, end_jd, latitude, longitude
+            )
+            all_eclipses.extend(solar_eclipses)
+
+        # Find lunar eclipses if requested
+        if transits.ECLIPSE_LUNAR in search_types:
+            lunar_eclipses = self.calculator.find_lunar_eclipses(
+                start_jd, end_jd, latitude, longitude
+            )
+            all_eclipses.extend(lunar_eclipses)
+
+        # Filter for local visibility if requested
+        if visible_only:
+            all_eclipses = [
+                eclipse for eclipse in all_eclipses
+                if eclipse.metadata.get('visible_from_location', True)
+            ]
+
+        # Sort by date
+        all_eclipses.sort(key=lambda e: e.julian_date)
+        return all_eclipses
+
+    def find_eclipse_aspects_to_natal(
+        self,
+        eclipse_types: Optional[List[str]] = None,
+        max_orb: float = 5.0,
+    ) -> List[TransitEvent]:
+        """Find eclipses that form aspects to natal chart positions.
+
+        Args:
+            eclipse_types: List of eclipse types to search for
+            max_orb: Maximum orb to consider for eclipse aspects
+
+        Returns:
+            List of eclipse events that aspect natal positions
+        """
+        if not self.natal_chart:
+            raise ValueError("Natal chart required for eclipse aspect search")
+
+        # Find all eclipses in the period
+        eclipses = self.find_eclipses(eclipse_types)
+
+        # Check each eclipse for aspects to natal positions
+        eclipse_aspects = []
+        for eclipse in eclipses:
+            eclipse_longitude = eclipse.longitude
+
+            # Check aspects to all natal objects
+            for natal_object_id, natal_data in self.natal_chart._objects.items():
+                natal_longitude = natal_data['lon']
+
+                # Check all configured aspects
+                for aspect_degrees in settings.aspects:
+                    # Calculate target longitude for this aspect
+                    aspect_longitude = (natal_longitude + aspect_degrees) % 360
+
+                    # Calculate orb
+                    orb = abs(eclipse_longitude - aspect_longitude)
+                    if orb > 180:
+                        orb = 360 - orb
+
+                    if orb <= max_orb:
+                        # Create eclipse aspect event
+                        eclipse_aspect = create_transit_event(
+                            event_type=transits.EVENT_ECLIPSE,
+                            date_time=eclipse.date_time,
+                            julian_date=eclipse.julian_date,
+                            transiting_object=eclipse.transiting_object,
+                            target_object=natal_object_id,
+                            aspect_type=aspect_degrees,
+                            orb=orb,
+                            exact=(orb < 1.0),
+                            longitude=eclipse_longitude,
+                            eclipse_type=eclipse.eclipse_type,  # Use eclipse_type directly
+                            visibility_info=eclipse.visibility_info,
+                            magnitude=eclipse.magnitude,
+                            precision_achieved=self.calculator.precision,
+                            metadata={
+                                **eclipse.metadata,
+                                'natal_aspect': True,
+                                'natal_object': natal_object_id,
+                            }
+                        )
+                        eclipse_aspects.append(eclipse_aspect)
+
+        # Sort by date and orb
+        eclipse_aspects.sort(key=lambda e: (e.julian_date, e.orb))
+        return eclipse_aspects

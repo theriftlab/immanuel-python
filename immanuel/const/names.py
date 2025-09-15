@@ -255,6 +255,18 @@ STATION_TYPES = {
     transits.STATION_DIRECT: "Direct",
 }
 
+ECLIPSE_TYPES = {
+    transits.ECLIPSE_SOLAR: "Solar Eclipse",
+    transits.ECLIPSE_LUNAR: "Lunar Eclipse",
+}
+
+ECLIPSE_SUBTYPES = {
+    transits.ECLIPSE_TOTAL: "Total",
+    transits.ECLIPSE_PARTIAL: "Partial",
+    transits.ECLIPSE_ANNULAR: "Annular",
+    transits.ECLIPSE_PENUMBRAL: "Penumbral",
+}
+
 PRECISION_LEVELS = {
     transits.PRECISION_MINUTE: "Minute precision",
     transits.PRECISION_SECOND: "Second precision",

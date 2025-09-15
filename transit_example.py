@@ -138,7 +138,7 @@ def main():
         print(f"  • {station.date_time.strftime('%Y-%m-%d %H:%M:%S')} - Mars {station_type}")
 
     # Find sign ingresses for Saturn
-    print("\n Saturn Sign Ingresses")
+    print("\n🪐 Saturn Sign Ingresses")
     saturn_ingresses = search.find_sign_ingresses(chart.SATURN)
     print(f"Found {len(saturn_ingresses)} Saturn sign changes:")
 
@@ -147,8 +147,52 @@ def main():
         sign_name = names.SIGNS[to_sign]
         print(f"  • {ingress.date_time.strftime('%Y-%m-%d %H:%M')} - Saturn enters sign {sign_name}")
 
-    # Example 4: JSON serialization of transit objects
-    print("\n📋 Example 4: Transit JSON Serialization")
+    # Example 4: Eclipse Search
+    print("\n🌑 Example 4: Eclipse Search")
+    print("-" * 30)
+
+    print("Searching for eclipses in the next 3 years...")
+    print("Location: Berlin, Germany (for house positions)")
+
+    eclipse_search = TransitSearch(
+        start_date=datetime.now(),
+        end_date=datetime.now() + timedelta(days=1095),  # 3 years
+        precision="second",
+    )
+
+    # Search with Berlin coordinates to get house positions
+    berlin_lat = 52.5200
+    berlin_lon = 13.4050
+    eclipses = eclipse_search.find_eclipses(latitude=berlin_lat, longitude=berlin_lon)
+
+    print(f"Found {len(eclipses)} eclipses:")
+    for eclipse in eclipses[:12]:  # Show first 5 with details
+        eclipse_type = eclipse.metadata.get("eclipse_category", "Unknown")
+        eclipse_subtype = eclipse.eclipse_type
+
+        # Get sign and degree information
+
+        # Convert longitude to sign and degree
+        sign_num = int(eclipse.longitude // 30)
+        degree = eclipse.longitude % 30
+        sign_name = names.SIGNS[sign_num] if sign_num in names.SIGNS else "Unknown"
+
+        house_info = f" in House {eclipse.house}" if eclipse.house else ""
+
+        print(
+            f"  • {eclipse.date_time.strftime('%Y-%m-%d %H:%M:%S')} - {eclipse_type.replace('_', ' ').title()} ({eclipse_subtype})"
+        )
+        print(f"    Position: {degree:.2f}° {sign_name}{house_info}")
+        print(f"    Longitude: {eclipse.longitude:.2f}°")
+
+        # Show JSON for first eclipse only
+        if eclipse == eclipses[0]:
+            print("    Sample JSON:")
+            print(json.dumps(eclipse, cls=ToJSON, indent=4)[:400] + "...")
+        print()
+
+    # Example 5: JSON serialization of transit objects
+    print("\n📋 Example 5: Transit JSON Serialization")
     print("-" * 40)
 
     print("✅ Creating a small transit example for JSON demo...")

@@ -23,6 +23,14 @@ EVENT_PLANETARY_RETURN = "planetary_return"
 STATION_RETROGRADE = "retrograde"
 STATION_DIRECT = "direct"
 
+""" Eclipse types """
+ECLIPSE_SOLAR = "solar_eclipse"
+ECLIPSE_LUNAR = "lunar_eclipse"
+ECLIPSE_TOTAL = "total"
+ECLIPSE_PARTIAL = "partial"
+ECLIPSE_ANNULAR = "annular"
+ECLIPSE_PENUMBRAL = "penumbral"
+
 """ Transit precision levels """
 PRECISION_MINUTE = "minute"  # ±1 minute
 PRECISION_SECOND = "second"  # ±1 second
