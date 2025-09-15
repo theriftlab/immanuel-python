@@ -51,7 +51,11 @@ class Localize:
         FunctionCache.clear_all()
         Localize.lcid = None
         Localize.translation = None
-        locale.setlocale(locale.LC_TIME, "en_US")
+        try:
+            locale.setlocale(locale.LC_TIME, "en_US")
+        except locale.Error:
+            # Fallback to en_US.utf8 if en_US not available
+            locale.setlocale(locale.LC_TIME, "en_US.utf8")
         MAPPINGS = {}
 
 
