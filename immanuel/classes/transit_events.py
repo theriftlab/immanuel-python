@@ -10,10 +10,74 @@
 """
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Union
 
 from immanuel.const import transits
+
+
+@dataclass
+class IntensityCurve:
+    """Time-series data for transit aspect intensity over time."""
+
+    # Core identification
+    transit_event_id: str
+    transiting_object: int
+    target_object: int
+    aspect_type: int
+
+    # Time-series data
+    samples: List[Dict[str, Any]]
+
+    # Configuration used for generation
+    sampling_config: Dict[str, Any]
+
+    # Derived metadata
+    metadata: Dict[str, Any] = None
+
+    def __post_init__(self):
+        if self.metadata is None:
+            self.metadata = {}
+        if self.sampling_config is None:
+            self.sampling_config = {}
+
+    def __json__(self) -> Dict[str, Any]:
+        """JSON serialization method for ToJSON encoder."""
+        return {
+            'transit_event_id': self.transit_event_id,
+            'transiting_object': self.transiting_object,
+            'target_object': self.target_object,
+            'aspect_type': self.aspect_type,
+            'samples': [self._serialize_sample(sample) for sample in self.samples],
+            'sampling_config': self.sampling_config,
+            'metadata': self.metadata
+        }
+
+    def _serialize_sample(self, sample: Dict[str, Any]) -> Dict[str, Any]:
+        """Serialize a single sample point for JSON output."""
+        serialized = sample.copy()
+        # Convert datetime to ISO format
+        if 'datetime' in serialized and isinstance(serialized['datetime'], datetime):
+            serialized['datetime'] = serialized['datetime'].isoformat()
+        return serialized
+
+    def get_peak_intensity(self) -> Optional[Dict[str, Any]]:
+        """Get the sample point with the smallest orb (closest to exact)."""
+        if not self.samples:
+            return None
+        return min(self.samples, key=lambda s: s['orb_value'])
+
+    def get_samples_by_retrograde_session(self, session: int) -> List[Dict[str, Any]]:
+        """Get all samples from a specific retrograde session."""
+        return [s for s in self.samples if s.get('retrograde_session', 0) == session]
+
+    def get_applying_samples(self) -> List[Dict[str, Any]]:
+        """Get all samples where the aspect is applying."""
+        return [s for s in self.samples if s.get('applying', False)]
+
+    def get_separating_samples(self) -> List[Dict[str, Any]]:
+        """Get all samples where the aspect is separating."""
+        return [s for s in self.samples if not s.get('applying', True)]
 
 
 @dataclass
@@ -38,6 +102,9 @@ class TransitEvent:
     # Additional event-specific data
     metadata: Dict[str, Any] = None
 
+    # Intensity curve data (optional)
+    intensity_curve: Optional[IntensityCurve] = None
+
     def __post_init__(self):
         if self.metadata is None:
             self.metadata = {}
@@ -57,7 +124,8 @@ class TransitEvent:
             'house': self.house,
             'calculation_method': self.calculation_method,
             'precision_achieved': self.precision_achieved,
-            'metadata': self.metadata
+            'metadata': self.metadata,
+            'intensity_curve': self.intensity_curve.__json__() if self.intensity_curve else None
         }
 
 

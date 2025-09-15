@@ -16,6 +16,7 @@ import swisseph as swe
 from immanuel.classes.transit_events import (
     TransitEvent,
     TransitPeriod,
+    IntensityCurve,
     create_transit_event,
 )
 from immanuel.const import calc, chart, transits
@@ -373,6 +374,214 @@ class TransitCalculator:
             current_dt += period_interval
 
         return TransitPeriod(start_date=start_date, end_date=end_date, events=events, interval=interval)
+
+    def generate_intensity_curve(
+        self,
+        transiting_planet: int,
+        target_object: int,
+        aspect_type: int,
+        natal_longitude: float,
+        start_jd: float,
+        end_jd: float,
+        curve_orb: float = 8.0,
+        sampling_interval: Union[str, timedelta] = "daily"
+    ) -> Optional[IntensityCurve]:
+        """
+        Generate an intensity curve for a specific aspect between two objects.
+
+        Args:
+            transiting_planet: The transiting planet (chart constant)
+            target_object: The target object (chart constant)
+            aspect_type: The aspect type (calc constant)
+            natal_longitude: The longitude of the target object
+            start_jd: Start of the period to analyze
+            end_jd: End of the period to analyze
+            curve_orb: Maximum orb to include in curve (degrees)
+            sampling_interval: How often to sample (string or timedelta)
+
+        Returns:
+            IntensityCurve object with time-series data, or None if no samples within orb
+        """
+
+        # Convert sampling interval to timedelta
+        sample_delta = self.normalize_interval(sampling_interval)
+
+        # Calculate aspect longitude target
+        aspect_longitude = (natal_longitude + aspect_type) % 360
+
+        # Initialize curve data
+        samples = []
+        event_id = f"{transiting_planet}_{target_object}_{aspect_type}_{int(start_jd)}"
+
+        # Track retrograde sessions
+        retrograde_sessions = []
+        current_retrograde_session = 0
+        previous_retrograde = None
+
+        # Sampling loop
+        current_jd = start_jd
+        sample_count = 0
+        max_samples = 10000  # Safety limit
+
+        while current_jd <= end_jd and sample_count < max_samples:
+            try:
+                # Get transiting planet position
+                planet_pos = ephemeris.get_planet(transiting_planet, current_jd)
+                planet_lon = planet_pos['lon']
+                planet_speed = planet_pos.get('speed', 0)
+
+                # Calculate orb (angular distance from exact aspect)
+                orb_value = self._calculate_orb(planet_lon, aspect_longitude)
+
+                # Only include samples within the specified curve orb
+                if orb_value <= curve_orb:
+                    current_dt = date.to_datetime(current_jd)
+
+                    # Determine if applying or separating
+                    applying = self._is_aspect_applying(
+                        transiting_planet, planet_lon, aspect_longitude, current_jd
+                    )
+
+                    # Track retrograde motion
+                    is_retrograde = planet_speed < 0
+
+                    # Detect retrograde session changes
+                    if previous_retrograde is not None and previous_retrograde != is_retrograde:
+                        if is_retrograde:
+                            # Starting new retrograde session
+                            current_retrograde_session += 1
+                            retrograde_sessions.append({
+                                'session_number': current_retrograde_session,
+                                'start_jd': current_jd,
+                                'station_retrograde_jd': current_jd,
+                                'end_jd': None,
+                                'station_direct_jd': None,
+                                'multiple_exactness': False  # Will be calculated later
+                            })
+                        else:
+                            # Ending retrograde session
+                            if retrograde_sessions:
+                                retrograde_sessions[-1]['end_jd'] = current_jd
+                                retrograde_sessions[-1]['station_direct_jd'] = current_jd
+
+                    previous_retrograde = is_retrograde
+
+                    # Create sample data point
+                    sample = {
+                        'julian_date': current_jd,
+                        'datetime': current_dt,
+                        'orb_value': orb_value,
+                        'applying': applying,
+                        'retrograde': is_retrograde,
+                        'retrograde_session': current_retrograde_session if is_retrograde else 0
+                    }
+
+                    samples.append(sample)
+
+                # Adaptive sampling based on orb distance
+                if orb_value <= 1.0:
+                    # Within 1 degree - sample hourly
+                    step_delta = timedelta(hours=1)
+                elif orb_value <= 3.0:
+                    # Within 3 degrees - sample every 6 hours
+                    step_delta = timedelta(hours=6)
+                elif orb_value <= 5.0:
+                    # Within 5 degrees - use specified sampling interval
+                    step_delta = sample_delta
+                else:
+                    # Beyond 5 degrees - sample weekly for efficiency
+                    step_delta = timedelta(weeks=1)
+
+                current_jd += step_delta.total_seconds() / 86400.0  # Convert to Julian days
+                sample_count += 1
+
+            except Exception as e:
+                # Skip problematic dates and continue
+                current_jd += sample_delta.total_seconds() / 86400.0
+                sample_count += 1
+                continue
+
+        # If no samples within orb, return None
+        if not samples:
+            return None
+
+        # Close any open retrograde session
+        if retrograde_sessions and retrograde_sessions[-1]['end_jd'] is None:
+            retrograde_sessions[-1]['end_jd'] = end_jd
+
+        # Calculate metadata
+        peak_sample = min(samples, key=lambda s: s['orb_value'])
+
+        # Determine multiple exactness for retrograde sessions
+        exact_threshold = 0.1  # Consider orb < 0.1° as "exact"
+        exact_samples = [s for s in samples if s['orb_value'] < exact_threshold]
+
+        for session in retrograde_sessions:
+            session_samples = [s for s in exact_samples if s['retrograde_session'] == session['session_number']]
+            if len(session_samples) > 1:
+                session['multiple_exactness'] = True
+
+        metadata = {
+            'retrograde_sessions': retrograde_sessions,
+            'peak_intensity': {
+                'best_orb': peak_sample['orb_value'],
+                'julian_date': peak_sample['julian_date'],
+                'retrograde_session': peak_sample['retrograde_session']
+            },
+            'total_samples': len(samples),
+            'time_span_days': end_jd - start_jd,
+            'exact_moments': len(exact_samples)
+        }
+
+        sampling_config = {
+            'curve_orb': curve_orb,
+            'sampling_interval': str(sampling_interval),
+            'adaptive_sampling': True,
+            'start_jd': start_jd,
+            'end_jd': end_jd
+        }
+
+        return IntensityCurve(
+            transit_event_id=event_id,
+            transiting_object=transiting_planet,
+            target_object=target_object,
+            aspect_type=aspect_type,
+            samples=samples,
+            sampling_config=sampling_config,
+            metadata=metadata
+        )
+
+    def _calculate_orb(self, planet_lon: float, aspect_lon: float) -> float:
+        """Calculate the orb (angular distance) between two longitudes."""
+        diff = abs(planet_lon - aspect_lon)
+        # Handle wraparound at 0/360 degrees
+        if diff > 180:
+            diff = 360 - diff
+        return diff
+
+    def _is_aspect_applying(self, planet: int, planet_lon: float, aspect_lon: float, jd: float) -> bool:
+        """Determine if an aspect is applying (getting closer) or separating (moving away)."""
+        try:
+            # Get planet position slightly in the future
+            future_jd = jd + 0.01  # ~15 minutes in the future
+            future_pos = ephemeris.get_planet(planet, future_jd)
+            future_lon = future_pos['lon']
+
+            # Calculate current and future orbs
+            current_orb = self._calculate_orb(planet_lon, aspect_lon)
+            future_orb = self._calculate_orb(future_lon, aspect_lon)
+
+            # If future orb is smaller, the aspect is applying
+            return future_orb < current_orb
+
+        except:
+            # Fallback: assume applying if planet is moving forward
+            try:
+                pos_data = ephemeris.get_planet(planet, jd)
+                speed = pos_data.get('speed', 0)
+                return speed > 0  # Simple approximation
+            except:
+                return True  # Default to applying
 
     def find_solar_eclipses(
         self, start_jd: float, end_jd: float, latitude: float = 0.0, longitude: float = 0.0

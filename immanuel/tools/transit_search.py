@@ -45,6 +45,9 @@ class TransitSearch:
         aspect: int,
         max_orb: float = 1.0,
         backwards: bool = False,
+        generate_curves: bool = False,
+        curve_orb: Optional[float] = None,
+        curve_sampling: Union[str, timedelta] = "daily",
     ) -> List[TransitEvent]:
         """
         Find all aspects between a transiting planet and natal planet.
@@ -55,12 +58,19 @@ class TransitSearch:
             aspect: Aspect constant (calc.CONJUNCTION, calc.OPPOSITION, etc.)
             max_orb: Maximum orb to consider (degrees)
             backwards: Search backwards in time
+            generate_curves: Whether to generate intensity curves for each aspect
+            curve_orb: Maximum orb for curve generation (defaults to max_orb * 2)
+            curve_sampling: Sampling interval for curves (string or timedelta)
 
         Returns:
             List of TransitEvent objects for found aspects
         """
         if not self.natal_chart:
             raise ValueError("Natal chart required for aspect search")
+
+        # Set default curve orb if not provided
+        if curve_orb is None:
+            curve_orb = max_orb * 2  # Use double the aspect orb for curves
 
         aspects_found = []
 
@@ -128,6 +138,36 @@ class TransitSearch:
                                     longitude=crossing_pos['lon'],
                                     precision_achieved=self.calculator.precision
                                 )
+
+                                # Generate intensity curve if requested
+                                if generate_curves:
+                                    try:
+                                        # Create a time window around this aspect for curve generation
+                                        curve_start_jd = crossing_jd - 365.0  # 1 year before
+                                        curve_end_jd = crossing_jd + 365.0    # 1 year after
+
+                                        # Constrain to search period
+                                        curve_start_jd = max(curve_start_jd, date.to_jd(self.start_date))
+                                        curve_end_jd = min(curve_end_jd, date.to_jd(self.end_date))
+
+                                        intensity_curve = self.calculator.generate_intensity_curve(
+                                            transiting_planet=transiting_planet,
+                                            target_object=natal_planet,
+                                            aspect_type=aspect,
+                                            natal_longitude=natal_longitude,
+                                            start_jd=curve_start_jd,
+                                            end_jd=curve_end_jd,
+                                            curve_orb=curve_orb,
+                                            sampling_interval=curve_sampling
+                                        )
+
+                                        if intensity_curve:
+                                            aspect_event.intensity_curve = intensity_curve
+
+                                    except Exception as e:
+                                        # Curve generation failed, but don't fail the whole search
+                                        pass
+
                                 aspects_found.append(aspect_event)
 
                         # Move search forward past this event
