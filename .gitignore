@@ -7,3 +7,4 @@ dist/
 *.egg-info
 *test.py
 .coverage
+astrocartography_description.md
