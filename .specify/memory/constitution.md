@@ -1,50 +1,90 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report:
+Version change: template → 1.0.0
+Added sections: All core principles and governance
+Templates requiring updates:
+✅ .specify/templates/plan-template.md (Constitution Check section updated with specific principle gates)
+✅ .specify/templates/spec-template.md (no constitution references - no changes needed)
+✅ .specify/templates/tasks-template.md (no constitution references - no changes needed)
+✅ .specify/templates/agent-file-template.md (no constitution references - no changes needed)
+✅ All template files synchronized with constitution v1.0.0
+No follow-up TODOs - all placeholders filled and dependencies updated
+-->
+
+# Immanuel Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Library-First Architecture
+Every feature MUST start as a standalone library component with clear responsibilities.
+Libraries MUST be self-contained, independently testable, and documented with clear APIs.
+No organizational-only libraries - each component must serve a specific astronomical or
+astrological calculation purpose.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+**Rationale**: Maintains modularity and enables reliable composition of astrological
+calculations while ensuring each component can be tested and understood in isolation.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### II. Astronomical Precision
+All calculations MUST leverage Swiss Ephemeris for maximum precision and astronomical
+accuracy. Custom algorithms are forbidden unless Swiss Ephemeris lacks the required
+functionality, and then MUST be documented with precision guarantees and validation
+against established astronomical sources.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+**Rationale**: Astrological applications require high precision astronomical data.
+Swiss Ephemeris is the gold standard for accuracy and ensures compatibility with
+professional astrological software.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### III. Test-First Development (NON-NEGOTIABLE)
+TDD MUST be strictly enforced: Tests written → User approved → Tests fail → Then implement.
+Red-Green-Refactor cycle is mandatory. Integration tests MUST cover all astrological
+calculation accuracy, especially for new chart types, aspect calculations, and
+ephemeris interactions.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+**Rationale**: Astrological calculations are complex and precision-critical. Testing
+first ensures accuracy and prevents regression in astronomical computations that
+users depend on for astrological analysis.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### IV. Multilingual Support
+All user-facing text MUST support internationalization through the locale system.
+New features MUST include locale mappings. Breaking changes to locale keys require
+migration documentation.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+**Rationale**: Astrology is a global practice with practitioners speaking many languages.
+Maintaining translation support ensures accessibility across cultures and regions.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### V. JSON Serialization & CLI Interface
+Every astrological data structure MUST be JSON serializable using the ToJSON system.
+All library functionality MUST be accessible via programmatic interface. Human-readable
+text output MUST be provided alongside JSON for debugging and user interfaces.
+
+**Rationale**: Enables integration with web applications, mobile apps, and other tools
+while maintaining both machine-readable and human-readable outputs for flexibility.
+
+## Quality Standards
+
+All changes MUST maintain backward compatibility unless increment major version.
+Performance MUST be maintained - calculation-heavy operations like transit searches
+MUST complete within reasonable timeframes (< 10s for yearly transit searches).
+Code coverage MUST exceed 90% for all astrological calculation modules.
+
+## Development Workflow
+
+Feature development MUST follow the specification → planning → implementation workflow.
+All calculations MUST be validated against known astrological software outputs
+(astro.com, Astro Gold) for consistency. Breaking changes require documentation of
+migration path and version bump rationale.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution supersedes all other development practices and coding conventions.
+All pull requests MUST verify compliance with these principles before merge.
+Complexity that violates these principles MUST be justified in feature documentation
+or the approach must be simplified to comply.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+Amendments require documentation of impact, approval from maintainers, and migration
+plan for affected components. Version increments follow semantic versioning:
+- MAJOR: Breaking API changes or calculation methodology changes
+- MINOR: New astrological features or calculation types
+- PATCH: Bug fixes, performance improvements, documentation
+
+**Version**: 1.0.0 | **Ratified**: 2025-01-28 | **Last Amended**: 2025-01-28

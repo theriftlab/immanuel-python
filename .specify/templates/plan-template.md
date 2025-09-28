@@ -47,7 +47,30 @@
 ## Constitution Check
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+**I. Library-First Architecture**: Is this feature designed as a standalone library component with clear responsibilities?
+- [ ] Component has single, clear astrological/astronomical purpose
+- [ ] Component is independently testable
+- [ ] Clear API boundaries defined
+
+**II. Astronomical Precision**: Does the design leverage Swiss Ephemeris appropriately?
+- [ ] Uses Swiss Ephemeris for all astronomical calculations
+- [ ] Any custom algorithms documented with precision guarantees
+- [ ] Validation plan against established astrological software
+
+**III. Test-First Development**: Are tests planned before implementation?
+- [ ] Test scenarios defined for all astrological calculations
+- [ ] Integration tests planned for ephemeris interactions
+- [ ] TDD cycle planned (tests first, then implementation)
+
+**IV. Multilingual Support**: Does the feature include internationalization?
+- [ ] User-facing text uses locale system
+- [ ] Locale mappings planned for new terminology
+- [ ] No hard-coded English strings
+
+**V. JSON Serialization**: Are data structures serializable?
+- [ ] All data structures implement ToJSON compatibility
+- [ ] Human-readable output planned alongside JSON
+- [ ] Programmatic interface defined
 
 ## Project Structure
 
@@ -216,4 +239,4 @@ directories captured above]
 - [ ] Complexity deviations documented
 
 ---
-*Based on Constitution v2.1.1 - See `/memory/constitution.md`*
+*Based on Constitution v1.0.0 - See `.specify/memory/constitution.md`*
