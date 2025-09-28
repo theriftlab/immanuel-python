@@ -89,10 +89,10 @@ specs/001-astrocartogrphy-module-with/
 ```
 immanuel/
 ├── tools/
-│   ├── astrocartography.py    # Core astrocartography calculations
-│   └── astrocartography_search.py  # Line search algorithms
+│   ├── astrocartography.py    # Core astrocartography calculations (MC/IC/ASC/DESC, zenith)
+│   └── astrocartography_search.py  # Advanced features (parans, local space, aspects, export)
 ├── classes/
-│   └── astrocartography_events.py  # Data structures for lines/points
+│   └── astrocartography_entities.py  # Data structures for lines/points
 ├── const/
 │   └── astrocartography.py    # Constants for sampling, orbs, etc.
 ├── charts.py                  # Extended with astrocartography chart types
@@ -197,8 +197,8 @@ tests/
 ## Phase 3+: Future Implementation
 *These phases are beyond the scope of the /plan command*
 
-**Phase 3**: Task execution (/tasks command creates tasks.md)  
-**Phase 4**: Implementation (execute tasks.md following constitutional principles)  
+**Phase 3**: Task execution (/tasks command creates tasks.md)
+**Phase 4**: Implementation (execute tasks.md following constitutional principles)
 **Phase 5**: Validation (run tests, execute quickstart.md, performance validation)
 
 ## Complexity Tracking

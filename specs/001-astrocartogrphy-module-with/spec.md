@@ -71,7 +71,7 @@ Astrological practitioners need to analyze how planetary energies from a birth c
 ### Acceptance Scenarios
 1. **Given** a birth chart with date, time, and location, **When** astrologer requests astrocartography lines for the Sun, **Then** system calculates and returns MC, IC, Ascendant, and Descendant lines as geographical coordinates
 2. **Given** a birth chart, **When** astrologer requests zenith points for all planets, **Then** system returns exact latitude/longitude coordinates where each planet was directly overhead at birth moment
-3. **Given** planetary line data, **When** astrologer specifies an orb of influence (e.g., 100 miles), **Then** system provides geographical zones around lines where planetary influence is active
+3. **Given** planetary line data, **When** astrologer specifies an orb of influence (e.g., 150 km), **Then** system provides geographical zones around lines where planetary influence is active
 4. **Given** two charts (birth chart and relocated chart), **When** astrologer requests aspect lines between charts, **Then** system calculates lines where specific aspects between natal and relocated planets are exact
 
 ### Edge Cases
@@ -97,6 +97,7 @@ Astrological practitioners need to analyze how planetary energies from a birth c
 - **FR-013**: System MUST handle edge cases at extreme latitudes by interpolating values from nearby stable calculations when direct calculations fail
 - **FR-014**: System MUST maintain astronomical precision using Swiss Ephemeris calculations for all planetary positions
 - **FR-015**: System MUST complete calculation of all planetary lines for a world map within 10 seconds
+- **FR-016**: System MUST support internationalization with locale mappings for astrocartography terminology including line types (MC, IC, Ascendant, Descendant), calculation methods (zodiacal, mundo), and advanced features (parans, local space, aspect lines)
 
 ### Key Entities *(include if feature involves data)*
 - **AstrocartographyChart**: Represents complete astrocartography analysis for a birth chart, containing all calculated lines and points
@@ -105,6 +106,11 @@ Astrological practitioners need to analyze how planetary energies from a birth c
 - **ParanLine**: Represents latitude line where two specified planets are simultaneously angular, containing geographical coordinates and planet pair information
 - **LocalSpaceLine**: Represents directional line from birth location toward planetary position, containing azimuth, distance, and geographical endpoint
 - **AspectLine**: Represents geographical line where specific aspect between natal and relocated planet positions is exact, containing aspect type and coordinate series
+
+**Locale Keys Required**:
+- Line types: `astrocartography.line.mc`, `astrocartography.line.ic`, `astrocartography.line.ascendant`, `astrocartography.line.descendant`
+- Calculation methods: `astrocartography.method.zodiacal`, `astrocartography.method.mundo`
+- Advanced features: `astrocartography.paran`, `astrocartography.local_space`, `astrocartography.aspect_line`
 
 ---
 
