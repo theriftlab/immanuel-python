@@ -107,6 +107,14 @@ class BaseSettings:
                 data.TRANSIT_EVENTS,
                 data.TRANSIT_STATISTICS,
             ],
+            chart.ASTROCARTOGRAPHY: [
+                data.SUBJECT,
+                data.PLANETARY_LINES,
+                data.ZENITH_POINTS,
+                data.PARAN_LINES,
+                data.LOCAL_SPACE_LINES,
+                data.ASPECT_LINES,
+            ],
         }
 
         """ Default coordinates when none are supplied. Currently points to

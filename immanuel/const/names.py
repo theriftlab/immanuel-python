@@ -18,6 +18,7 @@ CHART_TYPES = {
     chart.TRANSITS: "Transits",
     chart.MUNDANE_TRANSITS: "Mundane Transits",
     chart.NATAL_TRANSITS: "Natal Transits",
+    chart.ASTROCARTOGRAPHY: "Astrocartography",
 }
 
 OBJECTS = {

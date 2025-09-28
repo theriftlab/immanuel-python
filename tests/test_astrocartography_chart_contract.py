@@ -32,16 +32,16 @@ class TestAstrocartographyChartContract:
     @pytest.mark.astrocartography
     def test_astrocartography_chart_initialization(self):
         """Test AstrocartographyChart can be initialized with Subject."""
-        chart = AstrocartographyChart(self.test_subject)
+        astro_chart = AstrocartographyChart(self.test_subject)
 
-        assert isinstance(chart, AstrocartographyChart)
-        assert chart.subject == self.test_subject
+        assert isinstance(astro_chart, AstrocartographyChart)
+        assert astro_chart.subject == self.test_subject
 
     @pytest.mark.contract
     @pytest.mark.astrocartography
     def test_astrocartography_chart_with_custom_config(self):
         """Test AstrocartographyChart initialization with custom configuration."""
-        chart = AstrocartographyChart(
+        astro_chart = AstrocartographyChart(
             subject=self.test_subject,
             planets=[chart.SUN, chart.MOON],
             line_types=['MC', 'IC'],
@@ -52,15 +52,15 @@ class TestAstrocartographyChartContract:
             include_local_space=True
         )
 
-        assert isinstance(chart, AstrocartographyChart)
+        assert isinstance(astro_chart, AstrocartographyChart)
 
     @pytest.mark.contract
     @pytest.mark.astrocartography
     def test_planetary_lines_property(self):
         """Test planetary_lines property returns expected structure."""
-        chart = AstrocartographyChart(self.test_subject)
+        astro_chart = AstrocartographyChart(self.test_subject)
 
-        planetary_lines = chart.planetary_lines
+        planetary_lines = astro_chart.planetary_lines
         assert isinstance(planetary_lines, dict)
 
         # Should contain planet IDs as keys
@@ -76,9 +76,9 @@ class TestAstrocartographyChartContract:
     @pytest.mark.astrocartography
     def test_zenith_points_property(self):
         """Test zenith_points property returns expected structure."""
-        chart = AstrocartographyChart(self.test_subject)
+        astro_chart = AstrocartographyChart(self.test_subject)
 
-        zenith_points = chart.zenith_points
+        zenith_points = astro_chart.zenith_points
         assert isinstance(zenith_points, dict)
 
         # Should contain planet IDs as keys
@@ -89,9 +89,9 @@ class TestAstrocartographyChartContract:
     @pytest.mark.astrocartography
     def test_get_lines_for_planet(self):
         """Test get_lines_for_planet method."""
-        chart = AstrocartographyChart(self.test_subject)
+        astro_chart = AstrocartographyChart(self.test_subject)
 
-        sun_lines = chart.get_lines_for_planet(chart.SUN)
+        sun_lines = astro_chart.get_lines_for_planet(chart.SUN)
         assert isinstance(sun_lines, dict)
 
         # Should contain all line types
@@ -103,9 +103,9 @@ class TestAstrocartographyChartContract:
     @pytest.mark.astrocartography
     def test_get_lines_by_type(self):
         """Test get_lines_by_type method."""
-        chart = AstrocartographyChart(self.test_subject)
+        astro_chart = AstrocartographyChart(self.test_subject)
 
-        mc_lines = chart.get_lines_by_type('MC')
+        mc_lines = astro_chart.get_lines_by_type('MC')
         assert isinstance(mc_lines, dict)
 
         # Should contain planet IDs as keys
@@ -116,9 +116,9 @@ class TestAstrocartographyChartContract:
     @pytest.mark.astrocartography
     def test_get_influences_at_location(self):
         """Test get_influences_at_location method."""
-        chart = AstrocartographyChart(self.test_subject)
+        astro_chart = AstrocartographyChart(self.test_subject)
 
-        influences = chart.get_influences_at_location(
+        influences = astro_chart.get_influences_at_location(
             longitude=-118.2437,  # Los Angeles
             latitude=34.0522
         )
@@ -132,9 +132,9 @@ class TestAstrocartographyChartContract:
     @pytest.mark.astrocartography
     def test_calculate_travel_recommendations(self):
         """Test calculate_travel_recommendations method."""
-        chart = AstrocartographyChart(self.test_subject)
+        astro_chart = AstrocartographyChart(self.test_subject)
 
-        recommendations = chart.calculate_travel_recommendations(
+        recommendations = astro_chart.calculate_travel_recommendations(
             target_influences=['Sun_MC', 'Venus_ASC'],
             max_distance_km=5000
         )
@@ -145,34 +145,34 @@ class TestAstrocartographyChartContract:
     @pytest.mark.astrocartography
     def test_export_coordinates(self):
         """Test export_coordinates method."""
-        chart = AstrocartographyChart(self.test_subject)
+        astro_chart = AstrocartographyChart(self.test_subject)
 
         # Test GeoJSON export
-        geojson_data = chart.export_coordinates(format='geojson', include_orbs=True)
+        geojson_data = astro_chart.export_coordinates(format='geojson')
         assert isinstance(geojson_data, dict)
 
         # Test KML export
-        kml_data = chart.export_coordinates(format='kml')
+        kml_data = astro_chart.export_coordinates(format='kml')
         assert isinstance(kml_data, str)
 
         # Test CSV export
-        csv_data = chart.export_coordinates(format='csv')
+        csv_data = astro_chart.export_coordinates(format='csv')
         assert isinstance(csv_data, str)
 
     @pytest.mark.contract
     @pytest.mark.astrocartography
     def test_json_serialization(self):
         """Test JSON serialization via __json__ method."""
-        chart = AstrocartographyChart(self.test_subject)
+        astro_chart = AstrocartographyChart(self.test_subject)
 
-        json_data = chart.__json__()
+        json_data = astro_chart.__json__()
         assert isinstance(json_data, dict)
 
     @pytest.mark.contract
     @pytest.mark.astrocartography
     def test_string_representation(self):
         """Test string representation via __str__ method."""
-        chart = AstrocartographyChart(self.test_subject)
+        astro_chart = AstrocartographyChart(self.test_subject)
 
         str_repr = str(chart)
         assert isinstance(str_repr, str)
@@ -189,36 +189,36 @@ class TestAstrocartographyChartContract:
     @pytest.mark.astrocartography
     def test_invalid_coordinates_raises_error(self):
         """Test that invalid coordinates raise appropriate error."""
-        chart = AstrocartographyChart(self.test_subject)
+        astro_chart = AstrocartographyChart(self.test_subject)
 
         with pytest.raises(ValueError):
-            chart.get_influences_at_location(longitude=200, latitude=100)  # Invalid coordinates
+            astro_chart.get_influences_at_location(longitude=200, latitude=100)  # Invalid coordinates
 
     @pytest.mark.contract
     @pytest.mark.astrocartography
     def test_invalid_export_format_raises_error(self):
         """Test that invalid export format raises appropriate error."""
-        chart = AstrocartographyChart(self.test_subject)
+        astro_chart = AstrocartographyChart(self.test_subject)
 
         with pytest.raises(ValueError):
-            chart.export_coordinates(format='invalid_format')
+            astro_chart.export_coordinates(format='invalid_format')
 
     @pytest.mark.contract
     @pytest.mark.astrocartography
     def test_paran_lines_property(self):
         """Test paran_lines property when enabled."""
-        chart = AstrocartographyChart(self.test_subject, include_parans=True)
+        astro_chart = AstrocartographyChart(self.test_subject, include_parans=True)
 
-        paran_lines = chart.paran_lines
+        paran_lines = astro_chart.paran_lines
         assert isinstance(paran_lines, list)
 
     @pytest.mark.contract
     @pytest.mark.astrocartography
     def test_local_space_lines_property(self):
         """Test local_space_lines property when enabled."""
-        chart = AstrocartographyChart(self.test_subject, include_local_space=True)
+        astro_chart = AstrocartographyChart(self.test_subject, include_local_space=True)
 
-        local_space_lines = chart.local_space_lines
+        local_space_lines = astro_chart.local_space_lines
         assert isinstance(local_space_lines, dict)
 
     @pytest.mark.contract
@@ -231,10 +231,10 @@ class TestAstrocartographyChartContract:
             'orb_tolerance': 1.0
         }
 
-        chart = AstrocartographyChart(
+        astro_chart = AstrocartographyChart(
             self.test_subject,
             aspect_lines_config=aspect_config
         )
 
-        aspect_lines = chart.aspect_lines
+        aspect_lines = astro_chart.aspect_lines
         assert isinstance(aspect_lines, list)
