@@ -32,7 +32,7 @@ DEFAULT_CALCULATION_METHOD = METHOD_ZODIACAL
 MAX_WORLD_MAP_CALCULATION_TIME = 10.0  # seconds
 
 # Sampling configuration
-MIN_SAMPLING_RESOLUTION = 0.1   # degrees (finest detail)
+MIN_SAMPLING_RESOLUTION = 0.01  # degrees (finest detail)
 MAX_SAMPLING_RESOLUTION = 5.0   # degrees (coarsest detail)
 
 # Orb configuration

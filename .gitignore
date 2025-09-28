@@ -8,3 +8,10 @@ dist/
 *test.py
 .coverage
 astrocartography_description.md
+sun_mc_influence_heatmap.png
+astrocartography_lines.kml
+astrocartography_lines.geojson
+astrocartography_lines.csv
+astrocartography_highlighted_cities.png
+astrocartography_chart.json
+astrocartography_basic_worldmap.png

@@ -245,14 +245,14 @@ class TestAstrocartographyPerformance:
         # Create multiple charts
         charts = []
         for i in range(5):
-            chart = AstrocartographyChart(
+            astro_chart = AstrocartographyChart(
                 subject=self.test_subject,
                 planets=[chart.SUN, chart.MOON],
                 sampling_resolution=1.0
             )
             # Access data to ensure calculation
-            _ = chart.planetary_lines
-            charts.append(chart)
+            _ = astro_chart.planetary_lines
+            charts.append(astro_chart)
 
         # Memory shouldn't grow excessively
         final_objects = len(gc.get_objects())
@@ -279,13 +279,13 @@ class TestAstrocartographyPerformance:
                 latitude='40.7128',
                 longitude='-74.0060'
             )
-            chart = AstrocartographyChart(
+            astro_chart = AstrocartographyChart(
                 subject=subject,
                 planets=[chart.SUN, chart.MOON]
             )
             # Force calculation
-            _ = chart.planetary_lines
-            charts.append(chart)
+            _ = astro_chart.planetary_lines
+            charts.append(astro_chart)
 
         total_time = time.time() - start_time
 
@@ -294,8 +294,8 @@ class TestAstrocartographyPerformance:
 
         # Verify all charts were created
         assert len(charts) == 3
-        for chart in charts:
-            assert isinstance(chart.planetary_lines, dict)
+        for astro_chart in charts:
+            assert isinstance(astro_chart.planetary_lines, dict)
 
         print(f"3 charts creation time: {total_time:.2f} seconds")
 

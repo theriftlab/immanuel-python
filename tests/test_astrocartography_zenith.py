@@ -52,6 +52,9 @@ class TestAstrocartographyZenith:
             assert -90.0 <= latitude <= 90.0
 
         # If zenith point is a dict/object with coordinates
+        elif isinstance(sun_zenith, dict):
+            assert -180.0 <= sun_zenith['longitude'] <= 180.0
+            assert -90.0 <= sun_zenith['latitude'] <= 90.0
         elif hasattr(sun_zenith, 'longitude') and hasattr(sun_zenith, 'latitude'):
             assert -180.0 <= sun_zenith.longitude <= 180.0
             assert -90.0 <= sun_zenith.latitude <= 90.0
@@ -107,6 +110,9 @@ class TestAstrocartographyZenith:
 
         if isinstance(sun_zenith, tuple):
             zenith_lon, zenith_lat = sun_zenith
+        elif isinstance(sun_zenith, dict):
+            zenith_lon = sun_zenith['longitude']
+            zenith_lat = sun_zenith['latitude']
         else:
             zenith_lon = sun_zenith.longitude
             zenith_lat = sun_zenith.latitude
@@ -180,6 +186,9 @@ class TestAstrocartographyZenith:
         for planet_id, zenith_point in zenith_points.items():
             if isinstance(zenith_point, tuple):
                 longitude, latitude = zenith_point
+            elif isinstance(zenith_point, dict):
+                longitude = zenith_point['longitude']
+                latitude = zenith_point['latitude']
             else:
                 longitude = zenith_point.longitude
                 latitude = zenith_point.latitude
@@ -207,6 +216,9 @@ class TestAstrocartographyZenith:
         for planet_id, zenith_point in zenith_points.items():
             if isinstance(zenith_point, tuple):
                 zenith_lon, zenith_lat = zenith_point
+            elif isinstance(zenith_point, dict):
+                zenith_lon = zenith_point['longitude']
+                zenith_lat = zenith_point['latitude']
             else:
                 zenith_lon = zenith_point.longitude
                 zenith_lat = zenith_point.latitude
@@ -315,6 +327,9 @@ class TestAstrocartographyZenith:
         # Should be valid coordinates
         if isinstance(moon_zenith, tuple):
             longitude, latitude = moon_zenith
+        elif isinstance(moon_zenith, dict):
+            longitude = moon_zenith['longitude']
+            latitude = moon_zenith['latitude']
         else:
             longitude = moon_zenith.longitude
             latitude = moon_zenith.latitude
