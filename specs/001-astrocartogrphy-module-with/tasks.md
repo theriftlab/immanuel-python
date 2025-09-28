@@ -43,9 +43,9 @@
 - Paths follow existing Immanuel project conventions
 
 ## Phase 3.1: Setup
-- [ ] T001 Create astrocartography constants in immanuel/const/astrocartography.py
-- [ ] T002 [P] Add astrocartography imports to immanuel/__init__.py
-- [ ] T003 [P] Configure pytest for astrocartography test coverage
+- [x] T001 Create astrocartography constants in immanuel/const/astrocartography.py
+- [x] T002 [P] Add astrocartography imports to immanuel/__init__.py
+- [x] T003 [P] Configure pytest for astrocartography test coverage
 
 ## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
 **CRITICAL: These tests MUST be written and MUST FAIL before ANY implementation**

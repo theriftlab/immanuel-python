@@ -28,3 +28,22 @@ dependencies = [
 "Homepage" = "https://github.com/theriftlab/immanuel-python"
 "Documentation" = "https://github.com/theriftlab/immanuel-python/blob/master/docs/1-overview.md"
 "Bug Tracker" = "https://github.com/theriftlab/immanuel-python/issues"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "--verbose --tb=short --strict-markers"
+markers = [
+    "astrocartography: marks tests as astrocartography module tests",
+    "performance: marks tests as performance tests",
+    "integration: marks tests as integration tests",
+    "contract: marks tests as contract/API tests",
+]
+# Coverage configuration for astrocartography module
+# Target 90% coverage per constitutional requirements
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
