@@ -328,74 +328,131 @@ class AstrocartographyCalculator:
 
     def calculate_aspect_line(
         self,
-        natal_planet_id: int,
-        relocated_planet_id: int,
+        planet_id: int,
+        angle_type: str,
         aspect_degrees: float,
-        relocated_date: datetime,
-        orb_tolerance: float = 1.0
+        latitude_range: Tuple[float, float] = (-85, 85),
+        longitude_range: Tuple[float, float] = (-180, 180)
     ) -> List[Tuple[float, float]]:
         """
-        Calculate line where aspect between natal and relocated planet is exact.
+        Calculate line where natal planet forms specific aspect to local angles.
+
+        This shows where you would relocate for your natal planet to form
+        the specified aspect to the local ASC/DESC/MC/IC at that location.
 
         Args:
-            natal_planet_id: Natal planet identifier
-            relocated_planet_id: Relocated planet identifier
+            planet_id: Natal planet identifier
+            angle_type: Local angle ('ASC', 'DESC', 'MC', 'IC')
             aspect_degrees: Aspect angle (0, 60, 90, 120, 180, etc.)
-            relocated_date: Date for relocated planet position
-            orb_tolerance: Orb tolerance for aspect in degrees
+            latitude_range: Latitude range to sample
+            longitude_range: Longitude range to sample
 
         Returns:
             List of (longitude, latitude) pairs where aspect is exact
 
         Raises:
-            PlanetError: If either planet_id is invalid
-            ValueError: If aspect_degrees or date is invalid
-            CalculationError: If aspect line calculation fails
+            PlanetError: If planet_id is invalid
+            ValueError: If angle_type or aspect_degrees is invalid
         """
         # Validate inputs
-        self._validate_planet_id(natal_planet_id)
-        self._validate_planet_id(relocated_planet_id)
+        self._validate_planet_id(planet_id)
+
+        valid_angles = ['ASC', 'DESC', 'MC', 'IC']
+        if angle_type not in valid_angles:
+            raise ValueError(f"Invalid angle_type: {angle_type}. Must be one of {valid_angles}")
 
         if not (0 <= aspect_degrees < 360):
             raise ValueError(f"Invalid aspect_degrees: {aspect_degrees}")
-        if not isinstance(relocated_date, datetime):
-            raise ValueError("relocated_date must be a datetime object")
-        if orb_tolerance <= 0:
-            raise ValueError(f"Orb tolerance must be positive: {orb_tolerance}")
 
-        # Get natal planet position (at birth JD)
-        natal_position = self.get_planetary_position(natal_planet_id)
+        # Get natal planet position
+        planet_position = self.get_planetary_position(planet_id)
+        planet_longitude = planet_position['longitude']
 
-        # Convert relocated date to Julian date
-        relocated_jd = swe.julday(
-            relocated_date.year, relocated_date.month, relocated_date.day,
-            relocated_date.hour + relocated_date.minute/60.0 + relocated_date.second/3600.0
-        )
+        coordinates = []
 
-        aspect_coordinates = []
+        # For MC/IC angles, we need to find where the planet is at the specified aspect from MC/IC
+        if angle_type in ['MC', 'IC']:
+            # Get planet's celestial coordinates
+            planet_position = self.get_planetary_position(planet_id)
 
-        # Sample the globe to find where the aspect is exact
-        for longitude in self._generate_longitude_samples():
-            for latitude in self._generate_latitude_samples():
-                try:
-                    # Calculate relocated planet position at this location
-                    relocated_position = self._get_planet_position_at_location(
-                        relocated_planet_id, relocated_jd, latitude, longitude
-                    )
+            if self.calculation_method == astrocartography.METHOD_ZODIACAL:
+                equatorial = self._ecliptic_to_equatorial(
+                    planet_position['longitude'],
+                    planet_position['latitude']
+                )
+                planet_ra = equatorial['right_ascension']
+                planet_dec = equatorial['declination']
+            else:
+                planet_ra = planet_position['right_ascension']
+                planet_dec = planet_position['declination']
 
-                    # Check if aspect is within orb
-                    current_aspect = self._calculate_aspect_angle(
-                        natal_position, relocated_position
-                    )
+            # Get apparent sidereal time at birth moment for higher accuracy
+            import swisseph as swe
+            import math
 
-                    if self._aspect_within_orb(current_aspect, aspect_degrees, orb_tolerance):
-                        aspect_coordinates.append((longitude, latitude))
+            # Calculate apparent sidereal time (more accurate than mean sidereal time)
+            mean_st_hours = swe.sidtime(self.julian_date)
 
-                except Exception:
-                    # Skip problematic coordinates
-                    continue
+            # Get nutation for equation of equinoxes
+            nut_data = swe.calc_ut(self.julian_date, swe.ECL_NUT)
+            obliquity = nut_data[0][0]
+            nutation_longitude = nut_data[0][2]
 
-        return aspect_coordinates
+            # Equation of equinoxes = nutation_longitude * cos(obliquity)
+            eqeq_hours = (nutation_longitude * math.cos(math.radians(obliquity))) / 15.0
+            apparent_st_hours = mean_st_hours + eqeq_hours
+
+            gst_degrees = apparent_st_hours * 15.0
+
+            # For each latitude, calculate where the aspect occurs
+            min_lat, max_lat = latitude_range
+            latitudes = self._generate_latitude_samples(min_lat, max_lat)
+
+            # FAST METHOD: Use binary search with smart initial guesses
+            aspect_longitudes = self._calculate_aspect_longitudes_fast(
+                planet_id, angle_type, aspect_degrees
+            )
+
+            # Create vertical lines at the found longitudes
+            min_lat, max_lat = latitude_range
+            latitudes = self._generate_latitude_samples(min_lat, max_lat)
+
+            for aspect_longitude in aspect_longitudes:
+                for latitude in latitudes:
+                    coordinates.append((aspect_longitude, latitude))
+
+        # For ASC/DESC angles, create simplified aspect lines
+        elif angle_type in ['ASC', 'DESC']:
+            # ASC/DESC aspects are complex - for now, create simplified lines
+            # based on the planet's ASC/DESC line positions
+
+            # Get the base ASC/DESC line
+            asc_coords, desc_coords = self.calculate_ascendant_descendant_lines(
+                planet_id, longitude_range, latitude_range
+            )
+
+            if angle_type == 'ASC' and asc_coords:
+                # Use first ASC coordinate as reference
+                base_longitude = asc_coords[0][0]
+            elif angle_type == 'DESC' and desc_coords:
+                # Use first DESC coordinate as reference
+                base_longitude = desc_coords[0][0]
+            else:
+                return coordinates  # No base line found
+
+            # Create vertical lines on both sides of the base ASC/DESC line
+            aspect_lon1 = self._normalize_longitude(base_longitude + aspect_degrees)
+            aspect_lon2 = self._normalize_longitude(base_longitude - aspect_degrees)
+
+            min_lat, max_lat = latitude_range
+            latitudes = self._generate_latitude_samples(min_lat, max_lat)
+
+            for aspect_longitude in [aspect_lon1, aspect_lon2]:
+                if longitude_range[0] <= aspect_longitude <= longitude_range[1]:
+                    for latitude in latitudes:
+                        coordinates.append((aspect_longitude, latitude))
+
+        return coordinates
 
     def get_planetary_position(
         self,
@@ -631,6 +688,307 @@ class AstrocartographyCalculator:
             samples.append(max_lat)
 
         return samples
+
+    def _generate_samples(self, min_val: float, max_val: float, step: float) -> List[float]:
+        """Generate samples within the given range with specified step."""
+        samples = []
+        current_val = min_val
+        while current_val <= max_val:
+            samples.append(current_val)
+            current_val += step
+
+        # Ensure we include the max value
+        if samples[-1] < max_val:
+            samples.append(max_val)
+
+        return samples
+
+    def _calculate_mc_ecliptic_longitude_at_location(self, longitude: float, latitude: float) -> float:
+        """Calculate MC ecliptic longitude at a specific geographic location."""
+        import swisseph as swe
+        import math
+
+        # Get apparent sidereal time at birth moment
+        mean_st_hours = swe.sidtime(self.julian_date)
+        nut_data = swe.calc_ut(self.julian_date, swe.ECL_NUT)
+        obliquity = nut_data[0][0]
+        nutation_longitude = nut_data[0][2]
+        eqeq_hours = (nutation_longitude * math.cos(math.radians(obliquity))) / 15.0
+        apparent_st_hours = mean_st_hours + eqeq_hours
+        gst_degrees = apparent_st_hours * 15.0
+
+        # Calculate Local Sidereal Time at this location
+        lst_degrees = (gst_degrees + longitude) % 360.0
+
+        # MC in equatorial coordinates: RA = LST, Dec = 0° (on celestial equator)
+        mc_ra = lst_degrees
+        mc_dec = 0.0
+
+        # Convert MC from equatorial to ecliptic coordinates
+        # Using inverse of the earlier transformation
+        mc_ecliptic = swe.cotrans([mc_ra, mc_dec, 1.0], obliquity)
+        mc_ecliptic_longitude = mc_ecliptic[0]
+
+        return mc_ecliptic_longitude % 360.0
+
+    def _calculate_aspect_longitudes_fast(self, planet_id: int, angle_type: str, aspect_degrees: float) -> List[float]:
+        """
+        Fast calculation of aspect line longitudes using binary search with smart initial guesses.
+
+        Args:
+            planet_id: Planet constant
+            angle_type: 'MC' or 'IC'
+            aspect_degrees: Desired aspect in degrees
+
+        Returns:
+            List of longitude values where the aspect occurs
+        """
+        import swisseph as swe
+        import math
+
+        # Get planet position and sidereal time for smart initial guess
+        planet_position = self.get_planetary_position(planet_id)
+
+        if self.calculation_method == astrocartography.METHOD_ZODIACAL:
+            equatorial = self._ecliptic_to_equatorial(
+                planet_position['longitude'],
+                planet_position['latitude']
+            )
+            planet_ra = equatorial['right_ascension']
+        else:
+            planet_ra = planet_position['right_ascension']
+
+        # Get apparent sidereal time
+        mean_st_hours = swe.sidtime(self.julian_date)
+        nut_data = swe.calc_ut(self.julian_date, swe.ECL_NUT)
+        obliquity = nut_data[0][0]
+        nutation_longitude = nut_data[0][2]
+        eqeq_hours = (nutation_longitude * math.cos(math.radians(obliquity))) / 15.0
+        apparent_st_hours = mean_st_hours + eqeq_hours
+        gst_degrees = apparent_st_hours * 15.0
+
+        # Smart initial guesses: where hour angle = ±aspect_degrees
+        # longitude = (planet_RA ± aspect_degrees) - GST
+        initial_guess_1 = self._normalize_longitude((planet_ra + aspect_degrees) - gst_degrees)
+        initial_guess_2 = self._normalize_longitude((planet_ra - aspect_degrees) - gst_degrees)
+
+        # For IC, add 180° to both guesses
+        if angle_type == 'IC':
+            initial_guess_1 = self._normalize_longitude(initial_guess_1 + 180.0)
+            initial_guess_2 = self._normalize_longitude(initial_guess_2 + 180.0)
+
+        # Binary search around each guess with very tight error tolerance
+        longitude_1 = self._binary_search_aspect_longitude(
+            planet_id, angle_type, aspect_degrees, initial_guess_1, max_error=0.05
+        )
+        longitude_2 = self._binary_search_aspect_longitude(
+            planet_id, angle_type, aspect_degrees, initial_guess_2, max_error=0.05
+        )
+
+        # Verify accuracy and ensure we have distinct coordinates
+        aspect_1 = self._calculate_aspect_at_longitude(longitude_1, planet_id, angle_type)
+        aspect_2 = self._calculate_aspect_at_longitude(longitude_2, planet_id, angle_type)
+
+        error_1 = abs(aspect_1 - aspect_degrees)
+        error_2 = abs(aspect_2 - aspect_degrees)
+
+        # If coordinates are too close or second has high error, find alternative
+        longitude_diff = abs(longitude_1 - longitude_2)
+        if longitude_diff < 5.0 or error_2 > 1.0:
+            # Try systematic search across longitude range
+            best_longitude_2 = longitude_2
+            best_error_2 = error_2
+
+            # Try multiple alternative starting points around the globe
+            test_points = [
+                initial_guess_2 + 180.0,  # Opposite side
+                initial_guess_2 + 90.0,   # Perpendicular
+                initial_guess_2 - 90.0,   # Other perpendicular
+                initial_guess_1 + 180.0,  # Opposite of first
+                0.0,                      # Greenwich
+                180.0,                    # Antimeridian
+                -90.0,                    # West
+                90.0                      # East
+            ]
+
+            for test_point in test_points:
+                test_point = self._normalize_longitude(test_point)
+                # Skip if too close to first coordinate
+                if abs(test_point - longitude_1) < 5.0:
+                    continue
+
+                test_longitude = self._binary_search_aspect_longitude(
+                    planet_id, angle_type, aspect_degrees, test_point, max_error=0.05
+                )
+                test_aspect = self._calculate_aspect_at_longitude(test_longitude, planet_id, angle_type)
+                test_error = abs(test_aspect - aspect_degrees)
+
+                # Use if significantly better and distinct from first coordinate
+                if test_error < best_error_2 and abs(test_longitude - longitude_1) > 5.0:
+                    best_longitude_2 = test_longitude
+                    best_error_2 = test_error
+
+            longitude_2 = best_longitude_2
+
+        return [longitude_1, longitude_2]
+
+    def _binary_search_aspect_longitude(self, planet_id: int, angle_type: str,
+                                      target_aspect: float, initial_guess: float,
+                                      tolerance: float = 0.01, max_error: float = 0.1) -> float:
+        """
+        Find longitude where aspect occurs using ternary search to minimize error.
+
+        Args:
+            planet_id: Planet constant
+            angle_type: 'MC' or 'IC'
+            target_aspect: Target aspect in degrees
+            initial_guess: Starting longitude guess
+            tolerance: Precision tolerance for longitude convergence in degrees
+            max_error: Maximum allowed error in aspect degrees
+
+        Returns:
+            Precise longitude where aspect occurs
+        """
+        def aspect_error(longitude):
+            """Calculate error between actual and target aspect."""
+            actual_aspect = self._calculate_aspect_at_longitude(longitude, planet_id, angle_type)
+            error = abs(actual_aspect - target_aspect)
+            # Handle aspect wrap-around (e.g., 359° vs 1°)
+            if error > 180.0:
+                error = 360.0 - error
+            return error
+
+        # Start with initial search range
+        search_range = 10.0
+        best_longitude = initial_guess
+        best_error = aspect_error(initial_guess)
+
+        # Try expanding search ranges if needed
+        for range_multiplier in [1.0, 2.0, 3.0]:
+            current_range = search_range * range_multiplier
+            left = initial_guess - current_range
+            right = initial_guess + current_range
+
+            # Ternary search to minimize error (proper optimization)
+            iteration_count = 0
+            max_iterations = 60
+
+            while (right - left) > tolerance and iteration_count < max_iterations:
+                # Ternary search points
+                mid1 = left + (right - left) / 3.0
+                mid2 = right - (right - left) / 3.0
+
+                error1 = aspect_error(mid1)
+                error2 = aspect_error(mid2)
+
+                # Track best result
+                if error1 < best_error:
+                    best_error = error1
+                    best_longitude = mid1
+                if error2 < best_error:
+                    best_error = error2
+                    best_longitude = mid2
+
+                # If we've achieved the desired accuracy, we can stop
+                if best_error <= max_error:
+                    return best_longitude
+
+                # Ternary search logic: eliminate the worse third
+                if error1 < error2:
+                    right = mid2  # Minimum is in left 2/3
+                else:
+                    left = mid1   # Minimum is in right 2/3
+
+                iteration_count += 1
+
+            # If we found a good result in this range, use it
+            if best_error <= max_error:
+                break
+
+        return best_longitude
+
+    def _calculate_aspect_at_longitude(self, longitude: float, planet_id: int, angle_type: str) -> float:
+        """
+        Calculate the actual aspect between planet and MC/IC at a specific longitude.
+
+        Args:
+            longitude: Geographic longitude
+            planet_id: Planet constant
+            angle_type: 'MC' or 'IC'
+
+        Returns:
+            Aspect in degrees between planet and angle
+        """
+        import swisseph as swe
+
+        # Use swe.houses for accurate MC calculation
+        # Format: houses(julian_day, latitude, longitude, house_system, flags=0)
+        # IMPORTANT: Must use UTC Julian date for consistency with chart creation
+        test_latitude = 45.0  # Use 45°N as standard test latitude
+        houses = swe.houses(self.julian_date, test_latitude, longitude, b'P')  # Placidus system
+
+        # houses[1] contains additional points, MC is at index 1
+        mc_longitude = houses[1][1]
+
+        # For IC, add 180° to MC
+        if angle_type == 'IC':
+            angle_longitude = (mc_longitude + 180.0) % 360.0
+        else:
+            angle_longitude = mc_longitude
+
+        # Get planet ecliptic longitude
+        planet_position = self.get_planetary_position(planet_id)
+        planet_longitude = planet_position.get('longitude', planet_position.get('ecliptic_longitude', 0))
+
+        # Calculate aspect
+        aspect = abs((planet_longitude - angle_longitude + 180.0) % 360.0 - 180.0)
+
+        return aspect
+
+    def _test_location_for_aspect(self, longitude: float, latitude: float, planet_id: int,
+                                 angle_type: str, aspect_degrees: float, tolerance: float) -> bool:
+        """Test if a location has the desired planetary aspect by creating a chart."""
+        import swisseph as swe
+        import math
+
+        # Get apparent sidereal time and calculate local chart
+        mean_st_hours = swe.sidtime(self.julian_date)
+        nut_data = swe.calc_ut(self.julian_date, swe.ECL_NUT)
+        obliquity = nut_data[0][0]
+        nutation_longitude = nut_data[0][2]
+        eqeq_hours = (nutation_longitude * math.cos(math.radians(obliquity))) / 15.0
+        apparent_st_hours = mean_st_hours + eqeq_hours
+        gst_degrees = apparent_st_hours * 15.0
+
+        # Calculate Local Sidereal Time at this location
+        lst_degrees = (gst_degrees + longitude) % 360.0
+
+        # Get planet's ecliptic longitude at birth time (use existing method)
+        planet_position = self.get_planetary_position(planet_id)
+        planet_longitude = planet_position.get('longitude', planet_position.get('ecliptic_longitude', 0))
+
+        # Calculate MC ecliptic longitude at this location
+        # MC in equatorial: RA = LST, Dec = 0
+        mc_ra = lst_degrees
+        mc_dec = 0.0
+
+        # Convert MC to ecliptic coordinates
+        mc_ecliptic = swe.cotrans([mc_ra, mc_dec, 1.0], obliquity)
+        mc_ecliptic_longitude = mc_ecliptic[0] % 360.0
+
+        # For IC, add 180° to MC
+        if angle_type == 'IC':
+            target_angle_longitude = (mc_ecliptic_longitude + 180.0) % 360.0
+        else:  # MC
+            target_angle_longitude = mc_ecliptic_longitude
+
+        # Calculate the actual aspect between planet and angle
+        aspect_diff = abs((planet_longitude - target_angle_longitude + 180.0) % 360.0 - 180.0)
+
+        # Check if the aspect matches our target (within tolerance)
+        is_match = abs(aspect_diff - aspect_degrees) <= tolerance
+
+        return is_match
 
     def _generate_longitude_samples(
         self,
