@@ -81,8 +81,7 @@ class AstrocartographyCalculator:
         """
         Calculate Midheaven and Imum Coeli lines for a planet.
 
-        MC/IC lines are vertical lines of constant longitude where the planet
-        culminates (MC) or anti-culminates (IC).
+        MC/IC lines are simple vertical lines of constant longitude passing through the zenith.
 
         Args:
             planet_id: Planet identifier constant
@@ -99,29 +98,24 @@ class AstrocartographyCalculator:
         self._validate_planet_id(planet_id)
         self._validate_latitude_range(latitude_range)
 
-        # Get planetary position
-        planet_position = self.get_planetary_position(planet_id)
+        # Get zenith point using same calculation as zenith method
+        zenith_longitude, zenith_latitude = self.calculate_zenith_point(planet_id)
 
-        # For MC/IC lines, we need the longitude where the planet is on the meridian
-        # MC line: longitude where planet crosses MC (upper meridian)
-        # IC line: longitude where planet crosses IC (lower meridian) - 180° opposite
-
-        if self.calculation_method == astrocartography.METHOD_ZODIACAL:
-            mc_longitude = planet_position['longitude']
-        else:  # mundo method
-            mc_longitude = planet_position['right_ascension']
-
-        # Convert to standard longitude range
-        mc_longitude = self._normalize_longitude(mc_longitude)
+        # MC line: vertical line through zenith longitude
+        # IC line: vertical line 180° opposite to MC
+        mc_longitude = zenith_longitude
         ic_longitude = self._normalize_longitude(mc_longitude + 180.0)
 
-        # Generate coordinate points along latitude range
+        mc_coordinates = []
+        ic_coordinates = []
+
+        # Generate coordinate points along latitude range - simple vertical lines
         min_lat, max_lat = latitude_range
         latitudes = self._generate_latitude_samples(min_lat, max_lat)
 
-        # MC and IC lines are vertical (constant longitude)
-        mc_coordinates = [(mc_longitude, lat) for lat in latitudes]
-        ic_coordinates = [(ic_longitude, lat) for lat in latitudes]
+        for latitude in latitudes:
+            mc_coordinates.append((mc_longitude, latitude))
+            ic_coordinates.append((ic_longitude, latitude))
 
         return mc_coordinates, ic_coordinates
 
@@ -134,8 +128,8 @@ class AstrocartographyCalculator:
         """
         Calculate Ascendant and Descendant lines for a planet.
 
-        ASC/DESC lines are curved lines showing where the planet rises (ASC)
-        or sets (DESC) on the horizon.
+        ASC/DESC lines are actually the SAME continuous curve that wraps around the globe.
+        The curve switches between "ascending" and "descending" at its extreme points.
 
         Args:
             planet_id: Planet identifier constant
@@ -148,7 +142,6 @@ class AstrocartographyCalculator:
         Raises:
             PlanetError: If planet_id is invalid
             CalculationError: If ephemeris calculation fails
-            ExtremeLatitudeError: If calculation unstable at extreme latitudes
         """
         # Validate inputs
         self._validate_planet_id(planet_id)
@@ -158,31 +151,11 @@ class AstrocartographyCalculator:
         # Get planetary position
         planet_position = self.get_planetary_position(planet_id)
 
-        asc_coordinates = []
-        desc_coordinates = []
+        # Calculate the complete horizon curve using same approach as zenith
+        complete_curve = self._trace_complete_horizon_curve(planet_position, longitude_range, latitude_range)
 
-        # Sample longitude points
-        min_lon, max_lon = longitude_range
-        longitudes = self._generate_longitude_samples(min_lon, max_lon)
-
-        for longitude in longitudes:
-            try:
-                # Calculate where this planet rises and sets at this longitude
-                asc_lat, desc_lat = self._calculate_rise_set_latitudes(
-                    planet_position, longitude, latitude_range
-                )
-
-                if asc_lat is not None:
-                    asc_coordinates.append((longitude, asc_lat))
-                if desc_lat is not None:
-                    desc_coordinates.append((longitude, desc_lat))
-
-            except Exception as e:
-                # Handle extreme latitude calculation failures
-                if abs(longitude) > 170:  # Near poles, calculations may be unstable
-                    continue
-                else:
-                    raise RuntimeError(f"ASC/DESC calculation failed at longitude {longitude}: {e}")
+        # Split the continuous curve into ASC and DESC portions
+        asc_coordinates, desc_coordinates = self._split_horizon_curve(complete_curve)
 
         return asc_coordinates, desc_coordinates
 
@@ -206,17 +179,35 @@ class AstrocartographyCalculator:
         # Get planetary position
         planet_position = self.get_planetary_position(planet_id)
 
+        # Calculate proper zenith point (where planet is directly overhead)
+        import swisseph as swe
+
+        # Get Greenwich Sidereal Time at birth moment
+        gst_hours = swe.sidtime(self.julian_date)
+        gst_degrees = gst_hours * 15.0  # Convert to degrees
+
+        # Get planet's equatorial coordinates
         if self.calculation_method == astrocartography.METHOD_ZODIACAL:
-            # For zodiacal method, zenith is at planet's ecliptic coordinates
-            zenith_longitude = planet_position['longitude']
-            zenith_latitude = planet_position['latitude']
+            # Convert ecliptic to equatorial coordinates
+            equatorial = self._ecliptic_to_equatorial(
+                planet_position['longitude'],
+                planet_position['latitude']
+            )
+            planet_ra = equatorial['right_ascension']
+            planet_dec = equatorial['declination']
         else:
-            # For mundo method, use equatorial coordinates
-            zenith_longitude = planet_position['right_ascension']
-            zenith_latitude = planet_position['declination']
+            # Already in equatorial coordinates
+            planet_ra = planet_position['right_ascension']
+            planet_dec = planet_position['declination']
+
+        # Zenith longitude: where Local Sidereal Time equals planet's Right Ascension
+        # Since LST = GST + longitude, then longitude = RA - GST
+        zenith_longitude = self._normalize_longitude(planet_ra - gst_degrees)
+
+        # Zenith latitude: planet's declination (where it appears directly overhead)
+        zenith_latitude = planet_dec
 
         # Normalize coordinates
-        zenith_longitude = self._normalize_longitude(zenith_longitude)
         zenith_latitude = max(astrocartography.MIN_LATITUDE,
                             min(astrocartography.MAX_LATITUDE, zenith_latitude))
 
@@ -660,31 +651,119 @@ class AstrocartographyCalculator:
 
         return samples
 
-    def _calculate_rise_set_latitudes(
+
+    def _trace_complete_horizon_curve(
         self,
         planet_position: Dict[str, float],
-        longitude: float,
+        longitude_range: Tuple[float, float],
         latitude_range: Tuple[float, float]
-    ) -> Tuple[Optional[float], Optional[float]]:
-        """Calculate latitudes where planet rises and sets at given longitude."""
-        # This is a simplified implementation
-        # In reality, this requires iterative solving of spherical astronomy equations
+    ) -> List[Tuple[float, float]]:
+        """
+        Trace the complete horizon curve using the same approach as zenith calculation.
 
-        # For now, return approximate values based on planet declination
-        declination = planet_position['declination']
+        Use proper sidereal time calculations like the zenith point method.
+        """
+        import swisseph as swe
+        import math
 
-        # Rise latitude (simplified)
-        rise_lat = min(astrocartography.MAX_LATITUDE, max(astrocartography.MIN_LATITUDE, declination + 20))
+        coordinates = []
 
-        # Set latitude (simplified - opposite hemisphere)
-        set_lat = min(astrocartography.MAX_LATITUDE, max(astrocartography.MIN_LATITUDE, -declination - 20))
+        # Use SAME approach as zenith calculation
+        # Get Greenwich Sidereal Time at birth moment (same as zenith)
+        gst_hours = swe.sidtime(self.julian_date)
+        gst_degrees = gst_hours * 15.0
 
-        # Check if within requested range
+        # Get planet's equatorial coordinates (same as zenith)
+        if self.calculation_method == astrocartography.METHOD_ZODIACAL:
+            equatorial = self._ecliptic_to_equatorial(
+                planet_position['longitude'],
+                planet_position['latitude']
+            )
+            planet_ra = equatorial['right_ascension']
+            planet_dec = equatorial['declination']
+        else:
+            planet_ra = planet_position['right_ascension']
+            planet_dec = planet_position['declination']
+
+        # For each latitude, find longitudes where planet is on horizon
+        # Using same sidereal time principles as zenith calculation
+
         min_lat, max_lat = latitude_range
-        rise_lat = rise_lat if min_lat <= rise_lat <= max_lat else None
-        set_lat = set_lat if min_lat <= set_lat <= max_lat else None
+        # Use finer step size for smooth curves extending to poles
+        step_size = 0.5  # Half-degree steps for smooth S-curves
 
-        return rise_lat, set_lat
+        latitude = min_lat
+        while latitude <= max_lat:
+            try:
+                # Calculate hour angle when planet is on horizon at this latitude
+                # cos(HA) = -tan(dec) * tan(lat)
+                if abs(latitude) < 89.9 and abs(planet_dec) > 0.001:
+                    cos_ha = (-math.tan(math.radians(planet_dec)) *
+                             math.tan(math.radians(latitude)))
+
+                    if -1.0 <= cos_ha <= 1.0:
+                        # Two hour angles: rising and setting
+                        ha1 = math.degrees(math.acos(cos_ha))
+                        ha2 = -ha1
+
+                        for hour_angle in [ha1, ha2]:
+                            # Calculate longitude using EXACT same formula as zenith
+                            # In zenith: longitude = RA - GST (when HA = 0)
+                            # For horizon: longitude = RA + HA - GST (when HA ≠ 0)
+                            longitude = self._normalize_longitude(planet_ra + hour_angle - gst_degrees)
+
+                            min_lon, max_lon = longitude_range
+                            if min_lon <= longitude <= max_lon:
+                                coordinates.append((longitude, latitude))
+
+            except (ValueError, ZeroDivisionError, OverflowError):
+                pass
+
+            latitude += step_size
+
+        return coordinates
+
+    def _split_horizon_curve(
+        self,
+        complete_curve: List[Tuple[float, float]]
+    ) -> Tuple[List[Tuple[float, float]], List[Tuple[float, float]]]:
+        """
+        Split the complete horizon curve into ascending and descending portions.
+
+        The curve naturally divides at its extreme latitude points where it
+        switches from rising to setting behavior.
+        """
+        if not complete_curve:
+            return [], []
+
+        # Find the extreme points (highest and lowest latitudes)
+        latitudes = [coord[1] for coord in complete_curve]
+        max_lat = max(latitudes)
+        min_lat = min(latitudes)
+
+        # Find indices of extreme points
+        max_idx = next(i for i, coord in enumerate(complete_curve) if coord[1] == max_lat)
+        min_idx = next(i for i, coord in enumerate(complete_curve) if coord[1] == min_lat)
+
+        # Ensure max_idx comes before min_idx for proper splitting
+        if max_idx > min_idx:
+            max_idx, min_idx = min_idx, max_idx
+            max_lat, min_lat = min_lat, max_lat
+
+        # Split the curve at the extreme points
+        # ASC: from min extreme to max extreme (rising part)
+        # DESC: from max extreme to min extreme (setting part)
+
+        if max_idx < min_idx:
+            # Normal case: ascending then descending
+            asc_coordinates = complete_curve[max_idx:min_idx + 1]
+            desc_coordinates = complete_curve[min_idx:] + complete_curve[:max_idx + 1]
+        else:
+            # Wrapped case: curve wraps around longitude boundaries
+            asc_coordinates = complete_curve[:max_idx + 1]
+            desc_coordinates = complete_curve[max_idx:]
+
+        return asc_coordinates, desc_coordinates
 
     def _planets_simultaneously_angular(
         self,
@@ -746,6 +825,53 @@ class AstrocartographyCalculator:
         end_lon = math.degrees(end_lon_rad)
 
         return self._normalize_longitude(end_lon), end_lat
+
+    def _ecliptic_to_equatorial(self, longitude: float, latitude: float) -> Dict[str, float]:
+        """
+        Convert ecliptic coordinates to equatorial coordinates.
+
+        Args:
+            longitude: Ecliptic longitude in degrees
+            latitude: Ecliptic latitude in degrees
+
+        Returns:
+            Dict with 'right_ascension' and 'declination' in degrees
+        """
+        import swisseph as swe
+        import math
+
+        # Get obliquity of ecliptic for current date
+        obliquity_data = swe.calc_ut(self.julian_date, swe.ECL_NUT)[0]
+        obliquity = obliquity_data[0]  # Mean obliquity in degrees
+
+        # Convert to radians
+        lon_rad = math.radians(longitude)
+        lat_rad = math.radians(latitude)
+        obl_rad = math.radians(obliquity)
+
+        # Convert ecliptic to equatorial coordinates
+        ra_rad = math.atan2(
+            math.sin(lon_rad) * math.cos(obl_rad) - math.tan(lat_rad) * math.sin(obl_rad),
+            math.cos(lon_rad)
+        )
+
+        dec_rad = math.asin(
+            math.sin(lat_rad) * math.cos(obl_rad) +
+            math.cos(lat_rad) * math.sin(obl_rad) * math.sin(lon_rad)
+        )
+
+        # Convert back to degrees
+        ra_deg = math.degrees(ra_rad)
+        dec_deg = math.degrees(dec_rad)
+
+        # Normalize RA to 0-360
+        if ra_deg < 0:
+            ra_deg += 360
+
+        return {
+            'right_ascension': ra_deg,
+            'declination': dec_deg
+        }
 
     def _calculate_distance_km(self, lat1: float, lon1: float, lat2: float, lon2: float) -> float:
         """Calculate distance between two points using Haversine formula."""
