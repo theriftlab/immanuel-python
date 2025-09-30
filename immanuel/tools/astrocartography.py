@@ -151,11 +151,10 @@ class AstrocartographyCalculator:
         # Get planetary position
         planet_position = self.get_planetary_position(planet_id)
 
-        # Calculate the complete horizon curve using same approach as zenith
-        complete_curve = self._trace_complete_horizon_curve(planet_position, longitude_range, latitude_range)
-
-        # Split the continuous curve into ASC and DESC portions
-        asc_coordinates, desc_coordinates = self._split_horizon_curve(complete_curve)
+        # Calculate ASC and DESC curves separately to avoid mirroring issues
+        asc_coordinates, desc_coordinates = self._calculate_asc_desc_curves_separately(
+            planet_position, longitude_range, latitude_range
+        )
 
         return asc_coordinates, desc_coordinates
 
@@ -652,28 +651,27 @@ class AstrocartographyCalculator:
         return samples
 
 
-    def _trace_complete_horizon_curve(
+    def _calculate_asc_desc_curves_separately(
         self,
         planet_position: Dict[str, float],
         longitude_range: Tuple[float, float],
         latitude_range: Tuple[float, float]
-    ) -> List[Tuple[float, float]]:
+    ) -> Tuple[List[Tuple[float, float]], List[Tuple[float, float]]]:
         """
-        Trace the complete horizon curve using the same approach as zenith calculation.
+        Calculate ASC and DESC curves separately as proper S-curves.
 
-        Use proper sidereal time calculations like the zenith point method.
+        ASC = planet rising (negative hour angle)
+        DESC = planet setting (positive hour angle)
         """
         import swisseph as swe
         import math
-
-        coordinates = []
+        import numpy as np
 
         # Use SAME approach as zenith calculation
-        # Get Greenwich Sidereal Time at birth moment (same as zenith)
         gst_hours = swe.sidtime(self.julian_date)
         gst_degrees = gst_hours * 15.0
 
-        # Get planet's equatorial coordinates (same as zenith)
+        # Get planet's equatorial coordinates
         if self.calculation_method == astrocartography.METHOD_ZODIACAL:
             equatorial = self._ecliptic_to_equatorial(
                 planet_position['longitude'],
@@ -685,83 +683,68 @@ class AstrocartographyCalculator:
             planet_ra = planet_position['right_ascension']
             planet_dec = planet_position['declination']
 
-        # For each latitude, find longitudes where planet is on horizon
-        # Using same sidereal time principles as zenith calculation
-
+        asc_coordinates = []
+        desc_coordinates = []
         min_lat, max_lat = latitude_range
-        # Use finer step size for smooth curves extending to poles
-        step_size = 0.5  # Half-degree steps for smooth S-curves
 
-        latitude = min_lat
-        while latitude <= max_lat:
+        # Step through latitudes to create smooth curves
+        latitudes = np.arange(min_lat, max_lat + 0.5, 0.5)
+
+        for latitude in latitudes:
             try:
-                # Calculate hour angle when planet is on horizon at this latitude
-                # cos(HA) = -tan(dec) * tan(lat)
-                if abs(latitude) < 89.9 and abs(planet_dec) > 0.001:
+                if abs(latitude) < 89.5 and abs(planet_dec) > 0.001:
+                    # Calculate cos(HA) = -tan(dec) * tan(lat)
                     cos_ha = (-math.tan(math.radians(planet_dec)) *
                              math.tan(math.radians(latitude)))
 
                     if -1.0 <= cos_ha <= 1.0:
-                        # Two hour angles: rising and setting
-                        ha1 = math.degrees(math.acos(cos_ha))
-                        ha2 = -ha1
+                        # Calculate both hour angles (positive and negative)
+                        ha_abs = math.degrees(math.acos(cos_ha))
 
-                        for hour_angle in [ha1, ha2]:
-                            # Calculate longitude using EXACT same formula as zenith
-                            # In zenith: longitude = RA - GST (when HA = 0)
-                            # For horizon: longitude = RA + HA - GST (when HA ≠ 0)
-                            longitude = self._normalize_longitude(planet_ra + hour_angle - gst_degrees)
+                        # ASC: negative hour angle (rising, eastern horizon)
+                        ha_asc = -ha_abs
+                        lon_asc = self._normalize_longitude(planet_ra + ha_asc - gst_degrees)
 
-                            min_lon, max_lon = longitude_range
-                            if min_lon <= longitude <= max_lon:
-                                coordinates.append((longitude, latitude))
+                        # DESC: positive hour angle (setting, western horizon)
+                        ha_desc = ha_abs
+                        lon_desc = self._normalize_longitude(planet_ra + ha_desc - gst_degrees)
 
-            except (ValueError, ZeroDivisionError, OverflowError):
-                pass
+                        min_lon, max_lon = longitude_range
 
-            latitude += step_size
+                        # Add ASC point if in range
+                        if min_lon <= lon_asc <= max_lon:
+                            asc_coordinates.append((lon_asc, latitude))
 
-        return coordinates
+                        # Add DESC point if in range
+                        if min_lon <= lon_desc <= max_lon:
+                            desc_coordinates.append((lon_desc, latitude))
+
+            except (ValueError, ZeroDivisionError, OverflowError, TypeError):
+                continue
+
+        # Sort both curves by latitude for smooth plotting
+        asc_coordinates.sort(key=lambda x: x[1])
+        desc_coordinates.sort(key=lambda x: x[1])
+
+        return asc_coordinates, desc_coordinates
 
     def _split_horizon_curve(
         self,
         complete_curve: List[Tuple[float, float]]
     ) -> Tuple[List[Tuple[float, float]], List[Tuple[float, float]]]:
         """
-        Split the complete horizon curve into ascending and descending portions.
+        Create both ASC and DESC curves from the complete horizon curve.
 
-        The curve naturally divides at its extreme latitude points where it
-        switches from rising to setting behavior.
+        In astrocartography, ASC and DESC are often shown as the same curve
+        with different visual styling to indicate rising vs setting.
         """
         if not complete_curve:
             return [], []
 
-        # Find the extreme points (highest and lowest latitudes)
-        latitudes = [coord[1] for coord in complete_curve]
-        max_lat = max(latitudes)
-        min_lat = min(latitudes)
-
-        # Find indices of extreme points
-        max_idx = next(i for i, coord in enumerate(complete_curve) if coord[1] == max_lat)
-        min_idx = next(i for i, coord in enumerate(complete_curve) if coord[1] == min_lat)
-
-        # Ensure max_idx comes before min_idx for proper splitting
-        if max_idx > min_idx:
-            max_idx, min_idx = min_idx, max_idx
-            max_lat, min_lat = min_lat, max_lat
-
-        # Split the curve at the extreme points
-        # ASC: from min extreme to max extreme (rising part)
-        # DESC: from max extreme to min extreme (setting part)
-
-        if max_idx < min_idx:
-            # Normal case: ascending then descending
-            asc_coordinates = complete_curve[max_idx:min_idx + 1]
-            desc_coordinates = complete_curve[min_idx:] + complete_curve[:max_idx + 1]
-        else:
-            # Wrapped case: curve wraps around longitude boundaries
-            asc_coordinates = complete_curve[:max_idx + 1]
-            desc_coordinates = complete_curve[max_idx:]
+        # For now, use the same curve for both ASC and DESC
+        # The visual distinction comes from line styling, not separate curves
+        asc_coordinates = complete_curve.copy()
+        desc_coordinates = complete_curve.copy()
 
         return asc_coordinates, desc_coordinates
 
