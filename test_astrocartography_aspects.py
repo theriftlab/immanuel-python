@@ -150,46 +150,6 @@ class AstrocartographyTester:
                 'chart_created': False
             }
 
-    def find_aspect_line_by_search(self, planet_id: int, aspect_degrees: float,
-                                  angle_type: str = 'MC', longitude_range: tuple = (-180, 180),
-                                  tolerance: float = 1.0) -> list:
-        """
-        Find aspect line coordinates by searching through longitudes and testing with charts.
-
-        Args:
-            planet_id: Planet constant
-            aspect_degrees: Desired aspect (60, 90, 120, etc.)
-            angle_type: 'MC' or 'IC'
-            longitude_range: Tuple of (min_lon, max_lon) to search
-            tolerance: Accept aspects within this many degrees of target
-
-        Returns:
-            List of longitude values where the aspect occurs
-        """
-        print(f"Searching for {self._planet_name(planet_id)} {aspect_degrees}° {angle_type} using chart method...")
-
-        valid_longitudes = []
-        min_lon, max_lon = longitude_range
-
-        # Search in 0.5 degree increments
-        search_step = 0.5
-        test_latitude = 45.0  # Use 45°N as test latitude
-
-        current_lon = min_lon
-        while current_lon <= max_lon:
-            test_result = self.test_location_aspect(current_lon, test_latitude, planet_id, angle_type)
-
-            if 'error' not in test_result:
-                aspect_found = test_result['aspect_degrees']
-                error = abs(aspect_found - aspect_degrees)
-
-                if error <= tolerance:
-                    valid_longitudes.append(current_lon)
-                    print(f"  Found: {current_lon:7.1f}° → {aspect_found:6.3f}° (error: {error:5.3f}°)")
-
-            current_lon += search_step
-
-        return valid_longitudes
 
     @profile_function
     def test_fast_method(self, planet_id: int, aspect_degrees: float, angle_type: str = 'MC') -> dict:
@@ -216,162 +176,9 @@ class AstrocartographyTester:
             'validation_results': validation_results
         }
 
-    @profile_function
-    def test_slow_method(self, planet_id: int, aspect_degrees: float, angle_type: str = 'MC',
-                        longitude_range: tuple = (-180, 180)) -> dict:
-        """Test the old slow chart-based search method for comparison."""
-        print(f"Testing SLOW method: {self._planet_name(planet_id)} {aspect_degrees}° {angle_type}")
 
-        # Use limited range for comparison to avoid excessive time
-        min_lon, max_lon = longitude_range
-        if max_lon - min_lon > 20:  # Limit search range for performance
-            # Focus around known good coordinates for comparison
-            if aspect_degrees == 90:  # Square
-                longitude_range = (-10, 10)  # Around 5.233°
-            else:
-                longitude_range = (min_lon, min_lon + 20)  # Just first 20 degrees
 
-        valid_longitudes = self.find_aspect_line_by_search(
-            planet_id, aspect_degrees, angle_type, longitude_range, tolerance=1.0
-        )
 
-        return {
-            'method': 'slow',
-            'planet': self._planet_name(planet_id),
-            'aspect': aspect_degrees,
-            'angle_type': angle_type,
-            'longitudes_found': valid_longitudes,
-            'search_range': longitude_range
-        }
-
-    def test_aspect_line_calculation(self, planet_id: int, aspect_degrees: float,
-                                   angle_type: str = 'MC', max_samples: int = 10) -> dict:
-        """
-        Test aspect line by searching for coordinates that produce the correct aspect.
-
-        Args:
-            planet_id: Planet constant
-            aspect_degrees: Desired aspect (60, 90, 120, etc.)
-            angle_type: 'MC' or 'IC'
-            max_samples: Maximum number of sample coordinates to test
-
-        Returns:
-            Dictionary with search results
-        """
-        # Use chart-based search to find valid longitudes
-        valid_longitudes = self.find_aspect_line_by_search(
-            planet_id, aspect_degrees, angle_type, tolerance=1.0
-        )
-
-        # Test a sample of found coordinates to verify
-        sample_tests = []
-        test_coords = valid_longitudes[:max_samples] if len(valid_longitudes) > max_samples else valid_longitudes
-
-        for longitude in test_coords:
-            test_result = self.test_location_aspect(longitude, 45.0, planet_id, angle_type)
-            sample_tests.append(test_result)
-
-        return {
-            'planet': self._planet_name(planet_id),
-            'aspect': aspect_degrees,
-            'angle_type': angle_type,
-            'coordinates_found': len(valid_longitudes),
-            'unique_longitudes': valid_longitudes,
-            'sample_tests': sample_tests
-        }
-
-    def compare_with_expected(self, planet_id: int, aspect_degrees: float,
-                            expected_longitudes: list, angle_type: str = 'MC') -> dict:
-        """
-        Compare calculated coordinates with expected coordinates.
-
-        Args:
-            planet_id: Planet constant
-            aspect_degrees: Aspect in degrees
-            expected_longitudes: List of expected longitude values
-            angle_type: 'MC' or 'IC'
-
-        Returns:
-            Comparison results
-        """
-        print(f"Comparing calculated vs expected for {self._planet_name(planet_id)} {aspect_degrees}° {angle_type}...")
-
-        # Get calculated coordinates
-        calc_result = self.test_aspect_line_calculation(planet_id, aspect_degrees, angle_type, max_samples=5)
-        calculated_longs = calc_result['unique_longitudes']
-
-        # Test expected coordinates
-        expected_tests = []
-        for exp_long in expected_longitudes:
-            test_result = self.test_location_aspect(exp_long, 45.0, planet_id, angle_type)  # Use 45°N as test latitude
-            expected_tests.append(test_result)
-
-        return {
-            'planet': self._planet_name(planet_id),
-            'aspect': aspect_degrees,
-            'angle_type': angle_type,
-            'calculated_longitudes': calculated_longs,
-            'expected_longitudes': expected_longitudes,
-            'calculated_tests': calc_result['sample_tests'],
-            'expected_tests': expected_tests
-        }
-
-    def performance_comparison_test(self):
-        """Run performance comparison between fast and slow methods."""
-        print("=" * 80)
-        print("PERFORMANCE COMPARISON TEST")
-        print("=" * 80)
-        print()
-
-        test_cases = [
-            (chart.SUN, 90, "Sun Square MC"),
-            (chart.SUN, 60, "Sun Sextile MC"),
-            (chart.SUN, 120, "Sun Trine MC"),
-        ]
-
-        results = []
-
-        for planet_id, aspect_degrees, description in test_cases:
-            print(f"\n{'='*60}")
-            print(f"Testing: {description}")
-            print(f"{'='*60}")
-
-            # Test fast method
-            fast_result, fast_time = self.test_fast_method(planet_id, aspect_degrees)
-
-            print(f"\n{'-'*40}")
-
-            # Test slow method (limited range)
-            slow_result, slow_time = self.test_slow_method(planet_id, aspect_degrees)
-
-            # Compare results
-            print(f"\n=== COMPARISON FOR {description} ===")
-            print(f"Fast method time: {fast_time:.3f} seconds")
-            print(f"Slow method time: {slow_time:.3f} seconds")
-            print(f"Speed improvement: {slow_time/fast_time:.1f}x faster")
-
-            print(f"\nFast method longitudes: {[f'{lon:.3f}°' for lon in fast_result['longitudes_found']]}")
-            print(f"Slow method longitudes: {[f'{lon:.1f}°' for lon in slow_result['longitudes_found']]}")
-
-            # Validate accuracy of fast method
-            print(f"\nFast method accuracy:")
-            for i, validation in enumerate(fast_result['validation_results']):
-                if 'error' not in validation:
-                    error = abs(validation['aspect_degrees'] - aspect_degrees)
-                    status = "✓" if error <= 0.1 else "✗"
-                    print(f"  {validation['longitude']:7.3f}°: {validation['aspect_degrees']:6.3f}° "
-                          f"(error: {error:.3f}°) {status}")
-
-            results.append({
-                'description': description,
-                'fast_time': fast_time,
-                'slow_time': slow_time,
-                'speedup': slow_time / fast_time,
-                'fast_result': fast_result,
-                'slow_result': slow_result
-            })
-
-        return results
 
     def validate_against_known_coordinates(self):
         """Validate fast method aspect accuracy."""
@@ -429,25 +236,61 @@ class AstrocartographyTester:
         return validation_results
 
     def run_comprehensive_test(self):
-        """Run a comprehensive test including performance and validation."""
+        """Run a comprehensive test focusing on aspect accuracy validation."""
         print("=" * 80)
         print("COMPREHENSIVE ASTROCARTOGRAPHY TEST SUITE")
         print("=" * 80)
 
-        # 1. Performance comparison
-        performance_results = self.performance_comparison_test()
+        # Test fast method performance and accuracy
+        test_cases = [
+            (chart.SUN, 90, "Sun Square MC"),
+            (chart.SUN, 60, "Sun Sextile MC"),
+            (chart.SUN, 120, "Sun Trine MC"),
+        ]
 
-        # 2. Validation against known coordinates
+        print("\n" + "=" * 80)
+        print("FAST METHOD PERFORMANCE TEST")
+        print("=" * 80)
+
+        performance_results = []
+        for planet_id, aspect_degrees, description in test_cases:
+            print(f"\n{'='*60}")
+            print(f"Testing: {description}")
+            print(f"{'='*60}")
+
+            # Test fast method with timing
+            fast_result, fast_time = self.test_fast_method(planet_id, aspect_degrees)
+
+            print(f"\n=== RESULTS FOR {description} ===")
+            print(f"Execution time: {fast_time:.3f} seconds")
+            print(f"Coordinates found: {[f'{lon:.3f}°' for lon in fast_result['longitudes_found']]}")
+
+            # Validate accuracy of fast method
+            print(f"\nAspect accuracy:")
+            for i, validation in enumerate(fast_result['validation_results']):
+                if 'error' not in validation:
+                    error = abs(validation['aspect_degrees'] - aspect_degrees)
+                    status = "✓" if error <= 0.1 else "✗"
+                    print(f"  {validation['longitude']:7.3f}°: {validation['aspect_degrees']:6.3f}° "
+                          f"(error: {error:.3f}°) {status}")
+
+            performance_results.append({
+                'description': description,
+                'execution_time': fast_time,
+                'result': fast_result
+            })
+
+        # Comprehensive validation
         validation_results = self.validate_against_known_coordinates()
 
-        # 3. Summary
+        # Summary
         print("\n" + "=" * 80)
         print("FINAL SUMMARY")
         print("=" * 80)
 
-        print(f"\nPerformance Results:")
+        print(f"\nFast Method Performance:")
         for result in performance_results:
-            print(f"  {result['description']}: {result['speedup']:.1f}x faster ({result['fast_time']:.3f}s vs {result['slow_time']:.3f}s)")
+            print(f"  {result['description']}: {result['execution_time']:.3f} seconds")
 
         print(f"\nAspect Accuracy Results:")
         all_passed = True

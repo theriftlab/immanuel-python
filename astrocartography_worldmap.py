@@ -338,25 +338,43 @@ def plot_astrocartography_aspects_map(astro_chart, projection="PlateCarree", sav
                 from immanuel.tools.astrocartography import AstrocartographyCalculator
                 import swisseph as swe
 
-                # Convert subject datetime to Julian date
+                # Convert subject datetime to Julian date - use UTC for consistency
                 if isinstance(astro_chart.subject.date_time, str):
                     dt = datetime.strptime(astro_chart.subject.date_time, "%Y-%m-%d %H:%M:%S")
                 else:
                     dt = astro_chart.subject.date_time
 
-                jd = swe.julday(dt.year, dt.month, dt.day, dt.hour + dt.minute / 60.0 + dt.second / 3600.0)
+                # Convert Berlin time to UTC (Berlin is UTC+1 in January 1984)
+                dt_utc = datetime(dt.year, dt.month, dt.day, dt.hour - 1, dt.minute, dt.second)
+                jd = swe.julday(dt_utc.year, dt_utc.month, dt_utc.day, dt_utc.hour + dt_utc.minute / 60.0 + dt_utc.second / 3600.0)
 
                 calculator = AstrocartographyCalculator(julian_date=jd, sampling_resolution=2.0)
 
-                # Get aspect line coordinates (planet to angle)
-                aspect_coords = calculator.calculate_aspect_line(
-                    planet_id=primary_planet, angle_type="MC", aspect_degrees=aspect_degrees  # Just use MC for demo
+                # Get aspect line longitudes using the fast method
+                aspect_longitudes = calculator._calculate_aspect_longitudes_fast(
+                    primary_planet, "MC", aspect_degrees
                 )
 
-                if aspect_coords and len(aspect_coords) > 1:
-                    # Plot the aspect line
-                    lons = [coord[0] for coord in aspect_coords]
-                    lats = [coord[1] for coord in aspect_coords]
+                if aspect_longitudes and len(aspect_longitudes) > 0:
+                    # Create vertical lines for each longitude
+                    all_lons = []
+                    all_lats = []
+
+                    for longitude in aspect_longitudes:
+                        # Create vertical line from -85° to +85° latitude
+                        line_lats = list(range(-85, 86, 2))  # Every 2 degrees
+                        line_lons = [longitude] * len(line_lats)
+
+                        all_lons.extend(line_lons)
+                        all_lats.extend(line_lats)
+
+                        # Add separation between lines for plotting
+                        if longitude != aspect_longitudes[-1]:  # Not the last longitude
+                            all_lons.append(None)  # matplotlib uses None to break lines
+                            all_lats.append(None)
+
+                    lons = all_lons
+                    lats = all_lats
 
                     # Each planet gets its own color, aspects distinguished by line style
                     plot_color = planet_colors.get(primary_planet, "#666666")
@@ -377,9 +395,9 @@ def plot_astrocartography_aspects_map(astro_chart, projection="PlateCarree", sav
                     )
 
                     aspect_lines_plotted += 1
-                    print(f"    ✓ Plotted {len(aspect_coords)} points")
+                    print(f"    ✓ Plotted {len(aspect_longitudes)} vertical aspect lines")
                 else:
-                    print(f"    ⚪ No aspect line found")
+                    print(f"    ⚪ No aspect longitudes found")
 
             except Exception as e:
                 print(f"    ✗ Error calculating {aspect_name}: {e}")
