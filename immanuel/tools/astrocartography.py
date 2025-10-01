@@ -421,11 +421,10 @@ class AstrocartographyCalculator:
                 for latitude in latitudes:
                     coordinates.append((aspect_longitude, latitude))
 
-        # For ASC/DESC angles, use fast ternary search method
+        # For ASC/DESC angles, use fast ternary search method with smart initial guess
         elif angle_type in ['ASC', 'DESC']:
             # Optimization: ASC aspect_deg = DESC (180° - aspect_deg)
             # So ASC 60° = DESC 120°, ASC 120° = DESC 60°, ASC 90° = DESC 90°
-            # We can calculate one and derive the other
             complementary_aspect = 180.0 - aspect_degrees
 
             # Always calculate for ASC, then map to DESC if needed
@@ -438,20 +437,47 @@ class AstrocartographyCalculator:
 
             # Generate latitude samples (limit to ±66° to avoid polar issues with house calculations)
             min_lat, max_lat = latitude_range
-            # Clamp latitude range to avoid polar regions where swe.houses() can fail
             safe_min_lat = max(min_lat, -66.0)
             safe_max_lat = min(max_lat, 66.0)
             latitudes = self._generate_latitude_samples(safe_min_lat, safe_max_lat)
 
-            # Collect coordinates for each hemisphere separately
+            # OPTIMIZATION: Calculate ASC conjunction line first as initial guess
+            # This gives us the S-curve where ASC conjuncts the planet
+            # Aspect lines are roughly offset by the aspect angle from this base curve
+            # Cache the conjunction line per planet to avoid recalculating
+            cache_key = f"asc_conj_{planet_id}_{safe_min_lat}_{safe_max_lat}"
+            if not hasattr(self, '_asc_conj_cache'):
+                self._asc_conj_cache = {}
+
+            if cache_key not in self._asc_conj_cache:
+                asc_conj_coords, _ = self.calculate_ascendant_descendant_lines(
+                    planet_id=planet_id,
+                    latitude_range=(safe_min_lat, safe_max_lat),
+                    longitude_range=longitude_range
+                )
+                self._asc_conj_cache[cache_key] = asc_conj_coords
+            else:
+                asc_conj_coords = self._asc_conj_cache[cache_key]
+
+            # Create lookup dict for quick access: latitude -> conjunction longitude
+            conj_lookup = {lat: lon for lon, lat in asc_conj_coords}
+
+            # Collect coordinates for each line separately
             western_coords = []  # Longitudes < 0
             eastern_coords = []  # Longitudes >= 0
 
-            # Use ternary search to find accurate longitudes at each latitude
-            # Returns list (typically 2 solutions - one per hemisphere)
+            # Use ternary search with smart initial guess from conjunction line
             for latitude in latitudes:
+                # Get initial guess from conjunction line (if available)
+                if latitude in conj_lookup:
+                    initial_guess = conj_lookup[latitude]
+                else:
+                    # Interpolate or use None to trigger coarse scan
+                    initial_guess = None
+
                 longitudes = self._find_asc_desc_aspect_longitudes(
-                    planet_longitude, latitude, calc_aspect, calc_angle
+                    planet_longitude, latitude, calc_aspect, calc_angle,
+                    initial_guess=initial_guess
                 )
 
                 for longitude in longitudes:
@@ -466,7 +492,6 @@ class AstrocartographyCalculator:
             eastern_coords.sort(key=lambda c: c[1])
 
             # Combine: western line, then None separator, then eastern line
-            # matplotlib uses None to break lines
             coordinates = western_coords
             if western_coords and eastern_coords:
                 coordinates.append(None)  # Line break
@@ -967,7 +992,8 @@ class AstrocartographyCalculator:
 
     def _find_asc_desc_aspect_longitudes(self, planet_longitude: float, latitude: float,
                                           aspect_degrees: float, angle_type: str,
-                                          tolerance: float = 0.25) -> List[float]:
+                                          tolerance: float = 0.25,
+                                          initial_guess: Optional[float] = None) -> List[float]:
         """
         Find ALL longitudes where planet forms exact aspect to ASC/DESC at given latitude.
 
@@ -1037,18 +1063,61 @@ class AstrocartographyCalculator:
             # Return only if error is acceptable (< 1°)
             return best_longitude if best_error < 1.0 else None
 
-        # Search two hemispheres separately to find both solutions
         results = []
 
-        # Search western hemisphere
-        result1 = ternary_search(-180.0, 0.0)
-        if result1 is not None:
-            results.append(result1)
+        # SMART SEARCH: Use initial guess from ASC conjunction line if available
+        if initial_guess is not None:
+            # Search around the initial guess ± aspect angle
+            # The aspect line is roughly offset by the aspect angle from conjunction
+            search_regions = [
+                (initial_guess + aspect_degrees - 30, initial_guess + aspect_degrees + 30),
+                (initial_guess - aspect_degrees - 30, initial_guess - aspect_degrees + 30)
+            ]
 
-        # Search eastern hemisphere
-        result2 = ternary_search(0.0, 180.0)
-        if result2 is not None:
-            results.append(result2)
+            for left, right in search_regions:
+                # Normalize to [-180, 180]
+                while left < -180:
+                    left += 360
+                while left > 180:
+                    left -= 360
+                while right < -180:
+                    right += 360
+                while right > 180:
+                    right -= 360
+
+                # Make sure left < right
+                if left > right:
+                    left, right = right, left
+
+                result = ternary_search(left, right)
+                if result is not None:
+                    results.append(result)
+
+            return results
+
+        # FALLBACK: Coarse scan if no initial guess
+        # Coarse scan to find promising regions (every 30°)
+        scan_longitudes = [-180, -150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150]
+        errors = [(lon, calculate_aspect_error(lon)) for lon in scan_longitudes]
+
+        # Find local minima (where error is less than both neighbors)
+        minima_regions = []
+        for i in range(1, len(errors) - 1):
+            if errors[i][1] < errors[i-1][1] and errors[i][1] < errors[i+1][1]:
+                minima_regions.append(errors[i][0])
+
+        # Handle edge cases: check wrap-around at -180/180
+        if errors[0][1] < errors[1][1]:
+            minima_regions.append(errors[0][0])
+        if errors[-1][1] < errors[-2][1]:
+            minima_regions.append(errors[-1][0])
+
+        # Refine each minimum with ternary search (limit to 2 best minima)
+        for min_lon in minima_regions[:2]:
+            # Search ±20° around the coarse minimum
+            result = ternary_search(min_lon - 20.0, min_lon + 20.0)
+            if result is not None:
+                results.append(result)
 
         return results
 

@@ -794,6 +794,156 @@ class ASCDESCAspectTestbed:
         return names.get(planet_id, f"Planet {planet_id}")
 
 
+    def benchmark_smart_search(self):
+        """Benchmark smart search vs brute force hemisphere search."""
+        print("SMART SEARCH BENCHMARK")
+        print("=" * 80)
+        print("Comparing hemisphere search vs smart region detection")
+        print()
+
+        planet_id = chart.SUN
+        aspect_degrees = 60
+        planet_longitude = self.calculator.get_planetary_position(planet_id)['longitude']
+        test_latitudes = np.arange(-66, 67, 1.0)
+        tolerance = 0.25
+
+        # Method 1: Current hemisphere search
+        print("Method 1: Hemisphere Search (current)")
+        start = time.time()
+        total_iterations_hemi = 0
+
+        for latitude in test_latitudes:
+            # Search western hemisphere
+            left, right = -180.0, 0.0
+            iterations = 0
+            while (right - left) > tolerance:
+                mid1 = left + (right - left) / 3.0
+                mid2 = right - (right - left) / 3.0
+                houses1 = swe.houses(self.julian_date, latitude, mid1, b'P')
+                houses2 = swe.houses(self.julian_date, latitude, mid2, b'P')
+                asc1 = houses1[1][0]
+                asc2 = houses2[1][0]
+                aspect1 = abs((planet_longitude - asc1 + 180.0) % 360.0 - 180.0)
+                aspect2 = abs((planet_longitude - asc2 + 180.0) % 360.0 - 180.0)
+                err1 = abs(aspect1 - aspect_degrees)
+                err2 = abs(aspect2 - aspect_degrees)
+                if err1 > 180.0:
+                    err1 = 360.0 - err1
+                if err2 > 180.0:
+                    err2 = 360.0 - err2
+                if err1 < err2:
+                    right = mid2
+                else:
+                    left = mid1
+                iterations += 1
+
+            # Search eastern hemisphere
+            left, right = 0.0, 180.0
+            while (right - left) > tolerance:
+                mid1 = left + (right - left) / 3.0
+                mid2 = right - (right - left) / 3.0
+                houses1 = swe.houses(self.julian_date, latitude, mid1, b'P')
+                houses2 = swe.houses(self.julian_date, latitude, mid2, b'P')
+                asc1 = houses1[1][0]
+                asc2 = houses2[1][0]
+                aspect1 = abs((planet_longitude - asc1 + 180.0) % 360.0 - 180.0)
+                aspect2 = abs((planet_longitude - asc2 + 180.0) % 360.0 - 180.0)
+                err1 = abs(aspect1 - aspect_degrees)
+                err2 = abs(aspect2 - aspect_degrees)
+                if err1 > 180.0:
+                    err1 = 360.0 - err1
+                if err2 > 180.0:
+                    err2 = 360.0 - err2
+                if err1 < err2:
+                    right = mid2
+                else:
+                    left = mid1
+                iterations += 1
+
+            total_iterations_hemi += iterations
+
+        time_hemi = time.time() - start
+        avg_iter_hemi = total_iterations_hemi / len(test_latitudes)
+
+        print(f"  Time: {time_hemi*1000:.2f}ms ({time_hemi/len(test_latitudes)*1000:.3f}ms per lat)")
+        print(f"  Iterations: {avg_iter_hemi:.1f} per latitude")
+        print(f"  swe.houses() calls: {total_iterations_hemi*2}")
+        print()
+
+        # Method 2: Smart coarse scan then fine search
+        print("Method 2: Smart Coarse Scan + Fine Search")
+        start = time.time()
+        total_iterations_smart = 0
+
+        for latitude in test_latitudes:
+            # Coarse scan to find promising regions
+            scan_points = 12  # Every 30 degrees
+            scan_lons = np.linspace(-180, 180, scan_points)
+            errors = []
+
+            for lon in scan_lons:
+                houses = swe.houses(self.julian_date, latitude, lon, b'P')
+                asc = houses[1][0]
+                aspect = abs((planet_longitude - asc + 180.0) % 360.0 - 180.0)
+                err = abs(aspect - aspect_degrees)
+                if err > 180.0:
+                    err = 360.0 - err
+                errors.append((lon, err))
+
+            # Find local minima (where error is less than neighbors)
+            minima = []
+            for i in range(1, len(errors)-1):
+                if errors[i][1] < errors[i-1][1] and errors[i][1] < errors[i+1][1]:
+                    minima.append(errors[i][0])
+
+            # Refine each minimum with ternary search
+            for min_lon in minima[:2]:  # Limit to 2 best minima
+                left = min_lon - 10.0
+                right = min_lon + 10.0
+                iterations = 0
+
+                while (right - left) > tolerance:
+                    mid1 = left + (right - left) / 3.0
+                    mid2 = right - (right - left) / 3.0
+                    houses1 = swe.houses(self.julian_date, latitude, mid1, b'P')
+                    houses2 = swe.houses(self.julian_date, latitude, mid2, b'P')
+                    asc1 = houses1[1][0]
+                    asc2 = houses2[1][0]
+                    aspect1 = abs((planet_longitude - asc1 + 180.0) % 360.0 - 180.0)
+                    aspect2 = abs((planet_longitude - asc2 + 180.0) % 360.0 - 180.0)
+                    err1 = abs(aspect1 - aspect_degrees)
+                    err2 = abs(aspect2 - aspect_degrees)
+                    if err1 > 180.0:
+                        err1 = 360.0 - err1
+                    if err2 > 180.0:
+                        err2 = 360.0 - err2
+                    if err1 < err2:
+                        right = mid2
+                    else:
+                        left = mid1
+                    iterations += 1
+
+                total_iterations_smart += iterations
+
+            total_iterations_smart += scan_points  # Add coarse scan
+
+        time_smart = time.time() - start
+        avg_iter_smart = total_iterations_smart / len(test_latitudes)
+
+        print(f"  Time: {time_smart*1000:.2f}ms ({time_smart/len(test_latitudes)*1000:.3f}ms per lat)")
+        print(f"  Iterations: {avg_iter_smart:.1f} per latitude")
+        print(f"  swe.houses() calls: {total_iterations_smart}")
+        print()
+
+        # Comparison
+        print("=" * 80)
+        print("COMPARISON")
+        print("=" * 80)
+        speedup = time_hemi / time_smart
+        print(f"Hemisphere search:   {time_hemi*1000:.2f}ms ({avg_iter_hemi:.1f} iter/lat)")
+        print(f"Smart search:        {time_smart*1000:.2f}ms ({avg_iter_smart:.1f} iter/lat)")
+        print(f"Speedup:             {speedup:.2f}x {'WORSE' if speedup < 1 else 'BETTER'}")
+
     def benchmark_tolerance(self, tolerance_values=[0.01, 0.1, 0.25, 0.5, 1.0]):
         """Benchmark different tolerance values for speed and accuracy."""
         print("TOLERANCE BENCHMARK")
@@ -955,8 +1105,10 @@ def main():
             testbed.benchmark_raw_speed()
         elif sys.argv[1] == "full":
             testbed.run_ternary_search_test(use_fast_method=True)
+        elif sys.argv[1] == "smart":
+            testbed.benchmark_smart_search()
         else:
-            print("Usage: python asc_desc_aspect_testbed.py [tolerance|speed|full]")
+            print("Usage: python asc_desc_aspect_testbed.py [tolerance|speed|full|smart]")
     else:
         # Default: run tolerance benchmark
         testbed.benchmark_tolerance()
