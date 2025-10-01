@@ -421,36 +421,56 @@ class AstrocartographyCalculator:
                 for latitude in latitudes:
                     coordinates.append((aspect_longitude, latitude))
 
-        # For ASC/DESC angles, create simplified aspect lines
+        # For ASC/DESC angles, use fast ternary search method
         elif angle_type in ['ASC', 'DESC']:
-            # ASC/DESC aspects are complex - for now, create simplified lines
-            # based on the planet's ASC/DESC line positions
+            # Optimization: ASC aspect_deg = DESC (180° - aspect_deg)
+            # So ASC 60° = DESC 120°, ASC 120° = DESC 60°, ASC 90° = DESC 90°
+            # We can calculate one and derive the other
+            complementary_aspect = 180.0 - aspect_degrees
 
-            # Get the base ASC/DESC line
-            asc_coords, desc_coords = self.calculate_ascendant_descendant_lines(
-                planet_id, longitude_range, latitude_range
-            )
+            # Always calculate for ASC, then map to DESC if needed
+            calc_angle = 'ASC'
+            calc_aspect = aspect_degrees if angle_type == 'ASC' else complementary_aspect
 
-            if angle_type == 'ASC' and asc_coords:
-                # Use first ASC coordinate as reference
-                base_longitude = asc_coords[0][0]
-            elif angle_type == 'DESC' and desc_coords:
-                # Use first DESC coordinate as reference
-                base_longitude = desc_coords[0][0]
-            else:
-                return coordinates  # No base line found
+            # Get planet position once
+            planet_position = self.get_planetary_position(planet_id)
+            planet_longitude = planet_position['longitude']
 
-            # Create vertical lines on both sides of the base ASC/DESC line
-            aspect_lon1 = self._normalize_longitude(base_longitude + aspect_degrees)
-            aspect_lon2 = self._normalize_longitude(base_longitude - aspect_degrees)
-
+            # Generate latitude samples (limit to ±66° to avoid polar issues with house calculations)
             min_lat, max_lat = latitude_range
-            latitudes = self._generate_latitude_samples(min_lat, max_lat)
+            # Clamp latitude range to avoid polar regions where swe.houses() can fail
+            safe_min_lat = max(min_lat, -66.0)
+            safe_max_lat = min(max_lat, 66.0)
+            latitudes = self._generate_latitude_samples(safe_min_lat, safe_max_lat)
 
-            for aspect_longitude in [aspect_lon1, aspect_lon2]:
-                if longitude_range[0] <= aspect_longitude <= longitude_range[1]:
-                    for latitude in latitudes:
-                        coordinates.append((aspect_longitude, latitude))
+            # Collect coordinates for each hemisphere separately
+            western_coords = []  # Longitudes < 0
+            eastern_coords = []  # Longitudes >= 0
+
+            # Use ternary search to find accurate longitudes at each latitude
+            # Returns list (typically 2 solutions - one per hemisphere)
+            for latitude in latitudes:
+                longitudes = self._find_asc_desc_aspect_longitudes(
+                    planet_longitude, latitude, calc_aspect, calc_angle
+                )
+
+                for longitude in longitudes:
+                    if longitude_range[0] <= longitude <= longitude_range[1]:
+                        if longitude < 0:
+                            western_coords.append((longitude, latitude))
+                        else:
+                            eastern_coords.append((longitude, latitude))
+
+            # Sort each hemisphere by latitude for smooth line plotting
+            western_coords.sort(key=lambda c: c[1])
+            eastern_coords.sort(key=lambda c: c[1])
+
+            # Combine: western line, then None separator, then eastern line
+            # matplotlib uses None to break lines
+            coordinates = western_coords
+            if western_coords and eastern_coords:
+                coordinates.append(None)  # Line break
+            coordinates.extend(eastern_coords)
 
         return coordinates
 
@@ -944,6 +964,93 @@ class AstrocartographyCalculator:
         aspect = abs((planet_longitude - angle_longitude + 180.0) % 360.0 - 180.0)
 
         return aspect
+
+    def _find_asc_desc_aspect_longitudes(self, planet_longitude: float, latitude: float,
+                                          aspect_degrees: float, angle_type: str,
+                                          tolerance: float = 0.25) -> List[float]:
+        """
+        Find ALL longitudes where planet forms exact aspect to ASC/DESC at given latitude.
+
+        For most aspects, there are TWO locations around the globe (180° apart conceptually).
+        Uses fast ternary search with swe.houses() for optimal performance.
+
+        Args:
+            planet_longitude: Planet's ecliptic longitude
+            latitude: Geographic latitude
+            aspect_degrees: Target aspect (60, 90, 120, etc.)
+            angle_type: 'ASC' or 'DESC'
+            tolerance: Search tolerance in degrees (default 0.25° for speed/accuracy balance)
+
+        Returns:
+            List of longitudes where aspect is exact (typically 0, 1, or 2 results)
+        """
+        def calculate_aspect_error(test_longitude: float) -> float:
+            """Calculate aspect error at given longitude."""
+            try:
+                # Get ASC/DESC at this location using swe.houses
+                houses_result = swe.houses(self.julian_date, latitude, test_longitude, b'P')
+                ascmc = houses_result[1]
+
+                if angle_type == 'ASC':
+                    angle_longitude = ascmc[0]  # ASC at index 0
+                elif angle_type == 'DESC':
+                    asc_longitude = ascmc[0]
+                    angle_longitude = (asc_longitude + 180.0) % 360.0
+                else:
+                    return 999.0
+
+                # Calculate aspect
+                actual_aspect = abs((planet_longitude - angle_longitude + 180.0) % 360.0 - 180.0)
+
+                # Calculate error from target aspect
+                error = abs(actual_aspect - aspect_degrees)
+                if error > 180.0:
+                    error = 360.0 - error
+
+                return error
+            except:
+                return 999.0  # Return large error on failure
+
+        def ternary_search(left: float, right: float) -> Optional[float]:
+            """Perform ternary search in given range."""
+            last_err1 = None
+            last_err2 = None
+
+            while (right - left) > tolerance:
+                mid1 = left + (right - left) / 3.0
+                mid2 = right - (right - left) / 3.0
+
+                err1 = calculate_aspect_error(mid1)
+                err2 = calculate_aspect_error(mid2)
+
+                if err1 < err2:
+                    right = mid2
+                    last_err1 = err1
+                else:
+                    left = mid1
+                    last_err2 = err2
+
+            best_longitude = (left + right) / 2.0
+            # Use the last calculated error instead of recalculating
+            best_error = min(last_err1, last_err2) if last_err1 is not None and last_err2 is not None else calculate_aspect_error(best_longitude)
+
+            # Return only if error is acceptable (< 1°)
+            return best_longitude if best_error < 1.0 else None
+
+        # Search two hemispheres separately to find both solutions
+        results = []
+
+        # Search western hemisphere
+        result1 = ternary_search(-180.0, 0.0)
+        if result1 is not None:
+            results.append(result1)
+
+        # Search eastern hemisphere
+        result2 = ternary_search(0.0, 180.0)
+        if result2 is not None:
+            results.append(result2)
+
+        return results
 
     def _test_location_for_aspect(self, longitude: float, latitude: float, planet_id: int,
                                  angle_type: str, aspect_degrees: float, tolerance: float) -> bool:

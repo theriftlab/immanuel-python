@@ -323,32 +323,31 @@ def plot_astrocartography_aspects_map(astro_chart, projection="PlateCarree", sav
     # Calculate and plot aspect lines between major planets
     primary_planets = [chart.SUN, chart.MOON, chart.VENUS, chart.MARS, chart.JUPITER]
 
-    print("Calculating aspect lines from planets to MC angle...")
+    # Create calculator once (reuse for all aspects)
+    from immanuel.tools.astrocartography import AstrocartographyCalculator
+    import swisseph as swe
+
+    # Convert subject datetime to Julian date - use UTC for consistency
+    if isinstance(astro_chart.subject.date_time, str):
+        dt = datetime.strptime(astro_chart.subject.date_time, "%Y-%m-%d %H:%M:%S")
+    else:
+        dt = astro_chart.subject.date_time
+
+    # Convert Berlin time to UTC (Berlin is UTC+1 in January 1984)
+    dt_utc = datetime(dt.year, dt.month, dt.day, dt.hour - 1, dt.minute, dt.second)
+    jd = swe.julday(dt_utc.year, dt_utc.month, dt_utc.day, dt_utc.hour + dt_utc.minute / 60.0 + dt_utc.second / 3600.0)
+    calculator = AstrocartographyCalculator(julian_date=jd, sampling_resolution=2.0)
 
     aspect_lines_plotted = 0
 
+    # Plot MC aspect lines (vertical)
+    print("Calculating MC aspect lines (vertical)...")
     for primary_planet in primary_planets:
         primary_name = planet_names.get(primary_planet, f"Planet {primary_planet}")
 
         for aspect_degrees, aspect_name, line_style, line_width in meaningful_aspects:
             try:
                 print(f"  Calculating {primary_name} {aspect_name} MC ({aspect_degrees}°)...")
-
-                # Create calculator directly for aspect lines
-                from immanuel.tools.astrocartography import AstrocartographyCalculator
-                import swisseph as swe
-
-                # Convert subject datetime to Julian date - use UTC for consistency
-                if isinstance(astro_chart.subject.date_time, str):
-                    dt = datetime.strptime(astro_chart.subject.date_time, "%Y-%m-%d %H:%M:%S")
-                else:
-                    dt = astro_chart.subject.date_time
-
-                # Convert Berlin time to UTC (Berlin is UTC+1 in January 1984)
-                dt_utc = datetime(dt.year, dt.month, dt.day, dt.hour - 1, dt.minute, dt.second)
-                jd = swe.julday(dt_utc.year, dt_utc.month, dt_utc.day, dt_utc.hour + dt_utc.minute / 60.0 + dt_utc.second / 3600.0)
-
-                calculator = AstrocartographyCalculator(julian_date=jd, sampling_resolution=2.0)
 
                 # Get aspect line longitudes using the fast method
                 aspect_longitudes = calculator._calculate_aspect_longitudes_fast(
@@ -379,10 +378,6 @@ def plot_astrocartography_aspects_map(astro_chart, projection="PlateCarree", sav
                     # Each planet gets its own color, aspects distinguished by line style
                     plot_color = planet_colors.get(primary_planet, "#666666")
 
-                    # Map aspect degrees to line styles (from major_aspects)
-                    # major_aspects already defines: (degrees, name, linestyle, linewidth)
-                    # So we keep the linestyle from major_aspects and use planet color
-
                     ax.plot(
                         lons,
                         lats,
@@ -402,6 +397,53 @@ def plot_astrocartography_aspects_map(astro_chart, projection="PlateCarree", sav
             except Exception as e:
                 print(f"    ✗ Error calculating {aspect_name}: {e}")
                 continue
+
+    # Plot ASC/DESC aspect lines (curved)
+    print("\nCalculating ASC/DESC aspect lines (curved)...")
+    for primary_planet in primary_planets:
+        primary_name = planet_names.get(primary_planet, f"Planet {primary_planet}")
+
+        for aspect_degrees, aspect_name, line_style, line_width in meaningful_aspects:
+            for angle_type in ['ASC', 'DESC']:
+                try:
+                    print(f"  Calculating {primary_name} {aspect_name} {angle_type} ({aspect_degrees}°)...")
+
+                    # Use calculate_aspect_line which now has fast ternary search
+                    aspect_coords = calculator.calculate_aspect_line(
+                        planet_id=primary_planet,
+                        angle_type=angle_type,
+                        aspect_degrees=aspect_degrees,
+                        latitude_range=(-66, 66),  # Limited for house calculation stability
+                        longitude_range=(-180, 180)
+                    )
+
+                    if aspect_coords and len(aspect_coords) > 0:
+                        # Extract lons and lats for plotting curved line
+                        lons = [coord[0] for coord in aspect_coords]
+                        lats = [coord[1] for coord in aspect_coords]
+
+                        # Each planet gets its own color, aspects distinguished by line style
+                        plot_color = planet_colors.get(primary_planet, "#666666")
+
+                        ax.plot(
+                            lons,
+                            lats,
+                            color=plot_color,
+                            linewidth=line_width * 0.7,  # Thinner for curved lines
+                            linestyle=line_style,
+                            label=f"{primary_name} {aspect_name} {angle_type}",
+                            transform=ccrs.PlateCarree(),
+                            alpha=0.7,
+                        )
+
+                        aspect_lines_plotted += 1
+                        print(f"    ✓ Plotted curved {angle_type} line with {len(aspect_coords)} points")
+                    else:
+                        print(f"    ⚪ No coordinates found")
+
+                except Exception as e:
+                    print(f"    ✗ Error calculating {angle_type} {aspect_name}: {e}")
+                    continue
 
     # Add birth location
     birth_lon = float(astro_chart.subject.longitude)
