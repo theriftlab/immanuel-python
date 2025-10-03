@@ -235,6 +235,414 @@ Line Types:
     return fig, ax
 
 
+def plot_astrocartography_mc_aspects_map(astro_chart, projection="PlateCarree", save_as=None, title=None):
+    """
+    Plot astrocartography map focusing on MC/IC aspect lines (vertical).
+
+    Args:
+        astro_chart: AstrocartographyChart object with calculated lines
+        projection: Cartopy projection name
+        save_as: Filename to save plot
+        title: Custom plot title
+    """
+    if title is None:
+        title = f"Astrocartography MC/IC Aspect Lines - {astro_chart.subject.date_time}"
+
+    # Create figure with cartopy projection
+    if projection == "PlateCarree":
+        proj = ccrs.PlateCarree()
+    elif projection == "Robinson":
+        proj = ccrs.Robinson()
+    elif projection == "Mollweide":
+        proj = ccrs.Mollweide()
+    else:
+        proj = ccrs.PlateCarree()
+
+    fig = plt.figure(figsize=(20, 12))
+    ax = plt.axes(projection=proj)
+
+    # Add geographic features
+    ax.add_feature(cfeature.LAND, color="lightgray", alpha=0.8)
+    ax.add_feature(cfeature.OCEAN, color="lightblue", alpha=0.6)
+    ax.add_feature(cfeature.COASTLINE, linewidth=0.8, color="black")
+    ax.add_feature(cfeature.BORDERS, linewidth=0.5, color="gray", alpha=0.7)
+
+    # Add gridlines
+    gl = ax.gridlines(draw_labels=True, linewidth=0.5, alpha=0.5, color="gray")
+    gl.top_labels = False
+    gl.right_labels = False
+
+    # Set global extent to show the whole world
+    ax.set_global()
+
+    # Planet colors and names
+    planet_colors = {
+        chart.SUN: "#FFD700",  # Gold
+        chart.MOON: "#C0C0C0",  # Silver
+        chart.MERCURY: "#FFA500",  # Orange
+        chart.VENUS: "#FF69B4",  # Hot Pink
+        chart.MARS: "#FF4500",  # Red Orange
+        chart.JUPITER: "#4169E1",  # Royal Blue
+        chart.SATURN: "#8B4513",  # Saddle Brown
+        chart.URANUS: "#00CED1",  # Dark Turquoise
+        chart.NEPTUNE: "#0000FF",  # Blue
+        chart.PLUTO: "#800080",  # Purple
+    }
+
+    planet_names = {
+        chart.SUN: "Sun",
+        chart.MOON: "Moon",
+        chart.MERCURY: "Mercury",
+        chart.VENUS: "Venus",
+        chart.MARS: "Mars",
+        chart.JUPITER: "Jupiter",
+        chart.SATURN: "Saturn",
+        chart.URANUS: "Uranus",
+        chart.NEPTUNE: "Neptune",
+        chart.PLUTO: "Pluto",
+    }
+
+    # Meaningful aspects to MC/IC
+    meaningful_aspects = [
+        (60, "Sextile", "dotted", 2.0),
+        (90, "Square", "dashed", 2.5),
+        (120, "Trine", "dashdot", 2.5),
+    ]
+
+    # Calculate and plot aspect lines between major planets
+    primary_planets = [chart.SUN, chart.MOON, chart.VENUS, chart.MARS, chart.JUPITER]
+
+    # Create calculator once (reuse for all aspects)
+    from immanuel.tools.astrocartography import AstrocartographyCalculator
+    import swisseph as swe
+
+    # Convert subject datetime to Julian date - use UTC for consistency
+    if isinstance(astro_chart.subject.date_time, str):
+        dt = datetime.strptime(astro_chart.subject.date_time, "%Y-%m-%d %H:%M:%S")
+    else:
+        dt = astro_chart.subject.date_time
+
+    # Convert Berlin time to UTC (Berlin is UTC+1 in January 1984)
+    dt_utc = datetime(dt.year, dt.month, dt.day, dt.hour - 1, dt.minute, dt.second)
+    jd = swe.julday(dt_utc.year, dt_utc.month, dt_utc.day, dt_utc.hour + dt_utc.minute / 60.0 + dt_utc.second / 3600.0)
+    calculator = AstrocartographyCalculator(julian_date=jd, sampling_resolution=2.0)
+
+    aspect_lines_plotted = 0
+
+    # Plot MC aspect lines (vertical)
+    print("Calculating MC/IC aspect lines (vertical)...")
+    for primary_planet in primary_planets:
+        primary_name = planet_names.get(primary_planet, f"Planet {primary_planet}")
+
+        for aspect_degrees, aspect_name, line_style, line_width in meaningful_aspects:
+            for angle_type in ['MC', 'IC']:
+                try:
+                    print(f"  Calculating {primary_name} {aspect_name} {angle_type} ({aspect_degrees}°)...")
+
+                    # Get aspect line longitudes using the fast method
+                    aspect_longitudes = calculator._calculate_aspect_longitudes_fast(
+                        primary_planet, angle_type, aspect_degrees
+                    )
+
+                    if aspect_longitudes and len(aspect_longitudes) > 0:
+                        # Create vertical lines for each longitude
+                        all_lons = []
+                        all_lats = []
+
+                        for longitude in aspect_longitudes:
+                            # Create vertical line from -85° to +85° latitude
+                            line_lats = list(range(-85, 86, 2))  # Every 2 degrees
+                            line_lons = [longitude] * len(line_lats)
+
+                            all_lons.extend(line_lons)
+                            all_lats.extend(line_lats)
+
+                            # Add separation between lines for plotting
+                            if longitude != aspect_longitudes[-1]:  # Not the last longitude
+                                all_lons.append(None)  # matplotlib uses None to break lines
+                                all_lats.append(None)
+
+                        lons = all_lons
+                        lats = all_lats
+
+                        # Each planet gets its own color, aspects distinguished by line style
+                        plot_color = planet_colors.get(primary_planet, "#666666")
+
+                        ax.plot(
+                            lons,
+                            lats,
+                            color=plot_color,
+                            linewidth=line_width * 0.8,
+                            linestyle=line_style,
+                            label=f"{primary_name} {aspect_name} {angle_type}",
+                            transform=ccrs.PlateCarree(),
+                            alpha=0.8,
+                        )
+
+                        aspect_lines_plotted += 1
+                        print(f"    ✓ Plotted {len(aspect_longitudes)} vertical aspect lines")
+                    else:
+                        print(f"    ⚪ No aspect longitudes found")
+
+                except Exception as e:
+                    print(f"    ✗ Error calculating {angle_type} {aspect_name}: {e}")
+                    continue
+
+    # Add birth location
+    birth_lon = float(astro_chart.subject.longitude)
+    birth_lat = float(astro_chart.subject.latitude)
+    ax.plot(
+        birth_lon,
+        birth_lat,
+        marker="*",
+        markersize=15,
+        color="red",
+        transform=ccrs.PlateCarree(),
+        label="Birth Location",
+        markeredgecolor="black",
+    )
+
+    # Add legend
+    ax.legend(loc="upper left", bbox_to_anchor=(0.02, 0.98), fontsize=9)
+
+    # Add title and info
+    plt.title(title, fontsize=16, weight="bold", pad=20)
+
+    # Add info text
+    info_text = f"""
+Birth Data: {astro_chart.subject.date_time}
+Location: {astro_chart.subject.latitude}°, {astro_chart.subject.longitude}°
+
+MC/IC Aspect Lines ({aspect_lines_plotted} plotted):
+
+Aspect Line Styles:
+··· Sextile (60°) - Dotted line
+┅┅┅ Square (90°) - Dashed line
+─·─ Trine (120°) - Dash-dot line
+
+Note: All MC/IC aspect lines are vertical meridians
+"""
+
+    plt.figtext(
+        0.02,
+        0.25,
+        info_text,
+        fontsize=9,
+        verticalalignment="top",
+        bbox=dict(boxstyle="round", facecolor="white", alpha=0.8),
+    )
+
+    plt.tight_layout()
+
+    if save_as:
+        plt.savefig(save_as, dpi=300, bbox_inches="tight")
+        print(f"MC/IC aspect map saved as: {save_as}")
+
+    plt.show()
+
+    return fig, ax
+
+
+def plot_astrocartography_asc_aspects_map(astro_chart, projection="PlateCarree", save_as=None, title=None):
+    """
+    Plot astrocartography map focusing on ASC aspect lines (curved).
+
+    Note: DESC aspects are not plotted as they are redundant (ASC 60° = DESC 120°, etc.)
+
+    Args:
+        astro_chart: AstrocartographyChart object with calculated lines
+        projection: Cartopy projection name
+        save_as: Filename to save plot
+        title: Custom plot title
+    """
+    if title is None:
+        title = f"Astrocartography ASC Aspect Lines - {astro_chart.subject.date_time}"
+
+    # Create figure with cartopy projection
+    if projection == "PlateCarree":
+        proj = ccrs.PlateCarree()
+    elif projection == "Robinson":
+        proj = ccrs.Robinson()
+    elif projection == "Mollweide":
+        proj = ccrs.Mollweide()
+    else:
+        proj = ccrs.PlateCarree()
+
+    fig = plt.figure(figsize=(20, 12))
+    ax = plt.axes(projection=proj)
+
+    # Add geographic features
+    ax.add_feature(cfeature.LAND, color="lightgray", alpha=0.8)
+    ax.add_feature(cfeature.OCEAN, color="lightblue", alpha=0.6)
+    ax.add_feature(cfeature.COASTLINE, linewidth=0.8, color="black")
+    ax.add_feature(cfeature.BORDERS, linewidth=0.5, color="gray", alpha=0.7)
+
+    # Add gridlines
+    gl = ax.gridlines(draw_labels=True, linewidth=0.5, alpha=0.5, color="gray")
+    gl.top_labels = False
+    gl.right_labels = False
+
+    # Set global extent to show the whole world
+    ax.set_global()
+
+    # Planet colors and names
+    planet_colors = {
+        chart.SUN: "#FFD700",  # Gold
+        chart.MOON: "#C0C0C0",  # Silver
+        chart.MERCURY: "#FFA500",  # Orange
+        chart.VENUS: "#FF69B4",  # Hot Pink
+        chart.MARS: "#FF4500",  # Red Orange
+        chart.JUPITER: "#4169E1",  # Royal Blue
+        chart.SATURN: "#8B4513",  # Saddle Brown
+        chart.URANUS: "#00CED1",  # Dark Turquoise
+        chart.NEPTUNE: "#0000FF",  # Blue
+        chart.PLUTO: "#800080",  # Purple
+    }
+
+    planet_names = {
+        chart.SUN: "Sun",
+        chart.MOON: "Moon",
+        chart.MERCURY: "Mercury",
+        chart.VENUS: "Venus",
+        chart.MARS: "Mars",
+        chart.JUPITER: "Jupiter",
+        chart.SATURN: "Saturn",
+        chart.URANUS: "Uranus",
+        chart.NEPTUNE: "Neptune",
+        chart.PLUTO: "Pluto",
+    }
+
+    # Meaningful aspects
+    meaningful_aspects = [
+        (60, "Sextile", "dotted", 2.0),
+        (90, "Square", "dashed", 2.5),
+        (120, "Trine", "dashdot", 2.5),
+    ]
+
+    # Calculate and plot aspect lines between major planets
+    primary_planets = [chart.SUN, chart.MOON, chart.VENUS, chart.MARS, chart.JUPITER]
+
+    # Create calculator once (reuse for all aspects)
+    from immanuel.tools.astrocartography import AstrocartographyCalculator
+    import swisseph as swe
+
+    # Convert subject datetime to Julian date - use UTC for consistency
+    if isinstance(astro_chart.subject.date_time, str):
+        dt = datetime.strptime(astro_chart.subject.date_time, "%Y-%m-%d %H:%M:%S")
+    else:
+        dt = astro_chart.subject.date_time
+
+    # Convert Berlin time to UTC (Berlin is UTC+1 in January 1984)
+    dt_utc = datetime(dt.year, dt.month, dt.day, dt.hour - 1, dt.minute, dt.second)
+    jd = swe.julday(dt_utc.year, dt_utc.month, dt_utc.day, dt_utc.hour + dt_utc.minute / 60.0 + dt_utc.second / 3600.0)
+    calculator = AstrocartographyCalculator(julian_date=jd, sampling_resolution=2.0)
+
+    aspect_lines_plotted = 0
+
+    # Plot ASC aspect lines (curved) - DESC aspects are redundant since ASC 60° = DESC 120°
+    print("Calculating ASC aspect lines (curved)...")
+    for primary_planet in primary_planets:
+        primary_name = planet_names.get(primary_planet, f"Planet {primary_planet}")
+
+        for aspect_degrees, aspect_name, line_style, line_width in meaningful_aspects:
+            try:
+                print(f"  Calculating {primary_name} {aspect_name} ASC ({aspect_degrees}°)...")
+
+                # Use calculate_aspect_line which now has fast ternary search
+                aspect_coords = calculator.calculate_aspect_line(
+                    planet_id=primary_planet,
+                    angle_type='ASC',
+                    aspect_degrees=aspect_degrees,
+                    latitude_range=(-66, 66),  # Limited for house calculation stability
+                    longitude_range=(-180, 180)
+                )
+
+                if aspect_coords and len(aspect_coords) > 0:
+                    # Extract lons and lats for plotting curved line
+                    lons = [coord[0] if coord is not None else None for coord in aspect_coords]
+                    lats = [coord[1] if coord is not None else None for coord in aspect_coords]
+
+                    # Each planet gets its own color, aspects distinguished by line style
+                    plot_color = planet_colors.get(primary_planet, "#666666")
+
+                    ax.plot(
+                        lons,
+                        lats,
+                        color=plot_color,
+                        linewidth=line_width * 0.7,
+                        linestyle=line_style,
+                        label=f"{primary_name} {aspect_name} ASC",
+                        transform=ccrs.PlateCarree(),
+                        alpha=0.7,
+                    )
+
+                    aspect_lines_plotted += 1
+                    actual_points = len([c for c in aspect_coords if c is not None])
+                    print(f"    ✓ Plotted curved ASC line with {actual_points} points")
+                else:
+                    print(f"    ⚪ No coordinates found")
+
+            except Exception as e:
+                print(f"    ✗ Error calculating ASC {aspect_name}: {e}")
+                continue
+
+    # Add birth location
+    birth_lon = float(astro_chart.subject.longitude)
+    birth_lat = float(astro_chart.subject.latitude)
+    ax.plot(
+        birth_lon,
+        birth_lat,
+        marker="*",
+        markersize=15,
+        color="red",
+        transform=ccrs.PlateCarree(),
+        label="Birth Location",
+        markeredgecolor="black",
+    )
+
+    # Add legend
+    ax.legend(loc="upper left", bbox_to_anchor=(0.02, 0.98), fontsize=9)
+
+    # Add title and info
+    plt.title(title, fontsize=16, weight="bold", pad=20)
+
+    # Add info text
+    info_text = f"""
+Birth Data: {astro_chart.subject.date_time}
+Location: {astro_chart.subject.latitude}°, {astro_chart.subject.longitude}°
+
+ASC Aspect Lines ({aspect_lines_plotted} plotted):
+
+Aspect Line Styles:
+··· Sextile (60°) - Dotted line
+┅┅┅ Square (90°) - Dashed line
+─·─ Trine (120°) - Dash-dot line
+
+Note: All ASC aspect lines are curved S-curves
+DESC aspects not shown (redundant: ASC 60° = DESC 120°)
+Limited to ±66° latitude for calculation stability
+"""
+
+    plt.figtext(
+        0.02,
+        0.25,
+        info_text,
+        fontsize=9,
+        verticalalignment="top",
+        bbox=dict(boxstyle="round", facecolor="white", alpha=0.8),
+    )
+
+    plt.tight_layout()
+
+    if save_as:
+        plt.savefig(save_as, dpi=300, bbox_inches="tight")
+        print(f"ASC/DESC aspect map saved as: {save_as}")
+
+    plt.show()
+
+    return fig, ax
+
+
 def plot_astrocartography_aspects_map(astro_chart, projection="PlateCarree", save_as=None, title=None):
     """
     Plot astrocartography map focusing on aspect lines between planets.
@@ -398,52 +806,52 @@ def plot_astrocartography_aspects_map(astro_chart, projection="PlateCarree", sav
                 print(f"    ✗ Error calculating {aspect_name}: {e}")
                 continue
 
-    # Plot ASC/DESC aspect lines (curved)
-    print("\nCalculating ASC/DESC aspect lines (curved)...")
+    # Plot ASC aspect lines (curved) - DESC aspects are redundant (ASC 60° = DESC 120°)
+    print("\nCalculating ASC aspect lines (curved)...")
     for primary_planet in primary_planets:
         primary_name = planet_names.get(primary_planet, f"Planet {primary_planet}")
 
         for aspect_degrees, aspect_name, line_style, line_width in meaningful_aspects:
-            for angle_type in ['ASC', 'DESC']:
-                try:
-                    print(f"  Calculating {primary_name} {aspect_name} {angle_type} ({aspect_degrees}°)...")
+            try:
+                print(f"  Calculating {primary_name} {aspect_name} ASC ({aspect_degrees}°)...")
 
-                    # Use calculate_aspect_line which now has fast ternary search
-                    aspect_coords = calculator.calculate_aspect_line(
-                        planet_id=primary_planet,
-                        angle_type=angle_type,
-                        aspect_degrees=aspect_degrees,
-                        latitude_range=(-66, 66),  # Limited for house calculation stability
-                        longitude_range=(-180, 180)
+                # Use calculate_aspect_line which now has fast ternary search
+                aspect_coords = calculator.calculate_aspect_line(
+                    planet_id=primary_planet,
+                    angle_type='ASC',
+                    aspect_degrees=aspect_degrees,
+                    latitude_range=(-66, 66),  # Limited for house calculation stability
+                    longitude_range=(-180, 180)
+                )
+
+                if aspect_coords and len(aspect_coords) > 0:
+                    # Extract lons and lats for plotting curved line
+                    lons = [coord[0] if coord is not None else None for coord in aspect_coords]
+                    lats = [coord[1] if coord is not None else None for coord in aspect_coords]
+
+                    # Each planet gets its own color, aspects distinguished by line style
+                    plot_color = planet_colors.get(primary_planet, "#666666")
+
+                    ax.plot(
+                        lons,
+                        lats,
+                        color=plot_color,
+                        linewidth=line_width * 0.7,  # Thinner for curved lines
+                        linestyle=line_style,
+                        label=f"{primary_name} {aspect_name} ASC",
+                        transform=ccrs.PlateCarree(),
+                        alpha=0.7,
                     )
 
-                    if aspect_coords and len(aspect_coords) > 0:
-                        # Extract lons and lats for plotting curved line
-                        lons = [coord[0] for coord in aspect_coords]
-                        lats = [coord[1] for coord in aspect_coords]
+                    aspect_lines_plotted += 1
+                    actual_points = len([c for c in aspect_coords if c is not None])
+                    print(f"    ✓ Plotted curved ASC line with {actual_points} points")
+                else:
+                    print(f"    ⚪ No coordinates found")
 
-                        # Each planet gets its own color, aspects distinguished by line style
-                        plot_color = planet_colors.get(primary_planet, "#666666")
-
-                        ax.plot(
-                            lons,
-                            lats,
-                            color=plot_color,
-                            linewidth=line_width * 0.7,  # Thinner for curved lines
-                            linestyle=line_style,
-                            label=f"{primary_name} {aspect_name} {angle_type}",
-                            transform=ccrs.PlateCarree(),
-                            alpha=0.7,
-                        )
-
-                        aspect_lines_plotted += 1
-                        print(f"    ✓ Plotted curved {angle_type} line with {len(aspect_coords)} points")
-                    else:
-                        print(f"    ⚪ No coordinates found")
-
-                except Exception as e:
-                    print(f"    ✗ Error calculating {angle_type} {aspect_name}: {e}")
-                    continue
+            except Exception as e:
+                print(f"    ✗ Error calculating ASC {aspect_name}: {e}")
+                continue
 
     # Add birth location
     birth_lon = float(astro_chart.subject.longitude)
@@ -526,8 +934,187 @@ Note: Conjunction = MC line, Opposition = IC line
     return fig, ax
 
 
+def export_to_geojson(astro_chart, filename="astrocartography_lines.geojson"):
+    """
+    Export astrocartography lines to GeoJSON format.
+
+    Args:
+        astro_chart: AstrocartographyChart object
+        filename: Output filename
+    """
+    import json
+
+    planet_names = {
+        chart.SUN: "Sun",
+        chart.MOON: "Moon",
+        chart.MERCURY: "Mercury",
+        chart.VENUS: "Venus",
+        chart.MARS: "Mars",
+        chart.JUPITER: "Jupiter",
+        chart.SATURN: "Saturn",
+        chart.URANUS: "Uranus",
+        chart.NEPTUNE: "Neptune",
+        chart.PLUTO: "Pluto",
+    }
+
+    features = []
+
+    # Export planetary lines
+    for planet_id, planetary_lines in astro_chart.planetary_lines.items():
+        planet_name = planet_names.get(planet_id, f"Planet_{planet_id}")
+
+        for line_type, line_data in planetary_lines.items():
+            if "coordinates" not in line_data or not line_data["coordinates"]:
+                continue
+
+            coordinates = line_data["coordinates"]
+            # GeoJSON uses [longitude, latitude] order
+            geojson_coords = [[coord[0], coord[1]] for coord in coordinates]
+
+            feature = {
+                "type": "Feature",
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": geojson_coords
+                },
+                "properties": {
+                    "planet": planet_name,
+                    "planet_id": planet_id,
+                    "line_type": line_type,
+                    "point_count": len(coordinates)
+                }
+            }
+            features.append(feature)
+
+    # Export zenith points
+    for planet_id, zenith in astro_chart.zenith_points.items():
+        if isinstance(zenith, dict):
+            planet_name = planet_names.get(planet_id, f"Planet_{planet_id}")
+
+            feature = {
+                "type": "Feature",
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [zenith["longitude"], zenith["latitude"]]
+                },
+                "properties": {
+                    "planet": planet_name,
+                    "planet_id": planet_id,
+                    "type": "zenith"
+                }
+            }
+            features.append(feature)
+
+    # Create GeoJSON FeatureCollection
+    geojson = {
+        "type": "FeatureCollection",
+        "features": features,
+        "metadata": {
+            "birth_datetime": str(astro_chart.subject.date_time),
+            "birth_latitude": float(astro_chart.subject.latitude),
+            "birth_longitude": float(astro_chart.subject.longitude),
+            "timezone": astro_chart.subject.timezone
+        }
+    }
+
+    # Write to file
+    with open(filename, 'w') as f:
+        json.dump(geojson, f, indent=2)
+
+    print(f"✓ Exported GeoJSON to: {filename}")
+    return filename
+
+
+def export_to_json(astro_chart, filename="astrocartography_chart.json"):
+    """
+    Export complete astrocartography chart data to JSON format.
+
+    Args:
+        astro_chart: AstrocartographyChart object
+        filename: Output filename
+    """
+    import json
+
+    planet_names = {
+        chart.SUN: "Sun",
+        chart.MOON: "Moon",
+        chart.MERCURY: "Mercury",
+        chart.VENUS: "Venus",
+        chart.MARS: "Mars",
+        chart.JUPITER: "Jupiter",
+        chart.SATURN: "Saturn",
+        chart.URANUS: "Uranus",
+        chart.NEPTUNE: "Neptune",
+        chart.PLUTO: "Pluto",
+    }
+
+    # Build chart data structure
+    chart_data = {
+        "birth_data": {
+            "datetime": str(astro_chart.subject.date_time),
+            "latitude": float(astro_chart.subject.latitude),
+            "longitude": float(astro_chart.subject.longitude),
+            "timezone": astro_chart.subject.timezone
+        },
+        "planetary_lines": {},
+        "zenith_points": {},
+        "metadata": {
+            "generated_at": datetime.now().isoformat(),
+            "calculation_method": "Swiss Ephemeris"
+        }
+    }
+
+    # Export planetary lines
+    for planet_id, planetary_lines in astro_chart.planetary_lines.items():
+        planet_name = planet_names.get(planet_id, f"Planet_{planet_id}")
+
+        chart_data["planetary_lines"][planet_name] = {}
+
+        for line_type, line_data in planetary_lines.items():
+            if "coordinates" not in line_data or not line_data["coordinates"]:
+                continue
+
+            coordinates = line_data["coordinates"]
+
+            chart_data["planetary_lines"][planet_name][line_type] = {
+                "coordinates": [[coord[0], coord[1]] for coord in coordinates],
+                "point_count": len(coordinates)
+            }
+
+    # Export zenith points
+    for planet_id, zenith in astro_chart.zenith_points.items():
+        if isinstance(zenith, dict):
+            planet_name = planet_names.get(planet_id, f"Planet_{planet_id}")
+
+            chart_data["zenith_points"][planet_name] = {
+                "longitude": zenith["longitude"],
+                "latitude": zenith["latitude"]
+            }
+
+    # Write to file
+    with open(filename, 'w') as f:
+        json.dump(chart_data, f, indent=2)
+
+    print(f"✓ Exported chart data to: {filename}")
+    return filename
+
+
 def main():
     """Demo the  astrocartography world map."""
+    import argparse
+
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description='Generate astrocartography world maps')
+    parser.add_argument('--geojson', action='store_true',
+                       help='Export astrocartography lines to GeoJSON format')
+    parser.add_argument('--json', action='store_true',
+                       help='Export complete chart data to JSON format')
+    parser.add_argument('--geojson-file', type=str, default='astrocartography_lines.geojson',
+                       help='GeoJSON output filename (default: astrocartography_lines.geojson)')
+    parser.add_argument('--json-file', type=str, default='astrocartography_chart.json',
+                       help='JSON output filename (default: astrocartography_chart.json)')
+    args = parser.parse_args()
+
     print("===  Astrocartography World Map Demo ===\n")
 
     # Example birth data
@@ -600,36 +1187,90 @@ def main():
 
     print("\n" + "=" * 60)
 
-    # Create aspect lines map
+    # Create MC/IC aspect lines map
     try:
-        print("=== Creating Aspect Lines Map ===")
-        fig2, ax2 = plot_astrocartography_aspects_map(
+        print("=== Creating MC/IC Aspect Lines Map ===")
+        fig2, ax2 = plot_astrocartography_mc_aspects_map(
             astro_chart=astro_chart,
             projection="PlateCarree",
-            save_as="astrocartography_aspect_lines.png",
-            title="Astrocartography Aspect Lines - Major Planetary Aspects",
+            save_as="astrocartography_mc_aspect_lines.png",
+            title="Astrocartography MC/IC Aspect Lines - Vertical Meridians",
         )
 
-        print("\n=== Aspect Lines Map Created Successfully! ===")
+        print("\n=== MC/IC Aspect Lines Map Created Successfully! ===")
         print("Features:")
-        print("✓ Major planetary aspects (conjunction, sextile, square, trine, opposition)")
-        print("✓ Color-coded aspect lines")
-        print("✓ Zenith points for reference")
+        print("✓ MC/IC aspect lines (sextile, square, trine)")
+        print("✓ Vertical meridian lines")
+        print("✓ Color-coded by planet")
         print("✓ Birth location marked")
-        print("✓ Professional cartographic projection")
 
     except Exception as e:
-        print(f"Error creating aspect lines map: {e}")
+        print(f"Error creating MC/IC aspect lines map: {e}")
         import traceback
 
         traceback.print_exc()
 
     print("\n" + "=" * 60)
+
+    # Create ASC aspect lines map
+    try:
+        print("=== Creating ASC Aspect Lines Map ===")
+        fig3, ax3 = plot_astrocartography_asc_aspects_map(
+            astro_chart=astro_chart,
+            projection="PlateCarree",
+            save_as="astrocartography_asc_aspect_lines.png",
+            title="Astrocartography ASC Aspect Lines - Curved Horizon Lines",
+        )
+
+        print("\n=== ASC Aspect Lines Map Created Successfully! ===")
+        print("Features:")
+        print("✓ ASC aspect lines (sextile, square, trine)")
+        print("✓ Curved S-shaped lines")
+        print("✓ Color-coded by planet")
+        print("✓ Birth location marked")
+        print("✓ DESC aspects omitted (redundant: ASC 60° = DESC 120°)")
+
+    except Exception as e:
+        print(f"Error creating ASC/DESC aspect lines map: {e}")
+        import traceback
+
+        traceback.print_exc()
+
+    print("\n" + "=" * 60)
+
+    # Export to GeoJSON if requested
+    if args.geojson:
+        print("\n=== Exporting to GeoJSON ===")
+        try:
+            export_to_geojson(astro_chart, filename=args.geojson_file)
+        except Exception as e:
+            print(f"Error exporting to GeoJSON: {e}")
+
+    # Export to JSON if requested
+    if args.json:
+        print("\n=== Exporting to JSON ===")
+        try:
+            export_to_json(astro_chart, filename=args.json_file)
+        except Exception as e:
+            print(f"Error exporting to JSON: {e}")
+
+    print("\n" + "=" * 60)
     print("=== Demo Complete ===")
     print("Files created:")
-    print("  📊 astrocartography_planetary_lines.png - Main planetary lines (MC/IC/ASC/DESC)")
-    print("  📈 astrocartography_aspect_lines.png - Aspect lines between planets")
-    print("\nBoth maps demonstrate the corrected astrocartography calculations!")
+    print("  📊 astrocartography_worldmap.png - Main planetary lines (MC/IC/ASC/DESC)")
+    print("  📈 astrocartography_mc_aspect_lines.png - MC/IC aspect lines (vertical)")
+    print("  📈 astrocartography_asc_aspect_lines.png - ASC aspect lines (curved, DESC omitted)")
+    if args.geojson:
+        print(f"  🌍 {args.geojson_file} - GeoJSON export of all lines")
+    if args.json:
+        print(f"  📄 {args.json_file} - JSON export of complete chart data")
+    print("\nAll maps demonstrate the corrected astrocartography calculations!")
+    print("Note: DESC aspects are redundant (ASC 60° = DESC 120°) and omitted from ASC map")
+    print("\nUsage:")
+    print("  python astrocartography_worldmap.py                  # Generate maps only")
+    print("  python astrocartography_worldmap.py --geojson        # Also export to GeoJSON")
+    print("  python astrocartography_worldmap.py --json           # Also export to JSON")
+    print("  python astrocartography_worldmap.py --geojson --json # Export both formats")
 
 
 if __name__ == "__main__":

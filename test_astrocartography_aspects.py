@@ -390,15 +390,18 @@ class AstrocartographyTester:
         results["timings"]["planetary_lines_total"] = total_planetary_time
 
         # Test 2: Aspect Lines
-        print("\n--- Aspect Lines (60°, 90°, 120° to all angles) ---")
+        # Note: DESC aspects are redundant (ASC 60° = DESC 120°), so we only test MC, IC, ASC
+        print("\n--- Aspect Lines (60°, 90°, 120° to MC/IC/ASC) ---")
         total_aspect_time = 0
         aspect_line_count = 0
+
+        aspect_angles = ["MC", "IC", "ASC"]  # Exclude DESC as it's redundant
 
         for planet_id in major_planets:
             planet_name = self._planet_name(planet_id)
             planet_aspect_times = []
 
-            for angle_type in angles:
+            for angle_type in aspect_angles:
                 for aspect_deg in aspects:
                     aspect_name = {60: "Sextile", 90: "Square", 120: "Trine"}[aspect_deg]
 
@@ -464,7 +467,7 @@ class AstrocartographyTester:
 
         print(f"\nResults for complete chart generation:")
         print(f"  - {planetary_line_count} planetary lines (MC/IC/ASC/DESC for {len(major_planets)} planets): {total_planetary_time:.3f}s total, {(total_planetary_time/planetary_line_count)*1000:.2f}ms average")
-        print(f"  - {aspect_line_count} aspect lines (60°/90°/120° to all angles for {len(major_planets)} planets): {total_aspect_time:.3f}s total, {(total_aspect_time/aspect_line_count)*1000:.2f}ms average")
+        print(f"  - {aspect_line_count} aspect lines (60°/90°/120° to MC/IC/ASC for {len(major_planets)} planets, DESC excluded): {total_aspect_time:.3f}s total, {(total_aspect_time/aspect_line_count)*1000:.2f}ms average")
         print(f"  - {len(major_planets)} zenith points: {total_zenith_time:.4f}s total, {(total_zenith_time/len(major_planets))*1000:.2f}ms average")
 
         print(f"\nKey findings:")
@@ -474,20 +477,20 @@ class AstrocartographyTester:
         mc_ic_planetary_avg = (total_planetary_time / len(major_planets)) / 2  # MC + IC per planet
         asc_desc_planetary_avg = (total_planetary_time / len(major_planets)) / 2  # ASC + DESC per planet
 
-        # MC/IC aspect lines: angles MC and IC (first 60 aspect lines)
-        # ASC/DESC aspect lines: angles ASC and DESC (last 60 aspect lines)
+        # MC/IC aspect lines: 30 MC + 30 IC = 60 lines (10 planets × 3 aspects × 2 angles)
+        # ASC aspect lines: 30 lines (10 planets × 3 aspects × 1 angle, DESC excluded)
         mc_ic_aspect_count = 60  # 10 planets × 3 aspects × 2 angles (MC/IC)
-        asc_desc_aspect_count = 60  # 10 planets × 3 aspects × 2 angles (ASC/DESC)
+        asc_aspect_count = 30  # 10 planets × 3 aspects × 1 angle (ASC only, DESC excluded)
 
-        # Estimate split based on the fact that ASC/DESC are much slower
+        # Estimate split based on the fact that ASC is much slower than MC/IC
         # Use the detailed output to calculate actual averages
         mc_ic_aspect_avg = 0.0002  # ~0.2ms (very fast)
-        asc_desc_aspect_avg = total_aspect_time / aspect_line_count  # Most time is ASC/DESC
+        asc_aspect_avg = total_aspect_time / aspect_line_count  # Most time is ASC
 
         print(f"  - MC/IC planetary lines: ~{mc_ic_planetary_avg*1000:.2f}ms each (simple longitude calculation)")
         print(f"  - ASC/DESC planetary lines: ~{asc_desc_planetary_avg*1000:.2f}ms each (fast ternary search)")
         print(f"  - MC/IC aspect lines: ~{mc_ic_aspect_avg*1000:.2f}ms each (fast binary search)")
-        print(f"  - ASC/DESC aspect lines: ~{asc_desc_aspect_avg*1000:.2f}ms each (ternary search with initial guess)")
+        print(f"  - ASC aspect lines: ~{asc_aspect_avg*1000:.2f}ms each (ternary search with initial guess, DESC excluded)")
         print(f"  - Total chart: {total_operations} operations in {total_time:.2f}s ({total_operations/total_time:.1f} ops/sec)")
 
         results["timings"]["total"] = total_time

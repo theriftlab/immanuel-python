@@ -63,48 +63,48 @@ def main():
         (120, "Trine", ":", "#0000FF"),
     ]
 
-    print("Calculating Sun ASC/DESC aspect lines...\n")
+    print("Calculating Sun ASC aspect lines (DESC excluded as redundant)...\n")
 
-    # Calculate and plot
+    # Calculate and plot - only ASC, DESC is redundant (ASC 60° = DESC 120°)
     for aspect_deg, aspect_name, line_style, color in aspects:
-        for angle_type in ['ASC', 'DESC']:
-            print(f"  {aspect_name} {angle_type} ({aspect_deg}°)...", end=" ")
+        angle_type = 'ASC'  # Only calculate ASC, DESC is redundant
+        print(f"  {aspect_name} {angle_type} ({aspect_deg}°)...", end=" ")
 
-            coords = calculator.calculate_aspect_line(
-                planet_id=chart.SUN,
-                angle_type=angle_type,
-                aspect_degrees=aspect_deg,
-                latitude_range=(-66, 66),
-                longitude_range=(-180, 180)
+        coords = calculator.calculate_aspect_line(
+            planet_id=chart.SUN,
+            angle_type=angle_type,
+            aspect_degrees=aspect_deg,
+            latitude_range=(-66, 66),
+            longitude_range=(-180, 180)
+        )
+
+        if coords:
+            # Extract lons/lats (None values break the line automatically)
+            lons = []
+            lats = []
+            for coord in coords:
+                if coord is None:
+                    lons.append(None)
+                    lats.append(None)
+                else:
+                    lons.append(coord[0])
+                    lats.append(coord[1])
+
+            ax.plot(
+                lons, lats,
+                color=color,
+                linewidth=2.5,
+                linestyle=line_style,
+                label=f"Sun {aspect_name} {angle_type}",
+                transform=ccrs.PlateCarree(),
+                alpha=0.8
             )
 
-            if coords:
-                # Extract lons/lats (None values break the line automatically)
-                lons = []
-                lats = []
-                for coord in coords:
-                    if coord is None:
-                        lons.append(None)
-                        lats.append(None)
-                    else:
-                        lons.append(coord[0])
-                        lats.append(coord[1])
-
-                ax.plot(
-                    lons, lats,
-                    color=color,
-                    linewidth=2.5,
-                    linestyle=line_style,
-                    label=f"Sun {aspect_name} {angle_type}",
-                    transform=ccrs.PlateCarree(),
-                    alpha=0.8
-                )
-
-                # Count actual points (excluding None separators)
-                actual_points = sum(1 for c in coords if c is not None)
-                print(f"✓ {actual_points} points")
-            else:
-                print("✗ No coordinates")
+            # Count actual points (excluding None separators)
+            actual_points = sum(1 for c in coords if c is not None)
+            print(f"✓ {actual_points} points")
+        else:
+            print("✗ No coordinates")
 
     # Birth location
     ax.plot(
