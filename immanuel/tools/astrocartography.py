@@ -1367,6 +1367,12 @@ class AstrocartographyCalculator:
             lon_diff = abs(lon2 - lon1)
             if lon_diff > 180:  # This is likely a wrap-around artifact
                 continue
+            
+            # Quick bounds check: skip if vertical longitude is clearly outside segment bounds
+            min_lon = min(lon1, lon2)
+            max_lon = max(lon1, lon2)
+            if not (min_lon <= vertical_lon <= max_lon):
+                continue
                 
             # Check if the vertical line crosses between these two points
             crossing = self._find_longitude_crossing(lon1, lat1, lon2, lat2, vertical_lon)
@@ -1505,6 +1511,10 @@ class AstrocartographyCalculator:
             # Skip wrap-around segments in curve1
             if abs(lon1b - lon1a) > 180:
                 continue
+            
+            # Calculate bounds for curve1 segment
+            min_lon1, max_lon1 = min(lon1a, lon1b), max(lon1a, lon1b)
+            min_lat1, max_lat1 = min(lat1a, lat1b), max(lat1a, lat1b)
 
             for j in range(len(curve2_coords) - 1):
                 lon2a, lat2a = curve2_coords[j]
@@ -1512,6 +1522,15 @@ class AstrocartographyCalculator:
                 
                 # Skip wrap-around segments in curve2
                 if abs(lon2b - lon2a) > 180:
+                    continue
+                
+                # Calculate bounds for curve2 segment
+                min_lon2, max_lon2 = min(lon2a, lon2b), max(lon2a, lon2b)
+                min_lat2, max_lat2 = min(lat2a, lat2b), max(lat2a, lat2b)
+                
+                # Quick bounds check: skip if bounding boxes don't overlap
+                if (max_lon1 < min_lon2 or min_lon1 > max_lon2 or 
+                    max_lat1 < min_lat2 or min_lat1 > max_lat2):
                     continue
 
                 # Find intersection between two line segments

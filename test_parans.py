@@ -253,18 +253,29 @@ def main():
     
     all_angles = ['MC', 'IC', 'ASC', 'DESC']
     
-    # Generate all possible combinations between different planets
+    # Generate all possible combinations between different planets (avoiding duplicates)
     test_cases = []
-    for planet1 in all_planets:
+    processed_pairs = set()
+    
+    for i, planet1 in enumerate(all_planets):
         for angle1 in all_angles:
-            for planet2 in all_planets:
+            for j, planet2 in enumerate(all_planets):
                 for angle2 in all_angles:
                     # Skip same planet combinations (not meaningful astrologically)
                     if planet1 != planet2:
                         # Skip Node × Node combinations (they intersect everywhere)
                         nodes = [chart.NORTH_NODE, chart.SOUTH_NODE]
                         if not (planet1 in nodes and planet2 in nodes):
-                            test_cases.append((planet1, angle1, planet2, angle2))
+                            # Create a canonical pair key to avoid duplicates
+                            # Sort by planet index first, then by angle to ensure consistent ordering
+                            if i < j or (i == j and all_angles.index(angle1) <= all_angles.index(angle2)):
+                                pair_key = (planet1, angle1, planet2, angle2)
+                            else:
+                                pair_key = (planet2, angle2, planet1, angle1)
+                            
+                            if pair_key not in processed_pairs:
+                                processed_pairs.add(pair_key)
+                                test_cases.append(pair_key)
     
     print(f"Generated {len(test_cases)} total paran combinations to test")
 
