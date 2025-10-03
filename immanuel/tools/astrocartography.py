@@ -1,11 +1,11 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    Astrocartography calculation engine using Swiss Ephemeris.
-    Provides core astronomical calculations for planetary line generation,
-    zenith points, parans, local space lines, and aspect lines.
+Astrocartography calculation engine using Swiss Ephemeris.
+Provides core astronomical calculations for planetary line generation,
+zenith points, parans, local space lines, and aspect lines.
 
 """
 
@@ -15,9 +15,7 @@ from typing import Dict, List, Optional, Tuple
 
 import swisseph as swe
 
-from immanuel.classes.astrocartography_entities import (
-    AspectLine, LocalSpaceLine, ParanLine, PlanetaryLine, ZenithPoint
-)
+from immanuel.classes.astrocartography_entities import AspectLine, LocalSpaceLine, ParanLine, PlanetaryLine, ZenithPoint
 from immanuel.const import astrocartography, chart
 from immanuel.tools import ephemeris
 
@@ -33,7 +31,7 @@ class AstrocartographyCalculator:
         self,
         julian_date: float,
         sampling_resolution: float = astrocartography.DEFAULT_SAMPLING_RESOLUTION,
-        calculation_method: str = astrocartography.METHOD_ZODIACAL
+        calculation_method: str = astrocartography.METHOD_ZODIACAL,
     ):
         """
         Initialize calculator for specific birth moment.
@@ -52,7 +50,9 @@ class AstrocartographyCalculator:
             raise ValueError(f"Invalid julian_date: {julian_date}")
 
         # Validate sampling resolution
-        if not (astrocartography.MIN_SAMPLING_RESOLUTION <= sampling_resolution <= astrocartography.MAX_SAMPLING_RESOLUTION):
+        if not (
+            astrocartography.MIN_SAMPLING_RESOLUTION <= sampling_resolution <= astrocartography.MAX_SAMPLING_RESOLUTION
+        ):
             raise ValueError(f"Sampling resolution {sampling_resolution} out of valid range")
 
         # Validate calculation method
@@ -76,7 +76,7 @@ class AstrocartographyCalculator:
     def calculate_mc_ic_lines(
         self,
         planet_id: int,
-        latitude_range: Tuple[float, float] = (astrocartography.MIN_LATITUDE, astrocartography.MAX_LATITUDE)
+        latitude_range: Tuple[float, float] = (astrocartography.MIN_LATITUDE, astrocartography.MAX_LATITUDE),
     ) -> Tuple[List[Tuple[float, float]], List[Tuple[float, float]]]:
         """
         Calculate Midheaven and Imum Coeli lines for a planet.
@@ -123,7 +123,7 @@ class AstrocartographyCalculator:
         self,
         planet_id: int,
         longitude_range: Tuple[float, float] = (astrocartography.MIN_LONGITUDE, astrocartography.MAX_LONGITUDE),
-        latitude_range: Tuple[float, float] = (astrocartography.MIN_LATITUDE, astrocartography.MAX_LATITUDE)
+        latitude_range: Tuple[float, float] = (astrocartography.MIN_LATITUDE, astrocartography.MAX_LATITUDE),
     ) -> Tuple[List[Tuple[float, float]], List[Tuple[float, float]]]:
         """
         Calculate Ascendant and Descendant lines for a planet.
@@ -188,16 +188,13 @@ class AstrocartographyCalculator:
         # Get planet's equatorial coordinates
         if self.calculation_method == astrocartography.METHOD_ZODIACAL:
             # Convert ecliptic to equatorial coordinates
-            equatorial = self._ecliptic_to_equatorial(
-                planet_position['longitude'],
-                planet_position['latitude']
-            )
-            planet_ra = equatorial['right_ascension']
-            planet_dec = equatorial['declination']
+            equatorial = self._ecliptic_to_equatorial(planet_position["longitude"], planet_position["latitude"])
+            planet_ra = equatorial["right_ascension"]
+            planet_dec = equatorial["declination"]
         else:
             # Already in equatorial coordinates
-            planet_ra = planet_position['right_ascension']
-            planet_dec = planet_position['declination']
+            planet_ra = planet_position["right_ascension"]
+            planet_dec = planet_position["declination"]
 
         # Zenith longitude: where Local Sidereal Time equals planet's Right Ascension
         # Since LST = GST + longitude, then longitude = RA - GST
@@ -207,8 +204,7 @@ class AstrocartographyCalculator:
         zenith_latitude = planet_dec
 
         # Normalize coordinates
-        zenith_latitude = max(astrocartography.MIN_LATITUDE,
-                            min(astrocartography.MAX_LATITUDE, zenith_latitude))
+        zenith_latitude = max(astrocartography.MIN_LATITUDE, min(astrocartography.MAX_LATITUDE, zenith_latitude))
 
         return zenith_longitude, zenith_latitude
 
@@ -218,20 +214,25 @@ class AstrocartographyCalculator:
         secondary_planet_id: int,
         primary_angle: str,
         secondary_angle: str,
-        orb_tolerance: float = 1.0
+        orb_tolerance: float = 1.0,  # Kept for API compatibility but not used in calculation
+        latitude_range: Tuple[float, float] = (-70.0, 70.0),
     ) -> List[Tuple[float, float]]:
         """
         Calculate paran line where two planets are simultaneously angular.
+
+        Uses exact geometric line intersection - no orb tolerance applied.
+        Parans are precise mathematical intersections between planetary lines.
 
         Args:
             primary_planet_id: First planet identifier
             secondary_planet_id: Second planet identifier
             primary_angle: Angular position of first planet ('MC', 'IC', 'ASC', 'DESC')
             secondary_angle: Angular position of second planet
-            orb_tolerance: Orb tolerance for simultaneity in degrees
+            orb_tolerance: Kept for API compatibility - not used in calculation
+            latitude_range: Latitude range to search (default ±70° to avoid polar clutter)
 
         Returns:
-            List of (longitude, latitude) pairs forming the paran line
+            List of (longitude, latitude) pairs where lines exactly intersect
 
         Raises:
             PlanetError: If either planet_id is invalid
@@ -242,8 +243,10 @@ class AstrocartographyCalculator:
         self._validate_planet_id(primary_planet_id)
         self._validate_planet_id(secondary_planet_id)
 
-        if primary_planet_id == secondary_planet_id:
-            raise ValueError("Primary and secondary planets must be different")
+        # Note: Astrologically, parans are typically between different planets,
+        # but technically same planet with different angles (e.g. Sun MC × Sun ASC) is valid
+        if primary_planet_id == secondary_planet_id and primary_angle == secondary_angle:
+            raise ValueError("Primary and secondary must differ in planet or angle")
 
         if primary_angle not in astrocartography.LINE_TYPES:
             raise ValueError(f"Invalid primary_angle: {primary_angle}")
@@ -253,36 +256,19 @@ class AstrocartographyCalculator:
         if orb_tolerance <= 0:
             raise ValueError(f"Orb tolerance must be positive: {orb_tolerance}")
 
-        # Get planetary positions
-        primary_position = self.get_planetary_position(primary_planet_id)
-        secondary_position = self.get_planetary_position(secondary_planet_id)
+        # Calculate the planetary lines first
+        primary_line_coords = self._get_line_coordinates(primary_planet_id, primary_angle, latitude_range)
+        secondary_line_coords = self._get_line_coordinates(secondary_planet_id, secondary_angle, latitude_range)
 
-        paran_coordinates = []
-
-        # Sample the globe to find where both planets are simultaneously angular
-        for longitude in self._generate_longitude_samples():
-            for latitude in self._generate_latitude_samples():
-                try:
-                    # Check if both planets are at their specified angles simultaneously
-                    if self._planets_simultaneously_angular(
-                        primary_position, secondary_position,
-                        longitude, latitude,
-                        primary_angle, secondary_angle,
-                        orb_tolerance
-                    ):
-                        paran_coordinates.append((longitude, latitude))
-
-                except Exception:
-                    # Skip problematic coordinates (extreme latitudes, etc.)
-                    continue
+        # Find intersections between the two lines
+        paran_coordinates = self._find_line_intersections(
+            primary_line_coords, secondary_line_coords, primary_angle, secondary_angle, orb_tolerance
+        )
 
         return paran_coordinates
 
     def calculate_local_space_line(
-        self,
-        planet_id: int,
-        birth_longitude: float,
-        birth_latitude: float
+        self, planet_id: int, birth_longitude: float, birth_latitude: float
     ) -> Tuple[float, Tuple[float, float], float]:
         """
         Calculate local space line from birth location toward planet.
@@ -309,20 +295,14 @@ class AstrocartographyCalculator:
 
         # Calculate azimuth (compass direction) from birth location to planet
         azimuth = self._calculate_azimuth(
-            birth_latitude, birth_longitude,
-            planet_position['right_ascension'], planet_position['declination']
+            birth_latitude, birth_longitude, planet_position["right_ascension"], planet_position["declination"]
         )
 
         # Calculate endpoint where line intersects map boundary
-        endpoint_lon, endpoint_lat = self._calculate_line_endpoint(
-            birth_longitude, birth_latitude, azimuth
-        )
+        endpoint_lon, endpoint_lat = self._calculate_line_endpoint(birth_longitude, birth_latitude, azimuth)
 
         # Calculate distance
-        distance_km = self._calculate_distance_km(
-            birth_latitude, birth_longitude,
-            endpoint_lat, endpoint_lon
-        )
+        distance_km = self._calculate_distance_km(birth_latitude, birth_longitude, endpoint_lat, endpoint_lon)
 
         return azimuth, (endpoint_lon, endpoint_lat), distance_km
 
@@ -332,7 +312,7 @@ class AstrocartographyCalculator:
         angle_type: str,
         aspect_degrees: float,
         latitude_range: Tuple[float, float] = (-85, 85),
-        longitude_range: Tuple[float, float] = (-180, 180)
+        longitude_range: Tuple[float, float] = (-180, 180),
     ) -> List[Tuple[float, float]]:
         """
         Calculate line where natal planet forms specific aspect to local angles.
@@ -357,7 +337,7 @@ class AstrocartographyCalculator:
         # Validate inputs
         self._validate_planet_id(planet_id)
 
-        valid_angles = ['ASC', 'DESC', 'MC', 'IC']
+        valid_angles = ["ASC", "DESC", "MC", "IC"]
         if angle_type not in valid_angles:
             raise ValueError(f"Invalid angle_type: {angle_type}. Must be one of {valid_angles}")
 
@@ -366,25 +346,22 @@ class AstrocartographyCalculator:
 
         # Get natal planet position
         planet_position = self.get_planetary_position(planet_id)
-        planet_longitude = planet_position['longitude']
+        planet_longitude = planet_position["longitude"]
 
         coordinates = []
 
         # For MC/IC angles, we need to find where the planet is at the specified aspect from MC/IC
-        if angle_type in ['MC', 'IC']:
+        if angle_type in ["MC", "IC"]:
             # Get planet's celestial coordinates
             planet_position = self.get_planetary_position(planet_id)
 
             if self.calculation_method == astrocartography.METHOD_ZODIACAL:
-                equatorial = self._ecliptic_to_equatorial(
-                    planet_position['longitude'],
-                    planet_position['latitude']
-                )
-                planet_ra = equatorial['right_ascension']
-                planet_dec = equatorial['declination']
+                equatorial = self._ecliptic_to_equatorial(planet_position["longitude"], planet_position["latitude"])
+                planet_ra = equatorial["right_ascension"]
+                planet_dec = equatorial["declination"]
             else:
-                planet_ra = planet_position['right_ascension']
-                planet_dec = planet_position['declination']
+                planet_ra = planet_position["right_ascension"]
+                planet_dec = planet_position["declination"]
 
             # Get apparent sidereal time at birth moment for higher accuracy
             import swisseph as swe
@@ -409,9 +386,7 @@ class AstrocartographyCalculator:
             latitudes = self._generate_latitude_samples(min_lat, max_lat)
 
             # FAST METHOD: Use binary search with smart initial guesses
-            aspect_longitudes = self._calculate_aspect_longitudes_fast(
-                planet_id, angle_type, aspect_degrees
-            )
+            aspect_longitudes = self._calculate_aspect_longitudes_fast(planet_id, angle_type, aspect_degrees)
 
             # Create vertical lines at the found longitudes
             min_lat, max_lat = latitude_range
@@ -422,18 +397,18 @@ class AstrocartographyCalculator:
                     coordinates.append((aspect_longitude, latitude))
 
         # For ASC/DESC angles, use fast ternary search method with smart initial guess
-        elif angle_type in ['ASC', 'DESC']:
+        elif angle_type in ["ASC", "DESC"]:
             # Optimization: ASC aspect_deg = DESC (180° - aspect_deg)
             # So ASC 60° = DESC 120°, ASC 120° = DESC 60°, ASC 90° = DESC 90°
             complementary_aspect = 180.0 - aspect_degrees
 
             # Always calculate for ASC, then map to DESC if needed
-            calc_angle = 'ASC'
-            calc_aspect = aspect_degrees if angle_type == 'ASC' else complementary_aspect
+            calc_angle = "ASC"
+            calc_aspect = aspect_degrees if angle_type == "ASC" else complementary_aspect
 
             # Get planet position once
             planet_position = self.get_planetary_position(planet_id)
-            planet_longitude = planet_position['longitude']
+            planet_longitude = planet_position["longitude"]
 
             # Generate latitude samples (limit to ±66° to avoid polar issues with house calculations)
             min_lat, max_lat = latitude_range
@@ -446,14 +421,12 @@ class AstrocartographyCalculator:
             # Aspect lines are roughly offset by the aspect angle from this base curve
             # Cache the conjunction line per planet to avoid recalculating
             cache_key = f"asc_conj_{planet_id}_{safe_min_lat}_{safe_max_lat}"
-            if not hasattr(self, '_asc_conj_cache'):
+            if not hasattr(self, "_asc_conj_cache"):
                 self._asc_conj_cache = {}
 
             if cache_key not in self._asc_conj_cache:
                 asc_conj_coords, _ = self.calculate_ascendant_descendant_lines(
-                    planet_id=planet_id,
-                    latitude_range=(safe_min_lat, safe_max_lat),
-                    longitude_range=longitude_range
+                    planet_id=planet_id, latitude_range=(safe_min_lat, safe_max_lat), longitude_range=longitude_range
                 )
                 self._asc_conj_cache[cache_key] = asc_conj_coords
             else:
@@ -476,8 +449,7 @@ class AstrocartographyCalculator:
                     initial_guess = None
 
                 longitudes = self._find_asc_desc_aspect_longitudes(
-                    planet_longitude, latitude, calc_aspect, calc_angle,
-                    initial_guess=initial_guess
+                    planet_longitude, latitude, calc_aspect, calc_angle, initial_guess=initial_guess
                 )
 
                 for longitude in longitudes:
@@ -499,11 +471,7 @@ class AstrocartographyCalculator:
 
         return coordinates
 
-    def get_planetary_position(
-        self,
-        planet_id: int,
-        calculation_method: Optional[str] = None
-    ) -> Dict[str, float]:
+    def get_planetary_position(self, planet_id: int, calculation_method: Optional[str] = None) -> Dict[str, float]:
         """
         Get planetary position for the calculator's Julian date.
 
@@ -542,10 +510,10 @@ class AstrocartographyCalculator:
             eq_res = swe.cotrans((ec_res[0], ec_res[1], ec_res[2]), -obliquity)
 
             position = {
-                'longitude': ec_res[0],
-                'latitude': ec_res[1],
-                'right_ascension': eq_res[0],
-                'declination': eq_res[1]
+                "longitude": ec_res[0],
+                "latitude": ec_res[1],
+                "right_ascension": eq_res[0],
+                "declination": eq_res[1],
             }
 
             # Cache result
@@ -556,9 +524,7 @@ class AstrocartographyCalculator:
             raise RuntimeError(f"Failed to calculate position for planet {planet_id}: {e}")
 
     def interpolate_line_at_extremes(
-        self,
-        partial_coordinates: List[Tuple[float, float]],
-        target_latitude_range: Tuple[float, float]
+        self, partial_coordinates: List[Tuple[float, float]], target_latitude_range: Tuple[float, float]
     ) -> List[Tuple[float, float]]:
         """
         Interpolate line coordinates for extreme latitudes where calculation failed.
@@ -631,10 +597,7 @@ class AstrocartographyCalculator:
         return interpolated_coords
 
     def validate_performance(
-        self,
-        planet_count: int,
-        line_types: List[str],
-        target_seconds: float = 10.0
+        self, planet_count: int, line_types: List[str], target_seconds: float = 10.0
     ) -> Dict[str, float]:
         """
         Estimate calculation time for given configuration.
@@ -652,28 +615,29 @@ class AstrocartographyCalculator:
         """
         # Rough performance estimates based on sampling resolution
         base_time_per_planet = 0.5  # seconds
-        time_per_line_type = 0.3    # seconds
+        time_per_line_type = 0.3  # seconds
         resolution_factor = self.sampling_resolution / astrocartography.DEFAULT_SAMPLING_RESOLUTION
 
         estimated_time = (
-            planet_count * base_time_per_planet *
-            len(line_types) * time_per_line_type *
-            (1.0 / resolution_factor)  # finer resolution = slower
+            planet_count
+            * base_time_per_planet
+            * len(line_types)
+            * time_per_line_type
+            * (1.0 / resolution_factor)  # finer resolution = slower
         )
 
         metrics = {
-            'estimated_seconds': estimated_time,
-            'target_seconds': target_seconds,
-            'planet_count': planet_count,
-            'line_type_count': len(line_types),
-            'sampling_resolution': self.sampling_resolution,
-            'performance_ratio': estimated_time / target_seconds
+            "estimated_seconds": estimated_time,
+            "target_seconds": target_seconds,
+            "planet_count": planet_count,
+            "line_type_count": len(line_types),
+            "sampling_resolution": self.sampling_resolution,
+            "performance_ratio": estimated_time / target_seconds,
         }
 
         if estimated_time > target_seconds:
             raise RuntimeError(
-                f"Configuration exceeds performance target: "
-                f"{estimated_time:.1f}s > {target_seconds:.1f}s"
+                f"Configuration exceeds performance target: " f"{estimated_time:.1f}s > {target_seconds:.1f}s"
             )
 
         return metrics
@@ -717,9 +681,7 @@ class AstrocartographyCalculator:
         return longitude
 
     def _generate_latitude_samples(
-        self,
-        min_lat: float = astrocartography.MIN_LATITUDE,
-        max_lat: float = astrocartography.MAX_LATITUDE
+        self, min_lat: float = astrocartography.MIN_LATITUDE, max_lat: float = astrocartography.MAX_LATITUDE
     ) -> List[float]:
         """Generate latitude samples based on sampling resolution."""
         samples = []
@@ -795,13 +757,10 @@ class AstrocartographyCalculator:
         planet_position = self.get_planetary_position(planet_id)
 
         if self.calculation_method == astrocartography.METHOD_ZODIACAL:
-            equatorial = self._ecliptic_to_equatorial(
-                planet_position['longitude'],
-                planet_position['latitude']
-            )
-            planet_ra = equatorial['right_ascension']
+            equatorial = self._ecliptic_to_equatorial(planet_position["longitude"], planet_position["latitude"])
+            planet_ra = equatorial["right_ascension"]
         else:
-            planet_ra = planet_position['right_ascension']
+            planet_ra = planet_position["right_ascension"]
 
         # Get apparent sidereal time
         mean_st_hours = swe.sidtime(self.julian_date)
@@ -818,7 +777,7 @@ class AstrocartographyCalculator:
         initial_guess_2 = self._normalize_longitude((planet_ra - aspect_degrees) - gst_degrees)
 
         # For IC, add 180° to both guesses
-        if angle_type == 'IC':
+        if angle_type == "IC":
             initial_guess_1 = self._normalize_longitude(initial_guess_1 + 180.0)
             initial_guess_2 = self._normalize_longitude(initial_guess_2 + 180.0)
 
@@ -847,13 +806,13 @@ class AstrocartographyCalculator:
             # Try multiple alternative starting points around the globe
             test_points = [
                 initial_guess_2 + 180.0,  # Opposite side
-                initial_guess_2 + 90.0,   # Perpendicular
-                initial_guess_2 - 90.0,   # Other perpendicular
+                initial_guess_2 + 90.0,  # Perpendicular
+                initial_guess_2 - 90.0,  # Other perpendicular
                 initial_guess_1 + 180.0,  # Opposite of first
-                0.0,                      # Greenwich
-                180.0,                    # Antimeridian
-                -90.0,                    # West
-                90.0                      # East
+                0.0,  # Greenwich
+                180.0,  # Antimeridian
+                -90.0,  # West
+                90.0,  # East
             ]
 
             for test_point in test_points:
@@ -877,9 +836,15 @@ class AstrocartographyCalculator:
 
         return [longitude_1, longitude_2]
 
-    def _binary_search_aspect_longitude(self, planet_id: int, angle_type: str,
-                                      target_aspect: float, initial_guess: float,
-                                      tolerance: float = 0.01, max_error: float = 0.1) -> float:
+    def _binary_search_aspect_longitude(
+        self,
+        planet_id: int,
+        angle_type: str,
+        target_aspect: float,
+        initial_guess: float,
+        tolerance: float = 0.01,
+        max_error: float = 0.1,
+    ) -> float:
         """
         Find longitude where aspect occurs using ternary search to minimize error.
 
@@ -894,6 +859,7 @@ class AstrocartographyCalculator:
         Returns:
             Precise longitude where aspect occurs
         """
+
         def aspect_error(longitude):
             """Calculate error between actual and target aspect."""
             actual_aspect = self._calculate_aspect_at_longitude(longitude, planet_id, angle_type)
@@ -942,7 +908,7 @@ class AstrocartographyCalculator:
                 if error1 < error2:
                     right = mid2  # Minimum is in left 2/3
                 else:
-                    left = mid1   # Minimum is in right 2/3
+                    left = mid1  # Minimum is in right 2/3
 
                 iteration_count += 1
 
@@ -970,30 +936,35 @@ class AstrocartographyCalculator:
         # Format: houses(julian_day, latitude, longitude, house_system, flags=0)
         # IMPORTANT: Must use UTC Julian date for consistency with chart creation
         test_latitude = 45.0  # Use 45°N as standard test latitude
-        houses = swe.houses(self.julian_date, test_latitude, longitude, b'P')  # Placidus system
+        houses = swe.houses(self.julian_date, test_latitude, longitude, b"P")  # Placidus system
 
         # houses[1] contains additional points, MC is at index 1
         mc_longitude = houses[1][1]
 
         # For IC, add 180° to MC
-        if angle_type == 'IC':
+        if angle_type == "IC":
             angle_longitude = (mc_longitude + 180.0) % 360.0
         else:
             angle_longitude = mc_longitude
 
         # Get planet ecliptic longitude
         planet_position = self.get_planetary_position(planet_id)
-        planet_longitude = planet_position.get('longitude', planet_position.get('ecliptic_longitude', 0))
+        planet_longitude = planet_position.get("longitude", planet_position.get("ecliptic_longitude", 0))
 
         # Calculate aspect
         aspect = abs((planet_longitude - angle_longitude + 180.0) % 360.0 - 180.0)
 
         return aspect
 
-    def _find_asc_desc_aspect_longitudes(self, planet_longitude: float, latitude: float,
-                                          aspect_degrees: float, angle_type: str,
-                                          tolerance: float = 0.25,
-                                          initial_guess: Optional[float] = None) -> List[float]:
+    def _find_asc_desc_aspect_longitudes(
+        self,
+        planet_longitude: float,
+        latitude: float,
+        aspect_degrees: float,
+        angle_type: str,
+        tolerance: float = 0.25,
+        initial_guess: Optional[float] = None,
+    ) -> List[float]:
         """
         Find ALL longitudes where planet forms exact aspect to ASC/DESC at given latitude.
 
@@ -1010,16 +981,17 @@ class AstrocartographyCalculator:
         Returns:
             List of longitudes where aspect is exact (typically 0, 1, or 2 results)
         """
+
         def calculate_aspect_error(test_longitude: float) -> float:
             """Calculate aspect error at given longitude."""
             try:
                 # Get ASC/DESC at this location using swe.houses
-                houses_result = swe.houses(self.julian_date, latitude, test_longitude, b'P')
+                houses_result = swe.houses(self.julian_date, latitude, test_longitude, b"P")
                 ascmc = houses_result[1]
 
-                if angle_type == 'ASC':
+                if angle_type == "ASC":
                     angle_longitude = ascmc[0]  # ASC at index 0
-                elif angle_type == 'DESC':
+                elif angle_type == "DESC":
                     asc_longitude = ascmc[0]
                     angle_longitude = (asc_longitude + 180.0) % 360.0
                 else:
@@ -1058,7 +1030,11 @@ class AstrocartographyCalculator:
 
             best_longitude = (left + right) / 2.0
             # Use the last calculated error instead of recalculating
-            best_error = min(last_err1, last_err2) if last_err1 is not None and last_err2 is not None else calculate_aspect_error(best_longitude)
+            best_error = (
+                min(last_err1, last_err2)
+                if last_err1 is not None and last_err2 is not None
+                else calculate_aspect_error(best_longitude)
+            )
 
             # Return only if error is acceptable (< 1°)
             return best_longitude if best_error < 1.0 else None
@@ -1071,7 +1047,7 @@ class AstrocartographyCalculator:
             # The aspect line is roughly offset by the aspect angle from conjunction
             search_regions = [
                 (initial_guess + aspect_degrees - 30, initial_guess + aspect_degrees + 30),
-                (initial_guess - aspect_degrees - 30, initial_guess - aspect_degrees + 30)
+                (initial_guess - aspect_degrees - 30, initial_guess - aspect_degrees + 30),
             ]
 
             for left, right in search_regions:
@@ -1103,7 +1079,7 @@ class AstrocartographyCalculator:
         # Find local minima (where error is less than both neighbors)
         minima_regions = []
         for i in range(1, len(errors) - 1):
-            if errors[i][1] < errors[i-1][1] and errors[i][1] < errors[i+1][1]:
+            if errors[i][1] < errors[i - 1][1] and errors[i][1] < errors[i + 1][1]:
                 minima_regions.append(errors[i][0])
 
         # Handle edge cases: check wrap-around at -180/180
@@ -1121,8 +1097,15 @@ class AstrocartographyCalculator:
 
         return results
 
-    def _test_location_for_aspect(self, longitude: float, latitude: float, planet_id: int,
-                                 angle_type: str, aspect_degrees: float, tolerance: float) -> bool:
+    def _test_location_for_aspect(
+        self,
+        longitude: float,
+        latitude: float,
+        planet_id: int,
+        angle_type: str,
+        aspect_degrees: float,
+        tolerance: float,
+    ) -> bool:
         """Test if a location has the desired planetary aspect by creating a chart."""
         import swisseph as swe
         import math
@@ -1141,7 +1124,7 @@ class AstrocartographyCalculator:
 
         # Get planet's ecliptic longitude at birth time (use existing method)
         planet_position = self.get_planetary_position(planet_id)
-        planet_longitude = planet_position.get('longitude', planet_position.get('ecliptic_longitude', 0))
+        planet_longitude = planet_position.get("longitude", planet_position.get("ecliptic_longitude", 0))
 
         # Calculate MC ecliptic longitude at this location
         # MC in equatorial: RA = LST, Dec = 0
@@ -1153,7 +1136,7 @@ class AstrocartographyCalculator:
         mc_ecliptic_longitude = mc_ecliptic[0] % 360.0
 
         # For IC, add 180° to MC
-        if angle_type == 'IC':
+        if angle_type == "IC":
             target_angle_longitude = (mc_ecliptic_longitude + 180.0) % 360.0
         else:  # MC
             target_angle_longitude = mc_ecliptic_longitude
@@ -1167,9 +1150,7 @@ class AstrocartographyCalculator:
         return is_match
 
     def _generate_longitude_samples(
-        self,
-        min_lon: float = astrocartography.MIN_LONGITUDE,
-        max_lon: float = astrocartography.MAX_LONGITUDE
+        self, min_lon: float = astrocartography.MIN_LONGITUDE, max_lon: float = astrocartography.MAX_LONGITUDE
     ) -> List[float]:
         """Generate longitude samples based on sampling resolution."""
         samples = []
@@ -1184,12 +1165,11 @@ class AstrocartographyCalculator:
 
         return samples
 
-
     def _calculate_asc_desc_curves_separately(
         self,
         planet_position: Dict[str, float],
         longitude_range: Tuple[float, float],
-        latitude_range: Tuple[float, float]
+        latitude_range: Tuple[float, float],
     ) -> Tuple[List[Tuple[float, float]], List[Tuple[float, float]]]:
         """
         Calculate ASC and DESC curves separately as proper S-curves.
@@ -1207,15 +1187,12 @@ class AstrocartographyCalculator:
 
         # Get planet's equatorial coordinates
         if self.calculation_method == astrocartography.METHOD_ZODIACAL:
-            equatorial = self._ecliptic_to_equatorial(
-                planet_position['longitude'],
-                planet_position['latitude']
-            )
-            planet_ra = equatorial['right_ascension']
-            planet_dec = equatorial['declination']
+            equatorial = self._ecliptic_to_equatorial(planet_position["longitude"], planet_position["latitude"])
+            planet_ra = equatorial["right_ascension"]
+            planet_dec = equatorial["declination"]
         else:
-            planet_ra = planet_position['right_ascension']
-            planet_dec = planet_position['declination']
+            planet_ra = planet_position["right_ascension"]
+            planet_dec = planet_position["declination"]
 
         asc_coordinates = []
         desc_coordinates = []
@@ -1228,8 +1205,7 @@ class AstrocartographyCalculator:
             try:
                 if abs(latitude) < 89.5 and abs(planet_dec) > 0.001:
                     # Calculate cos(HA) = -tan(dec) * tan(lat)
-                    cos_ha = (-math.tan(math.radians(planet_dec)) *
-                             math.tan(math.radians(latitude)))
+                    cos_ha = -math.tan(math.radians(planet_dec)) * math.tan(math.radians(latitude))
 
                     if -1.0 <= cos_ha <= 1.0:
                         # Calculate both hour angles (positive and negative)
@@ -1263,8 +1239,7 @@ class AstrocartographyCalculator:
         return asc_coordinates, desc_coordinates
 
     def _split_horizon_curve(
-        self,
-        complete_curve: List[Tuple[float, float]]
+        self, complete_curve: List[Tuple[float, float]]
     ) -> Tuple[List[Tuple[float, float]], List[Tuple[float, float]]]:
         """
         Create both ASC and DESC curves from the complete horizon curve.
@@ -1282,16 +1257,341 @@ class AstrocartographyCalculator:
 
         return asc_coordinates, desc_coordinates
 
-    def _planets_simultaneously_angular(
+    def _get_line_coordinates(
+        self, planet_id: int, angle_type: str, latitude_range: Tuple[float, float]
+    ) -> List[Tuple[float, float]]:
+        """
+        Get coordinates for a specific planetary line.
+
+        Args:
+            planet_id: Planet identifier
+            angle_type: 'MC', 'IC', 'ASC', or 'DESC'
+            latitude_range: Latitude range to calculate
+
+        Returns:
+            List of (longitude, latitude) coordinate pairs
+        """
+        if angle_type in ["MC", "IC"]:
+            mc_coords, ic_coords = self.calculate_mc_ic_lines(planet_id, latitude_range)
+            return mc_coords if angle_type == "MC" else ic_coords
+
+        elif angle_type in ["ASC", "DESC"]:
+            # Note: calculate_ascendant_descendant_lines takes longitude_range first, then latitude_range
+            asc_coords, desc_coords = self.calculate_ascendant_descendant_lines(
+                planet_id,
+                longitude_range=(astrocartography.MIN_LONGITUDE, astrocartography.MAX_LONGITUDE),
+                latitude_range=latitude_range,
+            )
+            return asc_coords if angle_type == "ASC" else desc_coords
+
+        else:
+            raise ValueError(f"Invalid angle_type: {angle_type}")
+
+    def _find_line_intersections(
         self,
-        primary_pos: Dict, secondary_pos: Dict,
-        longitude: float, latitude: float,
-        primary_angle: str, secondary_angle: str,
-        orb_tolerance: float
-    ) -> bool:
-        """Check if two planets are simultaneously angular at given location."""
-        # Simplified implementation - would need full angular calculation
-        return False  # Placeholder
+        line1_coords: List[Tuple[float, float]],
+        line2_coords: List[Tuple[float, float]],
+        line1_type: str,
+        line2_type: str,
+        orb_tolerance: float,
+    ) -> List[Tuple[float, float]]:
+        """
+        Find intersection points between two planetary lines.
+
+        Args:
+            line1_coords: Coordinates of first line
+            line2_coords: Coordinates of second line
+            line1_type: Type of first line ('MC', 'IC', 'ASC', 'DESC')
+            line2_type: Type of second line
+            orb_tolerance: Maximum distance in degrees to consider as intersection
+
+        Returns:
+            List of (longitude, latitude) intersection points
+        """
+        if not line1_coords or not line2_coords:
+            return []
+
+        intersections = []
+
+        # Determine intersection method based on line types
+        is_line1_vertical = line1_type in ["MC", "IC"]
+        is_line2_vertical = line2_type in ["MC", "IC"]
+
+        if is_line1_vertical and is_line2_vertical:
+            # Both vertical lines - they won't intersect (parallel)
+            return []
+
+        elif is_line1_vertical and not is_line2_vertical:
+            # Vertical line intersecting curved line
+            intersections = self._find_vertical_curve_intersection(line1_coords, line2_coords, orb_tolerance)
+
+        elif not is_line1_vertical and is_line2_vertical:
+            # Curved line intersecting vertical line
+            intersections = self._find_vertical_curve_intersection(line2_coords, line1_coords, orb_tolerance)
+
+        else:
+            # Two curved lines intersecting
+            intersections = self._find_curve_curve_intersection(line1_coords, line2_coords, orb_tolerance)
+
+        return intersections
+
+    def _find_vertical_curve_intersection(
+        self, vertical_coords: List[Tuple[float, float]], curve_coords: List[Tuple[float, float]], orb_tolerance: float
+    ) -> List[Tuple[float, float]]:
+        """
+        Find where a vertical line (MC/IC) intersects a curved line (ASC/DESC).
+        
+        Uses scan approach to find all crossings of the vertical longitude.
+
+        Args:
+            vertical_coords: Vertical line coordinates (constant longitude)
+            curve_coords: Curved line coordinates
+            orb_tolerance: Ignored - kept for API compatibility
+
+        Returns:
+            List of intersection points
+        """
+        if not vertical_coords or not curve_coords:
+            return []
+
+        # Vertical line has constant longitude
+        vertical_lon = vertical_coords[0][0]
+        intersections = []
+
+        # Scan through consecutive points on the curve to find crossings
+        for i in range(len(curve_coords) - 1):
+            lon1, lat1 = curve_coords[i]
+            lon2, lat2 = curve_coords[i + 1]
+            
+            # Skip artificial wrap-around segments (horizontal lines crossing >180° longitude)
+            lon_diff = abs(lon2 - lon1)
+            if lon_diff > 180:  # This is likely a wrap-around artifact
+                continue
+                
+            # Check if the vertical line crosses between these two points
+            crossing = self._find_longitude_crossing(lon1, lat1, lon2, lat2, vertical_lon)
+            if crossing is not None:
+                intersections.append(crossing)
+
+        return intersections
+
+    def _find_longitude_crossing(
+        self, lon1: float, lat1: float, lon2: float, lat2: float, target_lon: float
+    ) -> Optional[Tuple[float, float]]:
+        """
+        Find where a line segment crosses a specific longitude.
+        
+        Args:
+            lon1, lat1: First point of line segment
+            lon2, lat2: Second point of line segment  
+            target_lon: Longitude to find crossing for
+            
+        Returns:
+            (longitude, latitude) of crossing point, or None if no crossing
+        """
+        # Normalize longitudes to handle wraparound
+        def normalize_longitude_diff(lon_a, lon_b):
+            diff = lon_b - lon_a
+            if diff > 180:
+                diff -= 360
+            elif diff < -180:
+                diff += 360
+            return diff
+        
+        # Calculate relative positions
+        diff1 = normalize_longitude_diff(target_lon, lon1)
+        diff2 = normalize_longitude_diff(target_lon, lon2)
+        
+        # Check if target longitude is between the two points
+        if diff1 * diff2 > 0:  # Same sign means target is not between points
+            return None
+            
+        # Special case: one of the points is exactly at target longitude
+        if abs(diff1) < 1e-10:
+            return (target_lon, lat1)
+        if abs(diff2) < 1e-10:
+            return (target_lon, lat2)
+            
+        # Calculate intersection using linear interpolation
+        total_diff = normalize_longitude_diff(lon1, lon2)
+        if abs(total_diff) < 1e-10:  # Points have same longitude
+            return None
+            
+        # Interpolation factor
+        t = -diff1 / total_diff
+        
+        # Clamp to segment bounds
+        if t < 0 or t > 1:
+            return None
+            
+        # Calculate intersection latitude
+        intersection_lat = lat1 + t * (lat2 - lat1)
+        
+        return (target_lon, intersection_lat)
+
+    def _interpolate_latitude_at_longitude(
+        self, lon1: float, lat1: float, lon2: float, lat2: float, target_lon: float
+    ) -> Optional[float]:
+        """
+        Interpolate latitude at a specific longitude between two points.
+
+        Args:
+            lon1, lat1: First point coordinates
+            lon2, lat2: Second point coordinates
+            target_lon: Longitude where we want to find the latitude
+
+        Returns:
+            Interpolated latitude, or None if interpolation not possible
+        """
+        # Handle longitude wraparound
+        if abs(lon2 - lon1) > 180:
+            # Adjust for wraparound
+            if lon1 > lon2:
+                lon2 += 360
+            else:
+                lon1 += 360
+
+        # Check if target longitude is within range (with wraparound handling)
+        min_lon = min(lon1, lon2)
+        max_lon = max(lon1, lon2)
+
+        # Adjust target longitude for wraparound if needed
+        adjusted_target = target_lon
+        if target_lon < min_lon - 180:
+            adjusted_target += 360
+        elif target_lon > max_lon + 180:
+            adjusted_target -= 360
+
+        # Linear interpolation
+        if lon1 == lon2:  # Vertical line segment
+            return (lat1 + lat2) / 2.0
+
+        # Calculate interpolation factor
+        t = (adjusted_target - lon1) / (lon2 - lon1)
+
+        # Exact intersection - must be within the line segment
+        if t < 0 or t > 1:
+            return None
+
+        # Interpolate latitude
+        interpolated_lat = lat1 + t * (lat2 - lat1)
+
+        return interpolated_lat
+
+    def _find_curve_curve_intersection(
+        self,
+        curve1_coords: List[Tuple[float, float]],
+        curve2_coords: List[Tuple[float, float]],
+        orb_tolerance: float,  # Keep parameter for compatibility but ignore it
+    ) -> List[Tuple[float, float]]:
+        """
+        Find where two curved lines (ASC/DESC) intersect using exact geometric intersection.
+
+        Args:
+            curve1_coords: First curve coordinates
+            curve2_coords: Second curve coordinates
+            orb_tolerance: Ignored - kept for API compatibility
+
+        Returns:
+            List of intersection points
+        """
+        intersections = []
+
+        # For each line segment in curve1, check intersection with each segment in curve2
+        for i in range(len(curve1_coords) - 1):
+            lon1a, lat1a = curve1_coords[i]
+            lon1b, lat1b = curve1_coords[i + 1]
+            
+            # Skip wrap-around segments in curve1
+            if abs(lon1b - lon1a) > 180:
+                continue
+
+            for j in range(len(curve2_coords) - 1):
+                lon2a, lat2a = curve2_coords[j]
+                lon2b, lat2b = curve2_coords[j + 1]
+                
+                # Skip wrap-around segments in curve2
+                if abs(lon2b - lon2a) > 180:
+                    continue
+
+                # Find intersection between two line segments
+                intersection = self._line_segment_intersection(lon1a, lat1a, lon1b, lat1b, lon2a, lat2a, lon2b, lat2b)
+
+                if intersection is not None:
+                    intersections.append(intersection)
+
+        return intersections
+
+    def _line_segment_intersection(
+        self, x1: float, y1: float, x2: float, y2: float, x3: float, y3: float, x4: float, y4: float
+    ) -> Optional[Tuple[float, float]]:
+        """
+        Find intersection point between two line segments using exact geometric calculation.
+
+        Args:
+            x1, y1, x2, y2: First line segment endpoints (longitude, latitude)
+            x3, y3, x4, y4: Second line segment endpoints (longitude, latitude)
+
+        Returns:
+            Intersection point (lon, lat) or None if no intersection
+        """
+
+        # Handle longitude wraparound by adjusting coordinates
+        def normalize_longitude_pair(lon1, lon2):
+            if abs(lon2 - lon1) > 180:
+                if lon1 > lon2:
+                    lon2 += 360
+                else:
+                    lon1 += 360
+            return lon1, lon2
+
+        x1, x2 = normalize_longitude_pair(x1, x2)
+        x3, x4 = normalize_longitude_pair(x3, x4)
+
+        # Calculate line segment intersection using parametric form
+        denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
+
+        if abs(denom) < 1e-10:  # Lines are parallel
+            return None
+
+        t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom
+        u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denom
+
+        # Check if intersection is within both line segments
+        if 0 <= t <= 1 and 0 <= u <= 1:
+            # Calculate intersection point
+            ix = x1 + t * (x2 - x1)
+            iy = y1 + t * (y2 - y1)
+
+            # Normalize longitude back to [-180, 180]
+            while ix > 180:
+                ix -= 360
+            while ix < -180:
+                ix += 360
+
+            return (ix, iy)
+
+        return None
+
+    def _longitude_difference(self, lon1: float, lon2: float) -> float:
+        """Calculate shortest angular difference between two longitudes."""
+        diff = lon2 - lon1
+        while diff > 180:
+            diff -= 360
+        while diff < -180:
+            diff += 360
+        return diff
+
+    def _average_longitude(self, lon1: float, lon2: float) -> float:
+        """Calculate average of two longitudes, handling wraparound."""
+        diff = self._longitude_difference(lon1, lon2)
+        avg = lon1 + diff / 2.0
+        # Normalize to [-180, 180]
+        while avg > 180:
+            avg -= 360
+        while avg < -180:
+            avg += 360
+        return avg
 
     def _calculate_azimuth(self, lat1: float, lon1: float, lat2: float, lon2: float) -> float:
         """Calculate azimuth from point 1 to point 2."""
@@ -1300,8 +1600,7 @@ class AstrocartographyCalculator:
         dlon_rad = math.radians(lon2 - lon1)
 
         y = math.sin(dlon_rad) * math.cos(lat2_rad)
-        x = (math.cos(lat1_rad) * math.sin(lat2_rad) -
-             math.sin(lat1_rad) * math.cos(lat2_rad) * math.cos(dlon_rad))
+        x = math.cos(lat1_rad) * math.sin(lat2_rad) - math.sin(lat1_rad) * math.cos(lat2_rad) * math.cos(dlon_rad)
 
         azimuth = math.atan2(y, x)
         azimuth_degrees = math.degrees(azimuth)
@@ -1309,11 +1608,7 @@ class AstrocartographyCalculator:
         # Normalize to 0-360
         return (azimuth_degrees + 360) % 360
 
-    def _calculate_line_endpoint(
-        self,
-        start_lon: float, start_lat: float,
-        azimuth: float
-    ) -> Tuple[float, float]:
+    def _calculate_line_endpoint(self, start_lon: float, start_lat: float, azimuth: float) -> Tuple[float, float]:
         """Calculate endpoint where line intersects map boundary."""
         # Simplified: project line to map edge
         # In practice, this would calculate intersection with world map bounds
@@ -1329,13 +1624,13 @@ class AstrocartographyCalculator:
         azimuth_rad = math.radians(azimuth)
 
         end_lat_rad = math.asin(
-            math.sin(start_lat_rad) * math.cos(angular_distance) +
-            math.cos(start_lat_rad) * math.sin(angular_distance) * math.cos(azimuth_rad)
+            math.sin(start_lat_rad) * math.cos(angular_distance)
+            + math.cos(start_lat_rad) * math.sin(angular_distance) * math.cos(azimuth_rad)
         )
 
         end_lon_rad = start_lon_rad + math.atan2(
             math.sin(azimuth_rad) * math.sin(angular_distance) * math.cos(start_lat_rad),
-            math.cos(angular_distance) - math.sin(start_lat_rad) * math.sin(end_lat_rad)
+            math.cos(angular_distance) - math.sin(start_lat_rad) * math.sin(end_lat_rad),
         )
 
         end_lat = math.degrees(end_lat_rad)
@@ -1368,13 +1663,11 @@ class AstrocartographyCalculator:
 
         # Convert ecliptic to equatorial coordinates
         ra_rad = math.atan2(
-            math.sin(lon_rad) * math.cos(obl_rad) - math.tan(lat_rad) * math.sin(obl_rad),
-            math.cos(lon_rad)
+            math.sin(lon_rad) * math.cos(obl_rad) - math.tan(lat_rad) * math.sin(obl_rad), math.cos(lon_rad)
         )
 
         dec_rad = math.asin(
-            math.sin(lat_rad) * math.cos(obl_rad) +
-            math.cos(lat_rad) * math.sin(obl_rad) * math.sin(lon_rad)
+            math.sin(lat_rad) * math.cos(obl_rad) + math.cos(lat_rad) * math.sin(obl_rad) * math.sin(lon_rad)
         )
 
         # Convert back to degrees
@@ -1385,10 +1678,7 @@ class AstrocartographyCalculator:
         if ra_deg < 0:
             ra_deg += 360
 
-        return {
-            'right_ascension': ra_deg,
-            'declination': dec_deg
-        }
+        return {"right_ascension": ra_deg, "declination": dec_deg}
 
     def _calculate_distance_km(self, lat1: float, lon1: float, lat2: float, lon2: float) -> float:
         """Calculate distance between two points using Haversine formula."""
@@ -1399,20 +1689,16 @@ class AstrocartographyCalculator:
         dlat_rad = math.radians(lat2 - lat1)
         dlon_rad = math.radians(lon2 - lon1)
 
-        a = (math.sin(dlat_rad/2) * math.sin(dlat_rad/2) +
-             math.cos(lat1_rad) * math.cos(lat2_rad) *
-             math.sin(dlon_rad/2) * math.sin(dlon_rad/2))
+        a = math.sin(dlat_rad / 2) * math.sin(dlat_rad / 2) + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(
+            dlon_rad / 2
+        ) * math.sin(dlon_rad / 2)
 
-        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
         return earth_radius_km * c
 
     def _get_planet_position_at_location(
-        self,
-        planet_id: int,
-        julian_date: float,
-        latitude: float,
-        longitude: float
+        self, planet_id: int, julian_date: float, latitude: float, longitude: float
     ) -> Dict[str, float]:
         """Get planet position as seen from specific location."""
         # This would calculate topocentric position
@@ -1424,18 +1710,18 @@ class AstrocartographyCalculator:
             eq_res = swe.cotrans((ec_res[0], ec_res[1], ec_res[2]), -obliquity)
 
             return {
-                'longitude': ec_res[0],
-                'latitude': ec_res[1],
-                'right_ascension': eq_res[0],
-                'declination': eq_res[1]
+                "longitude": ec_res[0],
+                "latitude": ec_res[1],
+                "right_ascension": eq_res[0],
+                "declination": eq_res[1],
             }
         except Exception as e:
             raise RuntimeError(f"Failed to calculate position: {e}")
 
     def _calculate_aspect_angle(self, pos1: Dict, pos2: Dict) -> float:
         """Calculate aspect angle between two planetary positions."""
-        lon1 = pos1['longitude']
-        lon2 = pos2['longitude']
+        lon1 = pos1["longitude"]
+        lon2 = pos2["longitude"]
 
         aspect = abs(lon1 - lon2)
         if aspect > 180:
