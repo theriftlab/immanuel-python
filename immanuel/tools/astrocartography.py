@@ -10,7 +10,6 @@ zenith points, parans, local space lines, and aspect lines.
 """
 
 import math
-from datetime import datetime
 from typing import Dict, List, Optional, Tuple
 
 import swisseph as swe
@@ -62,10 +61,19 @@ class AstrocartographyCalculator:
         self.julian_date = julian_date
         self.sampling_resolution = sampling_resolution
         self.calculation_method = calculation_method
-
-        # Cache for planetary positions
+        # Cache for planetary positions and line objects
         self._position_cache = {}
+        self._line_cache = {}
+        self._segment_cache = {}
 
+        # Profiling counters (lightweight)
+        self.profile_stats = {
+            'line_bounds_skipped': 0,
+            'segment_bounds_skipped': 0,
+            'intersection_calculations': 0,
+            'intersections_found': 0
+        }
+        
         # Test Swiss Ephemeris accessibility
         try:
             # Try a simple calculation to verify ephemeris is working
@@ -157,6 +165,372 @@ class AstrocartographyCalculator:
         )
 
         return asc_coordinates, desc_coordinates
+
+    def _get_line_bounds(self, line_coords):
+        """
+        Calculate and cache bounding box for a line.
+
+        Args:
+            line_coords: List of (longitude, latitude) tuples
+
+        Returns:
+            Tuple of (min_lon, max_lon, min_lat, max_lat)
+        """
+        if not line_coords:
+            return None
+
+        # Create a hashable key for caching (use first, middle, last points for efficiency)
+        if len(line_coords) > 2:
+            coords_key = (line_coords[0], line_coords[len(line_coords) // 2], line_coords[-1])
+        else:
+            coords_key = tuple(line_coords)
+
+        if coords_key not in self._line_bounds_cache:
+            lons = [coord[0] for coord in line_coords]
+            lats = [coord[1] for coord in line_coords]
+            bounds = (min(lons), max(lons), min(lats), max(lats))
+            self._line_bounds_cache[coords_key] = bounds
+
+        return self._line_bounds_cache[coords_key]
+
+    def _create_planetary_line(self, planet_id: int, line_type: str, coordinates: List[Tuple[float, float]], simplify_tolerance: float = 0.5) -> PlanetaryLine:
+        """
+        Create a PlanetaryLine object with precomputed bounds and optional simplification.
+        
+        Args:
+            planet_id: Planet identifier
+            line_type: 'MC', 'IC', 'ASC', 'DESC'
+            coordinates: List of (longitude, latitude) tuples
+            simplify_tolerance: Douglas-Peucker tolerance for curved lines (0 = no simplification)
+            
+        Returns:
+            PlanetaryLine object with precomputed bounds
+        """
+        # Apply Douglas-Peucker simplification to curved lines (ASC/DESC)
+        if line_type in ['ASC', 'DESC'] and simplify_tolerance > 0:
+            original_count = len(coordinates)
+            coordinates = self._douglas_peucker_simplify(coordinates, simplify_tolerance)
+            simplified_count = len(coordinates)
+            
+            # Track simplification stats
+            if not hasattr(self, 'simplification_stats'):
+                self.simplification_stats = {'lines_simplified': 0, 'points_removed': 0}
+            
+            self.simplification_stats['lines_simplified'] += 1
+            self.simplification_stats['points_removed'] += (original_count - simplified_count)
+        
+        return PlanetaryLine(
+            planet_id=planet_id,
+            line_type=line_type,
+            calculation_method=self.calculation_method,
+            coordinates=coordinates,
+            sampling_resolution=self.sampling_resolution,
+            orb_influence_km=100.0  # Default orb influence
+        )
+
+    def _get_planetary_line_object(
+        self, planet_id: int, line_type: str, latitude_range: Tuple[float, float]
+    ) -> PlanetaryLine:
+        """
+        Get or create cached PlanetaryLine object.
+
+        Args:
+            planet_id: Planet identifier
+            line_type: 'MC', 'IC', 'ASC', 'DESC'
+            latitude_range: Latitude range for line calculation
+
+        Returns:
+            PlanetaryLine object with precomputed bounds
+        """
+        cache_key = (planet_id, line_type, latitude_range)
+
+        if cache_key not in self._line_cache:
+            # Get coordinates using existing methods
+            if line_type in ["MC", "IC"]:
+                mc_coords, ic_coords = self.calculate_mc_ic_lines(planet_id, latitude_range)
+                coordinates = mc_coords if line_type == "MC" else ic_coords
+            else:  # ASC, DESC
+                asc_coords, desc_coords = self.calculate_ascendant_descendant_lines(
+                    planet_id, latitude_range=latitude_range
+                )
+                coordinates = asc_coords if line_type == "ASC" else desc_coords
+
+            # Create and cache the PlanetaryLine object
+            self._line_cache[cache_key] = self._create_planetary_line(planet_id, line_type, coordinates)
+
+        return self._line_cache[cache_key]
+
+    def _douglas_peucker_simplify(self, coordinates: List[Tuple[float, float]], tolerance: float = 0.5) -> List[Tuple[float, float]]:
+        """
+        Simplify a line using the Douglas-Peucker algorithm.
+        
+        Args:
+            coordinates: List of (longitude, latitude) points
+            tolerance: Maximum distance tolerance in degrees
+            
+        Returns:
+            Simplified list of coordinates
+        """
+        if len(coordinates) <= 2:
+            return coordinates
+            
+        def perpendicular_distance(point, line_start, line_end):
+            """Calculate perpendicular distance from point to line segment."""
+            x0, y0 = point
+            x1, y1 = line_start
+            x2, y2 = line_end
+            
+            # Handle vertical line case
+            if x2 == x1:
+                return abs(x0 - x1)
+            
+            # Calculate perpendicular distance using point-to-line formula
+            numerator = abs((y2 - y1) * x0 - (x2 - x1) * y0 + x2 * y1 - y2 * x1)
+            denominator = math.sqrt((y2 - y1) ** 2 + (x2 - x1) ** 2)
+            
+            return numerator / denominator if denominator > 0 else 0
+        
+        def douglas_peucker_recursive(coords, start_idx, end_idx):
+            """Recursive Douglas-Peucker implementation."""
+            if end_idx <= start_idx + 1:
+                return [coords[start_idx], coords[end_idx]]
+            
+            # Find point with maximum distance from line
+            max_distance = 0
+            max_index = start_idx
+            
+            for i in range(start_idx + 1, end_idx):
+                distance = perpendicular_distance(coords[i], coords[start_idx], coords[end_idx])
+                if distance > max_distance:
+                    max_distance = distance
+                    max_index = i
+            
+            # If max distance is greater than tolerance, recursively simplify
+            if max_distance > tolerance:
+                # Recursively simplify both segments
+                left_result = douglas_peucker_recursive(coords, start_idx, max_index)
+                right_result = douglas_peucker_recursive(coords, max_index, end_idx)
+                
+                # Combine results (remove duplicate middle point)
+                return left_result[:-1] + right_result
+            else:
+                # All points between start and end are within tolerance
+                return [coords[start_idx], coords[end_idx]]
+        
+        return douglas_peucker_recursive(coordinates, 0, len(coordinates) - 1)
+
+    def generate_all_planetary_lines(self, latitude_range: Tuple[float, float] = (-60, 60)) -> Dict[Tuple[int, str], PlanetaryLine]:
+        """
+        Generate all planetary lines once and cache them for efficient paran calculations.
+        
+        Args:
+            latitude_range: Latitude range for line calculation
+            
+        Returns:
+            Dictionary mapping (planet_id, angle) to PlanetaryLine objects
+        """
+        print("🔄 Generating all planetary lines...")
+        
+        # Define all planets and angles
+        all_planets = [
+            chart.SUN, chart.MOON, chart.MERCURY, chart.VENUS, chart.MARS,
+            chart.JUPITER, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.PLUTO,
+            chart.NORTH_NODE, chart.SOUTH_NODE, chart.CHIRON
+        ]
+        all_angles = ['MC', 'IC', 'ASC', 'DESC']
+        
+        planetary_lines = {}
+        
+        for planet_id in all_planets:
+            for angle in all_angles:
+                line = self._get_planetary_line_object(planet_id, angle, latitude_range)
+                planetary_lines[(planet_id, angle)] = line
+        
+        print(f"✅ Generated {len(planetary_lines)} planetary lines")
+        return planetary_lines
+
+    def calculate_all_parans_from_lines(
+        self, 
+        planetary_lines: Dict[Tuple[int, str], PlanetaryLine],
+        orb_tolerance: float = 7.0,
+        exclude_node_pairs: bool = True
+    ) -> List[Tuple[int, str, int, str, List[Tuple[float, float]]]]:
+        """
+        Calculate all paran intersections from pre-generated planetary lines.
+        
+        Args:
+            planetary_lines: Dictionary of pre-generated PlanetaryLine objects
+            orb_tolerance: Orb tolerance for paran calculation
+            exclude_node_pairs: Whether to exclude North Node × South Node combinations
+            
+        Returns:
+            List of (planet1_id, angle1, planet2_id, angle2, paran_coordinates) tuples
+        """
+        print("🔄 Calculating parans from cached lines...")
+        
+        # Generate all unique combinations
+        line_keys = list(planetary_lines.keys())
+        paran_results = []
+        processed_pairs = set()
+        
+        for i, (planet1_id, angle1) in enumerate(line_keys):
+            for j, (planet2_id, angle2) in enumerate(line_keys):
+                # Skip same planet combinations
+                if planet1_id == planet2_id:
+                    continue
+                    
+                # Skip Node × Node combinations if requested
+                if exclude_node_pairs:
+                    nodes = [chart.NORTH_NODE, chart.SOUTH_NODE]
+                    if planet1_id in nodes and planet2_id in nodes:
+                        continue
+                
+                # Create canonical pair to avoid duplicates
+                if i < j:
+                    pair_key = (planet1_id, angle1, planet2_id, angle2)
+                else:
+                    pair_key = (planet2_id, angle2, planet1_id, angle1)
+                
+                if pair_key not in processed_pairs:
+                    processed_pairs.add(pair_key)
+                    
+                    # Get the lines
+                    line1 = planetary_lines[(pair_key[0], pair_key[1])]
+                    line2 = planetary_lines[(pair_key[2], pair_key[3])]
+                    
+                    # Calculate intersections
+                    intersections = self._find_line_intersections_optimized(line1, line2, orb_tolerance)
+                    
+                    # Store result
+                    paran_results.append((pair_key[0], pair_key[1], pair_key[2], pair_key[3], intersections))
+        
+        print(f"✅ Calculated {len(paran_results)} paran combinations")
+        return paran_results
+
+    def _find_line_intersections_optimized(
+        self,
+        line1: PlanetaryLine,
+        line2: PlanetaryLine,
+        orb_tolerance: float,
+    ) -> List[Tuple[float, float]]:
+        """
+        Find intersection points between two PlanetaryLine objects using optimized bounds checking.
+
+        Args:
+            line1: First PlanetaryLine object
+            line2: Second PlanetaryLine object
+            orb_tolerance: Maximum distance in degrees to consider as intersection
+
+        Returns:
+            List of (longitude, latitude) intersection points
+        """
+        # Early bounds check: if line bounding boxes don't overlap, skip entirely
+        if not line1.bounds_overlap(line2):
+            self.profile_stats["line_bounds_skipped"] += 1
+            return []
+
+        intersections = []
+
+        # Determine intersection method based on line types
+        is_line1_vertical = line1.is_vertical_line()
+        is_line2_vertical = line2.is_vertical_line()
+
+        if is_line1_vertical and is_line2_vertical:
+            # Both vertical lines - no intersection unless they're the same longitude
+            return []
+        elif is_line1_vertical and not is_line2_vertical:
+            # Vertical line intersecting curved line
+            intersections = self._find_vertical_curve_intersection_optimized(line1.coordinates, line2.coordinates)
+        elif not is_line1_vertical and is_line2_vertical:
+            # Curved line intersecting vertical line
+            intersections = self._find_vertical_curve_intersection_optimized(line2.coordinates, line1.coordinates)
+        else:
+            # Both curved lines
+            intersections = self._find_curve_curve_intersection_optimized(line1.coordinates, line2.coordinates)
+
+        return intersections
+
+    def _find_curve_curve_intersection_optimized(self, curve1_coords, curve2_coords):
+        """
+        Optimized curve-curve intersection without heavy profiling.
+        """
+        intersections = []
+
+        # For each line segment in curve1, check intersection with each segment in curve2
+        for i in range(len(curve1_coords) - 1):
+            lon1a, lat1a = curve1_coords[i]
+            lon1b, lat1b = curve1_coords[i + 1]
+
+            # Skip wrap-around segments in curve1
+            if abs(lon1b - lon1a) > 180:
+                continue
+            
+            # Calculate bounds for curve1 segment
+            min_lon1, max_lon1 = min(lon1a, lon1b), max(lon1a, lon1b)
+            min_lat1, max_lat1 = min(lat1a, lat1b), max(lat1a, lat1b)
+
+            for j in range(len(curve2_coords) - 1):
+                lon2a, lat2a = curve2_coords[j]
+                lon2b, lat2b = curve2_coords[j + 1]
+
+                # Skip wrap-around segments in curve2
+                if abs(lon2b - lon2a) > 180:
+                    continue
+                
+                # Calculate bounds for curve2 segment
+                min_lon2, max_lon2 = min(lon2a, lon2b), max(lon2a, lon2b)
+                min_lat2, max_lat2 = min(lat2a, lat2b), max(lat2a, lat2b)
+                
+                # Quick bounds check: skip if bounding boxes don't overlap
+                if (max_lon1 < min_lon2 or min_lon1 > max_lon2 or 
+                    max_lat1 < min_lat2 or min_lat1 > max_lat2):
+                    self.profile_stats['segment_bounds_skipped'] += 1
+                    continue
+
+                # Find intersection between two line segments
+                self.profile_stats["intersection_calculations"] += 1
+                intersection = self._line_segment_intersection(lon1a, lat1a, lon1b, lat1b, lon2a, lat2a, lon2b, lat2b)
+
+                if intersection is not None:
+                    self.profile_stats["intersections_found"] += 1
+                    intersections.append(intersection)
+
+        return intersections
+
+    def _find_vertical_curve_intersection_optimized(self, vertical_coords, curve_coords):
+        """
+        Optimized vertical-curve intersection without heavy profiling.
+        """
+        if not vertical_coords or not curve_coords:
+            return []
+
+        # Vertical line has constant longitude
+        vertical_lon = vertical_coords[0][0]
+        intersections = []
+
+        # Scan through consecutive points on the curve to find crossings
+        for i in range(len(curve_coords) - 1):
+            lon1, lat1 = curve_coords[i]
+            lon2, lat2 = curve_coords[i + 1]
+
+            # Skip artificial wrap-around segments
+            if abs(lon2 - lon1) > 180:
+                continue
+
+            # Quick bounds check
+            min_lon = min(lon1, lon2)
+            max_lon = max(lon1, lon2)
+            if not (min_lon <= vertical_lon <= max_lon):
+                continue
+
+            # Check if the vertical line crosses between these two points
+            self.profile_stats["intersection_calculations"] += 1
+            crossing = self._find_longitude_crossing(lon1, lat1, lon2, lat2, vertical_lon)
+            if crossing is not None:
+                self.profile_stats["intersections_found"] += 1
+                intersections.append(crossing)
+
+        return intersections
 
     def calculate_zenith_point(self, planet_id: int) -> Tuple[float, float]:
         """
@@ -260,10 +634,12 @@ class AstrocartographyCalculator:
         primary_line_coords = self._get_line_coordinates(primary_planet_id, primary_angle, latitude_range)
         secondary_line_coords = self._get_line_coordinates(secondary_planet_id, secondary_angle, latitude_range)
 
-        # Find intersections between the two lines
-        paran_coordinates = self._find_line_intersections(
-            primary_line_coords, secondary_line_coords, primary_angle, secondary_angle, orb_tolerance
-        )
+        # Get PlanetaryLine objects with precomputed bounds
+        primary_line = self._get_planetary_line_object(primary_planet_id, primary_angle, latitude_range)
+        secondary_line = self._get_planetary_line_object(secondary_planet_id, secondary_angle, latitude_range)
+
+        # Find intersections between the two lines using optimized bounds checking
+        paran_coordinates = self._find_line_intersections_optimized(primary_line, secondary_line, orb_tolerance)
 
         return paran_coordinates
 
@@ -1340,7 +1716,7 @@ class AstrocartographyCalculator:
     ) -> List[Tuple[float, float]]:
         """
         Find where a vertical line (MC/IC) intersects a curved line (ASC/DESC).
-        
+
         Uses scan approach to find all crossings of the vertical longitude.
 
         Args:
@@ -1360,23 +1736,28 @@ class AstrocartographyCalculator:
 
         # Scan through consecutive points on the curve to find crossings
         for i in range(len(curve_coords) - 1):
+            self.profile_stats["segments_checked"] += 1
             lon1, lat1 = curve_coords[i]
             lon2, lat2 = curve_coords[i + 1]
-            
+
             # Skip artificial wrap-around segments (horizontal lines crossing >180° longitude)
             lon_diff = abs(lon2 - lon1)
             if lon_diff > 180:  # This is likely a wrap-around artifact
+                self.profile_stats["wraparound_skipped"] += 1
                 continue
-            
+
             # Quick bounds check: skip if vertical longitude is clearly outside segment bounds
             min_lon = min(lon1, lon2)
             max_lon = max(lon1, lon2)
             if not (min_lon <= vertical_lon <= max_lon):
+                self.profile_stats["bounds_skipped"] += 1
                 continue
-                
+
             # Check if the vertical line crosses between these two points
+            self.profile_stats["intersection_calculations"] += 1
             crossing = self._find_longitude_crossing(lon1, lat1, lon2, lat2, vertical_lon)
             if crossing is not None:
+                self.profile_stats["intersections_found"] += 1
                 intersections.append(crossing)
 
         return intersections
@@ -1386,15 +1767,16 @@ class AstrocartographyCalculator:
     ) -> Optional[Tuple[float, float]]:
         """
         Find where a line segment crosses a specific longitude.
-        
+
         Args:
             lon1, lat1: First point of line segment
-            lon2, lat2: Second point of line segment  
+            lon2, lat2: Second point of line segment
             target_lon: Longitude to find crossing for
-            
+
         Returns:
             (longitude, latitude) of crossing point, or None if no crossing
         """
+
         # Normalize longitudes to handle wraparound
         def normalize_longitude_diff(lon_a, lon_b):
             diff = lon_b - lon_a
@@ -1403,36 +1785,36 @@ class AstrocartographyCalculator:
             elif diff < -180:
                 diff += 360
             return diff
-        
+
         # Calculate relative positions
         diff1 = normalize_longitude_diff(target_lon, lon1)
         diff2 = normalize_longitude_diff(target_lon, lon2)
-        
+
         # Check if target longitude is between the two points
         if diff1 * diff2 > 0:  # Same sign means target is not between points
             return None
-            
+
         # Special case: one of the points is exactly at target longitude
         if abs(diff1) < 1e-10:
             return (target_lon, lat1)
         if abs(diff2) < 1e-10:
             return (target_lon, lat2)
-            
+
         # Calculate intersection using linear interpolation
         total_diff = normalize_longitude_diff(lon1, lon2)
         if abs(total_diff) < 1e-10:  # Points have same longitude
             return None
-            
+
         # Interpolation factor
         t = -diff1 / total_diff
-        
+
         # Clamp to segment bounds
         if t < 0 or t > 1:
             return None
-            
+
         # Calculate intersection latitude
         intersection_lat = lat1 + t * (lat2 - lat1)
-        
+
         return (target_lon, intersection_lat)
 
     def _interpolate_latitude_at_longitude(
@@ -1507,36 +1889,41 @@ class AstrocartographyCalculator:
         for i in range(len(curve1_coords) - 1):
             lon1a, lat1a = curve1_coords[i]
             lon1b, lat1b = curve1_coords[i + 1]
-            
+
             # Skip wrap-around segments in curve1
             if abs(lon1b - lon1a) > 180:
+                self.profile_stats["wraparound_skipped"] += 1
                 continue
-            
+
             # Calculate bounds for curve1 segment
             min_lon1, max_lon1 = min(lon1a, lon1b), max(lon1a, lon1b)
             min_lat1, max_lat1 = min(lat1a, lat1b), max(lat1a, lat1b)
 
             for j in range(len(curve2_coords) - 1):
+                self.profile_stats["segments_checked"] += 1
                 lon2a, lat2a = curve2_coords[j]
                 lon2b, lat2b = curve2_coords[j + 1]
-                
+
                 # Skip wrap-around segments in curve2
                 if abs(lon2b - lon2a) > 180:
+                    self.profile_stats["wraparound_skipped"] += 1
                     continue
-                
+
                 # Calculate bounds for curve2 segment
                 min_lon2, max_lon2 = min(lon2a, lon2b), max(lon2a, lon2b)
                 min_lat2, max_lat2 = min(lat2a, lat2b), max(lat2a, lat2b)
-                
+
                 # Quick bounds check: skip if bounding boxes don't overlap
-                if (max_lon1 < min_lon2 or min_lon1 > max_lon2 or 
-                    max_lat1 < min_lat2 or min_lat1 > max_lat2):
+                if max_lon1 < min_lon2 or min_lon1 > max_lon2 or max_lat1 < min_lat2 or min_lat1 > max_lat2:
+                    self.profile_stats["bounds_skipped"] += 1
                     continue
 
                 # Find intersection between two line segments
+                self.profile_stats["intersection_calculations"] += 1
                 intersection = self._line_segment_intersection(lon1a, lat1a, lon1b, lat1b, lon2a, lat2a, lon2b, lat2b)
 
                 if intersection is not None:
+                    self.profile_stats["intersections_found"] += 1
                     intersections.append(intersection)
 
         return intersections

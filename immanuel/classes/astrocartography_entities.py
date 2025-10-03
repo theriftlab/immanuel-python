@@ -34,11 +34,22 @@ class PlanetaryLine:
 
     # Metadata
     metadata: Dict[str, Any] = None
+    
+    # Precomputed bounds (computed on creation)
+    _bounds: Optional[Tuple[float, float, float, float]] = None
 
     def __post_init__(self):
         """Validate fields after initialization."""
         if self.metadata is None:
             self.metadata = {}
+        
+        # Precompute bounds immediately
+        if self.coordinates:
+            lons = [coord[0] for coord in self.coordinates]
+            lats = [coord[1] for coord in self.coordinates]
+            self._bounds = (min(lons), max(lons), min(lats), max(lats))
+        else:
+            self._bounds = (0.0, 0.0, 0.0, 0.0)
 
         # Validate line type
         if self.line_type not in astrocartography.LINE_TYPES:
@@ -74,6 +85,39 @@ class PlanetaryLine:
             'orb_influence_km': self.orb_influence_km,
             'metadata': self.metadata
         }
+
+    def get_bounds(self) -> Tuple[float, float, float, float]:
+        """
+        Get precomputed bounding box for this line.
+        
+        Returns:
+            Tuple of (min_lon, max_lon, min_lat, max_lat)
+        """
+        return self._bounds
+    
+    def bounds_overlap(self, other: 'PlanetaryLine') -> bool:
+        """
+        Check if this line's bounding box overlaps with another line's bounding box.
+        
+        Args:
+            other: Another PlanetaryLine to check overlap with
+            
+        Returns:
+            True if bounding boxes overlap, False otherwise
+        """
+        min_lon1, max_lon1, min_lat1, max_lat1 = self.get_bounds()
+        min_lon2, max_lon2, min_lat2, max_lat2 = other.get_bounds()
+        
+        return not (max_lon1 < min_lon2 or min_lon1 > max_lon2 or 
+                   max_lat1 < min_lat2 or min_lat1 > max_lat2)
+    
+    def is_vertical_line(self) -> bool:
+        """Check if this is a vertical line (MC/IC)."""
+        return self.line_type in ['MC', 'IC']
+    
+    def is_curved_line(self) -> bool:
+        """Check if this is a curved line (ASC/DESC)."""
+        return self.line_type in ['ASC', 'DESC']
 
     def __str__(self) -> str:
         """Human-readable string representation."""

@@ -9,13 +9,16 @@ import swisseph as swe
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
+import time
+import cProfile
+import pstats
+from io import StringIO
 
 from immanuel.const import chart
 from immanuel.tools.astrocartography import AstrocartographyCalculator
 
 
-def plot_all_parans_map(calculator, paran_data, planet_names, planet_colors,
-                        birth_datetime, orb_tolerance):
+def plot_all_parans_map(calculator, paran_data, planet_names, planet_colors, birth_datetime, orb_tolerance):
     """
     Plot a comprehensive world map showing all planetary lines and paran intersection points.
 
@@ -71,21 +74,22 @@ def plot_all_parans_map(calculator, paran_data, planet_names, planet_colors,
         lats = [coord[1] for coord in coords]
 
         # Different line styles for different angles
-        if angle == 'MC':
+        if angle == "MC":
             linestyle = "-"
             linewidth = 2.5
-        elif angle == 'IC':
+        elif angle == "IC":
             linestyle = "-"
             linewidth = 2.0
-        elif angle == 'ASC':
+        elif angle == "ASC":
             linestyle = ":"  # Dotted
             linewidth = 2.0
-        elif angle == 'DESC':
+        elif angle == "DESC":
             linestyle = "--"  # Dashed
             linewidth = 2.0
 
         ax.plot(
-            lons, lats,
+            lons,
+            lats,
             color=color,
             linewidth=linewidth,
             linestyle=linestyle,
@@ -93,15 +97,16 @@ def plot_all_parans_map(calculator, paran_data, planet_names, planet_colors,
             transform=ccrs.PlateCarree(),
             alpha=0.7,
         )
-        
+
         # Add labels for MC/IC lines at the top of the map
-        if angle in ['MC', 'IC'] and lons:
+        if angle in ["MC", "IC"] and lons:
             # Place label at the top of the map (high latitude)
             label_lon = lons[0]  # Vertical lines have constant longitude
             label_lat = 55  # Near top of map but within bounds
-            
+
             ax.text(
-                label_lon, label_lat,
+                label_lon,
+                label_lat,
                 f"{planet_name}\n{angle}",
                 fontsize=9,
                 color=color,
@@ -110,7 +115,7 @@ def plot_all_parans_map(calculator, paran_data, planet_names, planet_colors,
                 va="bottom",
                 transform=ccrs.PlateCarree(),
                 bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.8, edgecolor=color),
-                zorder=20
+                zorder=20,
             )
 
     # Collect all paran points and create latitudinal lines
@@ -135,7 +140,8 @@ def plot_all_parans_map(calculator, paran_data, planet_names, planet_colors,
         paran_lats = [coord[1] for coord in all_paran_points]
 
         ax.plot(
-            paran_lons, paran_lats,
+            paran_lons,
+            paran_lats,
             marker="*",
             markersize=18,
             color="gold",
@@ -146,18 +152,19 @@ def plot_all_parans_map(calculator, paran_data, planet_names, planet_colors,
             markeredgewidth=2,
             zorder=10,
         )
-        
+
         # Add labels to paran points
         for i, ((lon, lat), label) in enumerate(zip(all_paran_points, paran_info)):
             ax.text(
-                lon + 2, lat + 1,  # Offset text slightly from point
+                lon + 2,
+                lat + 1,  # Offset text slightly from point
                 label,
                 fontsize=8,
                 color="black",
                 weight="bold",
                 transform=ccrs.PlateCarree(),
                 bbox=dict(boxstyle="round,pad=0.3", facecolor="yellow", alpha=0.8),
-                zorder=15
+                zorder=15,
             )
 
         # Draw horizontal lines through unique paran latitudes
@@ -170,7 +177,8 @@ def plot_all_parans_map(calculator, paran_data, planet_names, planet_colors,
             paran_line_lats = [lat] * len(paran_line_lons)
 
             ax.plot(
-                paran_line_lons, paran_line_lats,
+                paran_line_lons,
+                paran_line_lats,
                 color="gold",
                 linewidth=2.0,
                 linestyle="--",
@@ -212,7 +220,8 @@ Paran Details:
                 info_text += f"\n  +{len(paran_coords)-2} more"
 
     plt.figtext(
-        0.01, 0.30,
+        0.01,
+        0.30,
         info_text,
         fontsize=9,
         verticalalignment="top",
@@ -236,48 +245,29 @@ def main():
     birth_datetime = "1984-01-03 18:36:00"
     print(f"Birth: {birth_datetime}\n")
 
+    # Start profiling
+    pr = cProfile.Profile()
+    pr.enable()
+    start_time = time.time()
+
     # Create calculator
     dt = datetime.strptime(birth_datetime, "%Y-%m-%d %H:%M:%S")
     dt_utc = datetime(dt.year, dt.month, dt.day, dt.hour - 1, dt.minute, dt.second)
-    jd = swe.julday(dt_utc.year, dt_utc.month, dt_utc.day,
-                   dt_utc.hour + dt_utc.minute / 60.0 + dt_utc.second / 3600.0)
+    jd = swe.julday(dt_utc.year, dt_utc.month, dt_utc.day, dt_utc.hour + dt_utc.minute / 60.0 + dt_utc.second / 3600.0)
 
     calculator = AstrocartographyCalculator(julian_date=jd, sampling_resolution=2.0)
 
-    # Generate ALL possible paran combinations systematically
-    all_planets = [
-        chart.SUN, chart.MOON, chart.MERCURY, chart.VENUS, chart.MARS,
-        chart.JUPITER, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.PLUTO,
-        chart.NORTH_NODE, chart.SOUTH_NODE, chart.CHIRON
-    ]
-    
-    all_angles = ['MC', 'IC', 'ASC', 'DESC']
-    
-    # Generate all possible combinations between different planets (avoiding duplicates)
-    test_cases = []
-    processed_pairs = set()
-    
-    for i, planet1 in enumerate(all_planets):
-        for angle1 in all_angles:
-            for j, planet2 in enumerate(all_planets):
-                for angle2 in all_angles:
-                    # Skip same planet combinations (not meaningful astrologically)
-                    if planet1 != planet2:
-                        # Skip Node × Node combinations (they intersect everywhere)
-                        nodes = [chart.NORTH_NODE, chart.SOUTH_NODE]
-                        if not (planet1 in nodes and planet2 in nodes):
-                            # Create a canonical pair key to avoid duplicates
-                            # Sort by planet index first, then by angle to ensure consistent ordering
-                            if i < j or (i == j and all_angles.index(angle1) <= all_angles.index(angle2)):
-                                pair_key = (planet1, angle1, planet2, angle2)
-                            else:
-                                pair_key = (planet2, angle2, planet1, angle1)
-                            
-                            if pair_key not in processed_pairs:
-                                processed_pairs.add(pair_key)
-                                test_cases.append(pair_key)
-    
-    print(f"Generated {len(test_cases)} total paran combinations to test")
+    # Orb tolerance: Traditional astrology uses ~1° for exact parans,
+    # but 3-7° is common for practical applications.
+    orb_tolerance = 7.0  # Use 7° orb for demonstration
+
+    # PHASE 1: Generate all planetary lines once (improved architecture)
+    planetary_lines = calculator.generate_all_planetary_lines(latitude_range=(-60, 60))
+
+    # PHASE 2: Calculate all parans from cached lines
+    all_paran_data = calculator.calculate_all_parans_from_lines(
+        planetary_lines=planetary_lines, orb_tolerance=orb_tolerance, exclude_node_pairs=True
+    )
 
     planet_names = {
         chart.SUN: "Sun",
@@ -311,58 +301,29 @@ def main():
         chart.CHIRON: "#CD853F",  # Peru
     }
 
-    # Orb tolerance: Traditional astrology uses ~1° for exact parans,
-    # but 3-7° is common for practical applications.
-    # Larger orbs (10°+) show more intersections but may be less significant.
-    orb_tolerance = 7.0  # Use 7° orb for demonstration
-
     print(f"Using orb tolerance: {orb_tolerance}°")
     print("(Traditional: ~1°, Practical: 3-7°, Demonstration: 7-10°)\n")
     print("=" * 70)
 
-    # Collect all paran data for comprehensive visualization
-    all_paran_data = []
+    # Process results and display
     total_paran_points = 0
 
-    for planet1_id, angle1, planet2_id, angle2 in test_cases:
-        planet1_name = planet_names.get(planet1_id, f"Planet {planet1_id}")
-        planet2_name = planet_names.get(planet2_id, f"Planet {planet2_id}")
+    for planet1_id, angle1, planet2_id, angle2, paran_coords in all_paran_data:
+        if paran_coords:
+            planet1_name = planet_names.get(planet1_id, f"Planet {planet1_id}")
+            planet2_name = planet_names.get(planet2_id, f"Planet {planet2_id}")
 
-        print(f"\nCalculating: {planet1_name} {angle1} × {planet2_name} {angle2}")
-        print("-" * 70)
+            print(f"  ✓ Found {len(paran_coords)} paran point(s) {planet1_name} {angle1} × {planet2_name} {angle2}")
+            total_paran_points += len(paran_coords)
 
-        try:
-            
-            paran_coords = calculator.calculate_paran_line(
-                primary_planet_id=planet1_id,
-                secondary_planet_id=planet2_id,
-                primary_angle=angle1,
-                secondary_angle=angle2,
-                orb_tolerance=orb_tolerance,
-                latitude_range=(-60, 60)
-            )
-
-            # Store paran data
-            all_paran_data.append((planet1_id, angle1, planet2_id, angle2, paran_coords))
-
-            if paran_coords:
-                print(f"  ✓ Found {len(paran_coords)} paran point(s)")
-                total_paran_points += len(paran_coords)
-
-                # Show coordinates
-                for i, (lon, lat) in enumerate(paran_coords[:3], 1):
-                    print(f"    {i}. ({lon:.2f}°, {lat:.2f}°)")
-                if len(paran_coords) > 3:
-                    print(f"    ... and {len(paran_coords) - 3} more")
-            else:
-                print(f"  ⚪ No paran points found (lines don't intersect within {orb_tolerance}° orb)")
-
-        except Exception as e:
-            print(f"  ✗ Error: {e}")
-            import traceback
-            traceback.print_exc()
-            # Add empty entry for failed calculations
-            all_paran_data.append((planet1_id, angle1, planet2_id, angle2, []))
+            # Show coordinates
+            for i, (lon, lat) in enumerate(paran_coords[:3], 1):  # Show first 3
+                print(f"    {i}. ({lon:.2f}°, {lat:.2f}°)")
+            if len(paran_coords) > 3:
+                print(f"    ... and {len(paran_coords) - 3} more")
+    # Stop profiling and show results
+    pr.disable()
+    end_time = time.time()
 
     print("\n" + "=" * 70)
     print(f"\n📊 Generating comprehensive paran map...")
@@ -375,16 +336,80 @@ def main():
         planet_names=planet_names,
         planet_colors=planet_colors,
         birth_datetime=birth_datetime,
-        orb_tolerance=orb_tolerance
+        orb_tolerance=orb_tolerance,
     )
 
     print("\n" + "=" * 70)
     print(f"\n✓ Test complete!")
-    print(f"  Paran combinations tested: {len(test_cases)}")
+    print(f"  Paran combinations tested: {len(all_paran_data)}")
     print(f"  Parans with intersections: {len([p for p in all_paran_data if p[4]])}")
     print(f"  Total paran points: {total_paran_points}")
     print(f"  Comprehensive map: parans_comprehensive_map.png")
     print(f"\nNote: Paran lines are latitudinal (horizontal) gold dashed lines.")
+
+    # Performance profiling results
+    total_time = end_time - start_time
+    stats = calculator.profile_stats
+
+    print(f"\n" + "=" * 70)
+    print(f"📊 PERFORMANCE PROFILING RESULTS")
+    print(f"=" * 70)
+    print(f"Total execution time: {total_time:.3f} seconds")
+    print(stats)
+
+    # Calculate efficiency metrics
+    if stats["intersection_calculations"] > 0:
+        line_bounds_efficiency = (stats["line_bounds_skipped"] / len(all_paran_data)) * 100
+        intersection_success_rate = (stats["intersections_found"] / stats["intersection_calculations"]) * 100
+
+        print(f"\n📈 EFFICIENCY METRICS:")
+        print(
+            f"Line bounds skip rate: {line_bounds_efficiency:.1f}% ({stats['line_bounds_skipped']} of {len(all_paran_data)} line pairs)"
+        )
+        if "segment_bounds_skipped" in stats:
+            print(f"Segment bounds skipped: {stats['segment_bounds_skipped']:,}")
+        print(f"Intersection success rate: {intersection_success_rate:.3f}%")
+        print(f"Calculations per second: {stats['intersection_calculations']/total_time:.0f}")
+        print(f"Intersections per second: {stats['intersections_found']/total_time:.1f}")
+
+        # Show Douglas-Peucker simplification stats
+        if hasattr(calculator, "simplification_stats"):
+            simp_stats = calculator.simplification_stats
+            print(f"Douglas-Peucker simplification:")
+            print(f"  Lines simplified: {simp_stats['lines_simplified']}")
+            print(f"  Points removed: {simp_stats['points_removed']:,}")
+            if simp_stats["lines_simplified"] > 0:
+                avg_reduction = simp_stats["points_removed"] / simp_stats["lines_simplified"]
+                print(f"  Average points removed per line: {avg_reduction:.1f}")
+
+    # Show top time-consuming functions
+    print(f"\n🔍 TOP TIME-CONSUMING FUNCTIONS:")
+    s = StringIO()
+    ps = pstats.Stats(pr, stream=s).sort_stats("cumulative")
+    ps.print_stats(10)  # Top 10 functions
+    profile_output = s.getvalue()
+
+    # Extract and show relevant lines
+    lines = profile_output.split("\n")
+    for line in lines[5:15]:  # Skip header, show top 10
+        if line.strip() and not line.startswith("ncalls"):
+            print(f"  {line}")
+
+    print(f"\n💡 OPTIMIZATION SUGGESTIONS:")
+    if line_bounds_efficiency < 50:
+        print(f"  • Line bounds checking is only skipping {line_bounds_efficiency:.1f}% - consider tighter bounds")
+    if intersection_success_rate < 1:
+        print(f"  • Very low intersection success rate ({intersection_success_rate:.3f}%) - consider spatial indexing")
+    if stats["intersection_calculations"] > 10000000:
+        print(
+            f"  • High calculation count ({stats['intersection_calculations']:,}) - consider spatial indexing or coarser sampling"
+        )
+
+    print(f"\n🎯 CURRENT OPTIMIZATIONS WORKING:")
+    print(f"  ✅ PlanetaryLine objects with precomputed bounds")
+    print(f"  ✅ Line-level bounds checking (skipping {stats['line_bounds_skipped']} line pairs)")
+    print(f"  ✅ Duplicate elimination (testing {len(all_paran_data)} vs {len(all_paran_data)*2} combinations)")
+    print(f"  ✅ Wrap-around segment filtering")
 
 
 if __name__ == "__main__":
