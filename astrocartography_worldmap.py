@@ -1425,6 +1425,32 @@ def main():
 
     print("\n" + "=" * 60)
 
+    # Create paran intersection map if requested
+    if args.parans:
+        try:
+            print("=== Creating Paran Intersection Map ===")
+            fig4, ax4 = plot_parans_map(
+                birth_datetime=subject.date_time,
+                birth_location=(float(subject.latitude), float(subject.longitude)),
+                projection="PlateCarree",
+                save_as="astrocartography_parans.png"
+            )
+
+            print("\n=== Paran Intersection Map Created Successfully! ===")
+            print("Features:")
+            print("✓ All planetary lines (MC/IC solid, ASC/DESC dotted)")
+            print("✓ Paran intersection points marked with gold stars")
+            print("✓ Horizontal latitudinal lines through parans")
+            print("✓ Birth location marked")
+
+        except Exception as e:
+            print(f"Error creating paran map: {e}")
+            import traceback
+
+            traceback.print_exc()
+
+        print("\n" + "=" * 60)
+
     # Export to GeoJSON if requested
     if args.geojson:
         print("\n=== Exporting to GeoJSON ===")
@@ -1447,6 +1473,8 @@ def main():
     print("  📊 astrocartography_worldmap.png - Main planetary lines (MC/IC/ASC/DESC)")
     print("  📈 astrocartography_mc_aspect_lines.png - MC/IC aspect lines (vertical)")
     print("  📈 astrocartography_asc_aspect_lines.png - ASC aspect lines (curved, DESC omitted)")
+    if args.parans:
+        print("  ⭐ astrocartography_parans.png - Paran intersection points")
     if args.geojson:
         print(f"  🌍 {args.geojson_file} - GeoJSON export of all lines")
     if args.json:
@@ -1455,6 +1483,7 @@ def main():
     print("Note: DESC aspects are redundant (ASC 60° = DESC 120°) and omitted from ASC map")
     print("\nUsage:")
     print("  python astrocartography_worldmap.py                  # Generate maps only")
+    print("  python astrocartography_worldmap.py --parans         # Also generate paran map")
     print("  python astrocartography_worldmap.py --geojson        # Also export to GeoJSON")
     print("  python astrocartography_worldmap.py --json           # Also export to JSON")
     print("  python astrocartography_worldmap.py --geojson --json # Export both formats")
