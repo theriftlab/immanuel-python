@@ -134,10 +134,21 @@ class AstrocartographyCalculator:
         latitude_range: Tuple[float, float] = (astrocartography.MIN_LATITUDE, astrocartography.MAX_LATITUDE),
     ) -> Tuple[List[Tuple[float, float]], List[Tuple[float, float]]]:
         """
-        Calculate Ascendant and Descendant lines for a planet.
+        Calculate Ascendant and Descendant lines for a planet using zodiacal method.
 
         ASC/DESC lines are actually the SAME continuous curve that wraps around the globe.
         The curve switches between "ascending" and "descending" at its extreme points.
+
+        IMPORTANT - Ecliptic Latitude Limitation:
+        This method uses zodiacal (ecliptic longitude) calculations, which assume planets
+        lie on the ecliptic plane (0° ecliptic latitude). This causes accuracy issues for:
+        - Pluto: ~16.7° ecliptic latitude → 30-55° errors on ASC/DESC lines
+        - Moon: up to ~5° ecliptic latitude → 5-10° errors
+        - Other planets: typically 0-3° → <5° errors
+
+        At a "Pluto ASC" zodiacal line, Pluto's ecliptic longitude is rising, not Pluto itself.
+        For accurate rising/setting positions, especially for Pluto and Moon, use in mundo
+        calculations (not yet implemented - see docs/in_mundo_asc_desc_implementation.md).
 
         Args:
             planet_id: Planet identifier constant

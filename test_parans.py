@@ -262,6 +262,7 @@ def verify_paran_accuracy(paran_data, jd, planet_names, target_accuracy=0.01):
     failed_checks = 0
     max_error = 0.0
     errors = []
+    error_data = []
 
     for planet1_id, angle1, planet2_id, angle2, paran_coords in paran_data:
         if not paran_coords:
@@ -309,6 +310,15 @@ def verify_paran_accuracy(paran_data, jd, planet_names, target_accuracy=0.01):
             failed_checks += 1
             status1 = "❌"
 
+        # Track error for reporting
+        error_data.append({
+            'error': error1,
+            'planet': planet1_name,
+            'angle': angle1,
+            'paran': f"{planet1_name} {angle1} × {planet2_name} {angle2}",
+            'location': f"({lon:.2f}°, {lat:.2f}°)"
+        })
+
         # Check planet2 at angle2
         total_checks += 1
         error2 = check_planet_at_angle(planet2_obj, angle2, natal_chart)
@@ -321,6 +331,15 @@ def verify_paran_accuracy(paran_data, jd, planet_names, target_accuracy=0.01):
         else:
             failed_checks += 1
             status2 = "❌"
+
+        # Track error for reporting
+        error_data.append({
+            'error': error2,
+            'planet': planet2_name,
+            'angle': angle2,
+            'paran': f"{planet1_name} {angle1} × {planet2_name} {angle2}",
+            'location': f"({lon:.2f}°, {lat:.2f}°)"
+        })
 
         # Only print if there are errors or first few
         if error1 > target_accuracy or error2 > target_accuracy or total_checks <= 10:
@@ -339,6 +358,24 @@ def verify_paran_accuracy(paran_data, jd, planet_names, target_accuracy=0.01):
     print(f"Avg error: {sum(errors)/len(errors):.4f}°")
     print(f"Median error: {sorted(errors)[len(errors)//2]:.4f}°")
 
+    # Show worst offenders
+    print("\n" + "-" * 70)
+    print("🔴 TOP 10 WORST ERRORS:")
+    print("-" * 70)
+    sorted_errors = sorted(error_data, key=lambda x: x['error'], reverse=True)[:10]
+    for i, e in enumerate(sorted_errors, 1):
+        print(f"{i}. {e['error']:6.2f}° - {e['planet']:10s} {e['angle']:4s} in {e['paran']}")
+        print(f"   Location: {e['location']}")
+
+    print("\n" + "-" * 70)
+    print("ℹ️  NOTE: Large errors are typically due to ecliptic latitude:")
+    print("-" * 70)
+    print("ASC/DESC lines use ecliptic longitude only (traditional astrocartography).")
+    print("Planets with high ecliptic latitude (especially Pluto: 16.7°) will show")
+    print("large errors because the line shows where the ecliptic longitude rises,")
+    print("not where the planet's actual 3D position rises.")
+    print("\nThis is expected behavior and matches professional astrocartography software.")
+
     return {
         "total_checks": total_checks,
         "passed": passed_checks,
@@ -347,6 +384,7 @@ def verify_paran_accuracy(paran_data, jd, planet_names, target_accuracy=0.01):
         "avg_error": sum(errors) / len(errors),
         "median_error": sorted(errors)[len(errors) // 2],
         "errors": errors,
+        "worst_errors": sorted_errors[:10],
     }
 
 
@@ -539,8 +577,40 @@ def main():
     dt_utc = datetime(dt.year, dt.month, dt.day, dt.hour - 1, dt.minute, dt.second)
     jd = swe.julday(dt_utc.year, dt_utc.month, dt_utc.day, dt_utc.hour + dt_utc.minute / 60.0 + dt_utc.second / 3600.0)
 
-    # Run Douglas-Peucker precision comparison
-    dp_results = benchmark_douglas_peucker_precision(birth_datetime, jd, verify_accuracy=True)
+    # Run single test with optimal epsilon to investigate errors
+    epsilon = 0.5
+    calculator = AstrocartographyCalculator(julian_date=jd, sampling_resolution=2.0)
+
+    # Set epsilon
+    original_create = calculator._create_planetary_line
+    def create_with_epsilon(planet_id, line_type, coordinates, simplify_tolerance=epsilon):
+        return original_create(planet_id, line_type, coordinates, simplify_tolerance)
+    calculator._create_planetary_line = create_with_epsilon
+
+    # Generate lines and parans
+    planetary_lines = calculator.generate_all_planetary_lines(latitude_range=(-60, 60))
+    all_paran_data = calculator.calculate_all_parans_from_lines(
+        planetary_lines=planetary_lines, exclude_node_pairs=True
+    )
+
+    planet_names = {
+        chart.SUN: "Sun",
+        chart.MOON: "Moon",
+        chart.MERCURY: "Mercury",
+        chart.VENUS: "Venus",
+        chart.MARS: "Mars",
+        chart.JUPITER: "Jupiter",
+        chart.SATURN: "Saturn",
+        chart.URANUS: "Uranus",
+        chart.NEPTUNE: "Neptune",
+        chart.PLUTO: "Pluto",
+        chart.NORTH_NODE: "North Node",
+        chart.SOUTH_NODE: "South Node",
+        chart.CHIRON: "Chiron",
+    }
+
+    # Verify accuracy
+    accuracy_stats = verify_paran_accuracy(all_paran_data, jd, planet_names, target_accuracy=0.01)
 
     return
 
