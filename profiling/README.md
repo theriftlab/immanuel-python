@@ -23,6 +23,14 @@ This directory contains performance testing, profiling, and validation scripts f
 - **verify_aspect_coordinates.py** - Coordinate verification for aspect lines
 - **simple_aspect_test.py** - Simple aspect calculation tests
 
+### Fuzzing & Stress Tests
+- **fuzz_test_astrocartography.py** - Comprehensive fuzzing test with 500 random charts
+  - Generates random dates (1900-2100), times, and locations
+  - Calculates planetary lines, aspect lines, and parans for each chart
+  - Collects performance statistics (timing, line counts, paran counts)
+  - Provides detailed statistical summary with percentiles and distributions
+  - Tests system reliability and performance under varied conditions
+
 ## Key Findings
 
 ### Paran Accuracy
@@ -50,6 +58,12 @@ python profiling/test_astrocartography_aspects.py
 
 # Run full performance benchmarks
 python profiling/test_astrocartography_aspects.py --all
+
+# Run fuzzing test with 500 random charts
+python profiling/fuzz_test_astrocartography.py
+
+# Run fuzzing test with custom chart count
+python profiling/fuzz_test_astrocartography.py --charts 1000
 ```
 
 ## Documentation
