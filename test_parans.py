@@ -238,26 +238,194 @@ Paran Details:
     plt.close()
 
 
-def benchmark_douglas_peucker_precision(birth_datetime, jd, orb_tolerance=7.0):
+def verify_paran_accuracy(paran_data, jd, planet_names, target_accuracy=0.01):
+    """
+    Verify paran accuracy by casting charts at paran points and checking planet positions.
+
+    Args:
+        paran_data: List of (planet1_id, angle1, planet2_id, angle2, paran_coords) tuples
+        jd: Julian date
+        planet_names: Dict of planet ID to name
+        target_accuracy: Target accuracy in degrees (default 0.01°)
+
+    Returns:
+        Dict with accuracy statistics
+    """
+    from immanuel.charts import Subject, Natal
+
+    print("\n" + "=" * 70)
+    print("🔍 PARAN ACCURACY VERIFICATION")
+    print("=" * 70)
+    print(f"Target accuracy: ±{target_accuracy}° (astrological precision)")
+    print()
+
+    total_checks = 0
+    passed_checks = 0
+    failed_checks = 0
+    max_error = 0.0
+    errors = []
+
+    for planet1_id, angle1, planet2_id, angle2, paran_coords in paran_data:
+        if not paran_coords:
+            continue
+
+        planet1_name = planet_names.get(planet1_id, f"Planet {planet1_id}")
+        planet2_name = planet_names.get(planet2_id, f"Planet {planet2_id}")
+
+        # Check first paran point for this combination
+        lon, lat = paran_coords[0]
+
+        # Cast chart at paran location
+        # Convert JD back to datetime for Subject
+        import swisseph as swe
+
+        year, month, day, hour = swe.revjul(jd)
+        time_decimal = hour
+        hour_int = int(time_decimal)
+        minute = int((time_decimal - hour_int) * 60)
+        second = int(((time_decimal - hour_int) * 60 - minute) * 60)
+
+        dt_str = f"{year:04d}-{month:02d}-{day:02d} {hour_int:02d}:{minute:02d}:{second:02d}"
+
+        subject = Subject(date_time=dt_str, latitude=str(lat), longitude=str(lon), timezone="UTC")
+
+        natal_chart = Natal(subject)
+
+        # Get planet positions
+        planet1_obj = natal_chart.objects.get(planet1_id)
+        planet2_obj = natal_chart.objects.get(planet2_id)
+
+        if not planet1_obj or not planet2_obj:
+            continue
+
+        # Check planet1 at angle1
+        total_checks += 1
+        error1 = check_planet_at_angle(planet1_obj, angle1, natal_chart)
+        errors.append(error1)
+        max_error = max(max_error, error1)
+
+        if error1 <= target_accuracy:
+            passed_checks += 1
+            status1 = "✅"
+        else:
+            failed_checks += 1
+            status1 = "❌"
+
+        # Check planet2 at angle2
+        total_checks += 1
+        error2 = check_planet_at_angle(planet2_obj, angle2, natal_chart)
+        errors.append(error2)
+        max_error = max(max_error, error2)
+
+        if error2 <= target_accuracy:
+            passed_checks += 1
+            status2 = "✅"
+        else:
+            failed_checks += 1
+            status2 = "❌"
+
+        # Only print if there are errors or first few
+        if error1 > target_accuracy or error2 > target_accuracy or total_checks <= 10:
+            print(f"{planet1_name} {angle1} × {planet2_name} {angle2} at ({lon:.2f}°, {lat:.2f}°):")
+            print(f"  {status1} {planet1_name} {angle1}: {error1:.4f}° error")
+            print(f"  {status2} {planet2_name} {angle2}: {error2:.4f}° error")
+
+    # Print summary
+    print("\n" + "-" * 70)
+    print("📊 ACCURACY SUMMARY:")
+    print("-" * 70)
+    print(f"Total checks: {total_checks}")
+    print(f"Passed (≤{target_accuracy}°): {passed_checks} ({100*passed_checks/total_checks:.1f}%)")
+    print(f"Failed (>{target_accuracy}°): {failed_checks} ({100*failed_checks/total_checks:.1f}%)")
+    print(f"Max error: {max_error:.4f}°")
+    print(f"Avg error: {sum(errors)/len(errors):.4f}°")
+    print(f"Median error: {sorted(errors)[len(errors)//2]:.4f}°")
+
+    return {
+        "total_checks": total_checks,
+        "passed": passed_checks,
+        "failed": failed_checks,
+        "max_error": max_error,
+        "avg_error": sum(errors) / len(errors),
+        "median_error": sorted(errors)[len(errors) // 2],
+        "errors": errors,
+    }
+
+
+def check_planet_at_angle(planet_obj, angle, natal_chart):
+    """
+    Check how close a planet is to being exactly at a specified angle.
+
+    Returns error in degrees.
+    """
+    planet_lon = planet_obj.longitude.raw
+
+    # Get the angle from chart objects (angles are separate from houses)
+    from immanuel.const import chart as chart_const
+
+    if angle == "MC":
+        angle_obj = natal_chart.objects.get(chart_const.MC)
+    elif angle == "IC":
+        angle_obj = natal_chart.objects.get(chart_const.IC)
+    elif angle == "ASC":
+        angle_obj = natal_chart.objects.get(chart_const.ASC)
+    elif angle == "DESC":
+        angle_obj = natal_chart.objects.get(chart_const.DESC)
+    else:
+        return float("inf")
+
+    if not angle_obj:
+        return float("inf")
+
+    target_lon = angle_obj.longitude.raw
+
+    # Calculate shortest angular distance
+    diff = abs(planet_lon - target_lon)
+    if diff > 180:
+        diff = 360 - diff
+
+    return diff
+
+
+def benchmark_douglas_peucker_precision(birth_datetime, jd, orb_tolerance=7.0, verify_accuracy=False):
     """
     Benchmark different Douglas-Peucker epsilon values to find optimal precision/performance balance.
+
+    Args:
+        birth_datetime: Birth datetime string
+        jd: Julian date
+        orb_tolerance: Orb tolerance for parans
+        verify_accuracy: Whether to verify chart accuracy (slower)
     """
     print("\n" + "=" * 70)
     print("🔬 DOUGLAS-PEUCKER PRECISION COMPARISON")
     print("=" * 70)
 
     # Test different epsilon values (in degrees)
-    epsilon_values = [0.1, 0.5, 1.0, 2.0, 5.0, 10.0]
+    epsilon_values = [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1.0]
     results = []
+
+    planet_names = {
+        chart.SUN: "Sun",
+        chart.MOON: "Moon",
+        chart.MERCURY: "Mercury",
+        chart.VENUS: "Venus",
+        chart.MARS: "Mars",
+        chart.JUPITER: "Jupiter",
+        chart.SATURN: "Saturn",
+        chart.URANUS: "Uranus",
+        chart.NEPTUNE: "Neptune",
+        chart.PLUTO: "Pluto",
+        chart.NORTH_NODE: "North Node",
+        chart.SOUTH_NODE: "South Node",
+        chart.CHIRON: "Chiron",
+    }
 
     for epsilon in epsilon_values:
         print(f"\nTesting epsilon = {epsilon}°...")
 
         # Create calculator
-        calculator = AstrocartographyCalculator(
-            julian_date=jd,
-            sampling_resolution=2.0
-        )
+        calculator = AstrocartographyCalculator(julian_date=jd, sampling_resolution=2.0)
 
         # Set the Douglas-Peucker epsilon by monkey-patching the method
         original_create = calculator._create_planetary_line
@@ -274,29 +442,33 @@ def benchmark_douglas_peucker_precision(birth_datetime, jd, orb_tolerance=7.0):
 
         # Calculate parans
         all_paran_data = calculator.calculate_all_parans_from_lines(
-            planetary_lines=planetary_lines,
-            orb_tolerance=orb_tolerance,
-            exclude_node_pairs=True
+            planetary_lines=planetary_lines, orb_tolerance=orb_tolerance, exclude_node_pairs=True
         )
 
         elapsed = time.time() - start
 
         # Collect stats
         stats = calculator.profile_stats
-        simp_stats = calculator.simplification_stats if hasattr(calculator, 'simplification_stats') else {}
+        simp_stats = calculator.simplification_stats if hasattr(calculator, "simplification_stats") else {}
 
         parans_found = len([p for p in all_paran_data if p[4]])
         total_points = sum(len(p[4]) for p in all_paran_data if p[4])
 
+        # Verify chart accuracy if requested
+        accuracy_stats = None
+        if verify_accuracy:
+            accuracy_stats = verify_paran_accuracy(all_paran_data, jd, planet_names, target_accuracy=0.01)
+
         result = {
-            'epsilon': epsilon,
-            'time': elapsed,
-            'parans_found': parans_found,
-            'total_points': total_points,
-            'intersections': stats.get('intersections_found', 0),
-            'calculations': stats.get('intersection_calculations', 0),
-            'points_removed': simp_stats.get('points_removed', 0),
-            'lines_simplified': simp_stats.get('lines_simplified', 0),
+            "epsilon": epsilon,
+            "time": elapsed,
+            "parans_found": parans_found,
+            "total_points": total_points,
+            "intersections": stats.get("intersections_found", 0),
+            "calculations": stats.get("intersection_calculations", 0),
+            "points_removed": simp_stats.get("points_removed", 0),
+            "lines_simplified": simp_stats.get("lines_simplified", 0),
+            "accuracy": accuracy_stats,
         }
         results.append(result)
 
@@ -304,37 +476,63 @@ def benchmark_douglas_peucker_precision(birth_datetime, jd, orb_tolerance=7.0):
         print(f"  Parans found: {parans_found}")
         print(f"  Total paran points: {total_points}")
         print(f"  Calculations: {stats.get('intersection_calculations', 0):,}")
-        if simp_stats.get('lines_simplified', 0) > 0:
-            avg_removed = simp_stats['points_removed'] / simp_stats['lines_simplified']
+        if simp_stats.get("lines_simplified", 0) > 0:
+            avg_removed = simp_stats["points_removed"] / simp_stats["lines_simplified"]
             print(f"  Points removed: {simp_stats['points_removed']:,} (avg {avg_removed:.1f} per line)")
+        if accuracy_stats:
+            print(
+                f"  Accuracy: {accuracy_stats['passed']}/{accuracy_stats['total_checks']} pass ({100*accuracy_stats['passed']/accuracy_stats['total_checks']:.1f}%), max error: {accuracy_stats['max_error']:.4f}°"
+            )
 
     # Find optimal epsilon
-    print("\n" + "-" * 70)
+    print("\n" + "-" * 100)
     print("📊 COMPARISON SUMMARY:")
-    print("-" * 70)
-    print(f"{'Epsilon':<10} {'Time':<10} {'Parans':<10} {'Points':<10} {'Calcs':<12} {'Removed':<10}")
-    print("-" * 70)
+    print("-" * 100)
 
-    for r in results:
-        print(f"{r['epsilon']:<10.1f} {r['time']:<10.3f} {r['parans_found']:<10} {r['total_points']:<10} {r['calculations']:<12,} {r['points_removed']:<10,}")
+    if verify_accuracy:
+        print(
+            f"{'Epsilon':<10} {'Time':<10} {'Parans':<10} {'Points':<10} {'Calcs':<12} {'Accuracy':<15} {'Avg Err':<10} {'Max Err':<10}"
+        )
+        print("-" * 100)
+        for r in results:
+            if r["accuracy"]:
+                acc_pct = 100 * r["accuracy"]["passed"] / r["accuracy"]["total_checks"]
+                max_err = r["accuracy"]["max_error"]
+                print(
+                    f"{r['epsilon']:<10.4f} {r['time']:<10.3f} {r['parans_found']:<10} {r['total_points']:<10} {r['calculations']:<12,} {acc_pct:>6.1f}% ({r['accuracy']['passed']}/{r['accuracy']['total_checks']})   {r['accuracy']['avg_error']:<10.4f} {max_err:<10.4f}"
+                )
+            else:
+                print(
+                    f"{r['epsilon']:<10.1f} {r['time']:<10.3f} {r['parans_found']:<10} {r['total_points']:<10} {r['calculations']:<12,}"
+                )
+    else:
+        print(f"{'Epsilon':<10} {'Time':<10} {'Parans':<10} {'Points':<10} {'Calcs':<12} {'Removed':<10}")
+        print("-" * 70)
+        for r in results:
+            print(
+                f"{r['epsilon']:<10.1f} {r['time']:<10.3f} {r['parans_found']:<10} {r['total_points']:<10} {r['calculations']:<12,} {r['points_removed']:<10,}"
+            )
 
     # Find fastest with same results as most precise
     baseline = results[0]  # epsilon=0.1 as baseline
 
     print("\n📈 RECOMMENDATIONS:")
     for r in results:
-        speedup = baseline['time'] / r['time']
-        if r['parans_found'] == baseline['parans_found'] and r['total_points'] == baseline['total_points']:
+        speedup = baseline["time"] / r["time"]
+        if r["parans_found"] == baseline["parans_found"] and r["total_points"] == baseline["total_points"]:
             if speedup > 1.1:  # At least 10% faster
                 print(f"  ✅ Epsilon {r['epsilon']}° gives {speedup:.2f}x speedup with identical results")
-        elif r['parans_found'] != baseline['parans_found']:
-            print(f"  ⚠️  Epsilon {r['epsilon']}° finds different parans ({r['parans_found']} vs {baseline['parans_found']}) - too imprecise")
+        elif r["parans_found"] != baseline["parans_found"]:
+            print(
+                f"  ⚠️  Epsilon {r['epsilon']}° finds different parans ({r['parans_found']} vs {baseline['parans_found']}) - too imprecise"
+            )
 
     return results
 
 
 def main():
     print("\n=== Paran Line Calculation & Visualization Test ===\n")
+    bechmark_dp_only = True
 
     # Birth data
     birth_datetime = "1984-01-03 18:36:00"
@@ -347,16 +545,18 @@ def main():
 
     # Run Douglas-Peucker precision comparison first
     orb_tolerance = 7.0
-    dp_results = benchmark_douglas_peucker_precision(birth_datetime, jd, orb_tolerance)
+    dp_results = benchmark_douglas_peucker_precision(birth_datetime, jd, orb_tolerance, verify_accuracy=True)
 
     # Use optimal epsilon from benchmark (or default)
     optimal_epsilon = 1.0  # Default, will be updated based on benchmark
     for r in dp_results:
         baseline = dp_results[0]
-        if (r['parans_found'] == baseline['parans_found'] and
-            r['total_points'] == baseline['total_points'] and
-            r['time'] < baseline['time'] * 0.8):  # At least 20% faster
-            optimal_epsilon = r['epsilon']
+        if (
+            r["parans_found"] == baseline["parans_found"]
+            and r["total_points"] == baseline["total_points"]
+            and r["time"] < baseline["time"] * 0.8
+        ):  # At least 20% faster
+            optimal_epsilon = r["epsilon"]
             break
 
     print(f"\n🎯 Using optimal epsilon: {optimal_epsilon}°")
@@ -366,16 +566,16 @@ def main():
     pr.enable()
     start_time = time.time()
 
-    calculator = AstrocartographyCalculator(
-        julian_date=jd,
-        sampling_resolution=2.0
-    )
+    calculator = AstrocartographyCalculator(julian_date=jd, sampling_resolution=2.0)
 
     # Apply optimal epsilon
     original_create = calculator._create_planetary_line
 
     def create_with_optimal_epsilon(planet_id, line_type, coordinates, simplify_tolerance=optimal_epsilon):
         return original_create(planet_id, line_type, coordinates, simplify_tolerance)
+
+    if bechmark_dp_only:
+        return
 
     calculator._create_planetary_line = create_with_optimal_epsilon
 
