@@ -1099,12 +1099,199 @@ def export_to_json(astro_chart, filename="astrocartography_chart.json"):
     return filename
 
 
+def plot_parans_map(birth_datetime, birth_location, projection="PlateCarree", save_as=None):
+    """
+    Plot astrocartography map with paran intersection points.
+
+    Parans are locations where two planetary lines intersect, creating
+    combined planetary influences.
+
+    Args:
+        birth_datetime: Birth datetime string "YYYY-MM-DD HH:MM:SS"
+        birth_location: Tuple of (latitude, longitude)
+        projection: Cartopy projection name
+        save_as: Filename to save plot
+    """
+    from immanuel.tools.astrocartography import AstrocartographyCalculator
+
+    print("=== Creating Paran Map ===\n")
+
+    # Convert to Julian date
+    dt = datetime.strptime(birth_datetime, "%Y-%m-%d %H:%M:%S")
+    # Convert Berlin time to UTC (adjust timezone as needed)
+    dt_utc = datetime(dt.year, dt.month, dt.day, dt.hour - 1, dt.minute, dt.second)
+    jd = swe.julday(dt_utc.year, dt_utc.month, dt_utc.day, dt_utc.hour + dt_utc.minute / 60.0 + dt_utc.second / 3600.0)
+
+    # Create calculator
+    calculator = AstrocartographyCalculator(julian_date=jd, sampling_resolution=2.0)
+
+    # Generate all planetary lines
+    print("Generating planetary lines...")
+    planetary_lines = calculator.generate_all_planetary_lines(latitude_range=(-60, 60))
+
+    # Calculate parans
+    print("Calculating paran intersections...")
+    all_paran_data = calculator.calculate_all_parans_from_lines(
+        planetary_lines=planetary_lines,
+        exclude_node_pairs=True
+    )
+
+    # Create figure
+    if projection == "PlateCarree":
+        proj = ccrs.PlateCarree()
+    elif projection == "Robinson":
+        proj = ccrs.Robinson()
+    else:
+        proj = ccrs.PlateCarree()
+
+    fig = plt.figure(figsize=(24, 14))
+    ax = plt.axes(projection=proj)
+
+    # Add geographic features
+    ax.add_feature(cfeature.LAND, color="lightgray", alpha=0.8)
+    ax.add_feature(cfeature.OCEAN, color="lightblue", alpha=0.6)
+    ax.add_feature(cfeature.COASTLINE, linewidth=0.8, color="black")
+    ax.add_feature(cfeature.BORDERS, linewidth=0.5, color="gray", alpha=0.7)
+
+    # Add gridlines
+    gl = ax.gridlines(draw_labels=True, linewidth=0.5, alpha=0.5, color="gray")
+    gl.top_labels = False
+    gl.right_labels = False
+    ax.set_global()
+
+    # Planet colors and names
+    planet_colors = {
+        chart.SUN: "#FFD700",
+        chart.MOON: "#C0C0C0",
+        chart.MERCURY: "#FFA500",
+        chart.VENUS: "#FF69B4",
+        chart.MARS: "#FF4500",
+        chart.JUPITER: "#4169E1",
+        chart.SATURN: "#8B4513",
+        chart.URANUS: "#00CED1",
+        chart.NEPTUNE: "#0000FF",
+        chart.PLUTO: "#800080",
+    }
+
+    planet_names = {
+        chart.SUN: "Sun",
+        chart.MOON: "Moon",
+        chart.MERCURY: "Mercury",
+        chart.VENUS: "Venus",
+        chart.MARS: "Mars",
+        chart.JUPITER: "Jupiter",
+        chart.SATURN: "Saturn",
+        chart.URANUS: "Uranus",
+        chart.NEPTUNE: "Neptune",
+        chart.PLUTO: "Pluto",
+    }
+
+    # Plot all planetary lines
+    print("Plotting planetary lines...")
+    for (planet_id, line_type), line in planetary_lines.items():
+        if planet_id not in planet_colors:
+            continue
+
+        color = planet_colors[planet_id]
+        coords = line.coordinates
+
+        if coords:
+            lons = [coord[0] for coord in coords]
+            lats = [coord[1] for coord in coords]
+
+            # Different styles for different angles
+            if line_type in ["MC", "IC"]:
+                linestyle = "-"
+                linewidth = 2.0
+            else:  # ASC/DESC
+                linestyle = ":"
+                linewidth = 1.5
+
+            ax.plot(lons, lats, color=color, linewidth=linewidth, linestyle=linestyle,
+                   alpha=0.5, transform=ccrs.PlateCarree())
+
+    # Collect and plot paran points
+    print("Plotting paran intersections...")
+    all_paran_points = []
+    paran_info = []
+
+    for planet1_id, angle1, planet2_id, angle2, paran_coords in all_paran_data:
+        if not paran_coords:
+            continue
+
+        planet1_name = planet_names.get(planet1_id, f"P{planet1_id}")
+        planet2_name = planet_names.get(planet2_id, f"P{planet2_id}")
+
+        for lon, lat in paran_coords:
+            all_paran_points.append((lon, lat))
+            paran_info.append(f"{planet1_name} {angle1} × {planet2_name} {angle2}")
+
+    if all_paran_points:
+        paran_lons = [p[0] for p in all_paran_points]
+        paran_lats = [p[1] for p in all_paran_points]
+
+        # Plot paran points
+        ax.plot(paran_lons, paran_lats, marker="*", markersize=15, color="gold",
+               linestyle="", markeredgecolor="black", markeredgewidth=2,
+               label=f"Paran Points ({len(all_paran_points)})",
+               transform=ccrs.PlateCarree(), zorder=10)
+
+        # Draw latitudinal lines through parans
+        unique_lats = sorted(set(lat for lon, lat in all_paran_points))
+        for lat in unique_lats:
+            paran_line_lons = list(range(-180, 181, 5))
+            paran_line_lats = [lat] * len(paran_line_lons)
+            ax.plot(paran_line_lons, paran_line_lats, color="gold", linewidth=2.0,
+                   linestyle="--", alpha=0.6, transform=ccrs.PlateCarree(), zorder=5)
+
+    # Add birth location
+    ax.plot(birth_location[1], birth_location[0], marker="*", markersize=20,
+           color="red", markeredgecolor="black", markeredgewidth=2,
+           label="Birth Location", transform=ccrs.PlateCarree(), zorder=15)
+
+    # Title and legend
+    plt.title(f"Astrocartography Parans - {birth_datetime}", fontsize=18, weight="bold", pad=20)
+    ax.legend(loc="upper left", bbox_to_anchor=(0.01, 0.99), fontsize=10)
+
+    # Info text
+    parans_found = len([p for p in all_paran_data if p[4]])
+    info_text = f"""
+Birth: {birth_datetime}
+Location: {birth_location[0]:.3f}°, {birth_location[1]:.3f}°
+
+Parans Found: {parans_found}
+Total Paran Points: {len(all_paran_points)}
+
+⭐ Gold stars = Paran intersection points
+━━ Gold dashed lines = Paran latitudes
+    """
+
+    plt.figtext(0.01, 0.30, info_text, fontsize=9, verticalalignment="top",
+               bbox=dict(boxstyle="round", facecolor="white", alpha=0.95))
+
+    plt.tight_layout()
+
+    if save_as:
+        plt.savefig(save_as, dpi=300, bbox_inches="tight")
+        print(f"\n✓ Paran map saved as: {save_as}")
+
+    plt.show()
+
+    print(f"\n✓ Paran map created!")
+    print(f"  Parans with intersections: {parans_found}")
+    print(f"  Total paran points: {len(all_paran_points)}")
+
+    return fig, ax
+
+
 def main():
     """Demo the  astrocartography world map."""
     import argparse
 
     # Parse command-line arguments
     parser = argparse.ArgumentParser(description='Generate astrocartography world maps')
+    parser.add_argument('--parans', action='store_true',
+                       help='Generate paran intersection map')
     parser.add_argument('--geojson', action='store_true',
                        help='Export astrocartography lines to GeoJSON format')
     parser.add_argument('--json', action='store_true',
