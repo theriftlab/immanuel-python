@@ -18,7 +18,7 @@ from immanuel.const import chart
 from immanuel.tools.astrocartography import AstrocartographyCalculator
 
 
-def plot_all_parans_map(calculator, paran_data, planet_names, planet_colors, birth_datetime, orb_tolerance):
+def plot_all_parans_map(calculator, paran_data, planet_names, planet_colors, birth_datetime):
     """
     Plot a comprehensive world map showing all planetary lines and paran intersection points.
 
@@ -28,7 +28,6 @@ def plot_all_parans_map(calculator, paran_data, planet_names, planet_colors, bir
         planet_names: Dict mapping planet IDs to names
         planet_colors: Dict mapping planet IDs to colors
         birth_datetime: Birth datetime string
-        orb_tolerance: Orb tolerance used for calculation
     """
     # Create figure with cartopy projection
     fig = plt.figure(figsize=(24, 14))
@@ -199,7 +198,6 @@ def plot_all_parans_map(calculator, paran_data, planet_names, planet_colors, bir
 
     info_text = f"""
 Birth: {birth_datetime}
-Orb Tolerance: {orb_tolerance}°
 Latitude Range: ±60°
 
 Paran Combinations Found: {total_parans}
@@ -387,14 +385,13 @@ def check_planet_at_angle(planet_obj, angle, natal_chart):
     return diff
 
 
-def benchmark_douglas_peucker_precision(birth_datetime, jd, orb_tolerance=7.0, verify_accuracy=False):
+def benchmark_douglas_peucker_precision(birth_datetime, jd, verify_accuracy=False):
     """
     Benchmark different Douglas-Peucker epsilon values to find optimal precision/performance balance.
 
     Args:
         birth_datetime: Birth datetime string
         jd: Julian date
-        orb_tolerance: Orb tolerance for parans
         verify_accuracy: Whether to verify chart accuracy (slower)
     """
     print("\n" + "=" * 70)
@@ -442,7 +439,7 @@ def benchmark_douglas_peucker_precision(birth_datetime, jd, orb_tolerance=7.0, v
 
         # Calculate parans
         all_paran_data = calculator.calculate_all_parans_from_lines(
-            planetary_lines=planetary_lines, orb_tolerance=orb_tolerance, exclude_node_pairs=True
+            planetary_lines=planetary_lines, exclude_node_pairs=True
         )
 
         elapsed = time.time() - start
@@ -532,7 +529,6 @@ def benchmark_douglas_peucker_precision(birth_datetime, jd, orb_tolerance=7.0, v
 
 def main():
     print("\n=== Paran Line Calculation & Visualization Test ===\n")
-    bechmark_dp_only = True
 
     # Birth data
     birth_datetime = "1984-01-03 18:36:00"
@@ -543,9 +539,10 @@ def main():
     dt_utc = datetime(dt.year, dt.month, dt.day, dt.hour - 1, dt.minute, dt.second)
     jd = swe.julday(dt_utc.year, dt_utc.month, dt_utc.day, dt_utc.hour + dt_utc.minute / 60.0 + dt_utc.second / 3600.0)
 
-    # Run Douglas-Peucker precision comparison first
-    orb_tolerance = 7.0
-    dp_results = benchmark_douglas_peucker_precision(birth_datetime, jd, orb_tolerance, verify_accuracy=True)
+    # Run Douglas-Peucker precision comparison
+    dp_results = benchmark_douglas_peucker_precision(birth_datetime, jd, verify_accuracy=True)
+
+    return
 
     # Use optimal epsilon from benchmark (or default)
     optimal_epsilon = 1.0  # Default, will be updated based on benchmark
@@ -574,21 +571,14 @@ def main():
     def create_with_optimal_epsilon(planet_id, line_type, coordinates, simplify_tolerance=optimal_epsilon):
         return original_create(planet_id, line_type, coordinates, simplify_tolerance)
 
-    if bechmark_dp_only:
-        return
-
     calculator._create_planetary_line = create_with_optimal_epsilon
-
-    # Orb tolerance: Traditional astrology uses ~1° for exact parans,
-    # but 3-7° is common for practical applications.
-    orb_tolerance = 7.0  # Use 7° orb for demonstration
 
     # PHASE 1: Generate all planetary lines once (improved architecture)
     planetary_lines = calculator.generate_all_planetary_lines(latitude_range=(-60, 60))
 
     # PHASE 2: Calculate all parans from cached lines
     all_paran_data = calculator.calculate_all_parans_from_lines(
-        planetary_lines=planetary_lines, orb_tolerance=orb_tolerance, exclude_node_pairs=True
+        planetary_lines=planetary_lines, exclude_node_pairs=True
     )
 
     planet_names = {
@@ -623,8 +613,6 @@ def main():
         chart.CHIRON: "#CD853F",  # Peru
     }
 
-    print(f"Using orb tolerance: {orb_tolerance}°")
-    print("(Traditional: ~1°, Practical: 3-7°, Demonstration: 7-10°)\n")
     print("=" * 70)
 
     # Process results and display
@@ -658,7 +646,6 @@ def main():
         planet_names=planet_names,
         planet_colors=planet_colors,
         birth_datetime=birth_datetime,
-        orb_tolerance=orb_tolerance,
     )
 
     print("\n" + "=" * 70)

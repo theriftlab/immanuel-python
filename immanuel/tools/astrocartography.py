@@ -350,60 +350,61 @@ class AstrocartographyCalculator:
         return planetary_lines
 
     def calculate_all_parans_from_lines(
-        self, 
+        self,
         planetary_lines: Dict[Tuple[int, str], PlanetaryLine],
-        orb_tolerance: float = 7.0,
         exclude_node_pairs: bool = True
     ) -> List[Tuple[int, str, int, str, List[Tuple[float, float]]]]:
         """
         Calculate all paran intersections from pre-generated planetary lines.
-        
+
+        Parans are found by exact geometric intersection of planetary lines.
+        Accuracy depends on sampling_resolution and line simplification settings.
+
         Args:
             planetary_lines: Dictionary of pre-generated PlanetaryLine objects
-            orb_tolerance: Orb tolerance for paran calculation
             exclude_node_pairs: Whether to exclude North Node × South Node combinations
-            
+
         Returns:
             List of (planet1_id, angle1, planet2_id, angle2, paran_coordinates) tuples
         """
         print("🔄 Calculating parans from cached lines...")
-        
+
         # Generate all unique combinations
         line_keys = list(planetary_lines.keys())
         paran_results = []
         processed_pairs = set()
-        
+
         for i, (planet1_id, angle1) in enumerate(line_keys):
             for j, (planet2_id, angle2) in enumerate(line_keys):
                 # Skip same planet combinations
                 if planet1_id == planet2_id:
                     continue
-                    
+
                 # Skip Node × Node combinations if requested
                 if exclude_node_pairs:
                     nodes = [chart.NORTH_NODE, chart.SOUTH_NODE]
                     if planet1_id in nodes and planet2_id in nodes:
                         continue
-                
+
                 # Create canonical pair to avoid duplicates
                 if i < j:
                     pair_key = (planet1_id, angle1, planet2_id, angle2)
                 else:
                     pair_key = (planet2_id, angle2, planet1_id, angle1)
-                
+
                 if pair_key not in processed_pairs:
                     processed_pairs.add(pair_key)
-                    
+
                     # Get the lines
                     line1 = planetary_lines[(pair_key[0], pair_key[1])]
                     line2 = planetary_lines[(pair_key[2], pair_key[3])]
-                    
+
                     # Calculate intersections
-                    intersections = self._find_line_intersections_optimized(line1, line2, orb_tolerance)
-                    
+                    intersections = self._find_line_intersections_optimized(line1, line2)
+
                     # Store result
                     paran_results.append((pair_key[0], pair_key[1], pair_key[2], pair_key[3], intersections))
-        
+
         print(f"✅ Calculated {len(paran_results)} paran combinations")
         return paran_results
 
@@ -411,15 +412,16 @@ class AstrocartographyCalculator:
         self,
         line1: PlanetaryLine,
         line2: PlanetaryLine,
-        orb_tolerance: float,
     ) -> List[Tuple[float, float]]:
         """
-        Find intersection points between two PlanetaryLine objects using optimized bounds checking.
+        Find exact geometric intersection points between two PlanetaryLine objects.
+
+        Uses optimized bounds checking to skip non-overlapping line pairs.
+        Finds exact intersections using parametric line segment intersection.
 
         Args:
             line1: First PlanetaryLine object
             line2: Second PlanetaryLine object
-            orb_tolerance: Maximum distance in degrees to consider as intersection
 
         Returns:
             List of (longitude, latitude) intersection points
@@ -588,21 +590,20 @@ class AstrocartographyCalculator:
         secondary_planet_id: int,
         primary_angle: str,
         secondary_angle: str,
-        orb_tolerance: float = 1.0,  # Kept for API compatibility but not used in calculation
         latitude_range: Tuple[float, float] = (-70.0, 70.0),
     ) -> List[Tuple[float, float]]:
         """
         Calculate paran line where two planets are simultaneously angular.
 
-        Uses exact geometric line intersection - no orb tolerance applied.
-        Parans are precise mathematical intersections between planetary lines.
+        Uses exact geometric line intersection. Parans are precise mathematical
+        intersections between planetary lines. Accuracy depends on sampling_resolution
+        and line simplification settings.
 
         Args:
             primary_planet_id: First planet identifier
             secondary_planet_id: Second planet identifier
             primary_angle: Angular position of first planet ('MC', 'IC', 'ASC', 'DESC')
             secondary_angle: Angular position of second planet
-            orb_tolerance: Kept for API compatibility - not used in calculation
             latitude_range: Latitude range to search (default ±70° to avoid polar clutter)
 
         Returns:
@@ -627,9 +628,6 @@ class AstrocartographyCalculator:
         if secondary_angle not in astrocartography.LINE_TYPES:
             raise ValueError(f"Invalid secondary_angle: {secondary_angle}")
 
-        if orb_tolerance <= 0:
-            raise ValueError(f"Orb tolerance must be positive: {orb_tolerance}")
-
         # Calculate the planetary lines first
         primary_line_coords = self._get_line_coordinates(primary_planet_id, primary_angle, latitude_range)
         secondary_line_coords = self._get_line_coordinates(secondary_planet_id, secondary_angle, latitude_range)
@@ -639,7 +637,7 @@ class AstrocartographyCalculator:
         secondary_line = self._get_planetary_line_object(secondary_planet_id, secondary_angle, latitude_range)
 
         # Find intersections between the two lines using optimized bounds checking
-        paran_coordinates = self._find_line_intersections_optimized(primary_line, secondary_line, orb_tolerance)
+        paran_coordinates = self._find_line_intersections_optimized(primary_line, secondary_line)
 
         return paran_coordinates
 
@@ -1663,104 +1661,6 @@ class AstrocartographyCalculator:
         else:
             raise ValueError(f"Invalid angle_type: {angle_type}")
 
-    def _find_line_intersections(
-        self,
-        line1_coords: List[Tuple[float, float]],
-        line2_coords: List[Tuple[float, float]],
-        line1_type: str,
-        line2_type: str,
-        orb_tolerance: float,
-    ) -> List[Tuple[float, float]]:
-        """
-        Find intersection points between two planetary lines.
-
-        Args:
-            line1_coords: Coordinates of first line
-            line2_coords: Coordinates of second line
-            line1_type: Type of first line ('MC', 'IC', 'ASC', 'DESC')
-            line2_type: Type of second line
-            orb_tolerance: Maximum distance in degrees to consider as intersection
-
-        Returns:
-            List of (longitude, latitude) intersection points
-        """
-        if not line1_coords or not line2_coords:
-            return []
-
-        intersections = []
-
-        # Determine intersection method based on line types
-        is_line1_vertical = line1_type in ["MC", "IC"]
-        is_line2_vertical = line2_type in ["MC", "IC"]
-
-        if is_line1_vertical and is_line2_vertical:
-            # Both vertical lines - they won't intersect (parallel)
-            return []
-
-        elif is_line1_vertical and not is_line2_vertical:
-            # Vertical line intersecting curved line
-            intersections = self._find_vertical_curve_intersection(line1_coords, line2_coords, orb_tolerance)
-
-        elif not is_line1_vertical and is_line2_vertical:
-            # Curved line intersecting vertical line
-            intersections = self._find_vertical_curve_intersection(line2_coords, line1_coords, orb_tolerance)
-
-        else:
-            # Two curved lines intersecting
-            intersections = self._find_curve_curve_intersection(line1_coords, line2_coords, orb_tolerance)
-
-        return intersections
-
-    def _find_vertical_curve_intersection(
-        self, vertical_coords: List[Tuple[float, float]], curve_coords: List[Tuple[float, float]], orb_tolerance: float
-    ) -> List[Tuple[float, float]]:
-        """
-        Find where a vertical line (MC/IC) intersects a curved line (ASC/DESC).
-
-        Uses scan approach to find all crossings of the vertical longitude.
-
-        Args:
-            vertical_coords: Vertical line coordinates (constant longitude)
-            curve_coords: Curved line coordinates
-            orb_tolerance: Ignored - kept for API compatibility
-
-        Returns:
-            List of intersection points
-        """
-        if not vertical_coords or not curve_coords:
-            return []
-
-        # Vertical line has constant longitude
-        vertical_lon = vertical_coords[0][0]
-        intersections = []
-
-        # Scan through consecutive points on the curve to find crossings
-        for i in range(len(curve_coords) - 1):
-            self.profile_stats["segments_checked"] += 1
-            lon1, lat1 = curve_coords[i]
-            lon2, lat2 = curve_coords[i + 1]
-
-            # Skip artificial wrap-around segments (horizontal lines crossing >180° longitude)
-            lon_diff = abs(lon2 - lon1)
-            if lon_diff > 180:  # This is likely a wrap-around artifact
-                self.profile_stats["wraparound_skipped"] += 1
-                continue
-
-            # Quick bounds check: skip if vertical longitude is clearly outside segment bounds
-            min_lon = min(lon1, lon2)
-            max_lon = max(lon1, lon2)
-            if not (min_lon <= vertical_lon <= max_lon):
-                self.profile_stats["bounds_skipped"] += 1
-                continue
-
-            # Check if the vertical line crosses between these two points
-            self.profile_stats["intersection_calculations"] += 1
-            crossing = self._find_longitude_crossing(lon1, lat1, lon2, lat2, vertical_lon)
-            if crossing is not None:
-                self.profile_stats["intersections_found"] += 1
-                intersections.append(crossing)
-
-        return intersections
 
     def _find_longitude_crossing(
         self, lon1: float, lat1: float, lon2: float, lat2: float, target_lon: float
@@ -1817,116 +1717,6 @@ class AstrocartographyCalculator:
 
         return (target_lon, intersection_lat)
 
-    def _interpolate_latitude_at_longitude(
-        self, lon1: float, lat1: float, lon2: float, lat2: float, target_lon: float
-    ) -> Optional[float]:
-        """
-        Interpolate latitude at a specific longitude between two points.
-
-        Args:
-            lon1, lat1: First point coordinates
-            lon2, lat2: Second point coordinates
-            target_lon: Longitude where we want to find the latitude
-
-        Returns:
-            Interpolated latitude, or None if interpolation not possible
-        """
-        # Handle longitude wraparound
-        if abs(lon2 - lon1) > 180:
-            # Adjust for wraparound
-            if lon1 > lon2:
-                lon2 += 360
-            else:
-                lon1 += 360
-
-        # Check if target longitude is within range (with wraparound handling)
-        min_lon = min(lon1, lon2)
-        max_lon = max(lon1, lon2)
-
-        # Adjust target longitude for wraparound if needed
-        adjusted_target = target_lon
-        if target_lon < min_lon - 180:
-            adjusted_target += 360
-        elif target_lon > max_lon + 180:
-            adjusted_target -= 360
-
-        # Linear interpolation
-        if lon1 == lon2:  # Vertical line segment
-            return (lat1 + lat2) / 2.0
-
-        # Calculate interpolation factor
-        t = (adjusted_target - lon1) / (lon2 - lon1)
-
-        # Exact intersection - must be within the line segment
-        if t < 0 or t > 1:
-            return None
-
-        # Interpolate latitude
-        interpolated_lat = lat1 + t * (lat2 - lat1)
-
-        return interpolated_lat
-
-    def _find_curve_curve_intersection(
-        self,
-        curve1_coords: List[Tuple[float, float]],
-        curve2_coords: List[Tuple[float, float]],
-        orb_tolerance: float,  # Keep parameter for compatibility but ignore it
-    ) -> List[Tuple[float, float]]:
-        """
-        Find where two curved lines (ASC/DESC) intersect using exact geometric intersection.
-
-        Args:
-            curve1_coords: First curve coordinates
-            curve2_coords: Second curve coordinates
-            orb_tolerance: Ignored - kept for API compatibility
-
-        Returns:
-            List of intersection points
-        """
-        intersections = []
-
-        # For each line segment in curve1, check intersection with each segment in curve2
-        for i in range(len(curve1_coords) - 1):
-            lon1a, lat1a = curve1_coords[i]
-            lon1b, lat1b = curve1_coords[i + 1]
-
-            # Skip wrap-around segments in curve1
-            if abs(lon1b - lon1a) > 180:
-                self.profile_stats["wraparound_skipped"] += 1
-                continue
-
-            # Calculate bounds for curve1 segment
-            min_lon1, max_lon1 = min(lon1a, lon1b), max(lon1a, lon1b)
-            min_lat1, max_lat1 = min(lat1a, lat1b), max(lat1a, lat1b)
-
-            for j in range(len(curve2_coords) - 1):
-                self.profile_stats["segments_checked"] += 1
-                lon2a, lat2a = curve2_coords[j]
-                lon2b, lat2b = curve2_coords[j + 1]
-
-                # Skip wrap-around segments in curve2
-                if abs(lon2b - lon2a) > 180:
-                    self.profile_stats["wraparound_skipped"] += 1
-                    continue
-
-                # Calculate bounds for curve2 segment
-                min_lon2, max_lon2 = min(lon2a, lon2b), max(lon2a, lon2b)
-                min_lat2, max_lat2 = min(lat2a, lat2b), max(lat2a, lat2b)
-
-                # Quick bounds check: skip if bounding boxes don't overlap
-                if max_lon1 < min_lon2 or min_lon1 > max_lon2 or max_lat1 < min_lat2 or min_lat1 > max_lat2:
-                    self.profile_stats["bounds_skipped"] += 1
-                    continue
-
-                # Find intersection between two line segments
-                self.profile_stats["intersection_calculations"] += 1
-                intersection = self._line_segment_intersection(lon1a, lat1a, lon1b, lat1b, lon2a, lat2a, lon2b, lat2b)
-
-                if intersection is not None:
-                    self.profile_stats["intersections_found"] += 1
-                    intersections.append(intersection)
-
-        return intersections
 
     def _line_segment_intersection(
         self, x1: float, y1: float, x2: float, y2: float, x3: float, y3: float, x4: float, y4: float
