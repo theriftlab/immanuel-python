@@ -238,6 +238,101 @@ Paran Details:
     plt.close()
 
 
+def benchmark_douglas_peucker_precision(birth_datetime, jd, orb_tolerance=7.0):
+    """
+    Benchmark different Douglas-Peucker epsilon values to find optimal precision/performance balance.
+    """
+    print("\n" + "=" * 70)
+    print("🔬 DOUGLAS-PEUCKER PRECISION COMPARISON")
+    print("=" * 70)
+
+    # Test different epsilon values (in degrees)
+    epsilon_values = [0.1, 0.5, 1.0, 2.0, 5.0, 10.0]
+    results = []
+
+    for epsilon in epsilon_values:
+        print(f"\nTesting epsilon = {epsilon}°...")
+
+        # Create calculator
+        calculator = AstrocartographyCalculator(
+            julian_date=jd,
+            sampling_resolution=2.0
+        )
+
+        # Set the Douglas-Peucker epsilon by monkey-patching the method
+        original_create = calculator._create_planetary_line
+
+        def create_with_epsilon(planet_id, line_type, coordinates, simplify_tolerance=epsilon):
+            return original_create(planet_id, line_type, coordinates, simplify_tolerance)
+
+        calculator._create_planetary_line = create_with_epsilon
+
+        start = time.time()
+
+        # Generate lines with this epsilon
+        planetary_lines = calculator.generate_all_planetary_lines(latitude_range=(-60, 60))
+
+        # Calculate parans
+        all_paran_data = calculator.calculate_all_parans_from_lines(
+            planetary_lines=planetary_lines,
+            orb_tolerance=orb_tolerance,
+            exclude_node_pairs=True
+        )
+
+        elapsed = time.time() - start
+
+        # Collect stats
+        stats = calculator.profile_stats
+        simp_stats = calculator.simplification_stats if hasattr(calculator, 'simplification_stats') else {}
+
+        parans_found = len([p for p in all_paran_data if p[4]])
+        total_points = sum(len(p[4]) for p in all_paran_data if p[4])
+
+        result = {
+            'epsilon': epsilon,
+            'time': elapsed,
+            'parans_found': parans_found,
+            'total_points': total_points,
+            'intersections': stats.get('intersections_found', 0),
+            'calculations': stats.get('intersection_calculations', 0),
+            'points_removed': simp_stats.get('points_removed', 0),
+            'lines_simplified': simp_stats.get('lines_simplified', 0),
+        }
+        results.append(result)
+
+        print(f"  Time: {elapsed:.3f}s")
+        print(f"  Parans found: {parans_found}")
+        print(f"  Total paran points: {total_points}")
+        print(f"  Calculations: {stats.get('intersection_calculations', 0):,}")
+        if simp_stats.get('lines_simplified', 0) > 0:
+            avg_removed = simp_stats['points_removed'] / simp_stats['lines_simplified']
+            print(f"  Points removed: {simp_stats['points_removed']:,} (avg {avg_removed:.1f} per line)")
+
+    # Find optimal epsilon
+    print("\n" + "-" * 70)
+    print("📊 COMPARISON SUMMARY:")
+    print("-" * 70)
+    print(f"{'Epsilon':<10} {'Time':<10} {'Parans':<10} {'Points':<10} {'Calcs':<12} {'Removed':<10}")
+    print("-" * 70)
+
+    for r in results:
+        print(f"{r['epsilon']:<10.1f} {r['time']:<10.3f} {r['parans_found']:<10} {r['total_points']:<10} {r['calculations']:<12,} {r['points_removed']:<10,}")
+
+    # Find fastest with same results as most precise
+    baseline = results[0]  # epsilon=0.1 as baseline
+
+    print("\n📈 RECOMMENDATIONS:")
+    for r in results:
+        speedup = baseline['time'] / r['time']
+        if r['parans_found'] == baseline['parans_found'] and r['total_points'] == baseline['total_points']:
+            if speedup > 1.1:  # At least 10% faster
+                print(f"  ✅ Epsilon {r['epsilon']}° gives {speedup:.2f}x speedup with identical results")
+        elif r['parans_found'] != baseline['parans_found']:
+            print(f"  ⚠️  Epsilon {r['epsilon']}° finds different parans ({r['parans_found']} vs {baseline['parans_found']}) - too imprecise")
+
+    return results
+
+
 def main():
     print("\n=== Paran Line Calculation & Visualization Test ===\n")
 
@@ -245,17 +340,44 @@ def main():
     birth_datetime = "1984-01-03 18:36:00"
     print(f"Birth: {birth_datetime}\n")
 
-    # Start profiling
-    pr = cProfile.Profile()
-    pr.enable()
-    start_time = time.time()
-
     # Create calculator
     dt = datetime.strptime(birth_datetime, "%Y-%m-%d %H:%M:%S")
     dt_utc = datetime(dt.year, dt.month, dt.day, dt.hour - 1, dt.minute, dt.second)
     jd = swe.julday(dt_utc.year, dt_utc.month, dt_utc.day, dt_utc.hour + dt_utc.minute / 60.0 + dt_utc.second / 3600.0)
 
-    calculator = AstrocartographyCalculator(julian_date=jd, sampling_resolution=2.0)
+    # Run Douglas-Peucker precision comparison first
+    orb_tolerance = 7.0
+    dp_results = benchmark_douglas_peucker_precision(birth_datetime, jd, orb_tolerance)
+
+    # Use optimal epsilon from benchmark (or default)
+    optimal_epsilon = 1.0  # Default, will be updated based on benchmark
+    for r in dp_results:
+        baseline = dp_results[0]
+        if (r['parans_found'] == baseline['parans_found'] and
+            r['total_points'] == baseline['total_points'] and
+            r['time'] < baseline['time'] * 0.8):  # At least 20% faster
+            optimal_epsilon = r['epsilon']
+            break
+
+    print(f"\n🎯 Using optimal epsilon: {optimal_epsilon}°")
+
+    # Start profiling for main run
+    pr = cProfile.Profile()
+    pr.enable()
+    start_time = time.time()
+
+    calculator = AstrocartographyCalculator(
+        julian_date=jd,
+        sampling_resolution=2.0
+    )
+
+    # Apply optimal epsilon
+    original_create = calculator._create_planetary_line
+
+    def create_with_optimal_epsilon(planet_id, line_type, coordinates, simplify_tolerance=optimal_epsilon):
+        return original_create(planet_id, line_type, coordinates, simplify_tolerance)
+
+    calculator._create_planetary_line = create_with_optimal_epsilon
 
     # Orb tolerance: Traditional astrology uses ~1° for exact parans,
     # but 3-7° is common for practical applications.
