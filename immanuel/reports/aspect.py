@@ -14,11 +14,13 @@
 import swisseph as swe
 
 from immanuel.const import calc
-from immanuel.setup import settings
+from immanuel.setup import ImmanuelSettings, settings as default_settings
 from immanuel.tools import position
 
 
-def between(object1: dict, object2: dict) -> dict:
+def between(
+    object1: dict, object2: dict, settings: ImmanuelSettings = default_settings
+) -> dict:
     """Returns any aspect between the two passed objects."""
     active, passive = (
         (object1, object2)
@@ -100,7 +102,12 @@ def between(object1: dict, object2: dict) -> dict:
     return None
 
 
-def for_object(object: dict, objects: dict, exclude_same: bool = True) -> dict:
+def for_object(
+    object: dict,
+    objects: dict,
+    exclude_same: bool = True,
+    settings: ImmanuelSettings = default_settings,
+) -> dict:
     """Returns all chart objects aspecting the passed chart object. If two
     separate sets of objects are being compared (eg. synastry) then
     exclude_self can be set to False to find aspects between the same
@@ -111,7 +118,7 @@ def for_object(object: dict, objects: dict, exclude_same: bool = True) -> dict:
         if exclude_same and index == object["index"]:
             continue
 
-        aspect = between(object, check_object)
+        aspect = between(object, check_object, settings)
 
         if aspect is not None:
             aspects[check_object["index"]] = aspect
@@ -119,12 +126,16 @@ def for_object(object: dict, objects: dict, exclude_same: bool = True) -> dict:
     return aspects
 
 
-def all(objects: dict, exclude_same: bool = True) -> dict:
+def all(
+    objects: dict,
+    exclude_same: bool = True,
+    settings: ImmanuelSettings = default_settings,
+) -> dict:
     """Returns all aspects between the passed chart objects."""
     aspects = {}
 
     for index, object in objects.items():
-        object_aspects = for_object(object, objects, exclude_same)
+        object_aspects = for_object(object, objects, exclude_same, settings)
 
         if object_aspects:
             aspects[index] = object_aspects
@@ -132,13 +143,17 @@ def all(objects: dict, exclude_same: bool = True) -> dict:
     return aspects
 
 
-def by_type(objects: dict, exclude_same: bool = True) -> dict:
+def by_type(
+    objects: dict,
+    exclude_same: bool = True,
+    settings: ImmanuelSettings = default_settings,
+) -> dict:
     """Returns all aspects between the passed chart objects keyed by
     aspect type."""
     aspects = {}
 
     for object in objects.values():
-        object_aspects = for_object(object, objects, exclude_same)
+        object_aspects = for_object(object, objects, exclude_same, settings)
 
         if object_aspects:
             for object_aspect in object_aspects.values():
@@ -151,12 +166,17 @@ def by_type(objects: dict, exclude_same: bool = True) -> dict:
     return aspects
 
 
-def synastry(objects1: dict, objects2: dict, exclude_same: bool = False) -> dict:
+def synastry(
+    objects1: dict,
+    objects2: dict,
+    exclude_same: bool = False,
+    settings: ImmanuelSettings = default_settings,
+) -> dict:
     """Returns all aspects between the two sets of passed chart objects."""
     aspects = {}
 
     for index, object in objects1.items():
-        object_aspects = for_object(object, objects2, exclude_same)
+        object_aspects = for_object(object, objects2, exclude_same, settings)
 
         if object_aspects:
             aspects[index] = object_aspects

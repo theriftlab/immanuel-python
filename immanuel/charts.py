@@ -27,7 +27,7 @@ from immanuel.classes.localize import localize as _
 from immanuel.classes.serialize import ToJSON
 from immanuel.const import calc, chart, names
 from immanuel.reports import aspect, dignity, pattern, weighting
-from immanuel.setup import settings
+from immanuel.setup import ImmanuelSettings, settings as default_settings
 from immanuel.tools import (
     convert,
     date,
@@ -76,10 +76,16 @@ class Chart:
     """Base chart class. This acts as an abstract class for the actual chart
     classes to inherit from."""
 
-    def __init__(self, type: int, aspects_to: ChartType | None = None) -> None:
+    def __init__(
+        self,
+        type: int,
+        aspects_to: ChartType | None = None,
+        settings: ImmanuelSettings = default_settings,
+    ) -> None:
         self.type = _(names.CHART_TYPES[type])
         self._type = type
         self._aspects_to = aspects_to
+        self._settings = settings
 
         self._native: Subject
         self._obliquity: float
@@ -110,20 +116,24 @@ class Chart:
     def wrap(self) -> None:
         """Loop through the required data and wrap each one with a custom
         function."""
-        for index in settings.chart_data[self._type]:
+        for index in self._settings.chart_data[self._type]:
             method = f"set_wrapped_{index}"
             if hasattr(self, method):
                 getattr(self, method)()
 
     # Base class provides wrappers for properties common to all classes.
     def set_wrapped_native(self) -> None:
-        self.native = wrap.Subject(self._native)
+        self.native = wrap.Subject(self._native, settings=self._settings)
 
     def set_wrapped_house_system(self) -> None:
-        self.house_system = _(names.HOUSE_SYSTEMS[settings.house_system])
+        self.house_system = _(names.HOUSE_SYSTEMS[self._settings.house_system])
 
     def set_wrapped_shape(self) -> None:
-        self.shape = _(names.CHART_SHAPES[pattern.chart_shape(self._objects)])
+        self.shape = _(
+            names.CHART_SHAPES[
+                pattern.chart_shape(self._objects, settings=self._settings)
+            ]
+        )
 
     def set_wrapped_diurnal(self) -> None:
         self.diurnal = self._diurnal
@@ -166,6 +176,7 @@ class Chart:
                     object=object,
                     objects=self._objects,
                     is_daytime=self._diurnal,
+                    settings=self._settings,
                 )
                 if object["type"] == chart.PLANET
                 and calc.PLANETS.issubset(self._objects)
@@ -190,18 +201,22 @@ class Chart:
                 out_of_bounds=out_of_bounds,
                 in_sect=in_sect,
                 dignity_state=dignity_state,
+                settings=self._settings,
             )
 
     def set_wrapped_houses(self) -> None:
         self.houses = {
-            index: wrap.Object(object=house) for index, house in self._houses.items()
+            index: wrap.Object(object=house, settings=self._settings)
+            for index, house in self._houses.items()
         }
 
     def set_wrapped_aspects(self) -> None:
         aspects = (
-            aspect.all(self._objects)
+            aspect.all(self._objects, settings=self._settings)
             if self._aspects_to is None
-            else aspect.synastry(self._objects, self._aspects_to._objects)
+            else aspect.synastry(
+                self._objects, self._aspects_to._objects, settings=self._settings
+            )
         )
         self.aspects = {
             index: {
@@ -213,6 +228,7 @@ class Chart:
                     passive_name=self._objects[object_aspect["passive"]]["name"]
                     if object_aspect["passive"] in self._objects
                     else self._aspects_to._objects[object_aspect["passive"]]["name"],
+                    settings=self._settings,
                 )
                 for object_index, object_aspect in aspect_list.items()
             }
@@ -234,9 +250,14 @@ class Natal(Chart):
     """Standard natal chart generates data straight from the passed
     native information."""
 
-    def __init__(self, native: Subject, aspects_to: Chart | None = None) -> None:
+    def __init__(
+        self,
+        native: Subject,
+        aspects_to: Chart | None = None,
+        settings: ImmanuelSettings = default_settings,
+    ) -> None:
         self._native = native
-        super().__init__(chart.NATAL, aspects_to)
+        super().__init__(chart.NATAL, aspects_to, settings)
 
     def generate(self) -> None:
         self._obliquity = ephemeris.earth_obliquity(self._native.julian_date)
@@ -252,7 +273,7 @@ class Natal(Chart):
             jd=self._native.julian_date,
             lat=self._native.latitude,
             lon=self._native.longitude,
-            house_system=settings.house_system,
+            house_system=self._settings.house_system,
         )
 
         self._diurnal = ephemeris.is_daytime_from(
@@ -262,18 +283,18 @@ class Natal(Chart):
             self._triad[chart.SUN], self._triad[chart.MOON]
         )
         self._objects = ephemeris.get_objects(
-            object_list=settings.objects,
+            object_list=self._settings.objects,
             jd=self._native.julian_date,
             lat=self._native.latitude,
             lon=self._native.longitude,
-            house_system=settings.house_system,
-            part_formula=settings.part_formula,
+            house_system=self._settings.house_system,
+            part_formula=self._settings.part_formula,
         )
         self._houses = ephemeris.get_houses(
             jd=self._native.julian_date,
             lat=self._native.latitude,
             lon=self._native.longitude,
-            house_system=settings.house_system,
+            house_system=self._settings.house_system,
         )
 
 
@@ -281,11 +302,15 @@ class SolarReturn(Chart):
     """Solar return chart for the given year."""
 
     def __init__(
-        self, native: Subject, year: int, aspects_to: Chart | None = None
+        self,
+        native: Subject,
+        year: int,
+        aspects_to: Chart | None = None,
+        settings: ImmanuelSettings = default_settings,
     ) -> None:
         self._native = native
         self._solar_return_year = year
-        super().__init__(chart.SOLAR_RETURN, aspects_to)
+        super().__init__(chart.SOLAR_RETURN, aspects_to, settings)
 
     def generate(self) -> None:
         self._solar_return_jd = forecast.solar_return(
@@ -297,7 +322,7 @@ class SolarReturn(Chart):
             jd=self._solar_return_jd,
             lat=self._native.latitude,
             lon=self._native.longitude,
-            house_system=settings.house_system,
+            house_system=self._settings.house_system,
         )
 
         self._triad[chart.SUN] = ephemeris.get_planet(chart.SUN, self._solar_return_jd)
@@ -309,7 +334,7 @@ class SolarReturn(Chart):
             jd=self._solar_return_jd,
             lat=self._native.latitude,
             lon=self._native.longitude,
-            house_system=settings.house_system,
+            house_system=self._settings.house_system,
         )
 
         self._diurnal = ephemeris.is_daytime_from(
@@ -319,18 +344,18 @@ class SolarReturn(Chart):
             self._triad[chart.SUN], self._triad[chart.MOON]
         )
         self._objects = ephemeris.get_objects(
-            object_list=settings.objects,
+            object_list=self._settings.objects,
             jd=self._solar_return_jd,
             lat=self._native.latitude,
             lon=self._native.longitude,
-            house_system=settings.house_system,
-            part_formula=settings.part_formula,
+            house_system=self._settings.house_system,
+            part_formula=self._settings.part_formula,
         )
         self._houses = ephemeris.get_houses(
             jd=self._solar_return_jd,
             lat=self._native.latitude,
             lon=self._native.longitude,
-            house_system=settings.house_system,
+            house_system=self._settings.house_system,
         )
 
     def set_wrapped_solar_return_year(self) -> None:
@@ -356,10 +381,11 @@ class Progressed(Chart):
         native: Subject,
         date_time: datetime | str,
         aspects_to: Chart | None = None,
+        settings: ImmanuelSettings = default_settings,
     ) -> None:
         self._native = native
         self._date_time = date_time
-        super().__init__(chart.PROGRESSED, aspects_to)
+        super().__init__(chart.PROGRESSED, aspects_to, settings)
 
     def generate(self) -> None:
         self._progression_date_time = date.to_datetime(
@@ -375,7 +401,7 @@ class Progressed(Chart):
             jd=progression_jd,
             lat=self._native.latitude,
             lon=self._native.longitude,
-            house_system=settings.house_system,
+            house_system=self._settings.house_system,
         )
         self._progression_armc_longitude = progression_armc["lon"]
 
@@ -384,8 +410,8 @@ class Progressed(Chart):
             lat=self._native.latitude,
             lon=self._native.longitude,
             pjd=progression_jd,
-            house_system=settings.house_system,
-            method=settings.mc_progression_method,
+            house_system=self._settings.house_system,
+            method=self._settings.mc_progression_method,
         )
         self._obliquity = ephemeris.earth_obliquity(self._progressed_jd)
 
@@ -396,7 +422,7 @@ class Progressed(Chart):
             armc=self._progressed_armc_longitude,
             lat=self._native.latitude,
             obliquity=self._obliquity,
-            house_system=settings.house_system,
+            house_system=self._settings.house_system,
         )
 
         self._diurnal = ephemeris.is_daytime_from(
@@ -406,20 +432,20 @@ class Progressed(Chart):
             self._triad[chart.SUN], self._triad[chart.MOON]
         )
         self._objects = ephemeris.get_armc_objects(
-            object_list=settings.objects,
+            object_list=self._settings.objects,
             jd=self._progressed_jd,
             armc=self._progressed_armc_longitude,
             lat=self._native.latitude,
             lon=self._native.longitude,
             obliquity=self._obliquity,
-            house_system=settings.house_system,
-            part_formula=settings.part_formula,
+            house_system=self._settings.house_system,
+            part_formula=self._settings.part_formula,
         )
         self._houses = ephemeris.get_armc_houses(
             armc=self._progressed_armc_longitude,
             lat=self._native.latitude,
             obliquity=self._obliquity,
-            house_system=settings.house_system,
+            house_system=self._settings.house_system,
         )
 
     def set_wrapped_progression_date_time(self) -> None:
@@ -440,7 +466,7 @@ class Progressed(Chart):
 
     def set_wrapped_progression_method(self) -> None:
         self.progression_method = _(
-            names.PROGRESSION_METHODS[settings.mc_progression_method]
+            names.PROGRESSION_METHODS[self._settings.mc_progression_method]
         )
 
 
@@ -448,11 +474,15 @@ class Composite(Chart):
     """Generates a midpoint chart based on the two passed sets of data."""
 
     def __init__(
-        self, native: Subject, partner: Subject, aspects_to: Chart | None = None
+        self,
+        native: Subject,
+        partner: Subject,
+        aspects_to: Chart | None = None,
+        settings: ImmanuelSettings = default_settings,
     ) -> None:
         self._native = native
         self._partner = partner
-        super().__init__(chart.COMPOSITE, aspects_to)
+        super().__init__(chart.COMPOSITE, aspects_to, settings)
 
     def generate(self) -> None:
         self._obliquity = midpoint.obliquity(
@@ -460,20 +490,20 @@ class Composite(Chart):
         )
 
         native_objects = ephemeris.get_objects(
-            object_list=settings.objects,
+            object_list=self._settings.objects,
             jd=self._native.julian_date,
             lat=self._native.latitude,
             lon=self._native.longitude,
-            house_system=settings.house_system,
-            part_formula=settings.part_formula,
+            house_system=self._settings.house_system,
+            part_formula=self._settings.part_formula,
         )
         partner_objects = ephemeris.get_objects(
-            object_list=settings.objects,
+            object_list=self._settings.objects,
             jd=self._partner.julian_date,
             lat=self._partner.latitude,
             lon=self._partner.longitude,
-            house_system=settings.house_system,
-            part_formula=settings.part_formula,
+            house_system=self._settings.house_system,
+            part_formula=self._settings.part_formula,
         )
         self._objects = midpoint.all(
             objects1=native_objects,
@@ -481,20 +511,20 @@ class Composite(Chart):
             obliquity=self._obliquity,
         )
 
-        if settings.house_system == chart.WHOLE_SIGN:
+        if self._settings.house_system == chart.WHOLE_SIGN:
             native_armc = ephemeris.get_angle(
                 index=chart.ARMC,
                 jd=self._native.julian_date,
                 lat=self._native.latitude,
                 lon=self._native.longitude,
-                house_system=settings.house_system,
+                house_system=self._settings.house_system,
             )
             partner_armc = ephemeris.get_angle(
                 index=chart.ARMC,
                 jd=self._partner.julian_date,
                 lat=self._partner.latitude,
                 lon=self._partner.longitude,
-                house_system=settings.house_system,
+                house_system=self._settings.house_system,
             )
             armc = midpoint.composite(native_armc, partner_armc, self._obliquity)["lon"]
             latitude = (self._native.latitude + self._partner.latitude) / 2
@@ -503,20 +533,20 @@ class Composite(Chart):
                 armc=armc,
                 lat=latitude,
                 obliquity=self._obliquity,
-                house_system=settings.house_system,
+                house_system=self._settings.house_system,
             )
         else:
             native_houses = ephemeris.get_houses(
                 jd=self._native.julian_date,
                 lat=self._native.latitude,
                 lon=self._native.longitude,
-                house_system=settings.house_system,
+                house_system=self._settings.house_system,
             )
             partner_houses = ephemeris.get_houses(
                 jd=self._partner.julian_date,
                 lat=self._partner.latitude,
                 lon=self._partner.longitude,
-                house_system=settings.house_system,
+                house_system=self._settings.house_system,
             )
             self._houses = midpoint.all(
                 objects1=native_houses,
@@ -532,14 +562,14 @@ class Composite(Chart):
                 jd=self._native.julian_date,
                 lat=self._native.latitude,
                 lon=self._native.longitude,
-                house_system=settings.house_system,
+                house_system=self._settings.house_system,
             )
             partner_asc = ephemeris.get_angle(
                 index=chart.ASC,
                 jd=self._partner.julian_date,
                 lat=self._partner.latitude,
                 lon=self._partner.longitude,
-                house_system=settings.house_system,
+                house_system=self._settings.house_system,
             )
             self._triad[chart.ASC] = midpoint.composite(
                 native_asc, partner_asc, self._obliquity
@@ -571,7 +601,7 @@ class Composite(Chart):
         )
 
     def set_wrapped_partner(self):
-        self.partner = wrap.Subject(self._partner)
+        self.partner = wrap.Subject(self._partner, settings=self._settings)
 
 
 class Transits(Chart):
@@ -580,18 +610,22 @@ class Transits(Chart):
 
     def __init__(
         self,
-        latitude: float | list | tuple | str = settings.default_latitude,
-        longitude: float | list | tuple | str = settings.default_longitude,
+        latitude: float | list | tuple | str | None = None,
+        longitude: float | list | tuple | str | None = None,
         offset: float | None = None,
         timezone: str | None = None,
         aspects_to: Chart | None = None,
         houses_for_aspected: bool = False,
+        settings: ImmanuelSettings = default_settings,
     ) -> None:
+        if latitude is None or longitude is None:
+            latitude = settings.default_latitude
+            longitude = settings.default_longitude
         lat, lon = convert.coordinates(latitude, longitude)
         date_time = date.localize(datetime.now(), lat, lon, offset, timezone)
         self._native = Subject(date_time, lat, lon, offset, timezone)
         self._houses_for_aspected = houses_for_aspected
-        super().__init__(chart.TRANSITS, aspects_to)
+        super().__init__(chart.TRANSITS, aspects_to, settings)
 
     def generate(self) -> None:
         self._obliquity = ephemeris.earth_obliquity(self._native.julian_date)
@@ -607,7 +641,7 @@ class Transits(Chart):
             jd=self._native.julian_date,
             lat=self._native.latitude,
             lon=self._native.longitude,
-            house_system=settings.house_system,
+            house_system=self._settings.house_system,
         )
 
         self._diurnal = ephemeris.is_daytime_from(
@@ -617,19 +651,19 @@ class Transits(Chart):
             self._triad[chart.SUN], self._triad[chart.MOON]
         )
         self._objects = ephemeris.get_objects(
-            object_list=settings.objects,
+            object_list=self._settings.objects,
             jd=self._native.julian_date,
             lat=self._native.latitude,
             lon=self._native.longitude,
-            house_system=settings.house_system,
-            part_formula=settings.part_formula,
+            house_system=self._settings.house_system,
+            part_formula=self._settings.part_formula,
         )
         self._houses = (
             ephemeris.get_houses(
                 jd=self._native.julian_date,
                 lat=self._native.latitude,
                 lon=self._native.longitude,
-                house_system=settings.house_system,
+                house_system=self._settings.house_system,
             )
             if self._aspects_to is None or self._houses_for_aspected is False
             else self._aspects_to._houses

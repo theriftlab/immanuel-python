@@ -14,7 +14,7 @@ from datetime import datetime
 from immanuel.classes.localize import gender, localize as _
 from immanuel.const import calc, chart, dignities, names
 from immanuel.reports import dignity
-from immanuel.setup import settings
+from immanuel.setup import ImmanuelSettings, settings as default_settings
 from immanuel.tools import convert, date, ephemeris, position
 
 
@@ -53,7 +53,13 @@ class Angle:
 
 
 class Aspect:
-    def __init__(self, aspect: dict, active_name: str, passive_name: str) -> None:
+    def __init__(
+        self,
+        aspect: dict,
+        active_name: str,
+        passive_name: str,
+        settings: ImmanuelSettings = default_settings,
+    ) -> None:
         self._active_name = active_name
         self._passive_name = passive_name
         self.active = aspect["active"]
@@ -234,6 +240,7 @@ class Object:
         out_of_bounds: bool | None = None,
         in_sect: bool | None = None,
         dignity_state: dict | None = None,
+        settings: ImmanuelSettings = default_settings,
     ) -> None:
         self.index = object["index"]
 
@@ -284,7 +291,9 @@ class Object:
 
         if dignity_state is not None:
             self.dignities = DignityState(object, dignity_state=dignity_state)
-            self.score = dignity.score(dignity_state)
+            self.score = dignity.score(dignity_state, settings)
+
+        self._settings = settings
 
     def __str__(self) -> str:
         formatted = _("{name} {longitude} in {sign}").format(
@@ -297,7 +306,7 @@ class Object:
             formatted += f", {_(self.house)}"
 
         if hasattr(self, "movement") and (
-            settings.output_typical_object_motion or not self.movement.typical
+            self._settings.output_typical_object_motion or not self.movement.typical
         ):
             formatted += f", {_(self.movement)}"
 
@@ -340,7 +349,9 @@ class Sign:
 
 
 class Subject:
-    def __init__(self, subject: "Subject") -> None:
+    def __init__(
+        self, subject: "Subject", settings: ImmanuelSettings = default_settings
+    ) -> None:
         armc = ephemeris.get_angle(
             index=chart.ARMC,
             jd=subject.julian_date,

@@ -11,10 +11,10 @@
 import swisseph as swe
 
 from immanuel.const import calc
-from immanuel.setup import settings
+from immanuel.setup import ImmanuelSettings, settings as default_settings
 
 
-def chart_shape(objects: dict) -> int:
+def chart_shape(objects: dict, settings: ImmanuelSettings = default_settings) -> int:
     """Returns which of the predetermined shapes the passed
     chart objects form."""
     # Filter objects

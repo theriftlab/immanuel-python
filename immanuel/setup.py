@@ -17,7 +17,13 @@ from immanuel.classes.localize import Localize
 from immanuel.const import calc, chart, data, dignities
 
 
-class BaseSettings:
+class ImmanuelSettings:
+    """Just for typing."""
+
+    pass
+
+
+class BaseSettings(ImmanuelSettings):
     def __init__(self) -> None:
         """Set locale."""
         self._locale = None
@@ -375,7 +381,7 @@ class BaseSettings:
         swe.set_ephe_path(self._file_path)
 
 
-class StaticSingleton(type):
+class StaticSingleton(ImmanuelSettings, type):
     """Metaclass to ensure singleton behavior & route everything to
     our BaseSettings instance to emulate static behavior."""
 

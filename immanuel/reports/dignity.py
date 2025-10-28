@@ -12,11 +12,11 @@
 """
 
 from immanuel.const import dignities
-from immanuel.setup import settings
+from immanuel.setup import ImmanuelSettings, settings as default_settings
 from immanuel.tools import position
 
 
-def ruler(object: dict) -> bool:
+def ruler(object: dict, settings: ImmanuelSettings = default_settings) -> bool:
     """Returns whether the passed planet is the ruler of its sign."""
     return object["index"] == settings.rulerships[position.sign(object)]
 
@@ -26,7 +26,9 @@ def exalted(object: dict) -> bool:
     return object["index"] == dignities.EXALTATIONS[position.sign(object)]
 
 
-def triplicity_ruler(object: dict, is_daytime: bool) -> bool:
+def triplicity_ruler(
+    object: dict, is_daytime: bool, settings: ImmanuelSettings = default_settings
+) -> bool:
     """Returns whether the passed planet is any type of triplicity ruler."""
     triplicities = settings.triplicities[position.sign(object)]
 
@@ -39,7 +41,7 @@ def triplicity_ruler(object: dict, is_daytime: bool) -> bool:
         return object["index"] == triplicities["day" if is_daytime else "night"]
 
 
-def term_ruler(object: dict) -> bool:
+def term_ruler(object: dict, settings: ImmanuelSettings = default_settings) -> bool:
     """Returns whether the passed planet is the term ruler
     within its sign."""
     terms = settings.terms[position.sign(object)]
@@ -63,10 +65,12 @@ def face_ruler(object: dict) -> bool:
     )
 
 
-def mutual_reception_ruler(object: dict, objects: dict) -> bool:
+def mutual_reception_ruler(
+    object: dict, objects: dict, settings: ImmanuelSettings = default_settings
+) -> bool:
     """Returns whether the passed planet is in mutual reception
     by rulership."""
-    if ruler(object):
+    if ruler(object, settings):
         return False
 
     object_sign = position.sign(object)
@@ -95,11 +99,14 @@ def mutual_reception_exalted(object: dict, objects: dict) -> bool:
 
 
 def mutual_reception_triplicity_ruler(
-    object: dict, objects: dict, is_daytime: bool
+    object: dict,
+    objects: dict,
+    is_daytime: bool,
+    settings: ImmanuelSettings = default_settings,
 ) -> bool:
     """Returns whether the passed planet is in mutual reception
     by any type of triplicity rulership."""
-    if triplicity_ruler(object, is_daytime):
+    if triplicity_ruler(object, is_daytime, settings):
         return False
 
     key = "day" if is_daytime else "night"
@@ -125,10 +132,12 @@ def mutual_reception_triplicity_ruler(
     return object["index"] == participatory_ruler_triplicities["participatory"]
 
 
-def mutual_reception_term_ruler(object: dict, objects: dict) -> bool:
+def mutual_reception_term_ruler(
+    object: dict, objects: dict, settings: ImmanuelSettings = default_settings
+) -> bool:
     """Returns whether the passed planet is in mutual reception
     by term rulership."""
-    if term_ruler(object):
+    if term_ruler(object, settings):
         return False
 
     object_terms = settings.terms[position.sign(object)]
@@ -165,7 +174,9 @@ def mutual_reception_face_ruler(object: dict, objects: dict) -> bool:
     )
 
 
-def in_rulership_element(object: dict) -> bool:
+def in_rulership_element(
+    object: dict, settings: ImmanuelSettings = default_settings
+) -> bool:
     """Returns whether the passed planet is in a sign that shares an element
     with its domicile."""
     if object["index"] not in settings.rulerships.values():
@@ -176,7 +187,7 @@ def in_rulership_element(object: dict) -> bool:
     ) == position.element(object)
 
 
-def detriment(object: dict) -> bool:
+def detriment(object: dict, settings: ImmanuelSettings = default_settings) -> bool:
     """Returns whether the passed planet is in detriment within its sign."""
     return position.opposite_sign(object) in _planet_signs(object, settings.rulerships)
 
@@ -188,24 +199,31 @@ def fall(object: dict) -> bool:
     )
 
 
-def all(object: dict, objects: dict, is_daytime: bool) -> dict:
+def all(
+    object: dict,
+    objects: dict,
+    is_daytime: bool,
+    settings: ImmanuelSettings = default_settings,
+) -> dict:
     """Returns a dict of all dignity states for the passed planet."""
     essential_dignities = {
-        dignities.RULER: ruler(object),
+        dignities.RULER: ruler(object, settings),
         dignities.EXALTED: exalted(object),
-        dignities.TRIPLICITY_RULER: triplicity_ruler(object, is_daytime),
-        dignities.TERM_RULER: term_ruler(object),
+        dignities.TRIPLICITY_RULER: triplicity_ruler(object, is_daytime, settings),
+        dignities.TERM_RULER: term_ruler(object, settings),
         dignities.FACE_RULER: face_ruler(object),
     }
 
     mutual_reception_dignities = {
-        dignities.MUTUAL_RECEPTION_RULER: mutual_reception_ruler(object, objects),
+        dignities.MUTUAL_RECEPTION_RULER: mutual_reception_ruler(
+            object, objects, settings
+        ),
         dignities.MUTUAL_RECEPTION_EXALTED: mutual_reception_exalted(object, objects),
         dignities.MUTUAL_RECEPTION_TRIPLICITY_RULER: mutual_reception_triplicity_ruler(
-            object, objects, is_daytime
+            object, objects, is_daytime, settings
         ),
         dignities.MUTUAL_RECEPTION_TERM_RULER: mutual_reception_term_ruler(
-            object, objects
+            object, objects, settings
         ),
         dignities.MUTUAL_RECEPTION_FACE_RULER: mutual_reception_face_ruler(
             object, objects
@@ -213,11 +231,11 @@ def all(object: dict, objects: dict, is_daytime: bool) -> dict:
     }
 
     minor_dignities = {
-        dignities.IN_RULERSHIP_ELEMENT: in_rulership_element(object),
+        dignities.IN_RULERSHIP_ELEMENT: in_rulership_element(object, settings),
     }
 
     debilities = {
-        dignities.DETRIMENT: detriment(object),
+        dignities.DETRIMENT: detriment(object, settings),
         dignities.FALL: fall(object),
         dignities.PEREGRINE: not any(essential_dignities.values()),
     }
@@ -237,7 +255,7 @@ def all(object: dict, objects: dict, is_daytime: bool) -> dict:
     )
 
 
-def score(dignity_state: dict) -> int:
+def score(dignity_state: dict, settings: ImmanuelSettings = default_settings) -> int:
     """Calculates a planet's dignity score based on settings."""
     return sum(
         [
