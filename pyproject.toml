@@ -47,3 +47,6 @@ filterwarnings = [
     "ignore::DeprecationWarning",
     "ignore::PendingDeprecationWarning",
 ]
+
+[tool.setuptools]
+packages = ["immanuel"]
