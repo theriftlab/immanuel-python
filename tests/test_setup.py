@@ -18,7 +18,7 @@ from pytest import fixture
 from immanuel import charts
 from immanuel.classes.cache import FunctionCache
 from immanuel.const import calc, chart
-from immanuel.setup import settings
+from immanuel.setup import BaseSettings, settings
 
 
 @fixture
@@ -101,6 +101,24 @@ def test_settings_are_respected(native):
     assert chart.SUN not in natal.aspects
 
 
+def test_custom_settings(native):
+    custom_settings = BaseSettings()
+    custom_settings.objects = [
+        chart.ASC,
+        chart.SUN,
+        chart.MOON,
+        chart.CERES,
+    ]
+    # Ensure custom settings are respected
+    custom_natal = charts.Natal(native, settings=custom_settings)
+    assert chart.CERES in custom_natal.objects
+    assert chart.MARS not in custom_natal.objects
+    # While default settings are unaffected
+    default_natal = charts.Natal(native)
+    assert chart.CERES not in default_natal.objects
+    assert chart.MARS in default_natal.objects
+
+
 def test_add_filepath(native):
     settings.add_filepath(os.path.dirname(__file__))
     settings.objects.append(1181)
@@ -112,7 +130,3 @@ def test_add_filepath(native):
 
     with pytest.raises(swe.Error):
         charts.Natal(native)
-
-    settings.add_filepath(
-        f"{os.path.dirname(__file__)}{os.sep}..{os.sep}resources{os.sep}ephemeris"
-    )
