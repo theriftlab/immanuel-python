@@ -38,7 +38,10 @@ def dec_to_dms(
     dec: float, round_to: tuple = ROUND_SECOND, pad_rounded: bool = False
 ) -> tuple:
     """Returns the rounded D:M:S conversion of a decimal float."""
-    dms = ("-" if dec < 0 else "+", *swe.split_deg(dec, round_to[1])[: round_to[0]])
+    dms = (
+        "-" if dec < 0 else "+",
+        *swe.split_deg(dec, round_to[1] | swe.SPLIT_DEG_KEEP_SIGN)[: round_to[0]],
+    )
     return dms + (0,) * (3 - round_to[0]) if pad_rounded else dms
 
 

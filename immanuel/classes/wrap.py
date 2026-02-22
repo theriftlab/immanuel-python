@@ -35,17 +35,8 @@ class Angle:
         self.formatted = convert.dec_to_string(
             angle, format=format, round_to=Angle.precision[round_to]
         )
-        self.direction = None
-        self.degrees = None
-        self.minutes = None
-        self.seconds = None
-        self.__dict__.update(
-            dict(
-                zip(
-                    ("direction", "degrees", "minutes", "seconds"),
-                    convert.dec_to_dms(self.raw),
-                )
-            )
+        self.direction, self.degrees, self.minutes, self.seconds = convert.dec_to_dms(
+            angle
         )
 
     def __str__(self) -> str:
