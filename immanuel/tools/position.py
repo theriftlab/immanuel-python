@@ -25,7 +25,7 @@ def sign(object: dict | float) -> int:
     return int((object["lon"] if isinstance(object, dict) else object) / 30) + 1
 
 
-def sign_longitude(object: dict | float) -> tuple:
+def sign_longitude(object: dict | float) -> float:
     """Returns the sign-specific longitude."""
     return (object["lon"] if isinstance(object, dict) else object) % 30
 
