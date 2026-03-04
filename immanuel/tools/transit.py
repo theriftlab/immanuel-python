@@ -10,6 +10,7 @@
 import math
 
 import swisseph as swe
+from scipy.optimize import brentq
 
 from immanuel.const import calc, chart
 from immanuel.tools import ephemeris
@@ -142,3 +143,41 @@ def _aspect_search(
             add *= diff / 180
 
         jd += add
+
+
+def _sign_ingress_search(index: int, sign: int, jd: float, direction: int) -> float:
+    """Iteratively searches for and returns the Julian date of the previous
+    or next requested ingress into the given sign."""
+    start_jd, end_jd, sign_cusp = _sign_ingress_jd_bracket(index, sign, jd, direction)
+    return brentq(_sign_ingress_root_finder, start_jd, end_jd, args=(index, sign_cusp), xtol=calc.MAX_ERROR)
+
+
+def _sign_ingress_jd_bracket(index: int, sign: int, jd: float, direction: int) -> tuple:
+    """Returns the Julian date bracket of the sign ingress and the sign's cusp
+    longitude."""
+    last_jd = jd
+    last_planet_sign = 0
+
+    while True:
+        planet = ephemeris.get_planet(index, jd)
+        planet_sign = position.sign(planet)
+
+        if last_planet_sign != planet_sign and planet_sign == sign:
+            # Cusp could be start or end of sign
+            sign_cusp = round(planet["lon"] / 30) * 30
+            return (
+                (last_jd, jd, sign_cusp)
+                if direction == NEXT
+                else (jd, last_jd, sign_cusp)
+            )
+
+        last_jd = jd
+        last_planet_sign = planet_sign
+        jd += direction / planet["speed"]
+
+
+def _sign_ingress_root_finder(jd: float, index: int, sign_cusp: float) -> int:
+    """Callback for brentq() returns the difference between the planet's
+    longitude and the sign's cusp longitude."""
+    planet = ephemeris.get_planet(index, jd)
+    return swe.difdeg2n(planet["lon"], sign_cusp)
