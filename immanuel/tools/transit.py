@@ -29,6 +29,18 @@ _SWE_ECLIPSES = {
 }
 
 
+def previous_sign_ingress(index: int, sign: int, jd: float) -> float:
+    """Returns the Julian date of the passed planet's previous ingress into
+    the given sign."""
+    return _sign_ingress_search(index, sign, jd, PREVIOUS)
+
+
+def next_sign_ingress(index: int, sign: int, jd: float) -> float:
+    """Returns the Julian date of the passed planet's next ingress into
+    the given sign."""
+    return _sign_ingress_search(index, sign, jd, NEXT)
+
+
 def previous_aspect(index1: int, index2: int, jd: float, aspect: float) -> float:
     """Returns the Julian day of the requested transit previous
     to the passed Julian day."""
@@ -173,7 +185,7 @@ def _sign_ingress_jd_bracket(index: int, sign: int, jd: float, direction: int) -
 
         last_jd = jd
         last_planet_sign = planet_sign
-        jd += direction / planet["speed"]
+        jd += direction / abs(planet["speed"])
 
 
 def _sign_ingress_root_finder(jd: float, index: int, sign_cusp: float) -> int:
