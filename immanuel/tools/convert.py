@@ -26,6 +26,7 @@ FORMAT_LON = 4
 ROUND_DEGREE = (1, swe.SPLIT_DEG_ROUND_DEG)
 ROUND_MINUTE = (2, swe.SPLIT_DEG_ROUND_MIN)
 ROUND_SECOND = (3, swe.SPLIT_DEG_ROUND_SEC)
+ROUND_NONE = (4, 0)
 
 
 def dms_to_dec(dms: list | tuple) -> float:
