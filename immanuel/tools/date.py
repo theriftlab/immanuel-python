@@ -44,7 +44,7 @@ def to_datetime(
     if isinstance(dt, float):
         ut = swe.revjul(dt)
         time_hms = convert.dec_to_dms(ut[3], round_to=convert.ROUND_NONE)
-        time_microseconds = [*time_hms[1:4]] + [int(1000000 * time_hms[4])]
+        time_microseconds = [*time_hms[1:4]] + [round(1000000 * time_hms[4])]
         date_time = datetime(*ut[:3], *time_microseconds, tzinfo=ZoneInfo("UTC"))
         return (
             date_time
@@ -89,8 +89,7 @@ def to_jd(
             "+",
             date_time_utc.hour,
             date_time_utc.minute,
-            date_time_utc.second,
-            date_time_utc.microsecond / 1000000,
+            date_time_utc.second + date_time_utc.microsecond / 1000000,
         )
     )
     return swe.julday(*date_time_utc.timetuple()[0:3], hour)
