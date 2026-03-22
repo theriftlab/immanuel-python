@@ -30,6 +30,7 @@ def to_datetime(
     offset: float | None = None,
     time_zone: str | None = None,
     is_dst: bool | None = None,
+    snap_tolerance: int = 50_000,
 ) -> datetime:
     """Convert an unknown into a datetime. Unknowns can be either an
     ISO-formatted string, a Julian Date, or already a datetime."""
@@ -43,9 +44,19 @@ def to_datetime(
         )
     if isinstance(dt, float):
         ut = swe.revjul(dt)
-        time_hms = convert.dec_to_dms(ut[3], round_to=convert.ROUND_NONE)
-        time_microseconds = [*time_hms[1:4]] + [round(1000000 * time_hms[4])]
-        date_time = datetime(*ut[:3], *time_microseconds, tzinfo=ZoneInfo("UTC"))
+        time_dms = convert.dec_to_dms(ut[3], round_to=convert.ROUND_NONE)
+        microseconds = round(1_000_000 * time_dms[4])
+        if microseconds >= 1_000_000 - snap_tolerance:
+            skip_second = True
+            microseconds = 0
+        else:
+            skip_second = False
+            if microseconds <= snap_tolerance:
+                microseconds = 0
+        time_hms = [*time_dms[1:4], microseconds]
+        date_time = datetime(*ut[:3], *time_hms, tzinfo=ZoneInfo("UTC"))
+        if skip_second:
+            date_time += timedelta(seconds=1)
         return (
             date_time
             if no_tz
@@ -89,7 +100,7 @@ def to_jd(
             "+",
             date_time_utc.hour,
             date_time_utc.minute,
-            date_time_utc.second + date_time_utc.microsecond / 1000000,
+            date_time_utc.second + date_time_utc.microsecond / 1_000_000,
         )
     )
     return swe.julday(*date_time_utc.timetuple()[0:3], hour)
