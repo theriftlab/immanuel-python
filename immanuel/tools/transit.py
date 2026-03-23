@@ -20,6 +20,9 @@ from immanuel.tools import position
 PREVIOUS = -1
 NEXT = 1
 
+INGRESS = 1
+EGRESS = 2
+
 _SWE_ECLIPSES = {
     swe.ECL_TOTAL: chart.TOTAL,
     swe.ECL_ANNULAR: chart.ANNULAR,
@@ -39,6 +42,18 @@ def next_sign_ingress(index: int, sign: int, jd: float) -> float:
     """Returns the Julian date of the passed planet's next ingress into
     the given sign."""
     return _sign_ingress_search(index, sign, jd, NEXT)
+
+
+def previous_sign_egress(index: int, sign: int, jd: float) -> float:
+    """Returns the Julian date of the passed planet's previous egress from
+    the given sign."""
+    return _sign_egress_search(index, sign, jd, PREVIOUS)
+
+
+def next_sign_egress(index: int, sign: int, jd: float) -> float:
+    """Returns the Julian date of the passed planet's next egress from
+    the given sign."""
+    return _sign_egress_search(index, sign, jd, NEXT)
 
 
 def previous_aspect(index1: int, index2: int, jd: float, aspect: float) -> float:
@@ -141,55 +156,83 @@ def _aspect_search(
         planet2 = ephemeris.get_planet(index2, jd)
         distance = abs(swe.difdeg2n(planet1["lon"], planet2["lon"]))
         diff = abs(aspect - distance)
-
         if diff <= calc.MAX_ERROR:
             return jd
-
         add = direction
         speed = abs(
             max(planet1["speed"], planet2["speed"])
             - min(planet1["speed"], planet2["speed"])
         )
-
         if diff < speed:
             add *= diff / 180
-
         jd += add
 
 
 def _sign_ingress_search(index: int, sign: int, jd: float, direction: int) -> float:
     """Iteratively searches for and returns the Julian date of the previous
-    or next requested ingress into the given sign."""
-    start_jd, end_jd, sign_cusp = _sign_ingress_jd_bracket(index, sign, jd, direction)
-    return brentq(_sign_ingress_root_finder, start_jd, end_jd, args=(index, sign_cusp), xtol=calc.MAX_ERROR)
+    or next requested ingress into the given sign. If the planet is already in
+    the given sign, it will search for egress first."""
+    planet = ephemeris.get_planet(index, jd)
+    planet_sign = position.sign(planet)
+    if planet_sign == sign:
+        jd = _sign_egress_search(index, sign, jd, direction)
+    start_jd, end_jd = _sign_ingress_egress_jd_bracket(
+        index, sign, jd, direction, INGRESS
+    )
+    ingress_jd = brentq(
+        _sign_ingress_egress_root_finder,
+        start_jd,
+        end_jd,
+        args=(index, sign),
+        xtol=calc.MAX_ERROR,
+    )
+    while position.sign(planet := ephemeris.get_planet(index, ingress_jd)) != sign:
+        ingress_jd += direction * calc.MAX_ERROR / abs(planet["speed"])
+    return ingress_jd
 
 
-def _sign_ingress_jd_bracket(index: int, sign: int, jd: float, direction: int) -> tuple:
+def _sign_egress_search(index: int, sign: int, jd: float, direction: int) -> float:
+    """Iteratively searches for and returns the Julian date of the previous
+    or next requested egress from the given sign. If the planet is not already
+    in the given sign, it will search for ingress first."""
+    planet = ephemeris.get_planet(index, jd)
+    planet_sign = position.sign(planet)
+    if planet_sign != sign:
+        jd = _sign_ingress_search(index, sign, jd, direction)
+    start_jd, end_jd = _sign_ingress_egress_jd_bracket(
+        index, sign, jd, direction, EGRESS
+    )
+    egress_jd = brentq(
+        _sign_ingress_egress_root_finder,
+        start_jd,
+        end_jd,
+        args=(index, sign),
+        xtol=calc.MAX_ERROR,
+    )
+    while position.sign(planet := ephemeris.get_planet(index, egress_jd)) == sign:
+        egress_jd += direction * calc.MAX_ERROR / abs(planet["speed"])
+    return egress_jd
+
+
+def _sign_ingress_egress_jd_bracket(
+    index: int, sign: int, jd: float, direction: int, type: int
+) -> tuple:
     """Returns the Julian date bracket of the sign ingress and the sign's cusp
     longitude."""
     last_jd = jd
-    last_planet_sign = 0
-
     while True:
         planet = ephemeris.get_planet(index, jd)
         planet_sign = position.sign(planet)
-
-        if last_planet_sign != planet_sign and planet_sign == sign:
-            # Cusp could be start or end of sign
-            sign_cusp = round(planet["lon"] / 30) * 30
-            return (
-                (last_jd, jd, sign_cusp)
-                if direction == NEXT
-                else (jd, last_jd, sign_cusp)
-            )
-
+        if (type == EGRESS and planet_sign != sign) or (
+            type == INGRESS and planet_sign == sign
+        ):
+            return (last_jd, jd) if direction == NEXT else (jd, last_jd)
         last_jd = jd
-        last_planet_sign = planet_sign
         jd += direction / abs(planet["speed"])
 
 
-def _sign_ingress_root_finder(jd: float, index: int, sign_cusp: float) -> int:
-    """Callback for brentq() returns the difference between the planet's
-    longitude and the sign's cusp longitude."""
+def _sign_ingress_egress_root_finder(jd: float, index: int, sign: int) -> int:
+    """Callback for brentq() checks for the planet's sign changing."""
     planet = ephemeris.get_planet(index, jd)
-    return swe.difdeg2n(planet["lon"], sign_cusp)
+    planet_sign = position.sign(planet)
+    return 1 if planet_sign == sign else -1
