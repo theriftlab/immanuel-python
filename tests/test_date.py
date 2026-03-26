@@ -8,12 +8,14 @@
 
 """
 
+import swisseph as swe
+
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from pytest import approx, fixture
 
-from immanuel.tools import date
+from immanuel.tools import convert, date
 
 
 @fixture
@@ -186,3 +188,29 @@ def test_to_datetime_pst(pst_date, str_pst_date, pst_coords, gmt_coords, jd):
     assert dt_from_time_zone.hour == 10
     assert dt_from_time_zone.minute == 0
     assert dt_from_time_zone.second == 0
+
+
+def test_to_datetime_microsecond_preserved():
+    """Test that the microsecond is preserved when converting JD to datetime and
+    vice versa. Arbitrary datetime of 2030-06-01 02:34:21.215669 is used."""
+    jd = 2462653.607189996
+    dt = date.to_datetime(jd)
+    assert dt.microsecond == 215669
+    dt = datetime(2030, 6, 1, 2, 34, 21, 215669)
+    assert date.to_jd(dt) == jd
+
+
+def test_to_datetime_microsecond_rounded():
+    """Rounding errors are expected when converting JD to datetime and vice
+    versa. When they're really close to zero then the microsecond should be
+    rounded up or down to the nearest second."""
+    dt = '2028-04-12 19:34:21'
+    jd = date.to_jd(dt)
+    ut = swe.revjul(jd)
+    time_dms = convert.dec_to_dms(ut[3], round_to=convert.ROUND_NONE)
+    microseconds = round(1_000_000 * time_dms[4])
+    # underlying conversion process introduces microsecond artifacts
+    assert microseconds > 0
+    # date module conversion should erase these
+    jd_dt = date.to_datetime(jd)
+    assert jd_dt.microsecond == 0
