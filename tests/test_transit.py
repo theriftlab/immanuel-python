@@ -59,20 +59,36 @@ def test_next_sign_egress(jd, coords):
     assert se_dt.strftime("%Y-%m-%d %H:%M") == "2000-08-09 19:26"
 
 
-def test_previous_aspect(jd, coords):
+def test_previous_aspect_between(jd, coords):
     # Check for previous Sun / Moon conjunction so we can use the same
     # test date/time as test_previous_new_moon()
-    tr_jd = transit.previous_aspect(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
-    tr_dt = date.to_datetime(tr_jd, *coords)
-    assert tr_dt.strftime("%Y-%m-%d %H:%M") == "1999-12-07 14:31"
+    ab_jd = transit.previous_aspect_between(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
+    ab_dt = date.to_datetime(ab_jd, *coords)
+    assert ab_dt.strftime("%Y-%m-%d %H:%M") == "1999-12-07 14:31"
 
 
-def test_next_aspect(jd, coords):
+def test_next_aspect_between(jd, coords):
     # Check for next Sun / Moon conjunction so we can use the same
     # test date/time as test_next_new_moon()
-    tr_jd = transit.next_aspect(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
-    tr_dt = date.to_datetime(tr_jd, *coords)
-    assert tr_dt.strftime("%Y-%m-%d %H:%M") == "2000-01-06 10:13"
+    ab_jd = transit.next_aspect_between(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
+    ab_dt = date.to_datetime(ab_jd, *coords)
+    assert ab_dt.strftime("%Y-%m-%d %H:%M") == "2000-01-06 10:13"
+
+
+def test_previous_aspect_to(jd, coords):
+    # Check for previous Saturn / end-of-Aries conjunction so we can use the
+    # same test date/time as test_previous_sign_ingress()
+    at_jd = transit.previous_aspect_to(chart.SATURN, 30.0, jd, calc.CONJUNCTION)
+    at_dt = date.to_datetime(at_jd, *coords)
+    assert at_dt.strftime("%Y-%m-%d %H:%M") == "1999-02-28 17:25"
+
+
+def test_next_aspect_to(jd, coords):
+    # Check for next Saturn / start-of-Gemini conjunction so we can use the same
+    # test date/time as test_next_sign_ingress()
+    at_jd = transit.next_aspect_to(chart.SATURN, 60.0, jd, calc.CONJUNCTION)
+    at_dt = date.to_datetime(at_jd, *coords)
+    assert at_dt.strftime("%Y-%m-%d %H:%M") == "2000-08-09 19:26"
 
 
 def test_previous_new_moon(jd, coords):

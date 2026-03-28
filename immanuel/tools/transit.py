@@ -56,16 +56,30 @@ def next_sign_egress(index: int, sign: int, jd: float) -> float:
     return _sign_egress_search(index, sign, jd, NEXT)
 
 
-def previous_aspect(index1: int, index2: int, jd: float, aspect: float) -> float:
-    """Returns the Julian day of the requested transit previous
-    to the passed Julian day."""
+def previous_aspect_between(
+    index1: int, index2: int, jd: float, aspect: float
+) -> float:
+    """Returns the Julian day of the requested aspect between two moving planets
+    previous to the passed Julian day."""
     return _aspect_search(index1, index2, jd, aspect, PREVIOUS)
 
 
-def next_aspect(index1: int, index2: int, jd: float, aspect: float) -> float:
-    """Returns the Julian day of the requested transit after
-    the passed Julian day."""
+def next_aspect_between(index1: int, index2: int, jd: float, aspect: float) -> float:
+    """Returns the Julian day of the requested aspect between two moving planets
+    after the passed Julian day."""
     return _aspect_search(index1, index2, jd, aspect, NEXT)
+
+
+def previous_aspect_to(index: int, point: float, jd: float, aspect: float) -> float:
+    """Returns the Julian day of the requested aspect between a fixed point and
+    a moving planet previous to the passed Julian day."""
+    return _fixed_aspect_search(index, point, jd, aspect, PREVIOUS)
+
+
+def next_aspect_to(index: int, point: float, jd: float, aspect: float) -> float:
+    """Returns the Julian day of the requested aspect between a fixed point and
+    a moving planet after the passed Julian day."""
+    return _fixed_aspect_search(index, point, jd, aspect, NEXT)
 
 
 def previous_new_moon(jd: float) -> float:
@@ -74,7 +88,7 @@ def previous_new_moon(jd: float) -> float:
     moon = ephemeris.get_planet(chart.MOON, jd)
     distance = swe.difdegn(moon["lon"], sun["lon"])
     jd -= math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
-    return previous_aspect(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
+    return previous_aspect_between(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
 
 
 def previous_full_moon(jd: float) -> float:
@@ -83,7 +97,7 @@ def previous_full_moon(jd: float) -> float:
     moon = ephemeris.get_planet(chart.MOON, jd)
     distance = swe.difdegn(moon["lon"], sun["lon"] + 180)
     jd -= math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
-    return previous_aspect(chart.SUN, chart.MOON, jd, calc.OPPOSITION)
+    return previous_aspect_between(chart.SUN, chart.MOON, jd, calc.OPPOSITION)
 
 
 def next_new_moon(jd: float) -> float:
@@ -92,7 +106,7 @@ def next_new_moon(jd: float) -> float:
     moon = ephemeris.get_planet(chart.MOON, jd)
     distance = swe.difdegn(sun["lon"], moon["lon"])
     jd += math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
-    return next_aspect(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
+    return next_aspect_between(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
 
 
 def next_full_moon(jd: float) -> float:
@@ -101,7 +115,7 @@ def next_full_moon(jd: float) -> float:
     moon = ephemeris.get_planet(chart.MOON, jd)
     distance = swe.difdegn(sun["lon"] + 180, moon["lon"])
     jd += math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
-    return next_aspect(chart.SUN, chart.MOON, jd, calc.OPPOSITION)
+    return next_aspect_between(chart.SUN, chart.MOON, jd, calc.OPPOSITION)
 
 
 def previous_solar_eclipse(jd: float) -> tuple:
