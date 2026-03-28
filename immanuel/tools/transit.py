@@ -168,6 +168,24 @@ def _aspect_search(
         jd += add
 
 
+def _fixed_aspect_search(
+    index: int, point: float, jd: float, aspect: float, direction: int
+) -> float:
+    """Iteratively searches for and returns the Julian date of the previous
+    or next requested aspect between a fixed point and a moving planet."""
+    while True:
+        planet = ephemeris.get_planet(index, jd)
+        distance = abs(swe.difdeg2n(planet["lon"], point))
+        diff = abs(aspect - distance)
+        if diff <= calc.MAX_ERROR:
+            return jd
+        add = direction
+        speed = abs(planet["speed"])
+        if diff < speed:
+            add *= diff / 180
+        jd += add
+
+
 def _sign_ingress_search(index: int, sign: int, jd: float, direction: int) -> float:
     """Iteratively searches for and returns the Julian date of the previous
     or next requested ingress into the given sign. If the planet is already in
