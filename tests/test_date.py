@@ -204,7 +204,7 @@ def test_to_datetime_microsecond_rounded():
     """Rounding errors are expected when converting JD to datetime and vice
     versa. When they're really close to zero then the microsecond should be
     rounded up or down to the nearest second."""
-    dt = '2028-04-12 19:34:21'
+    dt = "2028-04-12 19:34:21"
     jd = date.to_jd(dt)
     ut = swe.revjul(jd)
     time_dms = convert.dec_to_dms(ut[3], round_to=convert.ROUND_NONE)
