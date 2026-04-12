@@ -20,9 +20,14 @@ requires-python = ">=3.10"
 dependencies = [
     "pyswisseph~=2.10",
     "python-dateutil",
-    "timezonefinder~=5.2",
-    "pytest",
     "scipy",
+    "timezonefinder~=5.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "scipy-stubs",
 ]
 
 [project.urls]
