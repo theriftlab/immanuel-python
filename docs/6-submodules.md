@@ -11,11 +11,12 @@ These submodules represent Immanuel's backbone and therefore contain far too muc
 | calculate | Simple calculations such as moon phase, Part of Fortune position, year length for progressions, etc. |
 | convert | Conversion between string, tuple, and decimal formats for common data such as coordinates and angles. |
 | date | Timezone management based on geographical coordinates, and easy conversion between Gregorian and Julian dates across timezones. |
-| ephemeris | The main interface with the `swisseph` module. This essentially pulls house, angle, fixed star and other object data and standardizes it for use in chart calculations. It also calculates pre- and post-natal lunar and solar eclipses, and pulls other important data for Immanuel's inner workings, such as obliquity and Delta-T. |
+| ephemeris | The main interface with the `swisseph` module. This essentially pulls house, angle, fixed star and other object data and standardizes it for use in chart calculations. It also pulls other important data for Immanuel's inner workings, such as obliquity, Delta-T, and year-length calculations. |
 | find | Given a date, this provides searches for the previous or next of a given aspect between two chart objects. It also provides the dates of the previous or next lunar or solar eclipse. |
 | forecast | Calculates solar return and secondary progression dates. |
 | midpoint | Calculates composite chart objects and houses by the midpoint method. |
 | position | Returns info on a chart object's position in the chart - sign, house, decan, etc. |
+| transit | Calculates pre- and post-natal lunar and solar eclipses, new and full moons, transits, and sign ingress / egress. |
 
 ## reports
 
