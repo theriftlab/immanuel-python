@@ -1,9 +1,9 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    Test dates compared against astro.com output.
+Test dates compared against astro.com output.
 
 """
 
@@ -206,28 +206,30 @@ def test_progression_date(jd, pjd, coords):
     Since the progressed date is always the same whatever method we
     use to calculate the houses, we can use any available method
     for this test."""
-    progressed_jd = forecast.progression(jd, *coords, pjd, chart.PLACIDUS, calc.NAIBOD)[
-        forecast.JD
-    ]
+    lat, lon = coords
+    progressed_jd = forecast.progression(
+        jd, lat, lon, pjd, chart.PLACIDUS, calc.NAIBOD
+    )[forecast.JD]
     assert round(progressed_jd + ephemeris.deltat(progressed_jd), 6) == 2451570.719456
 
 
 def test_progression(jd, pjd, coords, astro):
     """Test all available types of house progression."""
+    lat, lon = coords
     for method, results in astro.items():
         progressed_jd, progressed_armc_lon = forecast.progression(
-            jd, *coords, pjd, chart.PLACIDUS, method
+            jd, lat, lon, pjd, chart.PLACIDUS, method
         )
 
         for index, data in results.items():
             house = ephemeris.get_armc_house(
                 index,
                 progressed_armc_lon,
-                coords[0],
+                lat,
                 ephemeris.earth_obliquity(progressed_jd),
                 chart.PLACIDUS,
             )
             sign = position.sign(house)
-            lon = position.sign_longitude(house)
+            sign_lon = position.sign_longitude(house)
             assert sign == data["sign"]
-            assert convert.dec_to_string(lon) == data["lon"]
+            assert convert.dec_to_string(sign_lon) == data["lon"]

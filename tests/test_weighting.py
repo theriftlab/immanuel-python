@@ -1,9 +1,9 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    Test a natal chart's object distribution against astro.com's reports.
+Test a natal chart's object distribution against astro.com's reports.
 
 """
 
@@ -27,7 +27,8 @@ def jd(coords):
 
 @fixture
 def objects(coords, jd):
-    object_indices = (
+    lat, lon = coords
+    object_indices = [
         chart.ASC,
         chart.MC,
         chart.SUN,
@@ -42,13 +43,14 @@ def objects(coords, jd):
         chart.PLUTO,
         chart.TRUE_NORTH_NODE,
         chart.CHIRON,
-    )
-    return ephemeris.get_objects(object_indices, jd, *coords, chart.PLACIDUS)
+    ]
+    return ephemeris.get_objects(object_indices, jd, lat, lon, chart.PLACIDUS)
 
 
 @fixture
 def houses(coords, jd):
-    return ephemeris.get_houses(jd, *coords, chart.PLACIDUS)
+    lat, lon = coords
+    return ephemeris.get_houses(jd, lat, lon, chart.PLACIDUS)
 
 
 def test_elements(objects):

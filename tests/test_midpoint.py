@@ -1,10 +1,10 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    Test the basic midpoint calculation methods against
-    astro.com's midpoint composite chart.
+Test the basic midpoint calculation methods against
+astro.com's midpoint composite chart.
 
 """
 
@@ -133,11 +133,12 @@ def astro():
 
 
 def test_all(coords, jd1, jd2, obliquity, astro):
+    lat, lon = coords
     objects1 = ephemeris.get_objects(
-        astro.keys(), jd1, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA
+        astro.keys(), jd1, lat, lon, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA
     )
     objects2 = ephemeris.get_objects(
-        astro.keys(), jd2, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA
+        astro.keys(), jd2, lat, lon, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA
     )
     composites = midpoint.all(objects1, objects2, obliquity)
 
@@ -153,12 +154,13 @@ def test_all(coords, jd1, jd2, obliquity, astro):
 
 
 def test_composite(coords, jd1, jd2, obliquity, astro):
+    lat, lon = coords
     for index in astro.keys():
         object1 = ephemeris.get(
-            index, jd1, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA
+            index, jd1, lat, lon, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA
         )
         object2 = ephemeris.get(
-            index, jd2, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA
+            index, jd2, lat, lon, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA
         )
         composite = midpoint.composite(object1, object2, obliquity)
         sign = position.sign(composite)

@@ -1,16 +1,16 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    This module provides simple helper functions for converting
-    between location-specific Gregorian dates and times, and universal
-    Julian dates.
+This module provides simple helper functions for converting
+between location-specific Gregorian dates and times, and universal
+Julian dates.
 
-    The conversion functions essentially wrap pyswisseph's julday() and
-    revjul() to work with date/times in UT, but they take into account
-    timezones based on lat/lon coordinates for the purposes of time offsets.
-    This means that datetime objects expressing UT times will be zoned as UTC.
+The conversion functions essentially wrap pyswisseph's julday() and
+revjul() to work with date/times in UT, but they take into account
+timezones based on lat/lon coordinates for the purposes of time offsets.
+This means that datetime objects expressing UT times will be zoned as UTC.
 
 """
 
@@ -67,7 +67,9 @@ def to_datetime(
             return dt.replace(tzinfo=ZoneInfo("UTC")) if dt.tzinfo is None else dt
         else:
             return localize(dt, lat, lon, offset, time_zone, is_dst)
-    return None
+    raise ValueError(
+        "'dt' must be either an ISO-formatted string, a datetime, or a Julian Date."
+    )
 
 
 def to_jd(
@@ -87,7 +89,9 @@ def to_jd(
     elif isinstance(dt, datetime):
         date_time = dt
     else:
-        return None
+        raise ValueError(
+            "'dt' must be either an ISO-formatted string, a datetime, or a Julian Date."
+        )
 
     if (lat is not None and lon is not None) or time_zone is not None:
         date_time = localize(date_time, lat, lon, offset, time_zone, is_dst)

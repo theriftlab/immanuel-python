@@ -1,16 +1,16 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    Tests the main chart classes. Most of the underlying functionality
-    comes from the submodules which have their own tests, so this file
-    focuses on testing that the classes are working with and returning
-    the correct charts, rather than re-testing the minutiae of each of
-    their data. If all spot-checks for a given chart return true, then
-    we can safely assume we are looking at the correct chart and trust
-    that the rest of the underlying data is correct based on the tests
-    for the submodules.
+Tests the main chart classes. Most of the underlying functionality
+comes from the submodules which have their own tests, so this file
+focuses on testing that the classes are working with and returning
+the correct charts, rather than re-testing the minutiae of each of
+their data. If all spot-checks for a given chart return true, then
+we can safely assume we are looking at the correct chart and trust
+that the rest of the underlying data is correct based on the tests
+for the submodules.
 
 """
 
@@ -98,12 +98,12 @@ def test_subject(dob, lat, lon, native, julian_date):
     assert native.date_time.second == date_time.second
     assert native.latitude == latitude
     assert native.longitude == longitude
-    assert native.date_time_ambiguous == False
+    assert not native.date_time_ambiguous
     assert native.julian_date == julian_date
 
     ambiguous_date_time = datetime(2022, 11, 6, 1, 30)
     ambiguous_native = charts.Subject(ambiguous_date_time, lat, lon)
-    assert ambiguous_native.date_time_ambiguous == True
+    assert ambiguous_native.date_time_ambiguous
 
 
 def test_wrapped_data(native):
@@ -130,14 +130,14 @@ def test_wrapped_data(native):
     assert type(aspect.difference) is wrap.Angle  # Tested separately, just ensure type
 
     # AspectCondition
-    assert aspect.condition.associate == True
-    assert aspect.condition.dissociate == False
+    assert aspect.condition.associate
+    assert not aspect.condition.dissociate
     assert aspect.condition.formatted == names.ASPECT_CONDITIONS[calc.ASSOCIATE]
 
     # AspectMovement
-    assert aspect.movement.applicative == False
-    assert aspect.movement.exact == False
-    assert aspect.movement.separative == True
+    assert not aspect.movement.applicative
+    assert not aspect.movement.exact
+    assert aspect.movement.separative
     assert aspect.movement.formatted == names.ASPECT_MOVEMENTS[calc.SEPARATIVE]
 
     # Coordinates
@@ -152,21 +152,21 @@ def test_wrapped_data(native):
     date_time = natal_chart.native.date_time
     assert type(date_time.datetime) is datetime
     assert date_time.timezone == "America/Los_Angeles"
-    assert date_time.ambiguous == False
+    assert not date_time.ambiguous
     assert date_time.julian == 2451545.25
     assert date_time.deltat == 0.0007387629899254968
     assert date_time.sidereal_time == "16:54:13"
 
     # MoonPhase
     moon_phase = natal_chart.moon_phase
-    assert moon_phase.new_moon == False
-    assert moon_phase.waxing_crescent == False
-    assert moon_phase.first_quarter == False
-    assert moon_phase.waxing_gibbous == False
-    assert moon_phase.full_moon == False
-    assert moon_phase.disseminating == False
-    assert moon_phase.third_quarter == True
-    assert moon_phase.balsamic == False
+    assert not moon_phase.new_moon
+    assert not moon_phase.waxing_crescent
+    assert not moon_phase.first_quarter
+    assert not moon_phase.waxing_gibbous
+    assert not moon_phase.full_moon
+    assert not moon_phase.disseminating
+    assert moon_phase.third_quarter
+    assert not moon_phase.balsamic
     assert moon_phase.formatted == names.MOON_PHASES[calc.THIRD_QUARTER]
 
     # Object
@@ -175,8 +175,8 @@ def test_wrapped_data(native):
     assert sun.name == names.PLANETS[chart.SUN]
     assert sun.distance == 0.9833259257690341
     assert sun.speed == 1.0194579691359147
-    assert sun.out_of_bounds == False
-    assert sun.in_sect == True
+    assert not sun.out_of_bounds
+    assert sun.in_sect
     assert sun.score == 3
 
     assert type(sun.latitude) is wrap.Angle  # Tested separately, just ensure type
@@ -204,37 +204,37 @@ def test_wrapped_data(native):
     assert sun.house.name == names.HOUSES[chart.HOUSE11]
 
     # ObjectMovement
-    assert sun.movement.direct == True
-    assert sun.movement.stationary == False
-    assert sun.movement.retrograde == False
-    assert sun.movement.typical == True
+    assert sun.movement.direct
+    assert not sun.movement.stationary
+    assert not sun.movement.retrograde
+    assert sun.movement.typical
     assert sun.movement.formatted == names.OBJECT_MOVEMENTS[calc.DIRECT]
 
     # DignityState
-    assert sun.dignities.ruler == False
-    assert sun.dignities.exalted == False
-    assert sun.dignities.triplicity_ruler == False
-    assert sun.dignities.term_ruler == False
-    assert sun.dignities.face_ruler == False
-    assert sun.dignities.mutual_reception_ruler == False
-    assert sun.dignities.mutual_reception_exalted == False
-    assert sun.dignities.mutual_reception_triplicity_ruler == True
-    assert sun.dignities.mutual_reception_term_ruler == False
-    assert sun.dignities.mutual_reception_face_ruler == False
-    assert sun.dignities.detriment == False
-    assert sun.dignities.fall == False
-    assert sun.dignities.peregrine == False
+    assert not sun.dignities.ruler
+    assert not sun.dignities.exalted
+    assert not sun.dignities.triplicity_ruler
+    assert not sun.dignities.term_ruler
+    assert not sun.dignities.face_ruler
+    assert not sun.dignities.mutual_reception_ruler
+    assert not sun.dignities.mutual_reception_exalted
+    assert sun.dignities.mutual_reception_triplicity_ruler
+    assert not sun.dignities.mutual_reception_term_ruler
+    assert not sun.dignities.mutual_reception_face_ruler
+    assert not sun.dignities.detriment
+    assert not sun.dignities.fall
+    assert not sun.dignities.peregrine
     assert sun.dignities.formatted == [
         names.DIGNITIES[dignities.MUTUAL_RECEPTION_TRIPLICITY_RULER],
     ]
 
     # EclipseType
     eclipse = natal_chart.objects[chart.PRE_NATAL_LUNAR_ECLIPSE]
-    assert eclipse.eclipse_type.total == False
-    assert eclipse.eclipse_type.annular == False
-    assert eclipse.eclipse_type.partial == True
-    assert eclipse.eclipse_type.annular_total == False
-    assert eclipse.eclipse_type.penumbral == False
+    assert not eclipse.eclipse_type.total
+    assert not eclipse.eclipse_type.annular
+    assert eclipse.eclipse_type.partial
+    assert not eclipse.eclipse_type.annular_total
+    assert not eclipse.eclipse_type.penumbral
     assert eclipse.eclipse_type.formatted == names.ECLIPSE_TYPES[chart.PARTIAL]
 
     assert (

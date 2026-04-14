@@ -1,9 +1,9 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    This module calculates solar returns and secondary progressions.
+This module calculates solar returns and secondary progressions.
 
 """
 
@@ -11,7 +11,6 @@ import swisseph as swe
 
 from immanuel.const import calc, chart
 from immanuel.tools import date, ephemeris
-
 
 JD = 0
 ARMC = 1
@@ -63,5 +62,7 @@ def progression(
             progressed_armc_lon = swe.cotrans(
                 (natal_mc["lon"] + distance, 0, 1), -obliquity
             )[0]
+        case _:
+            raise ValueError("Invalid progression method.")
 
     return progressed_jd, progressed_armc_lon

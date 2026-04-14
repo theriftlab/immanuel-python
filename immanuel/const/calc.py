@@ -1,16 +1,15 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    Defines certain astrological and astronomical constants used for chart
-    calculations. YEAR_DAYS and the sun's MEAN_MOTION are set to the same
-    constants used by astro.com's calculations.
+Defines certain astrological and astronomical constants used for chart
+calculations. YEAR_DAYS and the sun's MEAN_MOTION are set to the same
+constants used by astro.com's calculations.
 
 """
 
 from immanuel.const import chart
-
 
 """ Aspects. """
 CONJUNCTION = 0.0

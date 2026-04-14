@@ -1,12 +1,12 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    Aspect calculations are compared against those found by astro.com.
-    Where possible, astro.com's aspects table is the preferred source
-    of data, but the chart visual is also used to confirm data not in
-    the table.
+Aspect calculations are compared against those found by astro.com.
+Where possible, astro.com's aspects table is the preferred source
+of data, but the chart visual is also used to confirm data not in
+the table.
 
 """
 

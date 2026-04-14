@@ -1,20 +1,25 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    Extracts chart-shape and aspect patterns from a dict of chart objects
-    provided by the ephemeris module.
+Extracts chart-shape and aspect patterns from a dict of chart objects
+provided by the ephemeris module.
 
 """
+
+from typing import cast
 
 import swisseph as swe
 
 from immanuel.const import calc
-from immanuel.setup import ImmanuelSettings, settings as default_settings
+from immanuel.setup import BaseSettings
+from immanuel.setup import settings as default_settings
+
+_default_settings = cast(BaseSettings, default_settings)
 
 
-def chart_shape(objects: dict, settings: ImmanuelSettings = default_settings) -> int:
+def chart_shape(objects: dict, settings: BaseSettings = _default_settings) -> int:
     """Returns which of the predetermined shapes the passed
     chart objects form."""
     # Filter objects

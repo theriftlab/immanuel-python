@@ -1,33 +1,36 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    The actual user-facing chart classes are contained in this module. Each
-    chart class is easily serializable using the ToJSON class. Each chart type
-    is instantiated by passing an instance of Subject, apart from Transits.
-    This assumes the current moment and optionally takes a pair of coordinates
-    for house calculations, although these will default to those specified in
-    the settings if they are not required.
+The actual user-facing chart classes are contained in this module. Each
+chart class is easily serializable using the ToJSON class. Each chart type
+is instantiated by passing an instance of Subject, apart from Transits.
+This assumes the current moment and optionally takes a pair of coordinates
+for house calculations, although these will default to those specified in
+the settings if they are not required.
 
-    Instead of a dedicated synastry chart, the optional aspects_to parameter
-    in each chart type's constructor takes another Chart instance and forms its
-    aspects to the planets in that chart rather than its own. An additional
-    houses_for_aspected boolean is available on the Transits chart to use the
-    houses of the passed aspects_to chart.
+Instead of a dedicated synastry chart, the optional aspects_to parameter
+in each chart type's constructor takes another Chart instance and forms its
+aspects to the planets in that chart rather than its own. An additional
+houses_for_aspected boolean is available on the Transits chart to use the
+houses of the passed aspects_to chart.
 
 """
 
+from __future__ import annotations
+
 import json
 from datetime import datetime
-from typing import TypeVar
+from typing import cast
 
 from immanuel.classes import wrap
 from immanuel.classes.localize import localize as _
 from immanuel.classes.serialize import ToJSON
 from immanuel.const import calc, chart, names
 from immanuel.reports import aspect, dignity, pattern, weighting
-from immanuel.setup import ImmanuelSettings, settings as default_settings
+from immanuel.setup import BaseSettings
+from immanuel.setup import settings as default_settings
 from immanuel.tools import (
     convert,
     date,
@@ -37,8 +40,7 @@ from immanuel.tools import (
     position,
 )
 
-
-ChartType = TypeVar("ChartType", bound="Chart")
+_default_settings = cast(BaseSettings, default_settings)
 
 
 class Subject:
@@ -79,8 +81,8 @@ class Chart:
     def __init__(
         self,
         type: int,
-        aspects_to: ChartType | None = None,
-        settings: ImmanuelSettings = default_settings,
+        aspects_to: Chart | None = None,
+        settings: BaseSettings = _default_settings,
     ) -> None:
         self.type = _(names.CHART_TYPES[type])
         self._type = type
@@ -211,6 +213,13 @@ class Chart:
         }
 
     def set_wrapped_aspects(self) -> None:
+        def resolve_object_name(index: int) -> str:
+            if index in self._objects:
+                return self._objects[index]["name"]
+            elif self._aspects_to and index in self._aspects_to._objects:
+                return self._aspects_to._objects[index]["name"]
+            return ""
+
         aspects = (
             aspect.all(self._objects, settings=self._settings)
             if self._aspects_to is None
@@ -222,12 +231,8 @@ class Chart:
             index: {
                 object_index: wrap.Aspect(
                     aspect=object_aspect,
-                    active_name=self._objects[object_aspect["active"]]["name"]
-                    if object_aspect["active"] in self._objects
-                    else self._aspects_to._objects[object_aspect["active"]]["name"],
-                    passive_name=self._objects[object_aspect["passive"]]["name"]
-                    if object_aspect["passive"] in self._objects
-                    else self._aspects_to._objects[object_aspect["passive"]]["name"],
+                    active_name=resolve_object_name(object_aspect["active"]),
+                    passive_name=resolve_object_name(object_aspect["passive"]),
                     settings=self._settings,
                 )
                 for object_index, object_aspect in aspect_list.items()
@@ -254,7 +259,7 @@ class Natal(Chart):
         self,
         native: Subject,
         aspects_to: Chart | None = None,
-        settings: ImmanuelSettings = default_settings,
+        settings: BaseSettings = _default_settings,
     ) -> None:
         self._native = native
         super().__init__(chart.NATAL, aspects_to, settings)
@@ -306,7 +311,7 @@ class SolarReturn(Chart):
         native: Subject,
         year: int,
         aspects_to: Chart | None = None,
-        settings: ImmanuelSettings = default_settings,
+        settings: BaseSettings = _default_settings,
     ) -> None:
         self._native = native
         self._solar_return_year = year
@@ -381,7 +386,7 @@ class Progressed(Chart):
         native: Subject,
         date_time: datetime | str,
         aspects_to: Chart | None = None,
-        settings: ImmanuelSettings = default_settings,
+        settings: BaseSettings = _default_settings,
     ) -> None:
         self._native = native
         self._date_time = date_time
@@ -478,7 +483,7 @@ class Composite(Chart):
         native: Subject,
         partner: Subject,
         aspects_to: Chart | None = None,
-        settings: ImmanuelSettings = default_settings,
+        settings: BaseSettings = _default_settings,
     ) -> None:
         self._native = native
         self._partner = partner
@@ -616,7 +621,7 @@ class Transits(Chart):
         timezone: str | None = None,
         aspects_to: Chart | None = None,
         houses_for_aspected: bool = False,
-        settings: ImmanuelSettings = default_settings,
+        settings: BaseSettings = _default_settings,
     ) -> None:
         if latitude is None or longitude is None:
             latitude = settings.default_latitude

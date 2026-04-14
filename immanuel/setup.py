@@ -1,10 +1,10 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    Provides a simple set of default settings that can be overridden.
-    Also allows filepath(s) to ephemeris files to be changed or added.
+Provides a simple set of default settings that can be overridden.
+Also allows filepath(s) to ephemeris files to be changed or added.
 
 """
 
@@ -17,13 +17,7 @@ from immanuel.classes.localize import Localize
 from immanuel.const import calc, chart, data, dignities
 
 
-class ImmanuelSettings:
-    """Just for typing."""
-
-    pass
-
-
-class BaseSettings(ImmanuelSettings):
+class BaseSettings:
     def __init__(self) -> None:
         """Set locale."""
         self._locale = None
@@ -244,7 +238,7 @@ class BaseSettings(ImmanuelSettings):
         self._orbs = {}
 
     @property
-    def locale(self) -> str:
+    def locale(self) -> str | None:
         return self._locale
 
     @locale.setter
@@ -381,7 +375,7 @@ class BaseSettings(ImmanuelSettings):
         swe.set_ephe_path(self._file_path)
 
 
-class StaticSingleton(ImmanuelSettings, type):
+class StaticSingleton(type):
     """Metaclass to ensure singleton behavior & route everything to
     our BaseSettings instance to emulate static behavior."""
 

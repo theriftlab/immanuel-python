@@ -1,13 +1,13 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    This module provides conversions between D:M:S and decimal.
+This module provides conversions between D:M:S and decimal.
 
-    These functions perform simple conversions between the base-12 data used
-    by astrology (ie. angles, coordinates, and time) in string/list format,
-    and decimal numbers in float format.
+These functions perform simple conversions between the base-12 data used
+by astrology (ie. angles, coordinates, and time) in string/list format,
+and decimal numbers in float format.
 
 """
 
@@ -15,7 +15,6 @@ import math
 import re
 
 import swisseph as swe
-
 
 FORMAT_TIME = 0
 FORMAT_TIME_OFFSET = 1
@@ -36,7 +35,7 @@ def dms_to_dec(dms: list | tuple) -> float:
 
 
 def dec_to_dms(
-    dec: float, round_to: tuple = ROUND_SECOND, pad_rounded: bool = False
+    dec: float, round_to: tuple = ROUND_SECOND, pad_rounded: bool | None = False
 ) -> tuple:
     """Returns the rounded D:M:S conversion of a decimal float."""
     dms = (
@@ -103,7 +102,7 @@ def string_to_dec(string: str) -> float:
     return dms_to_dec(["-" if char in "SW" or floats[0] < 0 else "+", *floats])
 
 
-def to_dec(value: float | list | tuple | str) -> float | None:
+def to_dec(value: float | list | tuple | str) -> float:
     """If the input type is unknown, this will guess and convert."""
     if isinstance(value, float):
         return value
@@ -114,12 +113,12 @@ def to_dec(value: float | list | tuple | str) -> float | None:
             return float(value)
         else:
             return string_to_dec(value)
-    return None
+    raise ValueError(f"Cannot convert {value} to decimal")
 
 
 def to_dms(
     value: float | list | tuple | str, round_to: tuple = ROUND_SECOND, pad_rounded=False
-) -> tuple | None:
+) -> tuple:
     """If the input type is unknown, this will guess and convert."""
     if isinstance(value, float):
         return dec_to_dms(value, round_to, pad_rounded)
@@ -130,7 +129,7 @@ def to_dms(
             return dec_to_dms(float(value), round_to, pad_rounded)
         else:
             return string_to_dms(value, round_to, pad_rounded)
-    return None
+    raise ValueError(f"Cannot convert {value} to DMS")
 
 
 def to_string(
@@ -138,7 +137,7 @@ def to_string(
     format: int = FORMAT_DMS,
     round_to: tuple = ROUND_SECOND,
     pad_rounded: bool | None = None,
-) -> str | None:
+) -> str:
     """If the input type is unknown, this will guess and convert."""
     if isinstance(value, float):
         return dec_to_string(value, format, round_to, pad_rounded)
@@ -149,12 +148,12 @@ def to_string(
             return dec_to_string(float(value), format, round_to, pad_rounded)
         else:
             return dec_to_string(string_to_dec(value), format, round_to, pad_rounded)
-    return None
+    raise ValueError(f"Cannot convert {value} to string")
 
 
 def coordinates(
     lat: float | list | tuple | str, lon: float | list | tuple | str
-) -> tuple | None:
+) -> tuple:
     """Shortcut function to convert latitude and longitude to decimal."""
     return to_dec(lat), to_dec(lon)
 
@@ -197,4 +196,4 @@ def _dms_to_string_format_lat_lon(dms: list | tuple, dir: str) -> str:
 
 def _is_numeric(value: str) -> bool:
     """Determine whether a string is numeric."""
-    return re.match(r"^-?\d+(?:\.\d+)?$", value)
+    return re.match(r"^-?\d+(?:\.\d+)?$", value) is not None

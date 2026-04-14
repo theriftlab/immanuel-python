@@ -1,11 +1,11 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    This module provides basic positional data for a given object's longitude.
-    Since longitudes can either be extracted from objects or calculated
-    directly, these functions will accept both an object and a float.
+This module provides basic positional data for a given object's longitude.
+Since longitudes can either be extracted from objects or calculated
+directly, these functions will accept both an object and a float.
 
 """
 
@@ -14,7 +14,6 @@ import json
 import swisseph as swe
 
 from immanuel.const import chart
-
 
 _house = {}
 
@@ -42,7 +41,7 @@ def decan(object: dict | float) -> int:
     return int((object["lon"] if isinstance(object, dict) else object) % 30) // 10 + 1
 
 
-def house(object: dict | float, houses: dict) -> int:
+def house(object: dict | float, houses: dict) -> dict:
     """Given a object and a dict of houses from the ephemeris module, this
     returns which house the object is in. Basic dict caching is used."""
     lon = object["lon"] if isinstance(object, dict) else object
@@ -58,6 +57,7 @@ def house(object: dict | float, houses: dict) -> int:
         if 0 <= lon_diff < next_cusp_diff:
             _house[key] = house
             return house
+    return {}
 
 
 def opposite_house(object: dict | float, houses: dict) -> int:

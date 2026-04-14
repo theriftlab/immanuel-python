@@ -1,14 +1,13 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    Defines indices for the main chart objects supported by pyswisseph,
-    along with custom-calculated objects based on pyswisseph. These
-    constants are mainly used by the ephemeris module.
+Defines indices for the main chart objects supported by pyswisseph,
+along with custom-calculated objects based on pyswisseph. These
+constants are mainly used by the ephemeris module.
 
 """
-
 
 """ Determine object type by dividing index by this. Since asteroids are passed
 by number, this must be higher than the highest-numbered asteroid. """

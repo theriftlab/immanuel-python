@@ -1,14 +1,13 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    Defines indices for the chart classes to define what data should be
-    included for output. These are string rather than integer indices due to
-    the way the chart classes use these to name their functions.
+Defines indices for the chart classes to define what data should be
+included for output. These are string rather than integer indices due to
+the way the chart classes use these to name their functions.
 
 """
-
 
 NATIVE = "native"
 PARTNER = "partner"

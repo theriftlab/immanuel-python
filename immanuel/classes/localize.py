@@ -1,20 +1,22 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    Sets up translations and provides our own _() function. This will look for
-    a translation file for the full locale and fall back to the parent locale,
-    for example pt_BR then pt. If a file is found, then the full locale string
-    (eg. pt_BR) will be passed to locale.setlocale() for localizing datetimes.
+Sets up translations and provides our own _() function. This will look for
+a translation file for the full locale and fall back to the parent locale,
+for example pt_BR then pt. If a file is found, then the full locale string
+(eg. pt_BR) will be passed to locale.setlocale() for localizing datetimes.
 
 """
 
-import gettext, locale, os
+import gettext
+import locale
+import os
 
 from immanuel.classes.cache import FunctionCache
+from immanuel.classes.types import Stringable
 from immanuel.const import genders
-
 
 MAPPINGS = {}
 
@@ -24,6 +26,7 @@ class Localize:
     translation = None
     localedir = f"{os.path.dirname(__file__)}{os.sep}..{os.sep}locales"
 
+    @staticmethod
     def set_locale(lcid: str) -> None:
         FunctionCache.clear_all()
 
@@ -47,18 +50,19 @@ class Localize:
         else:
             Localize.reset()
 
+    @staticmethod
     def reset() -> None:
         FunctionCache.clear_all()
         Localize.lcid = None
         Localize.translation = None
         locale.setlocale(locale.LC_TIME, "en_US")
-        MAPPINGS = {}
+        MAPPINGS.clear()
 
 
-def localize(input: str, context: str | None = None) -> str:
+def localize(input: str | Stringable, context: str | None = None) -> str:
+    input = str(input)
     if Localize.translation is None:
         return input
-
     if context is None:
         return Localize.translation.gettext(input)
     else:
@@ -70,7 +74,7 @@ def localize(input: str, context: str | None = None) -> str:
         )
 
 
-def gender(index: int | float) -> str:
+def gender(index: int | float) -> str | None:
     if Localize.translation is None:
         return None
 

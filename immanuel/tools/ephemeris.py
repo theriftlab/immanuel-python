@@ -1,16 +1,16 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    This module provides easy access to relatively consistently standardized
-    pyswisseph data for the main angles, houses, points and planets, as well as
-    calculations based on that data. Transits, eclipses, moon phases, etc. are
-    also calculated in this module.
+This module provides easy access to relatively consistently standardized
+pyswisseph data for the main angles, houses, points and planets, as well as
+calculations based on that data. Transits, eclipses, moon phases, etc. are
+also calculated in this module.
 
-    Many of the functions here, including angle, house and vertex functions,
-    have an "armc_"-prefixed alternative if they are required to calculate
-    from an ARMC.
+Many of the functions here, including angle, house and vertex functions,
+have an "armc_"-prefixed alternative if they are required to calculate
+from an ARMC.
 
 """
 
@@ -22,7 +22,6 @@ from immanuel.classes.cache import cache
 from immanuel.classes.localize import localize as _
 from immanuel.const import calc, chart, names
 from immanuel.tools import transit
-
 
 ALL = -1
 
@@ -93,7 +92,7 @@ angles, houses, etc. from pyswisseph.
 
 
 def get_objects(
-    object_list: tuple,
+    object_list: list[int],
     jd: float,
     lat: float | None = None,
     lon: float | None = None,
@@ -114,7 +113,7 @@ def get_objects(
 
 
 def get_armc_objects(
-    object_list: tuple,
+    object_list: list[int],
     jd: float,
     armc: float,
     lat: float | None = None,
@@ -303,8 +302,8 @@ def get_armc_house(
 def get_point(
     index: int,
     jd: float,
-    lat: float | None = None,
-    lon: float | None = None,
+    lat: float,
+    lon: float,
     house_system: int | None = None,
     part_formula: int | None = None,
 ) -> dict:
@@ -427,6 +426,8 @@ def get_eclipse(index: int, jd: float) -> dict:
         case chart.POST_NATAL_LUNAR_ECLIPSE:
             eclipse_type, eclipse_jd = transit.next_lunar_eclipse(jd)
             ec_res = swe.calc_ut(eclipse_jd, swe.MOON)[0]
+        case _:
+            raise ValueError("Invalid eclipse type.")
 
     eq_res = swe.cotrans((ec_res[0], ec_res[1], ec_res[2]), -earth_obliquity(jd))
 
@@ -445,7 +446,7 @@ def get_eclipse(index: int, jd: float) -> dict:
 
 
 def _get_objects(
-    object_list: tuple,
+    object_list: list[int],
     jd: float,
     lat: float | None,
     lon: float | None,
@@ -518,22 +519,30 @@ def _get(
                 )
             case chart.ECLIPSE:
                 return get_eclipse(index, jd)
-            case (chart.ASTEROID | chart.PLANET):
+            case chart.ASTEROID | chart.PLANET:
                 return get_planet(index, jd)
-    else:
+            case _:
+                raise ValueError("Invalid object index.")
+
+    try:
         return get_fixed_star(index, jd)
+    except swe.Error as e:
+        raise ValueError(f"Invalid object index: {index}") from e
 
 
 def _get_angle(
     index: int,
     jd: float | None,
-    lat: float,
+    lat: float | None,
     lon: float | None,
-    house_system: int,
+    house_system: int | None,
     armc: float | None,
     armc_obliquity: float | None,
 ) -> dict:
     """Function for angle() and armc_angle()."""
+    if lat is None or house_system is None:
+        raise ValueError("Latitude and house system must be provided.")
+
     if armc is not None:
         angles = _get_angles_houses_vertex_armc(
             armc, lat, armc_obliquity, house_system
@@ -544,22 +553,22 @@ def _get_angle(
     if index == ALL:
         return angles
 
-    if index in angles:
-        return angles[index]
-
-    return None
+    return angles[index]
 
 
 def _get_house(
     index: int,
     jd: float | None,
-    lat: float,
+    lat: float | None,
     lon: float | None,
-    house_system: int,
+    house_system: int | None,
     armc: float | None,
     armc_obliquity: float | None,
 ) -> dict:
     """Function for house() and armc_house()."""
+    if lat is None or house_system is None:
+        raise ValueError("Latitude and house system must be provided.")
+
     first_house_lon = (
         get_planet(_first_house_planet_index(house_system), jd)["lon"]
         if house_system > chart.PLANET_ON_FIRST
@@ -578,16 +587,13 @@ def _get_house(
     if index == ALL:
         return houses
 
-    if index in houses:
-        return houses[index]
-
-    return None
+    return houses[index]
 
 
 def _get_point(
     index: int,
     jd: float | None,
-    lat: float,
+    lat: float | None,
     lon: float | None,
     house_system: int | None,
     part_formula: int | None,
@@ -595,6 +601,9 @@ def _get_point(
     armc_obliquity: float | None,
 ) -> dict:
     """Function for point() and armc_point()."""
+    if lat is None:
+        raise ValueError("Latitude must be provided.")
+
     if index == chart.VERTEX:
         if armc is not None:
             return _get_angles_houses_vertex_armc(
@@ -651,7 +660,7 @@ def _get_part(
     index: int,
     jd: float,
     lat: float,
-    lon: float | None,
+    lon: float,
     formula: int,
     armc: float | None = None,
     armc_obliquity: float | None = None,
@@ -660,11 +669,10 @@ def _get_part(
     sun = get_planet(chart.SUN, jd)
     moon = get_planet(chart.MOON, jd)
     venus = get_planet(chart.VENUS, jd) if index == chart.PART_OF_EROS else None
-    asc = (
-        get_angle(chart.ASC, jd, lat, lon, chart.PLACIDUS)
-        if armc is None
-        else get_armc_angle(chart.ASC, armc, lat, armc_obliquity, chart.PLACIDUS)
-    )
+    if armc is not None and armc_obliquity is not None:
+        asc = get_armc_angle(chart.ASC, armc, lat, armc_obliquity, chart.PLACIDUS)
+    else:
+        asc = get_angle(chart.ASC, jd, lat, lon, chart.PLACIDUS)
     lon = part_longitude(index, sun, moon, asc, venus, formula)
     dec = swe.cotrans((lon, 0, 0), -earth_obliquity(jd))[1]
 
@@ -716,16 +724,18 @@ def _get_angles_houses_vertex(
     along with their speeds. Defaults to Placidus for main angles & vertex if
     an PLANET_ON_FIRST house system is chosen. Based on Julian date and
     lat / lon coordinates."""
+    cusps, ascmc, cuspsspeed, ascmcspeed = swe.houses_ex2(
+        jd,
+        lat,
+        lon,
+        _SWE[house_system if house_system < chart.PLANET_ON_FIRST else chart.PLACIDUS],
+    )
     return _get_angles_houses_vertex_from_swe(
         earth_obliquity(jd),
-        *swe.houses_ex2(
-            jd,
-            lat,
-            lon,
-            _SWE[
-                house_system if house_system < chart.PLANET_ON_FIRST else chart.PLACIDUS
-            ],
-        ),
+        cusps,
+        ascmc,
+        cuspsspeed,
+        ascmcspeed,
         first_house_lon,
     )
 
@@ -742,16 +752,18 @@ def _get_angles_houses_vertex_armc(
     along with their speeds. Defaults to Placidus for main angles & vertex if
     an PLANET_ON_FIRST house system is chosen. Based on ARMC, latitude and
     ecliptic obliquity."""
+    cusps, ascmc, cuspsspeed, ascmcspeed = swe.houses_armc_ex2(
+        armc,
+        lat,
+        obliquity,
+        _SWE[house_system if house_system < chart.PLANET_ON_FIRST else chart.PLACIDUS],
+    )
     return _get_angles_houses_vertex_from_swe(
         obliquity,
-        *swe.houses_armc_ex2(
-            armc,
-            lat,
-            obliquity,
-            _SWE[
-                house_system if house_system < chart.PLANET_ON_FIRST else chart.PLACIDUS
-            ],
-        ),
+        cusps,
+        ascmc,
+        cuspsspeed,
+        ascmcspeed,
         first_house_lon,
     )
 
@@ -863,7 +875,7 @@ def part_longitude(
     sun: dict | float,
     moon: dict | float,
     asc: dict | float,
-    venus: dict | float = None,
+    venus: dict | float | None = None,
     formula: int = calc.DAY_NIGHT_FORMULA,
 ) -> float:
     """Returns the longitude of the given Part - currently supports Parts of
@@ -880,10 +892,12 @@ def part_longitude(
         lon = _part_of_fortune(sun_lon, moon_lon, asc_lon, night)
     elif index == chart.PART_OF_SPIRIT:
         lon = _part_of_spirit(sun_lon, moon_lon, asc_lon, night)
-    elif index == chart.PART_OF_EROS:
+    elif index == chart.PART_OF_EROS and venus is not None:
         venus_lon = venus["lon"] if isinstance(venus, dict) else venus
         spirit_lon = _part_of_spirit(sun_lon, moon_lon, asc_lon, night)
         lon = _part_of_eros(venus_lon, spirit_lon, asc_lon, night)
+    else:
+        raise ValueError("Invalid index.")
 
     return swe.degnorm(lon)
 
@@ -926,6 +940,8 @@ def moon_phase_from(sun: dict | float, moon: dict | float) -> int:
     for angle in range(45, 361, 45):
         if distance < angle:
             return angle
+
+    raise ValueError(f"Unexpected distance value: {distance}")
 
 
 @cache
@@ -991,20 +1007,19 @@ def is_out_of_bounds(
     Julian date or relative to the passed obliquity."""
     if isinstance(object, dict):
         if "dec" not in object:
-            return None
+            return False
         dec = object["dec"]
     else:
         dec = object
-
     if jd is not None:
         obliquity = earth_obliquity(jd)
-    elif obliquity is None:
-        return None
+    if obliquity is None:
+        raise ValueError("Either jd or obliquity must be provided.")
 
     return not -obliquity < dec < obliquity
 
 
-def is_in_sect(object: dict, is_daytime: bool, sun: dict | float = None) -> bool:
+def is_in_sect(object: dict, is_daytime: bool, sun: dict | float | None = None) -> bool:
     """Returns whether the passed planet is in sect."""
     if object["index"] in (chart.SUN, chart.JUPITER, chart.SATURN):
         return is_daytime
@@ -1012,7 +1027,7 @@ def is_in_sect(object: dict, is_daytime: bool, sun: dict | float = None) -> bool
     if object["index"] in (chart.MOON, chart.VENUS, chart.MARS):
         return not is_daytime
 
-    if object["index"] == chart.MERCURY:
+    if object["index"] == chart.MERCURY and sun is not None:
         sun_mercury_position = relative_position(sun, object)
         return (
             sun_mercury_position == calc.ORIENTAL

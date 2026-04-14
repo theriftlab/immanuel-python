@@ -1,15 +1,14 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    DMS / decimal tests ran against figures from:
-    https://www.rapidtables.com/convert/number/degrees-minutes-seconds-to-degrees.html
+DMS / decimal tests ran against figures from:
+https://www.rapidtables.com/convert/number/degrees-minutes-seconds-to-degrees.html
 
 """
 
 from immanuel.tools import convert
-
 
 """ dms_to_dec() """
 

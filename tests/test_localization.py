@@ -1,11 +1,11 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    Test the localization works when a translation file is present. These tests
-    use the pt_BR language as it's the first translation to go in. Translations
-    for Brazilian Portuguese are courtesy of Nathan Octavio.
+Test the localization works when a translation file is present. These tests
+use the pt_BR language as it's the first translation to go in. Translations
+for Brazilian Portuguese are courtesy of Nathan Octavio.
 
 """
 
@@ -14,7 +14,6 @@ from pytest import fixture
 from immanuel import charts
 from immanuel.classes import wrap
 from immanuel.classes.cache import FunctionCache
-from immanuel.classes.localize import localize as _
 from immanuel.const import calc, chart, dignities
 from immanuel.setup import settings
 

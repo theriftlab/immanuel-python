@@ -1,12 +1,12 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    Due to the huge amount of variables involved in testing different
-    rulerships, terms, and triplicities as well as testing every planet
-    in each of them, this is a fairly basic set of tests using the default
-    test DOB with a select few planets, and checked against Astro Gold on iOS.
+Due to the huge amount of variables involved in testing different
+rulerships, terms, and triplicities as well as testing every planet
+in each of them, this is a fairly basic set of tests using the default
+test DOB with a select few planets, and checked against Astro Gold on iOS.
 
 """
 
@@ -33,7 +33,7 @@ def jd(coords):
 
 @fixture
 def objects(jd):
-    objects = (
+    objects = [
         chart.SUN,
         chart.MOON,
         chart.MERCURY,
@@ -44,7 +44,7 @@ def objects(jd):
         chart.URANUS,
         chart.NEPTUNE,
         chart.PLUTO,
-    )
+    ]
     return ephemeris.get_objects(objects, jd)
 
 

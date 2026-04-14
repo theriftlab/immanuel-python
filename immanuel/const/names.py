@@ -1,14 +1,13 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    User-facing names for chart data objects.
+User-facing names for chart data objects.
 
 """
 
 from immanuel.const import calc, chart, dignities
-
 
 CHART_TYPES = {
     chart.NATAL: "Natal",

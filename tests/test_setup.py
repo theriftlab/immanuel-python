@@ -1,18 +1,18 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    Tests for the settings class. This class is designed to act like a module
-    containing global variables, but due to some settings cascading into each
-    other it requires slightly more complex machinery under the hood.
+Tests for the settings class. This class is designed to act like a module
+containing global variables, but due to some settings cascading into each
+other it requires slightly more complex machinery under the hood.
 
 """
 
 import os
 
-import swisseph as swe
 import pytest
+import swisseph as swe
 from pytest import fixture
 
 from immanuel import charts

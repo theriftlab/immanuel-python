@@ -1,11 +1,11 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    Test various birth charts with known chart shapes.
-    Celebrity natal chart data & chart shapes courtesy of
-    https://horoscopes.astro-seek.com
+Test various birth charts with known chart shapes.
+Celebrity natal chart data & chart shapes courtesy of
+https://horoscopes.astro-seek.com
 
 """
 

@@ -1,10 +1,10 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    Inspects element and quadrant weighting from a dict of chart objects
-    provided by the ephemeris module.
+Inspects element and quadrant weighting from a dict of chart objects
+provided by the ephemeris module.
 
 """
 

@@ -1,10 +1,10 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    The transit module's figures are tested against the output of the websites
-    cited in each test function's comments.
+The transit module's figures are tested against the output of the websites
+cited in each test function's comments.
 
 """
 

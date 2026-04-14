@@ -1,9 +1,9 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    Transits, eclipses, moon phases, etc. are calculated in this module.
+Transits, eclipses, moon phases, etc. are calculated in this module.
 
 """
 
@@ -13,9 +13,7 @@ import swisseph as swe
 from scipy.optimize import brentq
 
 from immanuel.const import calc, chart
-from immanuel.tools import ephemeris
-from immanuel.tools import position
-
+from immanuel.tools import ephemeris, position
 
 PREVIOUS = -1
 NEXT = 1

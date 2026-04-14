@@ -1,21 +1,31 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    Defines flexible classes to represent data in multiple formats.
-    While user-friendly names are defined in the const.names module,
-    JSON keys are defined here, either explicitly or as class members.
+Defines flexible classes to represent data in multiple formats.
+While user-friendly names are defined in the const.names module,
+JSON keys are defined here, either explicitly or as class members.
 
 """
 
-from datetime import datetime
+from __future__ import annotations
 
-from immanuel.classes.localize import gender, localize as _
+from datetime import datetime
+from typing import TYPE_CHECKING, cast
+
+if TYPE_CHECKING:
+    from immanuel.charts import Subject as ChartSubject
+
+from immanuel.classes.localize import gender
+from immanuel.classes.localize import localize as _
 from immanuel.const import calc, chart, dignities, names
 from immanuel.reports import dignity
-from immanuel.setup import ImmanuelSettings, settings as default_settings
+from immanuel.setup import BaseSettings
+from immanuel.setup import settings as default_settings
 from immanuel.tools import convert, date, ephemeris, position
+
+_default_settings = cast(BaseSettings, default_settings)
 
 
 class Angle:
@@ -49,7 +59,7 @@ class Aspect:
         aspect: dict,
         active_name: str,
         passive_name: str,
-        settings: ImmanuelSettings = default_settings,
+        settings: BaseSettings = _default_settings,
     ) -> None:
         self._active_name = active_name
         self._passive_name = passive_name
@@ -114,7 +124,7 @@ class DateTime:
     def __init__(
         self,
         dt: datetime | float,
-        armc: dict | float = None,
+        armc: dict | float | None = None,
         latitude: float | None = None,
         longitude: float | None = None,
         offset: float | None = None,
@@ -227,11 +237,11 @@ class Object:
         self,
         object: dict,
         date_time: datetime | None = None,
-        house: int | None = None,
+        house: dict | None = None,
         out_of_bounds: bool | None = None,
         in_sect: bool | None = None,
         dignity_state: dict | None = None,
-        settings: ImmanuelSettings = default_settings,
+        settings: BaseSettings = _default_settings,
     ) -> None:
         self.index = object["index"]
 
@@ -341,7 +351,7 @@ class Sign:
 
 class Subject:
     def __init__(
-        self, subject: "Subject", settings: ImmanuelSettings = default_settings
+        self, subject: ChartSubject, settings: BaseSettings = _default_settings
     ) -> None:
         armc = ephemeris.get_angle(
             index=chart.ARMC,

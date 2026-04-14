@@ -1,18 +1,17 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    Gregorian UT / Julian Day conversions ran against
-    figures from https://ssd.jpl.nasa.gov/tools/jdc/#/cd
+Gregorian UT / Julian Day conversions ran against
+figures from https://ssd.jpl.nasa.gov/tools/jdc/#/cd
 
 """
-
-import swisseph as swe
 
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+import swisseph as swe
 from pytest import approx, fixture
 
 from immanuel.tools import convert, date

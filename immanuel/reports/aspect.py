@@ -1,25 +1,30 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    This module calculates aspects between chart objects based on
-    the settings provided by the setup module.
+This module calculates aspects between chart objects based on
+the settings provided by the setup module.
 
-    The functions also rely on the object data returned by the
-    ephemeris module.
+The functions also rely on the object data returned by the
+ephemeris module.
 
 """
+
+from typing import cast
 
 import swisseph as swe
 
 from immanuel.const import calc
-from immanuel.setup import ImmanuelSettings, settings as default_settings
+from immanuel.setup import BaseSettings
+from immanuel.setup import settings as default_settings
 from immanuel.tools import position
+
+_default_settings = cast(BaseSettings, default_settings)
 
 
 def between(
-    object1: dict, object2: dict, settings: ImmanuelSettings = default_settings
+    object1: dict, object2: dict, settings: BaseSettings = _default_settings
 ) -> dict:
     """Returns any aspect between the two passed objects."""
     active, passive = (
@@ -45,7 +50,7 @@ def between(
             aspect not in active_aspect_rule["initiate"]
             or aspect not in passive_aspect_rule["receive"]
         ):
-            return None
+            return {}
 
         # Get orbs
         active_orb = (
@@ -99,14 +104,14 @@ def between(
                 "condition": calc.ASSOCIATE if associate else calc.DISSOCIATE,
             }
 
-    return None
+    return {}
 
 
 def for_object(
     object: dict,
     objects: dict,
     exclude_same: bool = True,
-    settings: ImmanuelSettings = default_settings,
+    settings: BaseSettings = _default_settings,
 ) -> dict:
     """Returns all chart objects aspecting the passed chart object. If two
     separate sets of objects are being compared (eg. synastry) then
@@ -120,7 +125,7 @@ def for_object(
 
         aspect = between(object, check_object, settings)
 
-        if aspect is not None:
+        if aspect:
             aspects[check_object["index"]] = aspect
 
     return aspects
@@ -129,7 +134,7 @@ def for_object(
 def all(
     objects: dict,
     exclude_same: bool = True,
-    settings: ImmanuelSettings = default_settings,
+    settings: BaseSettings = _default_settings,
 ) -> dict:
     """Returns all aspects between the passed chart objects."""
     aspects = {}
@@ -146,7 +151,7 @@ def all(
 def by_type(
     objects: dict,
     exclude_same: bool = True,
-    settings: ImmanuelSettings = default_settings,
+    settings: BaseSettings = _default_settings,
 ) -> dict:
     """Returns all aspects between the passed chart objects keyed by
     aspect type."""
@@ -170,7 +175,7 @@ def synastry(
     objects1: dict,
     objects2: dict,
     exclude_same: bool = False,
-    settings: ImmanuelSettings = default_settings,
+    settings: BaseSettings = _default_settings,
 ) -> dict:
     """Returns all aspects between the two sets of passed chart objects."""
     aspects = {}

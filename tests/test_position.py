@@ -1,13 +1,13 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Author: Robert Davies (robert@theriftlab.com)
+This file is part of immanuel - (C) The Rift Lab
+Author: Robert Davies (robert@theriftlab.com)
 
 
-    The position module's calculations are tested against
-    figures from astro.com. The sign_longitude() function will already
-    have been partially tested in the ephemeris module's tests since
-    there is no other way to convert the ephemeris module's longitudes
-    into sign-specific longitudes.
+The position module's calculations are tested against
+figures from astro.com. The sign_longitude() function will already
+have been partially tested in the ephemeris module's tests since
+there is no other way to convert the ephemeris module's longitudes
+into sign-specific longitudes.
 
 """
 
@@ -33,14 +33,15 @@ def jd(coords):
 
 @fixture
 def data(jd, coords):
+    lat, lon = coords
     settings.add_filepath(os.path.dirname(__file__))
 
     return {
-        "asc": ephemeris.get_angle(chart.ASC, jd, *coords, chart.PLACIDUS),
-        "house_2": ephemeris.get_house(chart.HOUSE2, jd, *coords, chart.PLACIDUS),
+        "asc": ephemeris.get_angle(chart.ASC, jd, lat, lon, chart.PLACIDUS),
+        "house_2": ephemeris.get_house(chart.HOUSE2, jd, lat, lon, chart.PLACIDUS),
         "sun": ephemeris.get_planet(chart.SUN, jd),
         "pof": ephemeris.get_point(
-            chart.PART_OF_FORTUNE, jd, *coords, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA
+            chart.PART_OF_FORTUNE, jd, lat, lon, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA
         ),
         "juno": ephemeris.get_asteroid(chart.JUNO, jd),  # Included with planets
         "lilith": ephemeris.get_asteroid(1181, jd),  # From its own file
@@ -154,14 +155,16 @@ def test_decan(data, astro):
 
 
 def test_house(jd, coords, data, astro):
-    houses = ephemeris.get_houses(jd, *coords, chart.PLACIDUS)
+    lat, lon = coords
+    houses = ephemeris.get_houses(jd, lat, lon, chart.PLACIDUS)
 
     for key, object in {k: v for k, v in data.items() if "house" in v}:
         assert position.house(object, houses) == astro[key]["house"]
 
 
 def test_opposite_house(jd, coords, data, astro):
-    houses = ephemeris.get_houses(jd, *coords, chart.PLACIDUS)
+    lat, lon = coords
+    houses = ephemeris.get_houses(jd, lat, lon, chart.PLACIDUS)
 
     for key, object in {k: v for k, v in data.items() if "house" in v}:
         assert position.opposite_house(object, houses) == astro[key]["opposite_house"]
