@@ -1,14 +1,13 @@
 """
-    This file is part of immanuel - (C) The Rift Lab
-    Authors: Robert Davies (robert@theriftlab.com) and Nathan Octavio
+This file is part of immanuel - (C) The Rift Lab
+Authors: Robert Davies (robert@theriftlab.com) and Nathan Octavio
 
 
-    Gendered list of relevant nouns for correct adjective translation.
+Gendered list of relevant nouns for correct adjective translation.
 
 """
 
 from immanuel.const import calc, chart, genders
-
 
 GENDERS = {
     chart.ASC: genders.MASCULINE,
