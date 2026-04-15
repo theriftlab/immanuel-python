@@ -60,7 +60,6 @@ def dms_to_string(
         else pad_rounded
     )
     dms = dec_to_dms(dms_to_dec(dms), round_to, pad_rounded)
-
     if format == FORMAT_DMS:
         return _dms_to_string_format_dms(dms)
     if format == FORMAT_TIME:
@@ -71,8 +70,7 @@ def dms_to_string(
         return _dms_to_string_format_lat(dms)
     if format == FORMAT_LON:
         return _dms_to_string_format_lon(dms)
-
-    return ""
+    raise ValueError("Invalid format.")
 
 
 def string_to_dms(

@@ -342,7 +342,6 @@ def test_get_angle(jd, coords, all_angles):
     for index in all_angles:
         angle = ephemeris.get_angle(index, jd, lat, lon, chart.PLACIDUS)
         assert angle["index"] == index and angle["type"] == chart.ANGLE
-
     assert ephemeris.get_angle(
         ephemeris.ALL, jd, lat, lon, chart.PLACIDUS
     ) == ephemeris.get_angles(jd, lat, lon, chart.PLACIDUS)
@@ -350,13 +349,11 @@ def test_get_angle(jd, coords, all_angles):
 
 def test_get_armc_angle(jd, coords, armc, all_angles):
     obliquity = ephemeris.earth_obliquity(jd)
-
     for index in all_angles:
         angle = ephemeris.get_armc_angle(
             index, armc, coords[0], obliquity, chart.PLACIDUS
         )
         assert angle["index"] == index and angle["type"] == chart.ANGLE
-
     assert ephemeris.get_armc_angle(
         ephemeris.ALL, armc, coords[0], obliquity, chart.PLACIDUS
     ) == ephemeris.get_armc_angles(armc, coords[0], obliquity, chart.PLACIDUS)
@@ -380,7 +377,6 @@ def test_get_house(jd, coords, all_houses):
     for index in all_houses:
         house = ephemeris.get_house(index, jd, lat, lon, chart.PLACIDUS)
         assert house["index"] == index and house["type"] == chart.HOUSE
-
     assert ephemeris.get_house(
         ephemeris.ALL, jd, lat, lon, chart.PLACIDUS
     ) == ephemeris.get_houses(jd, lat, lon, chart.PLACIDUS)
@@ -388,13 +384,11 @@ def test_get_house(jd, coords, all_houses):
 
 def test_get_armc_house(jd, coords, armc, all_houses):
     obliquity = ephemeris.earth_obliquity(jd)
-
     for index in all_houses:
         house = ephemeris.get_armc_house(
             index, armc, coords[0], obliquity, chart.PLACIDUS
         )
         assert house["index"] == index and house["type"] == chart.HOUSE
-
     assert ephemeris.get_armc_house(
         ephemeris.ALL, armc, coords[0], obliquity, chart.PLACIDUS
     ) == ephemeris.get_armc_houses(armc, coords[0], obliquity, chart.PLACIDUS)
@@ -405,7 +399,6 @@ def test_planet_on_first_house(jd, coords):
     sun = ephemeris.get_planet(chart.SUN, jd)
     first_house = ephemeris.get_house(chart.HOUSE1, jd, lat, lon, chart.SUN_ON_FIRST)
     second_house = ephemeris.get_house(chart.HOUSE2, jd, lat, lon, chart.SUN_ON_FIRST)
-
     assert sun["lon"] == first_house["lon"]
     assert sun["lon"] + 30 == second_house["lon"]
 
@@ -441,7 +434,6 @@ def test_get_planet(jd, all_planets):
 
 def test_get_asteroid(jd, all_asteroids):
     settings.add_filepath(os.path.dirname(__file__))
-
     for index in all_asteroids:
         asteroid = ephemeris.get_asteroid(index, jd)
         assert asteroid["index"] == index and asteroid["type"] == chart.ASTEROID
@@ -457,15 +449,12 @@ def test_get_eclipse(jd):
     pre_solar = ephemeris.get_eclipse(chart.PRE_NATAL_SOLAR_ECLIPSE, jd)
     assert pre_solar["type"] == chart.ECLIPSE
     assert pre_solar["index"] == chart.PRE_NATAL_SOLAR_ECLIPSE
-
     pre_lunar = ephemeris.get_eclipse(chart.PRE_NATAL_LUNAR_ECLIPSE, jd)
     assert pre_lunar["type"] == chart.ECLIPSE
     assert pre_lunar["index"] == chart.PRE_NATAL_LUNAR_ECLIPSE
-
     post_solar = ephemeris.get_eclipse(chart.POST_NATAL_SOLAR_ECLIPSE, jd)
     assert post_solar["type"] == chart.ECLIPSE
     assert post_solar["index"] == chart.POST_NATAL_SOLAR_ECLIPSE
-
     post_lunar = ephemeris.get_eclipse(chart.POST_NATAL_LUNAR_ECLIPSE, jd)
     assert post_lunar["type"] == chart.ECLIPSE
     assert post_lunar["index"] == chart.POST_NATAL_LUNAR_ECLIPSE
@@ -478,7 +467,6 @@ we can test the accuracy of the module's data. """
 def test_get_data(coords, jd, astro):
     lat, lon = coords
     settings.add_filepath(os.path.dirname(__file__))
-
     data = {
         "asc": ephemeris.get_angle(chart.ASC, jd, lat, lon, chart.PLACIDUS),
         "house_2": ephemeris.get_house(chart.HOUSE2, jd, lat, lon, chart.PLACIDUS),
@@ -502,30 +490,24 @@ def test_get_data(coords, jd, astro):
             chart.POST_NATAL_LUNAR_ECLIPSE, jd
         ),
     }
-
     for key, eph_object in data.items():
         # Convert ecliptical longitude to sign-based
         object = eph_object.copy()
         object["lon"] = position.sign_longitude(object)
-
         # Format properties to string to match astro.com front-end output
         for property_key in ("lon", "lat", "speed", "dec"):
             if property_key in object:
                 object[property_key] = convert.dec_to_string(object[property_key])
-
         # For eclipse dates
         if "date" in astro[key]:
             object["date"] = date.to_datetime(object["jd"], *coords).strftime("%d %B")
-
         for property, value in astro[key].items():
             assert object[property] == value
 
 
 def test_armc_get_data(coords, jd, astro, armc):
     settings.add_filepath(os.path.dirname(__file__))
-
     obliquity = ephemeris.earth_obliquity(jd)
-
     data = {
         "asc": ephemeris.get_armc_angle(
             chart.ASC, armc, coords[0], obliquity, chart.PLACIDUS
@@ -542,17 +524,14 @@ def test_armc_get_data(coords, jd, astro, armc):
             part_formula=calc.DAY_NIGHT_FORMULA,
         ),
     }
-
     for key, eph_object in data.items():
         # Convert ecliptic longitude to sign-based
         object = eph_object.copy()
         object["lon"] = position.sign_longitude(object)
-
         # Format properties to string to match astro.com front-end output
         for property_key in ("lon", "lat", "speed", "dec"):
             if property_key in object:
                 object[property_key] = convert.dec_to_string(object[property_key])
-
         for property, value in astro[key].items():
             assert object[property] == value
 
@@ -690,7 +669,6 @@ def test_is_daytime_from(day_jd, night_jd, coords):
         chart.PLACIDUS,
     ).values()
     assert ephemeris.is_daytime_from(sun, asc) is True
-
     sun, asc = ephemeris.get_objects(
         [chart.SUN, chart.ASC], night_jd, lat, lon, chart.PLACIDUS
     ).values()

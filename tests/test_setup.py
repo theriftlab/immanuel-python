@@ -18,7 +18,7 @@ from pytest import fixture
 from immanuel import charts
 from immanuel.classes.cache import FunctionCache
 from immanuel.const import calc, chart
-from immanuel.setup import BaseSettings, settings
+from immanuel.setup import ImmanuelSettings, settings
 
 
 @fixture
@@ -34,13 +34,10 @@ def teardown_function():
 def test_attributes():
     settings.house_system = chart.POLICH_PAGE
     assert settings.house_system == chart.POLICH_PAGE
-
     # Cascading setting
     assert calc.CONJUNCTION in settings.aspects
     assert calc.CONJUNCTION in settings.aspect_rules[chart.SUN]["initiate"]
-
     settings.aspects.remove(calc.CONJUNCTION)
-
     assert calc.CONJUNCTION not in settings.aspects
     assert calc.CONJUNCTION not in settings.aspect_rules[chart.SUN]["initiate"]
 
@@ -56,7 +53,6 @@ def test_set():
             },
         }
     )
-
     assert settings.house_system == chart.CAMPANUS
     assert settings.planet_aspect_rule["initiate"] == [
         calc.CONJUNCTION,
@@ -73,22 +69,18 @@ def test_settings_are_respected(native):
     assert natal.houses[chart.HOUSE2].sign_longitude.formatted == "17°59'40\""
     assert natal.houses[chart.HOUSE3].sign.number == 2
     assert natal.houses[chart.HOUSE3].sign_longitude.formatted == "19°56'55\""
-
     settings.house_system = chart.CAMPANUS
     natal = charts.Natal(native)
     assert natal.houses[chart.HOUSE2].sign.number == 1
     assert natal.houses[chart.HOUSE2].sign_longitude.formatted == "25°02'32\""
     assert natal.houses[chart.HOUSE3].sign.number == 2
     assert natal.houses[chart.HOUSE3].sign_longitude.formatted == "25°34'25\""
-
     # Ensure Sun can initiate all aspects
     settings.planet_aspect_rule = {
         "initiate": settings.aspects,
     }
-
     natal = charts.Natal(native)
     assert len(natal.aspects[chart.SUN]) > 0
-
     # Ensure Sun can initiate no aspects
     settings.aspect_rules = {
         chart.SUN: {
@@ -96,13 +88,12 @@ def test_settings_are_respected(native):
             "receive": [],
         }
     }
-
     natal = charts.Natal(native)
     assert chart.SUN not in natal.aspects
 
 
 def test_custom_settings(native):
-    custom_settings = BaseSettings()
+    custom_settings = ImmanuelSettings()
     custom_settings.objects = [
         chart.ASC,
         chart.SUN,
@@ -124,9 +115,7 @@ def test_add_filepath(native):
     settings.objects.append(1181)
     natal = charts.Natal(native)
     assert 1181 in natal.objects
-
     settings.add_filepath("", True)
     FunctionCache.clear_all()
-
     with pytest.raises(swe.Error):
         charts.Natal(native)

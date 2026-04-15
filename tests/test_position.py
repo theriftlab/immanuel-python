@@ -35,7 +35,6 @@ def jd(coords):
 def data(jd, coords):
     lat, lon = coords
     settings.add_filepath(os.path.dirname(__file__))
-
     return {
         "asc": ephemeris.get_angle(chart.ASC, jd, lat, lon, chart.PLACIDUS),
         "house_2": ephemeris.get_house(chart.HOUSE2, jd, lat, lon, chart.PLACIDUS),
@@ -157,7 +156,6 @@ def test_decan(data, astro):
 def test_house(jd, coords, data, astro):
     lat, lon = coords
     houses = ephemeris.get_houses(jd, lat, lon, chart.PLACIDUS)
-
     for key, object in {k: v for k, v in data.items() if "house" in v}:
         assert position.house(object, houses) == astro[key]["house"]
 
@@ -165,7 +163,6 @@ def test_house(jd, coords, data, astro):
 def test_opposite_house(jd, coords, data, astro):
     lat, lon = coords
     houses = ephemeris.get_houses(jd, lat, lon, chart.PLACIDUS)
-
     for key, object in {k: v for k, v in data.items() if "house" in v}:
         assert position.opposite_house(object, houses) == astro[key]["opposite_house"]
 

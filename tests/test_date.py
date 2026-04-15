@@ -115,7 +115,6 @@ def test_to_datetime_gmt(gmt_date, str_gmt_date, gmt_coords, jd):
     assert dt_original.minute == 0
     assert dt_original.second == 0
     assert dt_original.tzinfo == ZoneInfo("Europe/London")
-
     dt_from_str = date.to_datetime(str_gmt_date, *gmt_coords)
     assert dt_from_str.year == 2000
     assert dt_from_str.month == 1
@@ -124,7 +123,6 @@ def test_to_datetime_gmt(gmt_date, str_gmt_date, gmt_coords, jd):
     assert dt_from_str.minute == 0
     assert dt_from_str.second == 0
     assert dt_from_str.tzinfo == ZoneInfo("Europe/London")
-
     dt_from_jd = date.to_datetime(jd, *gmt_coords)
     assert dt_from_jd.year == 2000
     assert dt_from_jd.month == 1
@@ -133,7 +131,6 @@ def test_to_datetime_gmt(gmt_date, str_gmt_date, gmt_coords, jd):
     assert dt_from_jd.minute == 0
     assert dt_from_jd.second == 0
     assert dt_from_jd.tzinfo == ZoneInfo("Europe/London")
-
     utc_dt_from_jd = date.to_datetime(jd)
     assert utc_dt_from_jd.year == 2000
     assert utc_dt_from_jd.month == 1
@@ -153,7 +150,6 @@ def test_to_datetime_pst(pst_date, str_pst_date, pst_coords, gmt_coords, jd):
     assert dt_original.minute == 0
     assert dt_original.second == 0
     assert dt_original.tzinfo == ZoneInfo("America/Los_Angeles")
-
     dt_from_str = date.to_datetime(str_pst_date, *pst_coords)
     assert dt_from_str.year == 2000
     assert dt_from_str.month == 1
@@ -162,7 +158,6 @@ def test_to_datetime_pst(pst_date, str_pst_date, pst_coords, gmt_coords, jd):
     assert dt_from_str.minute == 0
     assert dt_from_str.second == 0
     assert dt_from_str.tzinfo == ZoneInfo("America/Los_Angeles")
-
     dt_from_jd = date.to_datetime(jd, *pst_coords)
     assert dt_from_jd.year == 2000
     assert dt_from_jd.month == 1
@@ -171,7 +166,6 @@ def test_to_datetime_pst(pst_date, str_pst_date, pst_coords, gmt_coords, jd):
     assert dt_from_jd.minute == 0
     assert dt_from_jd.second == 0
     assert dt_from_jd.tzinfo == ZoneInfo("America/Los_Angeles")
-
     dt_from_offset = date.to_datetime(jd, *gmt_coords, offset=-8.0)
     assert dt_from_offset.year == 2000
     assert dt_from_offset.month == 1
@@ -179,7 +173,6 @@ def test_to_datetime_pst(pst_date, str_pst_date, pst_coords, gmt_coords, jd):
     assert dt_from_offset.hour == 10
     assert dt_from_offset.minute == 0
     assert dt_from_offset.second == 0
-
     dt_from_time_zone = date.to_datetime(jd, time_zone="America/Los_Angeles")
     assert dt_from_time_zone.year == 2000
     assert dt_from_time_zone.month == 1

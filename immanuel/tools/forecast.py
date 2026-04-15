@@ -22,14 +22,12 @@ def solar_return(jd: float, year: int) -> float:
     year_diff = year - dt.year
     sr_jd = jd + year_diff * calc.YEAR_DAYS
     natal_sun = ephemeris.get_planet(chart.SUN, jd)
-
     while True:
         sr_sun = ephemeris.get_planet(chart.SUN, sr_jd)
         distance = swe.difdeg2n(natal_sun["lon"], sr_sun["lon"])
         if abs(distance) <= calc.MAX_ERROR:
             break
         sr_jd += distance / sr_sun["speed"]
-
     return sr_jd
 
 
@@ -40,7 +38,6 @@ def progression(
     year_days = ephemeris.solar_year_length(jd)
     years = (pjd - jd) / year_days
     progressed_jd = jd + years
-
     match method:
         case calc.DAILY_HOUSES:
             progressed_armc_lon = ephemeris.get_angle(
@@ -64,5 +61,4 @@ def progression(
             )[0]
         case _:
             raise ValueError("Invalid progression method.")
-
     return progressed_jd, progressed_armc_lon

@@ -352,7 +352,6 @@ def get_planet(index: int, jd: float) -> dict:
     ec_res = swe.calc_ut(jd, _SWE[index])[0]
     eq_res = swe.cotrans((ec_res[0], ec_res[1], ec_res[2]), -earth_obliquity(jd))
     asteroid = _type(index) == chart.ASTEROID
-
     return {
         "index": index,
         "type": chart.ASTEROID if asteroid else chart.PLANET,
@@ -372,13 +371,10 @@ def get_asteroid(index: int, jd: float) -> dict:
     in the setup module."""
     if _type(index) == chart.ASTEROID:
         return get_planet(index, jd)
-
     swe_index = index + swe.AST_OFFSET
     name = swe.get_planet_name(swe_index)
-
     ec_res = swe.calc_ut(jd, swe_index)[0]
     eq_res = swe.cotrans((ec_res[0], ec_res[1], ec_res[2]), -earth_obliquity(jd))
-
     return {
         "index": index,
         "type": chart.ASTEROID,
@@ -396,7 +392,6 @@ def get_fixed_star(name: str, jd: float) -> dict:
     """Returns a fixed star by Julian date and name."""
     res, stnam = swe.fixstar2_ut(name, jd)[:2]
     name = stnam.partition(",")[0]
-
     return {
         "index": name,
         "type": chart.FIXED_STAR,
@@ -428,9 +423,7 @@ def get_eclipse(index: int, jd: float) -> dict:
             ec_res = swe.calc_ut(eclipse_jd, swe.MOON)[0]
         case _:
             raise ValueError("Invalid eclipse type.")
-
     eq_res = swe.cotrans((ec_res[0], ec_res[1], ec_res[2]), -earth_obliquity(jd))
-
     return {
         "index": index,
         "type": chart.ECLIPSE,
@@ -457,7 +450,6 @@ def _get_objects(
 ) -> dict:
     """Function for items() and armc_items()."""
     objects = {}
-
     for index in object_list:
         objects[index] = _get(
             index=index,
@@ -469,7 +461,6 @@ def _get_objects(
             armc=armc,
             armc_obliquity=armc_obliquity,
         )
-
     return objects
 
 
@@ -486,17 +477,13 @@ def _get(
     """Function for get() and armc_get()."""
     if armc is not None and armc_obliquity is None:
         armc_obliquity = earth_obliquity(jd)
-
     if isinstance(index, int):
         if index < chart.TYPE_MULTIPLIER:
             return get_asteroid(index, jd)
-
         if index == chart.ANGLE:
             return _get_angle(ALL, jd, lat, lon, house_system, armc, armc_obliquity)
-
         if index == chart.HOUSE:
             return _get_house(ALL, jd, lat, lon, house_system, armc, armc_obliquity)
-
         match _type(index):
             case chart.ANGLE:
                 return _get_angle(
@@ -521,13 +508,11 @@ def _get(
                 return get_eclipse(index, jd)
             case chart.ASTEROID | chart.PLANET:
                 return get_planet(index, jd)
-            case _:
-                raise ValueError("Invalid object index.")
-
+        raise ValueError("Invalid object index.")
     try:
         return get_fixed_star(index, jd)
     except swe.Error as e:
-        raise ValueError(f"Invalid object index: {index}") from e
+        raise ValueError("Invalid object index.") from e
 
 
 def _get_angle(
@@ -541,18 +526,15 @@ def _get_angle(
 ) -> dict:
     """Function for angle() and armc_angle()."""
     if lat is None or house_system is None:
-        raise ValueError("Latitude and house system must be provided.")
-
+        raise TypeError("Latitude and house system must be provided.")
     if armc is not None:
         angles = _get_angles_houses_vertex_armc(
             armc, lat, armc_obliquity, house_system
         )["angles"]
     else:
         angles = _get_angles_houses_vertex(jd, lat, lon, house_system)["angles"]
-
     if index == ALL:
         return angles
-
     return angles[index]
 
 
@@ -567,14 +549,12 @@ def _get_house(
 ) -> dict:
     """Function for house() and armc_house()."""
     if lat is None or house_system is None:
-        raise ValueError("Latitude and house system must be provided.")
-
+        raise TypeError("Latitude and house system must be provided.")
     first_house_lon = (
         get_planet(_first_house_planet_index(house_system), jd)["lon"]
         if house_system > chart.PLANET_ON_FIRST
         else None
     )
-
     if armc is not None:
         houses = _get_angles_houses_vertex_armc(
             armc, lat, armc_obliquity, house_system, first_house_lon
@@ -583,10 +563,8 @@ def _get_house(
         houses = _get_angles_houses_vertex(jd, lat, lon, house_system, first_house_lon)[
             "houses"
         ]
-
     if index == ALL:
         return houses
-
     return houses[index]
 
 
@@ -602,8 +580,7 @@ def _get_point(
 ) -> dict:
     """Function for point() and armc_point()."""
     if lat is None:
-        raise ValueError("Latitude must be provided.")
-
+        raise TypeError("Latitude must be provided.")
     if index == chart.VERTEX:
         if armc is not None:
             return _get_angles_houses_vertex_armc(
@@ -611,13 +588,10 @@ def _get_point(
             )["vertex"]
         else:
             return _get_angles_houses_vertex(jd, lat, lon, house_system)["vertex"]
-
     if index == chart.SYZYGY:
         return _get_syzygy(jd)
-
     if index in (chart.PART_OF_FORTUNE, chart.PART_OF_SPIRIT, chart.PART_OF_EROS):
         return _get_part(index, jd, lat, lon, part_formula, armc, armc_obliquity)
-
     return _get_swisseph_point(index, jd)
 
 
@@ -643,7 +617,6 @@ def _get_swisseph_point(index: int, jd: float) -> dict:
     )
     speed = res[3]
     dec = swe.cotrans((lon, lat, 0), -earth_obliquity(jd))[1]
-
     return {
         "index": index,
         "type": chart.POINT,
@@ -675,7 +648,6 @@ def _get_part(
         asc = get_angle(chart.ASC, jd, lat, lon, chart.PLACIDUS)
     lon = part_longitude(index, sun, moon, asc, venus, formula)
     dec = swe.cotrans((lon, 0, 0), -earth_obliquity(jd))[1]
-
     return {
         "index": index,
         "type": chart.POINT,
@@ -700,7 +672,6 @@ def _get_syzygy(jd: float) -> dict:
         else transit.previous_full_moon(jd)
     )
     syzygy_moon = get_planet(chart.MOON, syzygy_jd)
-
     return {
         "index": chart.SYZYGY,
         "type": chart.POINT,
@@ -778,12 +749,10 @@ def _get_angles_houses_vertex_from_swe(
 ) -> dict:
     """Get houses, angles & vertex direct from pyswisseph."""
     angles = {}
-
     for i in (chart.ASC, chart.MC, chart.ARMC):
         lon = ascmc[_SWE[i]]
         speed = ascmcspeed[_SWE[i]]
         dec = swe.cotrans((lon, 0, 0), -obliquity)[1]
-
         angles[i] = {
             "index": i,
             "type": chart.ANGLE,
@@ -792,7 +761,6 @@ def _get_angles_houses_vertex_from_swe(
             "speed": speed,
             "dec": dec,
         }
-
         if i in (chart.ASC, chart.MC):
             index = chart.DESC if i == chart.ASC else chart.IC
 
@@ -804,12 +772,9 @@ def _get_angles_houses_vertex_from_swe(
                 "speed": speed,
                 "dec": dec * -1,
             }
-
     houses = {}
-
     for i in range(1, 13):
         index = chart.HOUSE + i
-
         if first_house_lon is not None:
             lon = swe.degnorm(first_house_lon + (30 * (i - 1)))
             size = 30
@@ -820,7 +785,6 @@ def _get_angles_houses_vertex_from_swe(
             size = swe.difdeg2n(cusps[i if i < 12 else 0], lon)
             speed = cuspsspeed[i - 1]
             dec = swe.cotrans((lon, 0, 0), -obliquity)[1]
-
         houses[index] = {
             "index": index,
             "type": chart.HOUSE,
@@ -831,11 +795,9 @@ def _get_angles_houses_vertex_from_swe(
             "speed": speed,
             "dec": dec,
         }
-
     vertex_lon = ascmc[_SWE[chart.VERTEX]]
     vertex_speed = ascmcspeed[_SWE[chart.VERTEX]]
     vertex_dec = swe.cotrans((vertex_lon, 0, 0), -obliquity)[1]
-
     vertex = {
         "index": chart.VERTEX,
         "type": chart.POINT,
@@ -844,7 +806,6 @@ def _get_angles_houses_vertex_from_swe(
         "speed": vertex_speed,
         "dec": vertex_dec,
     }
-
     return {
         "angles": angles,
         "houses": houses,
@@ -887,7 +848,6 @@ def part_longitude(
     night = formula == calc.NIGHT_FORMULA or (
         formula == calc.DAY_NIGHT_FORMULA and not is_daytime_from(sun_lon, asc_lon)
     )
-
     if index == chart.PART_OF_FORTUNE:
         lon = _part_of_fortune(sun_lon, moon_lon, asc_lon, night)
     elif index == chart.PART_OF_SPIRIT:
@@ -898,7 +858,6 @@ def part_longitude(
         lon = _part_of_eros(venus_lon, spirit_lon, asc_lon, night)
     else:
         raise ValueError("Invalid index.")
-
     return swe.degnorm(lon)
 
 
@@ -936,11 +895,9 @@ def moon_phase_from(sun: dict | float, moon: dict | float) -> int:
         object["lon"] if isinstance(object, dict) else object for object in (sun, moon)
     )
     distance = swe.difdegn(moon_lon, sun_lon)
-
     for angle in range(45, 361, 45):
         if distance < angle:
             return angle
-
     raise ValueError(f"Unexpected distance value: {distance}")
 
 
@@ -967,10 +924,8 @@ def sidereal_time(armc: dict | float) -> float:
 def object_movement(object: dict | float) -> int:
     """Returns whether a chart object is direct, stationary or retrograde."""
     speed = object["speed"] if isinstance(object, dict) else object
-
     if -calc.STATION_SPEED <= speed <= calc.STATION_SPEED:
         return calc.STATIONARY
-
     return calc.DIRECT if speed > calc.STATION_SPEED else calc.RETROGRADE
 
 
@@ -987,16 +942,13 @@ def is_object_movement_typical(object: dict) -> bool:
         chart.POST_NATAL_SOLAR_ECLIPSE,
     ):
         return object["speed"] == 0.0
-
     movement = object_movement(object)
-
     is_node = object["index"] in (
         chart.NORTH_NODE,
         chart.SOUTH_NODE,
         chart.TRUE_NORTH_NODE,
         chart.TRUE_SOUTH_NODE,
     )
-
     return movement == calc.RETROGRADE if is_node else movement == calc.DIRECT
 
 
@@ -1014,8 +966,7 @@ def is_out_of_bounds(
     if jd is not None:
         obliquity = earth_obliquity(jd)
     if obliquity is None:
-        raise ValueError("Either jd or obliquity must be provided.")
-
+        raise TypeError("Either jd or obliquity must be provided.")
     return not -obliquity < dec < obliquity
 
 
@@ -1023,10 +974,8 @@ def is_in_sect(object: dict, is_daytime: bool, sun: dict | float | None = None) 
     """Returns whether the passed planet is in sect."""
     if object["index"] in (chart.SUN, chart.JUPITER, chart.SATURN):
         return is_daytime
-
     if object["index"] in (chart.MOON, chart.VENUS, chart.MARS):
         return not is_daytime
-
     if object["index"] == chart.MERCURY and sun is not None:
         sun_mercury_position = relative_position(sun, object)
         return (
@@ -1034,7 +983,6 @@ def is_in_sect(object: dict, is_daytime: bool, sun: dict | float | None = None) 
             if is_daytime
             else sun_mercury_position == calc.OCCIDENTAL
         )
-
     return False
 
 
@@ -1044,7 +992,6 @@ def relative_position(object1: dict | float, object2: dict | float) -> int:
         object["lon"] if isinstance(object, dict) else object
         for object in (object1, object2)
     )
-
     return calc.OCCIDENTAL if swe.difdegn(lon1, lon2) > 180 else calc.ORIENTAL
 
 
@@ -1077,16 +1024,13 @@ def synodic_period_between(
     """Returns the approximate synodic period between two objects."""
     sidereal_period1 = sidereal_period(index1, jd)
     sidereal_period2 = sidereal_period(index2, jd)
-
     synodic_period = 1 / abs(1 / sidereal_period1 - 1 / sidereal_period2)
-
     if type in (SYNODIC_MIN, SYNODIC_MAX):
         orbital_eccentricity1 = orbital_eccentricity(index1, jd)
         orbital_eccentricity2 = orbital_eccentricity(index2, jd)
         synodic_period *= (
             1 + ((orbital_eccentricity1 + orbital_eccentricity2) * type) / 2
         )
-
     return synodic_period if unit == DAYS else synodic_period / solar_year_length(jd)
 
 
@@ -1097,18 +1041,13 @@ def retrograde_period(index: int, jd: float, unit: int = DAYS) -> float:
     borrowed from https://physics.stackexchange.com/a/476286."""
     if index in (chart.SUN, chart.MOON):
         return 0.0
-
     a1, *_, t1 = _orbital_elements(chart.TERRA, jd)[:11]
     a2 = _orbital_elements(index, jd)[0]
-
     r = a2 / a1
-
     num = math.acos((math.sqrt(r) + 1) / (r + (1 / math.sqrt(r))))
     den = math.pi * (1 - (1 / (r ** (3 / 2))))
     t_retro = t1 * (num / den)
-
     retrograde_period = abs(t_retro)
-
     return (
         retrograde_period * solar_year_length(jd) if unit == DAYS else retrograde_period
     )

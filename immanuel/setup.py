@@ -17,7 +17,7 @@ from immanuel.classes.localize import Localize
 from immanuel.const import calc, chart, data, dignities
 
 
-class BaseSettings:
+class ImmanuelSettings:
     def __init__(self) -> None:
         """Set locale."""
         self._locale = None
@@ -95,7 +95,6 @@ class BaseSettings:
         """ Default coordinates when none are supplied. Currently points to
         the GMT prime meridian. """
         self.default_latitude = 51.4779
-
         self.default_longitude = -0.0015
 
         """ Whether or not the stringified output of chart objects should
@@ -159,11 +158,8 @@ class BaseSettings:
 
         """ Orbs for chart objects and their aspects. """
         self.default_orb = 1.0
-
         self.exact_orb = 0.3
-
         self.orb_calculation = calc.MEAN
-
         self.planet_orbs = {
             calc.CONJUNCTION: 10.0,
             calc.OPPOSITION: 10.0,
@@ -178,7 +174,6 @@ class BaseSettings:
             calc.QUINTILE: 2.0,
             calc.BIQUINTILE: 2.0,
         }
-
         self.point_orbs = {
             calc.CONJUNCTION: 0.0,
             calc.OPPOSITION: 0.0,
@@ -205,15 +200,10 @@ class BaseSettings:
 
         """ Dignity settings. """
         self.rulerships = dignities.MODERN_RULERSHIPS
-
         self.triplicities = dignities.PTOLEMAIC_TRIPLICITIES
-
         self.terms = dignities.EGYPTIAN_TERMS
-
         self.include_participatory_triplicities = False
-
         self.include_mutual_receptions = True
-
         self.dignity_scores = {
             dignities.RULER: 5,
             dignities.EXALTED: 4,
@@ -362,12 +352,9 @@ class BaseSettings:
             self._file_path = path
         else:
             extra_path = f"{os.pathsep}{path}"
-
             if self._file_path.endswith(extra_path):
                 return
-
             self._file_path += extra_path
-
         self.set_swe_filepath()
 
     def set_swe_filepath(self) -> None:
@@ -379,11 +366,11 @@ class StaticSingleton(type):
     """Metaclass to ensure singleton behavior & route everything to
     our BaseSettings instance to emulate static behavior."""
 
-    _instance = BaseSettings()
+    _instance = ImmanuelSettings()
 
     def reset(cls) -> None:
         """Reset all settings to default."""
-        StaticSingleton._instance = BaseSettings()
+        StaticSingleton._instance = ImmanuelSettings()
         StaticSingleton._instance.set_swe_filepath()
         Localize.reset()
 

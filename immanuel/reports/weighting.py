@@ -21,10 +21,8 @@ def elements(objects: dict) -> dict:
         chart.AIR: [],
         chart.WATER: [],
     }
-
     for object in objects.values():
         weightings[position.element(object)].append(object["index"])
-
     return weightings
 
 
@@ -36,10 +34,8 @@ def modalities(objects: dict) -> dict:
         chart.FIXED: [],
         chart.MUTABLE: [],
     }
-
     for object in objects.values():
         weightings[position.modality(object)].append(object["index"])
-
     return weightings
 
 
@@ -52,10 +48,8 @@ def quadrants(objects: dict, houses: dict) -> dict:
         3: [],
         4: [],
     }
-
     for object in objects.values():
         house = position.house(object, houses)
         quadrant = int((house["number"] - 1) / 3) + 1
         weightings[quadrant].append(object["index"])
-
     return weightings

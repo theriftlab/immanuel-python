@@ -141,13 +141,11 @@ def test_all(coords, jd1, jd2, obliquity, astro):
         astro.keys(), jd2, lat, lon, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA
     )
     composites = midpoint.all(objects1, objects2, obliquity)
-
     for index, composite in composites.items():
         sign = position.sign(composite)
         sign_lon = position.sign_longitude(composite)
         assert sign == astro[index]["sign"]
         assert convert.dec_to_string(sign_lon) == astro[index]["lon"]
-
         for key in ("lat", "speed", "dec"):
             if key in astro[index] and key in composite:
                 assert convert.dec_to_string(composite[key]) == astro[index][key]
@@ -167,7 +165,6 @@ def test_composite(coords, jd1, jd2, obliquity, astro):
         sign_lon = position.sign_longitude(composite)
         assert sign == astro[index]["sign"]
         assert convert.dec_to_string(sign_lon) == astro[index]["lon"]
-
         for key in ("lat", "speed", "dec"):
             if key in astro[index] and key in composite:
                 assert convert.dec_to_string(composite[key]) == astro[index][key]
@@ -176,9 +173,7 @@ def test_composite(coords, jd1, jd2, obliquity, astro):
 def test_obliquity(jd1, jd2):
     obliquity = midpoint.obliquity(jd1, jd2, False)
     mean_obliquity = midpoint.obliquity(jd1, jd2, True)
-
     ecl_nut1 = swe.calc_ut(jd1, swe.ECL_NUT)[0]
     ecl_nut2 = swe.calc_ut(jd2, swe.ECL_NUT)[0]
-
     assert obliquity == (ecl_nut1[0] + ecl_nut2[0]) / 2
     assert mean_obliquity == (ecl_nut1[1] + ecl_nut2[1]) / 2

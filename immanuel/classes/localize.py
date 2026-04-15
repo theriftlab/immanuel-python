@@ -29,21 +29,17 @@ class Localize:
     @staticmethod
     def set_locale(lcid: str) -> None:
         FunctionCache.clear_all()
-
         languages = (lcid, lcid[:2])
         translation = gettext.translation(
             "immanuel", localedir=Localize.localedir, languages=languages, fallback=True
         )
-
         if isinstance(translation, gettext.GNUTranslations):
             Localize.lcid = lcid
             Localize.translation = translation
             locale.setlocale(locale.LC_TIME, lcid)
-
             mappings_path = (
                 f"{Localize.localedir}{os.sep}{Localize.lcid}{os.sep}mappings.py"
             )
-
             if os.path.isfile(mappings_path):
                 with open(mappings_path, "r") as mappings:
                     exec(mappings.read(), MAPPINGS)
@@ -77,7 +73,6 @@ def localize(input: str | Stringable, context: str | None = None) -> str:
 def gender(index: int | float) -> str | None:
     if Localize.translation is None:
         return None
-
     return (
         MAPPINGS["GENDERS"][index]
         if index in MAPPINGS["GENDERS"]

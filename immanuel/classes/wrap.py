@@ -21,11 +21,11 @@ from immanuel.classes.localize import gender
 from immanuel.classes.localize import localize as _
 from immanuel.const import calc, chart, dignities, names
 from immanuel.reports import dignity
-from immanuel.setup import BaseSettings
+from immanuel.setup import ImmanuelSettings
 from immanuel.setup import settings as default_settings
 from immanuel.tools import convert, date, ephemeris, position
 
-_default_settings = cast(BaseSettings, default_settings)
+_default_settings = cast(ImmanuelSettings, default_settings)
 
 
 class Angle:
@@ -59,7 +59,7 @@ class Aspect:
         aspect: dict,
         active_name: str,
         passive_name: str,
-        settings: BaseSettings = _default_settings,
+        settings: ImmanuelSettings = _default_settings,
     ) -> None:
         self._active_name = active_name
         self._passive_name = passive_name
@@ -136,7 +136,6 @@ class DateTime:
         self.ambiguous = date.ambiguous(self.datetime) and time_is_dst is None
         self.julian = date.to_jd(dt)
         self.deltat = ephemeris.deltat(self.julian)
-
         if armc is not None:
             self.sidereal_time = convert.dec_to_string(
                 ephemeris.sidereal_time(armc), format=convert.FORMAT_TIME
@@ -144,10 +143,8 @@ class DateTime:
 
     def __str__(self) -> str:
         str = f"{self.datetime.strftime('%a %b %d %Y %H:%M:%S')} {self.timezone}"
-
         if self.ambiguous:
             str += f" ({_('ambiguous')})"
-
         return str
 
 
@@ -241,59 +238,43 @@ class Object:
         out_of_bounds: bool | None = None,
         in_sect: bool | None = None,
         dignity_state: dict | None = None,
-        settings: BaseSettings = _default_settings,
+        settings: ImmanuelSettings = _default_settings,
     ) -> None:
         self.index = object["index"]
-
         if object["type"] == chart.HOUSE:
             self.number = object["number"]
-
         self.name = object["name"]
         self.type = ObjectType(object["type"])
-
         if "eclipse_type" in object:
             self.eclipse_type = EclipseType(object["eclipse_type"])
-
         if date_time is not None:
             self.date_time = DateTime(date_time)
-
         if "lat" in object:
             self.latitude = Angle(object["lat"], round_to=settings.angle_precision)
-
         self.longitude = Angle(object["lon"], round_to=settings.angle_precision)
         self.sign_longitude = Angle(
             position.sign_longitude(object), round_to=settings.angle_precision
         )
         self.sign = Sign(position.sign(object))
         self.decan = Decan(position.decan(object))
-
         if house is not None:
             self.house = House(house)
-
         if "dist" in object:
             self.distance = object["dist"]
-
         self.speed = object["speed"]
-
         if object["type"] not in (chart.HOUSE, chart.ANGLE, chart.FIXED_STAR):
             self.movement = ObjectMovement(object)
-
         if "dec" in object:
             self.declination = Angle(object["dec"], round_to=settings.angle_precision)
-
         if object["type"] not in (chart.HOUSE, chart.ANGLE, chart.FIXED_STAR):
             self.out_of_bounds = out_of_bounds
-
         if "size" in object:
             self.size = object["size"]
-
         if in_sect is not None:
             self.in_sect = in_sect
-
         if dignity_state is not None:
             self.dignities = DignityState(object, dignity_state=dignity_state)
             self.score = dignity.score(dignity_state, settings)
-
         self._settings = settings
 
     def __str__(self) -> str:
@@ -302,10 +283,8 @@ class Object:
             longitude=self.sign_longitude,
             sign=self.sign,
         )
-
         if hasattr(self, "house"):
             formatted += f", {_(self.house)}"
-
         if hasattr(self, "movement") and (
             self._settings.output_typical_object_motion or not self.movement.typical
         ):
@@ -351,7 +330,7 @@ class Sign:
 
 class Subject:
     def __init__(
-        self, subject: ChartSubject, settings: BaseSettings = _default_settings
+        self, subject: ChartSubject, settings: ImmanuelSettings = _default_settings
     ) -> None:
         armc = ephemeris.get_angle(
             index=chart.ARMC,

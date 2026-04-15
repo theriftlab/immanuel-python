@@ -220,7 +220,6 @@ def test_progression(jd, pjd, coords, astro):
         progressed_jd, progressed_armc_lon = forecast.progression(
             jd, lat, lon, pjd, chart.PLACIDUS, method
         )
-
         for index, data in results.items():
             house = ephemeris.get_armc_house(
                 index,
