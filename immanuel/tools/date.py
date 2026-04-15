@@ -33,7 +33,9 @@ def to_datetime(
     snap_tolerance: int = 50_000,
 ) -> datetime:
     """Convert an unknown into a datetime. Unknowns can be either an
-    ISO-formatted string, a Julian Date, or already a datetime."""
+    ISO-formatted string, a Julian Date, or already a datetime. Microsecond
+    rounding errors from Julian conversion are snapped to the nearest second
+    if they are within snap_tolerance."""
     no_tz = (lat is None or lon is None) and offset is None and time_zone is None
     if isinstance(dt, str):
         date_time = datetime.fromisoformat(dt)
@@ -47,16 +49,12 @@ def to_datetime(
         time_dms = convert.dec_to_dms(ut[3], round_to=convert.ROUND_NONE)
         microseconds = round(1_000_000 * time_dms[4])
         if microseconds >= 1_000_000 - snap_tolerance:
-            skip_second = True
+            microseconds = 1_000_000
+        elif microseconds <= snap_tolerance:
             microseconds = 0
-        else:
-            skip_second = False
-            if microseconds <= snap_tolerance:
-                microseconds = 0
-        time_hms = [*time_dms[1:4], microseconds]
-        date_time = datetime(*ut[:3], *time_hms, tzinfo=ZoneInfo("UTC"))
-        if skip_second:
-            date_time += timedelta(seconds=1)
+        date_time = datetime(
+            *ut[:3], *time_dms[1:4], tzinfo=ZoneInfo("UTC")
+        ) + timedelta(microseconds=microseconds)
         return (
             date_time
             if no_tz
@@ -92,12 +90,10 @@ def to_jd(
         raise ValueError(
             "'dt' must be either an ISO-formatted string, a datetime, or a Julian Date."
         )
-
     if (lat is not None and lon is not None) or time_zone is not None:
         date_time = localize(date_time, lat, lon, offset, time_zone, is_dst)
     elif date_time.tzinfo is None:
         date_time = date_time.replace(tzinfo=ZoneInfo("UTC"))
-
     date_time_utc = date_time.astimezone(ZoneInfo("UTC"))
     hour = convert.dms_to_dec(
         (
@@ -143,7 +139,6 @@ def get_timezone(
 def timezone_lookup(lat: float, lon: float) -> str:
     """Returns a timezone string based on decimal lat/lon coordinates."""
     from timezonefinder import TimezoneFinder
-
     return TimezoneFinder().timezone_at(lat=lat, lng=lon)
 
 
