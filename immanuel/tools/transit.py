@@ -247,17 +247,16 @@ def _sign_egress_search(index: int, sign: int, jd: float, direction: int) -> flo
 def _sign_ingress_egress_jd_bracket(
     index: int, sign: int, jd: float, direction: int, type: int
 ) -> tuple:
-    """Returns the Julian date bracket of the sign ingress and the sign's cusp
-    longitude."""
-    last_jd = jd
+    """Returns the Julian date bracket of the sign ingress or egress."""
+    prev_jd = jd
     while True:
         planet = ephemeris.get_planet(index, jd)
         planet_sign = position.sign(planet)
         if (type == EGRESS and planet_sign != sign) or (
             type == INGRESS and planet_sign == sign
         ):
-            return (last_jd, jd) if direction == NEXT else (jd, last_jd)
-        last_jd = jd
+            return (prev_jd, jd) if direction == NEXT else (jd, prev_jd)
+        prev_jd = jd
         jd += direction / abs(planet["speed"])
 
 
