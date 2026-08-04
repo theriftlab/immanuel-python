@@ -939,7 +939,7 @@ def is_object_movement_typical(object: dict) -> bool:
         chart.PRE_NATAL_SOLAR_ECLIPSE,
         chart.PRE_NATAL_LUNAR_ECLIPSE,
         chart.POST_NATAL_SOLAR_ECLIPSE,
-        chart.POST_NATAL_SOLAR_ECLIPSE,
+        chart.POST_NATAL_LUNAR_ECLIPSE,
     ):
         return object["speed"] == 0.0
     movement = object_movement(object)
