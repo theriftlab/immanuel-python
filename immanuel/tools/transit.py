@@ -151,7 +151,7 @@ def next_lunar_eclipse(jd: float) -> tuple:
 
 
 def _eclipse_type(swe_index: int) -> int:
-    """Returns the internal index of an eclipse type based on pyswisseph's
+    """Returns the internal index of an eclipse type based on pysweph's
     bit flags. This clears the ECL_CENTRAL / ECL_NONCENTRAL bits from the
     end and maintains the simple eclipse type flag."""
     return _SWE_ECLIPSES[(swe_index >> 2) << 2]

@@ -17,6 +17,7 @@ for the submodules.
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+import swisseph as swe
 from pytest import fixture
 
 from immanuel import charts
@@ -108,9 +109,10 @@ def test_subject(dob, lat, lon, native, julian_date):
 def test_wrapped_data(native):
     settings.objects.append(chart.PRE_NATAL_LUNAR_ECLIPSE)
     natal_chart = charts.Natal(native)
+    swe_sun = swe.calc_ut(natal_chart.native.date_time.julian, swe.SUN)[0]
     # Angle
     longitude = natal_chart.objects[chart.SUN].longitude
-    assert longitude.raw == 280.6237802656368
+    assert longitude.raw == swe_sun[0]
     assert longitude.formatted == "280°37'26\""
     assert longitude.direction == "+"
     assert longitude.degrees == 280
@@ -147,7 +149,7 @@ def test_wrapped_data(native):
     assert date_time.timezone == "America/Los_Angeles"
     assert not date_time.ambiguous
     assert date_time.julian == 2451545.25
-    assert date_time.deltat == 0.0007387629899254968
+    assert date_time.deltat == swe.deltat(date_time.julian)
     assert date_time.sidereal_time == "16:54:13"
     # MoonPhase
     moon_phase = natal_chart.moon_phase
@@ -164,8 +166,8 @@ def test_wrapped_data(native):
     sun = natal_chart.objects[chart.SUN]
     assert sun.index == chart.SUN
     assert sun.name == names.PLANETS[chart.SUN]
-    assert sun.distance == 0.9833259257690341
-    assert sun.speed == 1.0194579691359147
+    assert sun.distance == swe_sun[2]
+    assert sun.speed == swe_sun[3]
     assert not sun.out_of_bounds
     assert sun.in_sect
     assert sun.score == 3

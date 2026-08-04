@@ -7,7 +7,7 @@
     <img src="https://img.shields.io/pepy/dt/immanuel">
 </p>
 
-Immanuel is a Python >= 3.10 package to painlessly provide your application with simple yet detailed chart-centric astrology data for planets, points, signs, houses, aspects, weightings, etc. all based on the [Swiss Ephemeris](https://github.com/astrorigin/pyswisseph). Extra calculations, notably secondary progressions and dignity scores, are modeled on those of [astro.com](https://astro.com) and [Astro Gold](https://www.astrogold.io).
+Immanuel is a Python >= 3.10 package to painlessly provide your application with simple yet detailed chart-centric astrology data for planets, points, signs, houses, aspects, weightings, etc. all based on the [Swiss Ephemeris](https://github.com/sailorfe/pysweph). Extra calculations, notably secondary progressions and dignity scores, are modeled on those of [astro.com](https://astro.com) and [Astro Gold](https://www.astrogold.io).
 
 Data for natal charts, solar returns, progressions, and composites are available, as well as the ability to point the aspects from any one chart instance to the planets in another, creating a flexible method to build synastries.
 

@@ -10,7 +10,7 @@ Immanuel is an ancient name that means *God is with us*. Since astrology was onc
 
 ## What problem does it solve?
 
-Immanuel makes it incredibly easy to generate simple, chart-centric data based on the Swiss Ephemeris from within your Python application. While [pyswisseph](https://github.com/astrorigin/pyswisseph) does an excellent job of providing detailed astronomical and house data, there are many steps to translating this into meaningful chart data, such as what planets are in which signs and houses, and the aspects between them. This is where Immanuel comes in.
+Immanuel makes it incredibly easy to generate simple, chart-centric data based on the Swiss Ephemeris from within your Python application. While [pysweph](https://github.com/sailorfe/pysweph) does an excellent job of providing detailed astronomical and house data, there are many steps to translating this into meaningful chart data, such as what planets are in which signs and houses, and the aspects between them. This is where Immanuel comes in.
 
 ## What does it do?
 

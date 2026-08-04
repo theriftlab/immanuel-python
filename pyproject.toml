@@ -11,14 +11,14 @@ authors = [
 ]
 license-files = ["LICENSE.md"]
 readme = "README.md"
-keywords = ["astrology", "api", "pyswisseph", "swisseph", "swiss ephemeris", "astro.com", "astro gold"]
+keywords = ["astrology", "api", "pyswisseph", "pysweph", "swisseph", "swiss ephemeris", "astro.com", "astro gold"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "pyswisseph~=2.10",
+    "pysweph>=2.10.3.3",
     "python-dateutil",
     "scipy",
     "timezonefinder~=5.2",

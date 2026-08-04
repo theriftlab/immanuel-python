@@ -105,7 +105,7 @@ class ImmanuelSettings:
         """ Rounding for formatted angle strings. """
         self.angle_precision = calc.SECOND
 
-        """ House system as supported by pyswisseph. """
+        """ House system as supported by pysweph. """
         self.house_system = chart.PLACIDUS
 
         """ Which planets, points etc. to show. """

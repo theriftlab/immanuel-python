@@ -4,7 +4,7 @@ Author: Robert Davies (robert@theriftlab.com)
 
 
 This module provides easy access to relatively consistently standardized
-pyswisseph data for the main angles, houses, points and planets, as well as
+pysweph data for the main angles, houses, points and planets, as well as
 calculations based on that data. Transits, eclipses, moon phases, etc. are
 also calculated in this module.
 
@@ -87,7 +87,7 @@ _SWE = {
 CHART OBJECTS
 --------------------------------------------------------------------------------
 These functions deal with returning formatted data for planets, asteroids,
-angles, houses, etc. from pyswisseph.
+angles, houses, etc. from pysweph.
 """
 
 
@@ -346,8 +346,8 @@ def get_armc_point(
 
 @cache
 def get_planet(index: int, jd: float) -> dict:
-    """Returns a pyswisseph object by Julian date. Can be used to
-    return the six major asteroids supported by pyswisseph without using
+    """Returns a pysweph object by Julian date. Can be used to
+    return the six major asteroids supported by pysweph without using
     a separate file."""
     ec_res = swe.calc_ut(jd, _SWE[index])[0]
     eq_res = swe.cotrans((ec_res[0], ec_res[1], ec_res[2]), -earth_obliquity(jd))
@@ -366,7 +366,7 @@ def get_planet(index: int, jd: float) -> dict:
 
 @cache
 def get_asteroid(index: int, jd: float) -> dict:
-    """Returns an asteroid by Julian date and pyswisseph index
+    """Returns an asteroid by Julian date and pysweph index
     from an external asteroid's file as specified
     in the setup module."""
     if _type(index) == chart.ASTEROID:
@@ -597,7 +597,7 @@ def _get_point(
 
 @cache
 def _get_swisseph_point(index: int, jd: float) -> dict:
-    """Pull any remaining non-calculated points straight from pyswisseph."""
+    """Pull any remaining non-calculated points straight from pysweph."""
     res = swe.calc_ut(jd, _SWE[index])[0]
     lon = (
         res[0]
@@ -747,7 +747,7 @@ def _get_angles_houses_vertex_from_swe(
     ascmcspeed: tuple,
     first_house_lon: float | None,
 ) -> dict:
-    """Get houses, angles & vertex direct from pyswisseph."""
+    """Get houses, angles & vertex direct from pysweph."""
     angles = {}
     for i in (chart.ASC, chart.MC, chart.ARMC):
         lon = ascmc[_SWE[i]]
@@ -781,9 +781,9 @@ def _get_angles_houses_vertex_from_swe(
             speed = 0
             dec = 0
         else:
-            lon = cusps[i - 1]
-            size = swe.difdeg2n(cusps[i if i < 12 else 0], lon)
-            speed = cuspsspeed[i - 1]
+            lon = cusps[i]
+            size = swe.difdeg2n(cusps[i + 1 if i < 12 else 1], lon)
+            speed = cuspsspeed[i]
             dec = swe.cotrans((lon, 0, 0), -obliquity)[1]
         houses[index] = {
             "index": index,
@@ -827,7 +827,7 @@ def _type(index: int) -> int:
 CALCULATIONS
 --------------------------------------------------------------------------------
 These functions deal with calculations based on data passed in (usually from
-pyswisseph).
+pysweph).
 """
 
 
@@ -1114,5 +1114,5 @@ def _is_daytime(
 
 @cache
 def _orbital_elements(index: int, jd: float) -> tuple:
-    """Returns pyswisseph's orbital data for the passed object."""
+    """Returns pysweph's orbital data for the passed object."""
     return swe.get_orbital_elements(jd + swe.deltat(jd), _SWE[index], swe.FLG_SWIEPH)

@@ -3,8 +3,8 @@ This file is part of immanuel - (C) The Rift Lab
 Author: Robert Davies (robert@theriftlab.com)
 
 
-Defines indices for the main chart objects supported by pyswisseph,
-along with custom-calculated objects based on pyswisseph. These
+Defines indices for the main chart objects supported by pysweph,
+along with custom-calculated objects based on pysweph. These
 constants are mainly used by the ephemeris module.
 
 """

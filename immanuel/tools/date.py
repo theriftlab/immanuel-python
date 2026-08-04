@@ -7,7 +7,7 @@ This module provides simple helper functions for converting
 between location-specific Gregorian dates and times, and universal
 Julian dates.
 
-The conversion functions essentially wrap pyswisseph's julday() and
+The conversion functions essentially wrap pysweph's julday() and
 revjul() to work with date/times in UT, but they take into account
 timezones based on lat/lon coordinates for the purposes of time offsets.
 This means that datetime objects expressing UT times will be zoned as UTC.
