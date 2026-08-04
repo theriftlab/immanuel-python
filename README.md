@@ -288,9 +288,12 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 ## Credits
 
-Immanuel is forever indebted to the pioneering work of Alois Treindl and Dieter Koch at Astrodienst, and to João Ventura for the incredibly detailed [flatlib](https://github.com/flatangle/flatlib) which first inspired the development of this package.
-
-A big thank-you goes to Nathan Octavio who suggested translations, and who translated Immanuel into both Brazilian Portuguese and Spanish. Thanks also goes to [@cosmosandapi](https://github.com/comosandapi) who provided the German translation.
+- Alois Treindl and Dieter Koch at Astrodienst for the mighty Swiss Ephemeris
+- [@astrorigin](https://github.com/astrorigin) / Stanislas Marquis for the OG Python port [pyswisseph](https://github.com/astrorigin/pyswisseph)
+- [@sailorfe](https://github.com/sailorfe) for its subsqeuent rescue at [pysweph](https://github.com/sailorfe/pysweph)
+- [@flatangle](https://github.com/flatangle) / João Ventura for the incredibly detailed [flatlib](https://github.com/flatangle/flatlib) which first inspired the development of this package
+- [@nodbr](https://github.com/nodbr) / Nathan Octavio who suggested translations, and who translated Immanuel into both Brazilian Portuguese and Spanish
+- [@cosmosandapi](https://github.com/cosmosandapi) who provided the German translation
 
 ## Contact
 
