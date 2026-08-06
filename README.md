@@ -11,7 +11,7 @@ Immanuel is a Python >= 3.10 package to painlessly provide your application with
 
 Data for natal charts, solar returns, progressions, and composites are available, as well as the ability to point the aspects from any one chart instance to the planets in another, creating a flexible method to build synastries.
 
-Simply pass in a date and coordinates to one of the available chart classes, and the returned instance will contain all data necessary to construct a full astrological chart. A serializer is bundled to easily output all data as JSON, or it can simply be printed out as human-readable text.
+Simply pass in a date and coordinates to one of the available chart classes, and the returned instance will contain all data necessary to construct a full astrological chart. A serializer is bundled to easily output all data as JSON, or it can simply be printed out as human/AI-readable text.
 
 ## Translations
 
@@ -22,11 +22,11 @@ Immanuel's output is currently available in the following locales / languages:
 * **es_ES:** Spanish
 * **de_DE:** German
 
-See [here](https://github.com/theriftlab/immanuel-python/tree/v1.5.4/docs/5-settings.md#locale) for details on how to switch. The documentation itself is not currently available in other translations. To contribute in-software translations, see [here](https://github.com/theriftlab/immanuel-python/tree/v1.5.4/docs/7-contributions.md).
+See [here](https://github.com/theriftlab/immanuel-python/blob/v1.5.4/docs/5-settings.md#locale) for details on how to switch. The documentation itself is not currently available in other translations. To contribute in-software translations, see [here](https://github.com/theriftlab/immanuel-python/blob/v1.5.4/docs/7-contributions.md).
 
 ## Documentation
 
-Full documentation is available [here](https://github.com/theriftlab/immanuel-python/tree/v1.5.4/docs/0-contents.md), or follow the Quick Start below to see how to quickly generate a natal chart.
+Full documentation is available [here](https://github.com/theriftlab/immanuel-python/blob/v1.5.4/docs/0-contents.md), or follow the Quick Start below to see how to quickly generate a natal chart.
 
 ## Quick Start
 
@@ -251,7 +251,9 @@ The various chart types return their own sets of data, but you can expect to rec
 * Aspects
 * Weightings (ie. which objects are in which elements / modalities etc.)
 
-All properties are available in both human-readable and JSON format as demonstrated above.
+All properties are available in both human/AI-readable and JSON format as demonstrated above.
+
+Most astronomical objects for astrological use are available for the years 1200-5399. To cover extra celestial objects or years, you can drop in your own ephemeris files from the Swiss Ephemeris, as outlined [in the docs](https://github.com/theriftlab/immanuel-python/blob/v1.5.4/docs/5-settings.md#external-objects)
 
 ## Calculations
 
@@ -288,12 +290,12 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 ## Credits
 
-- Alois Treindl and Dieter Koch at Astrodienst for the mighty Swiss Ephemeris
-- [@astrorigin](https://github.com/astrorigin) / Stanislas Marquis for the OG Python port [pyswisseph](https://github.com/astrorigin/pyswisseph)
-- [@sailorfe](https://github.com/sailorfe) for its subsqeuent rescue at [pysweph](https://github.com/sailorfe/pysweph)
-- [@flatangle](https://github.com/flatangle) / João Ventura for the incredibly detailed [flatlib](https://github.com/flatangle/flatlib) which first inspired the development of this package
-- [@nodbr](https://github.com/nodbr) / Nathan Octavio who suggested translations, and who translated Immanuel into both Brazilian Portuguese and Spanish
-- [@cosmosandapi](https://github.com/cosmosandapi) who provided the German translation
+* [@aloistr](https://github.com/aloistr) / Alois Treindl and Dieter Koch at Astrodienst for the mighty [Swiss Ephemeris](https://github.com/aloistr/swisseph)
+* [@astrorigin](https://github.com/astrorigin) / Stanislas Marquis for the OG Python port [pyswisseph](https://github.com/astrorigin/pyswisseph)
+* [@sailorfe](https://github.com/sailorfe) for its subsqeuent rescue and revival at [pysweph](https://github.com/sailorfe/pysweph)
+* [@flatangle](https://github.com/flatangle) / João Ventura for the incredibly detailed [flatlib](https://github.com/flatangle/flatlib) which first inspired the development of this package
+* [@nodbr](https://github.com/nodbr) / Nathan Octavio who suggested translations, and who translated Immanuel into both Brazilian Portuguese and Spanish
+* [@cosmosandapi](https://github.com/cosmosandapi) who provided the German translation
 
 ## Contact
 

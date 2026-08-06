@@ -608,7 +608,9 @@ Default:
 
 As well as the readily-available chart objects listed above in the `objects` setting, it is possible to point Immanuel to any outside ephemeris files you might want to include, and add those extra objects to your chart.
 
-For example, to include asteroid Lilith (`1181`), download its ephemeris file `se01181s.se1` (currently available [here](https://www.dropbox.com/scl/fo/y3naz62gy6f6qfrhquu7u/h/all_ast/ast1?dl=0)). Then you can use the `add_filepath()` function to point to its location, and add `1181` to the `settings.objects` list:
+Details on where to find the varous ephemeris files can be found on [the Swiss Ephemeris GitHub repo](https://github.com/aloistr/swisseph).
+
+For example, to include asteroid Lilith (`1181`), download its ephemeris file `se01181s.se1` (currently available [here](https://www.dropbox.com/scl/fo/y3naz62gy6f6qfrhquu7u/h/all_ast/ast1?rlkey=ejltdhb262zglm7eo6yfj2940&dl=0)). Then you can use the `add_filepath()` function to point to its location, and add `1181` to the `settings.objects` list:
 
 ```python
 import json
