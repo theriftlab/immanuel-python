@@ -216,6 +216,7 @@ class Chart:
             elif self._aspects_to and index in self._aspects_to._objects:
                 return self._aspects_to._objects[index]["name"]
             return ""
+
         aspects = (
             aspect.all(self._objects, settings=self._settings)
             if self._aspects_to is None

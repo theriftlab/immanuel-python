@@ -139,6 +139,7 @@ def get_timezone(
 def timezone_lookup(lat: float, lon: float) -> str:
     """Returns a timezone string based on decimal lat/lon coordinates."""
     from timezonefinder import TimezoneFinder
+
     return TimezoneFinder().timezone_at(lat=lat, lng=lon)
 
 
