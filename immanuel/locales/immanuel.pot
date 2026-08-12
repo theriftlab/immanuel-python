@@ -564,3 +564,86 @@ msgstr ""
 
 msgid "Fourth"
 msgstr ""
+
+
+# Weekday & month abbreviations, and the layout of a formatted
+# date-time. Contexts are used to avoid clashes, e.g. "Sun".
+
+msgctxt "weekday"
+msgid "Mon"
+msgstr ""
+
+msgctxt "weekday"
+msgid "Tue"
+msgstr ""
+
+msgctxt "weekday"
+msgid "Wed"
+msgstr ""
+
+msgctxt "weekday"
+msgid "Thu"
+msgstr ""
+
+msgctxt "weekday"
+msgid "Fri"
+msgstr ""
+
+msgctxt "weekday"
+msgid "Sat"
+msgstr ""
+
+msgctxt "weekday"
+msgid "Sun"
+msgstr ""
+
+msgctxt "month"
+msgid "Jan"
+msgstr ""
+
+msgctxt "month"
+msgid "Feb"
+msgstr ""
+
+msgctxt "month"
+msgid "Mar"
+msgstr ""
+
+msgctxt "month"
+msgid "Apr"
+msgstr ""
+
+msgctxt "month"
+msgid "May"
+msgstr ""
+
+msgctxt "month"
+msgid "Jun"
+msgstr ""
+
+msgctxt "month"
+msgid "Jul"
+msgstr ""
+
+msgctxt "month"
+msgid "Aug"
+msgstr ""
+
+msgctxt "month"
+msgid "Sep"
+msgstr ""
+
+msgctxt "month"
+msgid "Oct"
+msgstr ""
+
+msgctxt "month"
+msgid "Nov"
+msgstr ""
+
+msgctxt "month"
+msgid "Dec"
+msgstr ""
+
+msgid "{weekday} {month} {day} {year} {time} {timezone}"
+msgstr ""

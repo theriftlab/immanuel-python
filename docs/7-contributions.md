@@ -36,6 +36,29 @@ msgstr "Aplicativa"
 
 The masculine and feminine versions of these adjectives (and neuter if applicable) are determined by the relevant noun's gender as specified in your new `mappings.py` file.
 
+## Dates
+
+The names of weeks and months also use `msgctxt`, because several of them clash with other names, e.g. "Sun" is both Sunday and a planet.
+
+```
+msgctxt "weekday"
+msgid "Sun"
+msgstr "dom"
+
+msgctxt "month"
+msgid "Mar"
+msgstr "mar"
+```
+
+Be sure to include all seven weekdays and all twelve months. When a `msgctxt` lookup fails, Immanuel falls back to the translation without the context, so a missing `msgctxt "weekday"` entry for `"Sun"` will render Sunday as your translation of the planet Sun.
+
+The format of the stringified datetime is itself translatable, so you can reorder it to suit your language rather than being stuck with the English order:
+
+```
+msgid "{weekday} {month} {day} {year} {time} {timezone}"
+msgstr "{weekday}, {day}. {month} {year}, {time} {timezone}"
+```
+
 Once all translations and gender-mapping is complete, you can either compile your `.po` file to an `.mo` file or simply leave this out and I will compile it.
 
 Time to commit your changes and create a pull request - if everything looks good, I will merge to master & prep a new release!

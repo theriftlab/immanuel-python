@@ -631,3 +631,87 @@ msgstr "Tercero"
 
 msgid "Fourth"
 msgstr "Cuarto"
+
+
+# Weekday & month abbreviations, and the layout of a formatted
+# date-time. These strings were auto-generated and were not contributed
+# by this file's translator.
+
+msgctxt "weekday"
+msgid "Mon"
+msgstr "lun."
+
+msgctxt "weekday"
+msgid "Tue"
+msgstr "mar."
+
+msgctxt "weekday"
+msgid "Wed"
+msgstr "mié."
+
+msgctxt "weekday"
+msgid "Thu"
+msgstr "jue."
+
+msgctxt "weekday"
+msgid "Fri"
+msgstr "vie."
+
+msgctxt "weekday"
+msgid "Sat"
+msgstr "sáb."
+
+msgctxt "weekday"
+msgid "Sun"
+msgstr "dom."
+
+msgctxt "month"
+msgid "Jan"
+msgstr "ene."
+
+msgctxt "month"
+msgid "Feb"
+msgstr "feb."
+
+msgctxt "month"
+msgid "Mar"
+msgstr "mar."
+
+msgctxt "month"
+msgid "Apr"
+msgstr "abr."
+
+msgctxt "month"
+msgid "May"
+msgstr "may."
+
+msgctxt "month"
+msgid "Jun"
+msgstr "jun."
+
+msgctxt "month"
+msgid "Jul"
+msgstr "jul."
+
+msgctxt "month"
+msgid "Aug"
+msgstr "ago."
+
+msgctxt "month"
+msgid "Sep"
+msgstr "sept."
+
+msgctxt "month"
+msgid "Oct"
+msgstr "oct."
+
+msgctxt "month"
+msgid "Nov"
+msgstr "nov."
+
+msgctxt "month"
+msgid "Dec"
+msgstr "dic."
+
+msgid "{weekday} {month} {day} {year} {time} {timezone}"
+msgstr "{weekday} {month} {day} {year} {time} {timezone}"

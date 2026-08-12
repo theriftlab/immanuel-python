@@ -16,7 +16,7 @@ from typing import cast
 
 from immanuel.classes.localize import gender
 from immanuel.classes.localize import localize as _
-from immanuel.const import calc, chart, dignities, names
+from immanuel.const import calc, chart, dates, dignities, names
 from immanuel.reports import dignity
 from immanuel.setup import ImmanuelSettings
 from immanuel.setup import settings as default_settings
@@ -140,10 +140,17 @@ class DateTime:
             )
 
     def __str__(self) -> str:
-        str = f"{self.datetime.strftime('%a %b %d %Y %H:%M:%S')} {self.timezone}"
+        formatted = _(dates.DATE_TIME_FORMAT).format(
+            weekday=_(dates.WEEKDAYS[self.datetime.weekday()], dates.WEEKDAY_CONTEXT),
+            month=_(dates.MONTHS[self.datetime.month], dates.MONTH_CONTEXT),
+            day=f"{self.datetime.day:02d}",
+            year=self.datetime.year,
+            time=self.datetime.strftime("%H:%M:%S"),
+            timezone=self.timezone,
+        )
         if self.ambiguous:
-            str += f" ({_('ambiguous')})"
-        return str
+            formatted += f" ({_('ambiguous')})"
+        return formatted
 
 
 class Decan:

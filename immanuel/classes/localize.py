@@ -3,15 +3,17 @@ This file is part of immanuel - (C) The Rift Lab
 Author: Robert Davies (robert@theriftlab.com)
 
 
-Sets up translations and provides our own _() function. This will look for
-a translation file for the full locale and fall back to the parent locale,
-for example pt_BR then pt. If a file is found, then the full locale string
-(eg. pt_BR) will be passed to locale.setlocale() for localizing datetimes.
+Sets up translations and provides our own localize() function. This will
+look for a translation file for the full locale and fall back to the parent
+locale, for example pt_BR then pt.
+
+Weekday and month names are translated from dicts in const.names like the other
+strings, so localizing the datetime format depends only on the translation
+files rather than OS-level locales.
 
 """
 
 import gettext
-import locale
 import os
 
 from immanuel.classes.types import Stringable
@@ -34,7 +36,6 @@ class Localize:
         if isinstance(translation, gettext.GNUTranslations):
             Localize.lcid = lcid
             Localize.translation = translation
-            locale.setlocale(locale.LC_TIME, lcid)
             mappings_path = (
                 f"{Localize.localedir}{os.sep}{Localize.lcid}{os.sep}mappings.py"
             )
@@ -48,7 +49,6 @@ class Localize:
     def reset() -> None:
         Localize.lcid = None
         Localize.translation = None
-        locale.setlocale(locale.LC_TIME, "en_US")
         MAPPINGS.clear()
 
 
