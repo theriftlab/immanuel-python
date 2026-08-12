@@ -11,10 +11,8 @@ to its more granular and technical functions.
 
 import swisseph as swe
 
-from immanuel.classes.cache import cache
-
 from immanuel.const import chart
-from immanuel.tools import calculate, sweph, transit
+from immanuel.tools import condition, sweph, transit
 
 ALL = -1
 
@@ -447,27 +445,10 @@ def _get_point(
     if index == chart.SYZYGY:
         syzygy_jd = (
             transit.previous_new_moon(jd)
-            if calculate.moon_sun_distance(jd) > 0
+            if condition.moon_sun_distance(jd) > 0
             else transit.previous_full_moon(jd)
         )
         return sweph.syzygy(syzygy_jd)
     if index in (chart.PART_OF_FORTUNE, chart.PART_OF_SPIRIT, chart.PART_OF_EROS):
         return sweph.part(index, jd, lat, lon, part_formula, armc, armc_obliquity)
     return sweph.point(index, jd)
-
-
-def earth_obliquity(jd: float, mean: bool = False) -> float:
-    """Returns the true or mean obliquity of the ecliptic for the given Julian date."""
-    return sweph.mean_earth_obliquity(jd) if mean else sweph.true_earth_obliquity(jd)
-
-
-@cache
-def deltat(jd: float, seconds: bool = False) -> float:
-    """Return the Delta-T value of the passed Julian date. Optionally it
-    will return this value in seconds."""
-    return swe.deltat(jd) if not seconds else swe.deltat(jd) * 24 * 3600
-
-
-def sidereal_time(armc: dict | float) -> float:
-    """Returns sidereal time based on ARMC longitude."""
-    return (armc["lon"] if isinstance(armc, dict) else armc) / 15

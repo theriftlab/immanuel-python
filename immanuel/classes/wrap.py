@@ -12,12 +12,7 @@ JSON keys are defined here, either explicitly or as class members.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, cast
-
-import immanuel.tools.calculate
-
-if TYPE_CHECKING:
-    from immanuel.charts import Subject as ChartSubject
+from typing import cast
 
 from immanuel.classes.localize import gender
 from immanuel.classes.localize import localize as _
@@ -25,7 +20,8 @@ from immanuel.const import calc, chart, dignities, names
 from immanuel.reports import dignity
 from immanuel.setup import ImmanuelSettings
 from immanuel.setup import settings as default_settings
-from immanuel.tools import convert, date, ephemeris, position
+from immanuel.subject import Subject as ChartSubject
+from immanuel.tools import condition, convert, date, ephemeris, position
 
 _default_settings = cast(ImmanuelSettings, default_settings)
 
@@ -137,10 +133,10 @@ class DateTime:
         self.timezone = date.timezone_name(self.datetime)
         self.ambiguous = date.ambiguous(self.datetime) and time_is_dst is None
         self.julian = date.to_jd(dt)
-        self.deltat = ephemeris.deltat(self.julian)
+        self.deltat = date.deltat(self.julian)
         if armc is not None:
             self.sidereal_time = convert.dec_to_string(
-                ephemeris.sidereal_time(armc), format=convert.FORMAT_TIME
+                date.sidereal_time(armc), format=convert.FORMAT_TIME
             )
 
     def __str__(self) -> str:
@@ -297,11 +293,11 @@ class Object:
 
 class ObjectMovement:
     def __init__(self, object: dict) -> None:
-        self._movement = immanuel.tools.calculate.object_movement(object)
+        self._movement = condition.object_motion(object)
         self.direct = self._movement == calc.DIRECT
         self.stationary = self._movement == calc.STATIONARY
         self.retrograde = self._movement == calc.RETROGRADE
-        self.typical = immanuel.tools.calculate.is_object_movement_typical(object)
+        self.typical = condition.is_object_motion_typical(object)
         self.formatted = _(
             names.OBJECT_MOVEMENTS[self._movement], gender(object["index"])
         )

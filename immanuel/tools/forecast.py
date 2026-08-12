@@ -10,7 +10,7 @@ This module calculates solar returns and secondary progressions.
 import swisseph as swe
 
 from immanuel.const import calc, chart
-from immanuel.tools import calculate, date, sweph
+from immanuel.tools import date, orbit, sweph
 
 JD = 0
 ARMC = 1
@@ -35,7 +35,7 @@ def progression(
     jd: float, lat: float, lon: float, pjd: float, house_system: int, method: int
 ) -> tuple:
     """Returns the progressed Julian date and MC right ascension."""
-    year_days = calculate.solar_year_length(jd)
+    year_days = orbit.solar_year_length(jd)
     years = (pjd - jd) / year_days
     progressed_jd = jd + years
     match method:

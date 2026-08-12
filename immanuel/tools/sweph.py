@@ -4,9 +4,9 @@ Author: Robert Davies (robert@theriftlab.com)
 
 
 This module provides easy access to relatively consistently standardized
-pysweph data for the main angles, houses, points and planets. Many of the
-functions here, including angle, house and vertex functions, allow their
-values to be calculated from either Julian date or ARMC.
+pysweph data for all of the supported angles, houses, points and planets
+relevant to creating charts. Many of the functions here, including angle
+and house functions, accept either a Julian date or ARMC values.
 
 """
 

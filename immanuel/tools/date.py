@@ -12,6 +12,8 @@ revjul() to work with date/times in UT, but they take into account
 timezones based on lat/lon coordinates for the purposes of time offsets.
 This means that datetime objects expressing UT times will be zoned as UTC.
 
+Delta-T and sidereal time measurements also live here.
+
 """
 
 from datetime import datetime, timedelta, timezone, tzinfo
@@ -151,3 +153,14 @@ def timezone_name(dt: datetime) -> str | None:
 def ambiguous(dt: datetime) -> bool:
     """Returns whether an aware datetime is ambiguous."""
     return tz.datetime_ambiguous(dt)
+
+
+def deltat(jd: float, seconds: bool = False) -> float:
+    """Return the Delta-T value of the passed Julian date. Optionally it
+    will return this value in seconds."""
+    return swe.deltat(jd) if not seconds else swe.deltat(jd) * 24 * 3600
+
+
+def sidereal_time(armc: dict | float) -> float:
+    """Returns sidereal time based on ARMC longitude."""
+    return (armc["lon"] if isinstance(armc, dict) else armc) / 15
