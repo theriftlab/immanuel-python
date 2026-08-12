@@ -13,7 +13,6 @@ and house functions, accept either a Julian date or ARMC values.
 import swisseph as swe
 
 from immanuel.classes.cache import cache
-from immanuel.classes.localize import localize as _
 from immanuel.const import chart, names
 
 
@@ -80,7 +79,7 @@ def planet(index: int, jd: float) -> dict:
     return {
         "index": index,
         "type": chart.ASTEROID if asteroid else chart.PLANET,
-        "name": _(names.ASTEROIDS[index] if asteroid else names.PLANETS[index]),
+        "name": names.ASTEROIDS[index] if asteroid else names.PLANETS[index],
         "lon": ec_res[0],
         "lat": ec_res[1],
         "dist": ec_res[2],
@@ -144,7 +143,7 @@ def pre_post_natal_eclipse(
     return {
         "index": index,
         "type": chart.ECLIPSE,
-        "name": _(names.ECLIPSES[index]),
+        "name": names.ECLIPSES[index],
         "eclipse_type": eclipse_type,
         "jd": eclipse_jd,
         "lon": ec_res[0],
@@ -162,7 +161,7 @@ def syzygy(jd: float) -> dict:
     return {
         "index": chart.SYZYGY,
         "type": chart.POINT,
-        "name": _(names.POINTS[chart.SYZYGY]),
+        "name": names.POINTS[chart.SYZYGY],
         "lon": syzygy_moon["lon"],
         "lat": syzygy_moon["lat"],
         "speed": syzygy_moon["speed"],
@@ -178,7 +177,7 @@ def part(index: int, jd: float, lon: float) -> dict:
     return {
         "index": index,
         "type": chart.POINT,
-        "name": _(names.POINTS[index]),
+        "name": names.POINTS[index],
         "lon": lon,
         "lat": 0.0,
         "speed": 0.0,
@@ -211,7 +210,7 @@ def point(index: int, jd: float) -> dict:
     return {
         "index": index,
         "type": chart.POINT,
-        "name": _(names.POINTS[index]),
+        "name": names.POINTS[index],
         "lon": lon,
         "lat": lat,
         "speed": speed,
@@ -329,7 +328,7 @@ def _angles_houses_vertex_from_sweph(
         angles[i] = {
             "index": i,
             "type": chart.ANGLE,
-            "name": _(names.ANGLES[i]),
+            "name": names.ANGLES[i],
             "lon": lon,
             "speed": speed,
             "dec": dec,
@@ -339,7 +338,7 @@ def _angles_houses_vertex_from_sweph(
             angles[index] = {
                 "index": index,
                 "type": chart.ANGLE,
-                "name": _(names.ANGLES[index]),
+                "name": names.ANGLES[index],
                 "lon": swe.degnorm(lon - 180),
                 "speed": speed,
                 "dec": dec * -1,
@@ -360,7 +359,7 @@ def _angles_houses_vertex_from_sweph(
         houses[index] = {
             "index": index,
             "type": chart.HOUSE,
-            "name": _(names.HOUSES[index]),
+            "name": names.HOUSES[index],
             "number": i,
             "lon": lon,
             "size": size,
@@ -373,7 +372,7 @@ def _angles_houses_vertex_from_sweph(
     vertex = {
         "index": chart.VERTEX,
         "type": chart.POINT,
-        "name": _(names.POINTS[chart.VERTEX]),
+        "name": names.POINTS[chart.VERTEX],
         "lon": vertex_lon,
         "speed": vertex_speed,
         "dec": vertex_dec,

@@ -59,8 +59,8 @@ class Aspect:
         passive_name: str,
         settings: ImmanuelSettings = _default_settings,
     ) -> None:
-        self._active_name = active_name
-        self._passive_name = passive_name
+        self._active_name = _(active_name)
+        self._passive_name = _(passive_name)
         self.active = aspect["active"]
         self.passive = aspect["passive"]
         self.type = _(names.ASPECTS[aspect["aspect"]])
@@ -205,7 +205,7 @@ class House:
     def __init__(self, house: dict) -> None:
         self.index = house["index"]
         self.number = house["number"]
-        self.name = house["name"]
+        self.name = _(house["name"])
 
     def __str__(self) -> str:
         return self.name
@@ -241,7 +241,7 @@ class Object:
         self.index = object["index"]
         if object["type"] == chart.HOUSE:
             self.number = object["number"]
-        self.name = object["name"]
+        self.name = _(object["name"])
         self.type = ObjectType(object["type"])
         if "eclipse_type" in object:
             self.eclipse_type = EclipseType(object["eclipse_type"])
