@@ -14,7 +14,7 @@ import swisseph as swe
 
 from immanuel.classes.cache import cache
 from immanuel.classes.localize import localize as _
-from immanuel.const import calc, chart, names
+from immanuel.const import chart, names
 
 
 ALL = -1
@@ -171,53 +171,9 @@ def syzygy(jd: float) -> dict:
 
 
 @cache
-def part(
-    index: int,
-    jd: float,
-    lat: float,
-    lon: float,
-    formula: int,
-    armc: float | None = None,
-    armc_obliquity: float | None = None,
-) -> dict:
-    """Calculates and returns Parts of Fortune, Spirit, and Eros."""
-    sun = planet(chart.SUN, jd)
-    moon = planet(chart.MOON, jd)
-    if armc is not None and armc_obliquity is not None:
-        asc = angle(
-            chart.ASC,
-            lat=lat,
-            armc=armc,
-            armc_obliquity=armc_obliquity,
-            house_system=chart.PLACIDUS,
-        )
-    else:
-        asc = angle(chart.ASC, jd=jd, lat=lat, lon=lon, house_system=chart.PLACIDUS)
-    night = formula == calc.NIGHT_FORMULA or (
-        formula == calc.DAY_NIGHT_FORMULA and swe.difdeg2n(sun["lon"], asc["lon"]) > 0
-    )
-    if index == chart.PART_OF_FORTUNE:
-        lon = (
-            asc["lon"] + sun["lon"] - moon["lon"]
-            if night
-            else asc["lon"] + moon["lon"] - sun["lon"]
-        )
-    elif index == chart.PART_OF_SPIRIT or index == chart.PART_OF_EROS:
-        lon = (
-            asc["lon"] + moon["lon"] - sun["lon"]
-            if night
-            else asc["lon"] + sun["lon"] - moon["lon"]
-        )
-        if index == chart.PART_OF_EROS:
-            venus = planet(chart.VENUS, jd)
-            lon = (
-                asc["lon"] + lon - venus["lon"]
-                if night
-                else asc["lon"] + venus["lon"] - lon
-            )
-    else:
-        raise ValueError("Invalid index.")
-    lon = swe.degnorm(lon)
+def part(index: int, jd: float, lon: float) -> dict:
+    """Returns one of the Parts of Fortune, Spirit, or Eros from its
+    ecliptic longitude as calculated by the part module."""
     dec = swe.cotrans((lon, 0, 0), -true_earth_obliquity(jd))[1]
     return {
         "index": index,

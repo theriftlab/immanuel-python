@@ -12,7 +12,7 @@ to its more granular and technical functions.
 import swisseph as swe
 
 from immanuel.const import chart
-from immanuel.tools import condition, sweph, transit
+from immanuel.tools import condition, part, sweph, transit
 
 ALL = -1
 
@@ -135,8 +135,8 @@ def armc_get_angles(
 
 
 def get_angle(index: int, jd: float, lat: float, lon: float, house_system: int) -> dict:
-    """Returns one of the four main chart angles & its speed. Also stores
-    the ARMC for further calculations. Returns all if index == ALL."""
+    """Returns one of the four main chart angles & its speed.
+    Returns all if index == ALL."""
     return sweph.angle(
         index=index,
         jd=jd,
@@ -208,8 +208,8 @@ def get_house(index: int, jd: float, lat: float, lon: float, house_system: int) 
 def armc_get_house(
     index: int, armc: float, lat: float, obliquity: float, house_system: int
 ) -> dict:
-    """Returns a house cusp & its speed, or all houses if index == ALL,
-    calculated from passed ARMC."""
+    """Returns a house cusp & its speed, calculated from the passed ARMC.
+    Returns all if index == ALL."""
     return _get_house(
         index=index,
         jd=None,
@@ -450,5 +450,8 @@ def _get_point(
         )
         return sweph.syzygy(syzygy_jd)
     if index in (chart.PART_OF_FORTUNE, chart.PART_OF_SPIRIT, chart.PART_OF_EROS):
-        return sweph.part(index, jd, lat, lon, part_formula, armc, armc_obliquity)
+        part_lon = part.longitude(
+            index, jd, lat, lon, part_formula, armc, armc_obliquity
+        )
+        return sweph.part(index, jd, part_lon)
     return sweph.point(index, jd)
