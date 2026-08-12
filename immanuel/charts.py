@@ -32,6 +32,7 @@ from immanuel.reports import aspect, dignity, pattern, weighting
 from immanuel.setup import ImmanuelSettings
 from immanuel.setup import settings as default_settings
 from immanuel.tools import (
+    calculate,
     convert,
     date,
     ephemeris,
@@ -149,12 +150,12 @@ class Chart:
                 object=object,
                 houses=self._houses,
             )
-            out_of_bounds = ephemeris.is_out_of_bounds(
+            out_of_bounds = calculate.is_out_of_bounds(
                 object=object,
                 obliquity=self._obliquity,
             )
             in_sect = (
-                ephemeris.is_in_sect(
+                calculate.is_in_sect(
                     object=object,
                     is_daytime=self._diurnal,
                     sun=self._triad[chart.SUN],
@@ -276,10 +277,10 @@ class Natal(Chart):
             lon=self._native.longitude,
             house_system=self._settings.house_system,
         )
-        self._diurnal = ephemeris.is_daytime_from(
+        self._diurnal = calculate.is_daytime_from(
             self._triad[chart.SUN], self._triad[chart.ASC]
         )
-        self._moon_phase = ephemeris.moon_phase_from(
+        self._moon_phase = calculate.moon_phase_from(
             self._triad[chart.SUN], self._triad[chart.MOON]
         )
         self._objects = ephemeris.get_objects(
@@ -335,10 +336,10 @@ class SolarReturn(Chart):
             lon=self._native.longitude,
             house_system=self._settings.house_system,
         )
-        self._diurnal = ephemeris.is_daytime_from(
+        self._diurnal = calculate.is_daytime_from(
             self._triad[chart.SUN], self._triad[chart.ASC]
         )
-        self._moon_phase = ephemeris.moon_phase_from(
+        self._moon_phase = calculate.moon_phase_from(
             self._triad[chart.SUN], self._triad[chart.MOON]
         )
         self._objects = ephemeris.get_objects(
@@ -413,20 +414,20 @@ class Progressed(Chart):
         self._obliquity = ephemeris.earth_obliquity(self._progressed_jd)
         self._triad[chart.SUN] = ephemeris.get_planet(chart.SUN, self._progressed_jd)
         self._triad[chart.MOON] = ephemeris.get_planet(chart.MOON, self._progressed_jd)
-        self._triad[chart.ASC] = ephemeris.get_armc_angle(
+        self._triad[chart.ASC] = ephemeris.armc_get_angle(
             index=chart.ASC,
             armc=self._progressed_armc_longitude,
             lat=self._native.latitude,
             obliquity=self._obliquity,
             house_system=self._settings.house_system,
         )
-        self._diurnal = ephemeris.is_daytime_from(
+        self._diurnal = calculate.is_daytime_from(
             self._triad[chart.SUN], self._triad[chart.ASC]
         )
-        self._moon_phase = ephemeris.moon_phase_from(
+        self._moon_phase = calculate.moon_phase_from(
             self._triad[chart.SUN], self._triad[chart.MOON]
         )
-        self._objects = ephemeris.get_armc_objects(
+        self._objects = ephemeris.armc_get_objects(
             object_list=self._settings.objects,
             jd=self._progressed_jd,
             armc=self._progressed_armc_longitude,
@@ -436,7 +437,7 @@ class Progressed(Chart):
             house_system=self._settings.house_system,
             part_formula=self._settings.part_formula,
         )
-        self._houses = ephemeris.get_armc_houses(
+        self._houses = ephemeris.armc_get_houses(
             armc=self._progressed_armc_longitude,
             lat=self._native.latitude,
             obliquity=self._obliquity,
@@ -521,7 +522,7 @@ class Composite(Chart):
             )
             armc = midpoint.composite(native_armc, partner_armc, self._obliquity)["lon"]
             latitude = (self._native.latitude + self._partner.latitude) / 2
-            self._houses = ephemeris.get_armc_houses(
+            self._houses = ephemeris.armc_get_houses(
                 armc=armc,
                 lat=latitude,
                 obliquity=self._obliquity,
@@ -581,10 +582,10 @@ class Composite(Chart):
             self._triad[chart.MOON] = midpoint.composite(
                 native_moon, partner_moon, self._obliquity
             )
-        self._diurnal = ephemeris.is_daytime_from(
+        self._diurnal = calculate.is_daytime_from(
             self._triad[chart.SUN], self._triad[chart.ASC]
         )
-        self._moon_phase = ephemeris.moon_phase_from(
+        self._moon_phase = calculate.moon_phase_from(
             self._triad[chart.SUN], self._triad[chart.MOON]
         )
 
@@ -630,10 +631,10 @@ class Transits(Chart):
             lon=self._native.longitude,
             house_system=self._settings.house_system,
         )
-        self._diurnal = ephemeris.is_daytime_from(
+        self._diurnal = calculate.is_daytime_from(
             self._triad[chart.SUN], self._triad[chart.ASC]
         )
-        self._moon_phase = ephemeris.moon_phase_from(
+        self._moon_phase = calculate.moon_phase_from(
             self._triad[chart.SUN], self._triad[chart.MOON]
         )
         self._objects = ephemeris.get_objects(

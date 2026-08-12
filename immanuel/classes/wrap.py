@@ -14,6 +14,8 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING, cast
 
+import immanuel.tools.calculate
+
 if TYPE_CHECKING:
     from immanuel.charts import Subject as ChartSubject
 
@@ -295,11 +297,11 @@ class Object:
 
 class ObjectMovement:
     def __init__(self, object: dict) -> None:
-        self._movement = ephemeris.object_movement(object)
+        self._movement = immanuel.tools.calculate.object_movement(object)
         self.direct = self._movement == calc.DIRECT
         self.stationary = self._movement == calc.STATIONARY
         self.retrograde = self._movement == calc.RETROGRADE
-        self.typical = ephemeris.is_object_movement_typical(object)
+        self.typical = immanuel.tools.calculate.is_object_movement_typical(object)
         self.formatted = _(
             names.OBJECT_MOVEMENTS[self._movement], gender(object["index"])
         )

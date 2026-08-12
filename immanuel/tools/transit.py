@@ -13,7 +13,7 @@ import swisseph as swe
 from scipy.optimize import brentq
 
 from immanuel.const import calc, chart
-from immanuel.tools import ephemeris, position
+from immanuel.tools import position, sweph
 
 PREVIOUS = -1
 NEXT = 1
@@ -82,8 +82,8 @@ def next_aspect_to(index: int, point: float, jd: float, aspect: float) -> float:
 
 def previous_new_moon(jd: float) -> float:
     """Fast rewind to approximate conjunction."""
-    sun = ephemeris.get_planet(chart.SUN, jd)
-    moon = ephemeris.get_planet(chart.MOON, jd)
+    sun = sweph.planet(chart.SUN, jd)
+    moon = sweph.planet(chart.MOON, jd)
     distance = swe.difdegn(moon["lon"], sun["lon"])
     jd -= math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
     return previous_aspect_between(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
@@ -91,8 +91,8 @@ def previous_new_moon(jd: float) -> float:
 
 def previous_full_moon(jd: float) -> float:
     """Fast rewind to approximate opposition."""
-    sun = ephemeris.get_planet(chart.SUN, jd)
-    moon = ephemeris.get_planet(chart.MOON, jd)
+    sun = sweph.planet(chart.SUN, jd)
+    moon = sweph.planet(chart.MOON, jd)
     distance = swe.difdegn(moon["lon"], sun["lon"] + 180)
     jd -= math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
     return previous_aspect_between(chart.SUN, chart.MOON, jd, calc.OPPOSITION)
@@ -100,8 +100,8 @@ def previous_full_moon(jd: float) -> float:
 
 def next_new_moon(jd: float) -> float:
     """Fast forward to approximate conjunction."""
-    sun = ephemeris.get_planet(chart.SUN, jd)
-    moon = ephemeris.get_planet(chart.MOON, jd)
+    sun = sweph.planet(chart.SUN, jd)
+    moon = sweph.planet(chart.MOON, jd)
     distance = swe.difdegn(sun["lon"], moon["lon"])
     jd += math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
     return next_aspect_between(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
@@ -109,8 +109,8 @@ def next_new_moon(jd: float) -> float:
 
 def next_full_moon(jd: float) -> float:
     """Fast forward to approximate opposition."""
-    sun = ephemeris.get_planet(chart.SUN, jd)
-    moon = ephemeris.get_planet(chart.MOON, jd)
+    sun = sweph.planet(chart.SUN, jd)
+    moon = sweph.planet(chart.MOON, jd)
     distance = swe.difdegn(sun["lon"] + 180, moon["lon"])
     jd += math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
     return next_aspect_between(chart.SUN, chart.MOON, jd, calc.OPPOSITION)
@@ -164,8 +164,8 @@ def _aspect_search(
     or next requested aspect. Useful for short dates and fast planets but too
     expensive for anything more advanced."""
     while True:
-        planet1 = ephemeris.get_planet(index1, jd)
-        planet2 = ephemeris.get_planet(index2, jd)
+        planet1 = sweph.planet(index1, jd)
+        planet2 = sweph.planet(index2, jd)
         distance = abs(swe.difdeg2n(planet1["lon"], planet2["lon"]))
         diff = abs(aspect - distance)
         if diff <= calc.MAX_ERROR:
@@ -186,7 +186,7 @@ def _fixed_aspect_search(
     """Iteratively searches for and returns the Julian date of the previous
     or next requested aspect between a fixed point and a moving planet."""
     while True:
-        planet = ephemeris.get_planet(index, jd)
+        planet = sweph.planet(index, jd)
         distance = abs(swe.difdeg2n(planet["lon"], point))
         diff = abs(aspect - distance)
         if diff <= calc.MAX_ERROR:
@@ -202,7 +202,7 @@ def _sign_ingress_search(index: int, sign: int, jd: float, direction: int) -> fl
     """Iteratively searches for and returns the Julian date of the previous
     or next requested ingress into the given sign. If the planet is already in
     the given sign, it will search for egress first."""
-    planet = ephemeris.get_planet(index, jd)
+    planet = sweph.planet(index, jd)
     planet_sign = position.sign(planet)
     if planet_sign == sign:
         jd = _sign_egress_search(index, sign, jd, direction)
@@ -216,7 +216,7 @@ def _sign_ingress_search(index: int, sign: int, jd: float, direction: int) -> fl
         args=(index, sign),
         xtol=calc.MAX_ERROR,
     )
-    while position.sign(planet := ephemeris.get_planet(index, ingress_jd)) != sign:
+    while position.sign(planet := sweph.planet(index, ingress_jd)) != sign:
         ingress_jd += direction * calc.MAX_ERROR / abs(planet["speed"])
     return ingress_jd
 
@@ -225,7 +225,7 @@ def _sign_egress_search(index: int, sign: int, jd: float, direction: int) -> flo
     """Iteratively searches for and returns the Julian date of the previous
     or next requested egress from the given sign. If the planet is not already
     in the given sign, it will search for ingress first."""
-    planet = ephemeris.get_planet(index, jd)
+    planet = sweph.planet(index, jd)
     planet_sign = position.sign(planet)
     if planet_sign != sign:
         jd = _sign_ingress_search(index, sign, jd, direction)
@@ -239,7 +239,7 @@ def _sign_egress_search(index: int, sign: int, jd: float, direction: int) -> flo
         args=(index, sign),
         xtol=calc.MAX_ERROR,
     )
-    while position.sign(planet := ephemeris.get_planet(index, egress_jd)) == sign:
+    while position.sign(planet := sweph.planet(index, egress_jd)) == sign:
         egress_jd += direction * calc.MAX_ERROR / abs(planet["speed"])
     return egress_jd
 
@@ -250,7 +250,7 @@ def _sign_ingress_egress_jd_bracket(
     """Returns the Julian date bracket of the sign ingress or egress."""
     prev_jd = jd
     while True:
-        planet = ephemeris.get_planet(index, jd)
+        planet = sweph.planet(index, jd)
         planet_sign = position.sign(planet)
         if (type == EGRESS and planet_sign != sign) or (
             type == INGRESS and planet_sign == sign
@@ -262,6 +262,6 @@ def _sign_ingress_egress_jd_bracket(
 
 def _sign_ingress_egress_root_finder(jd: float, index: int, sign: int) -> int:
     """Callback for brentq() checks for the planet's sign changing."""
-    planet = ephemeris.get_planet(index, jd)
+    planet = sweph.planet(index, jd)
     planet_sign = position.sign(planet)
     return 1 if planet_sign == sign else -1

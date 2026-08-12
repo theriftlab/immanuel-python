@@ -12,7 +12,7 @@ them based on a composite ARMC.
 
 import swisseph as swe
 
-from immanuel.tools import ephemeris
+from immanuel.tools import sweph
 
 
 def all(objects1: dict, objects2: dict, obliquity: float | None = None) -> dict:
@@ -46,5 +46,7 @@ def composite(object1: dict, object2: dict, obliquity: float | None = None) -> d
 def obliquity(jd1: float, jd2: float, mean: bool = False) -> float:
     """Returns the mean obliquity of two dates."""
     return (
-        ephemeris.earth_obliquity(jd1, mean) + ephemeris.earth_obliquity(jd2, mean)
+        (sweph.mean_earth_obliquity(jd1) + sweph.mean_earth_obliquity(jd2))
+        if mean
+        else (sweph.true_earth_obliquity(jd1) + sweph.true_earth_obliquity(jd2))
     ) / 2

@@ -17,7 +17,7 @@ from pytest import fixture
 from immanuel.const import chart, dignities
 from immanuel.reports import dignity
 from immanuel.setup import settings
-from immanuel.tools import convert, date, ephemeris
+from immanuel.tools import calculate, convert, date, ephemeris
 
 
 @fixture
@@ -50,7 +50,7 @@ def objects(jd):
 
 @fixture
 def is_daytime(jd, coords):
-    return ephemeris.is_daytime(jd, *coords)
+    return calculate.is_daytime(jd, *coords)
 
 
 def teardown_function():
