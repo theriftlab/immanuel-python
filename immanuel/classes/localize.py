@@ -14,7 +14,6 @@ import gettext
 import locale
 import os
 
-from immanuel.classes.cache import FunctionCache
 from immanuel.classes.types import Stringable
 from immanuel.const import genders
 
@@ -28,7 +27,6 @@ class Localize:
 
     @staticmethod
     def set_locale(lcid: str) -> None:
-        FunctionCache.clear_all()
         languages = (lcid, lcid[:2])
         translation = gettext.translation(
             "immanuel", localedir=Localize.localedir, languages=languages, fallback=True
@@ -48,7 +46,6 @@ class Localize:
 
     @staticmethod
     def reset() -> None:
-        FunctionCache.clear_all()
         Localize.lcid = None
         Localize.translation = None
         locale.setlocale(locale.LC_TIME, "en_US")

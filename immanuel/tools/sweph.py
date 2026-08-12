@@ -12,7 +12,6 @@ and house functions, accept either a Julian date or ARMC values.
 
 import swisseph as swe
 
-from immanuel.classes.cache import cache
 from immanuel.const import chart, names
 
 
@@ -69,7 +68,6 @@ _SWE = {
 }
 
 
-@cache
 def planet(index: int, jd: float) -> dict:
     """Returns a planet by Julian date. Can be used to return the six
     major asteroids supported by pysweph without using a separate file."""
@@ -88,7 +86,6 @@ def planet(index: int, jd: float) -> dict:
     }
 
 
-@cache
 def asteroid(index: int, jd: float) -> dict:
     """Returns an asteroid by Julian date and Swiss Ephemeris
     index from an external asteroid's file as specified
@@ -109,7 +106,6 @@ def asteroid(index: int, jd: float) -> dict:
     }
 
 
-@cache
 def fixed_star(name: str, jd: float) -> dict:
     """Returns a fixed star by Julian date and name."""
     res, stnam = swe.fixstar2_ut(name, jd)[:2]
@@ -125,7 +121,6 @@ def fixed_star(name: str, jd: float) -> dict:
     }
 
 
-@cache
 def pre_post_natal_eclipse(
     index: int, jd: float, eclipse_type: int, eclipse_jd: float
 ) -> dict:
@@ -154,7 +149,6 @@ def pre_post_natal_eclipse(
     }
 
 
-@cache
 def syzygy(jd: float) -> dict:
     """Returns the Moon on the given Julian date as a syzygy point."""
     syzygy_moon = planet(chart.MOON, jd)
@@ -169,7 +163,6 @@ def syzygy(jd: float) -> dict:
     }
 
 
-@cache
 def part(index: int, jd: float, lon: float) -> dict:
     """Returns one of the Parts of Fortune, Spirit, or Eros from its
     ecliptic longitude as calculated by the part module."""
@@ -185,7 +178,6 @@ def part(index: int, jd: float, lon: float) -> dict:
     }
 
 
-@cache
 def point(index: int, jd: float) -> dict:
     """Pull any remaining non-calculated points straight from pysweph."""
     res = swe.calc_ut(jd, _SWE[index])[0]
@@ -260,7 +252,6 @@ def orbital_elements(index: int, jd: float) -> tuple:
     return swe.get_orbital_elements(jd + swe.deltat(jd), _SWE[index], swe.FLG_SWIEPH)
 
 
-@cache
 def angles_houses_vertex(
     lat: float,
     house_system: int,

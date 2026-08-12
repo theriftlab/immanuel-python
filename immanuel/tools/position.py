@@ -9,13 +9,9 @@ directly, these functions will accept both an object and a float.
 
 """
 
-import json
-
 import swisseph as swe
 
 from immanuel.const import chart
-
-_house = {}
 
 
 def sign(object: dict | float) -> int:
@@ -43,16 +39,12 @@ def decan(object: dict | float) -> int:
 
 def house(object: dict | float, houses: dict) -> dict:
     """Given a object and a dict of houses from the ephemeris module, this
-    returns which house the object is in. Basic dict caching is used."""
+    returns which house the object is in."""
     lon = object["lon"] if isinstance(object, dict) else object
-    key = json.dumps([lon, houses])
-    if key in _house:
-        return _house[key]
     for house in houses.values():
         lon_diff = swe.difdeg2n(lon, house["lon"])
         next_cusp_diff = swe.difdeg2n(house["lon"] + house["size"], house["lon"])
         if 0 <= lon_diff < next_cusp_diff:
-            _house[key] = house
             return house
     return {}
 
