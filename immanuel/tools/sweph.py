@@ -236,22 +236,6 @@ def angle(
     return angles[index]
 
 
-def true_earth_obliquity(jd: float) -> float:
-    """Returns the true obliquity of the ecliptic for the given Julian date."""
-    return swe.calc_ut(jd, swe.ECL_NUT)[0][0]
-
-
-def mean_earth_obliquity(jd: float) -> float:
-    """Returns the mean obliquity of the ecliptic for the given Julian date."""
-    return swe.calc_ut(jd, swe.ECL_NUT)[0][1]
-
-
-def orbital_elements(index: int, jd: float) -> tuple:
-    """Returns pysweph's orbital data for the passed object on the
-    given Julian date."""
-    return swe.get_orbital_elements(jd + swe.deltat(jd), _SWE[index], swe.FLG_SWIEPH)
-
-
 def angles_houses_vertex(
     lat: float,
     house_system: int,
@@ -373,6 +357,22 @@ def _angles_houses_vertex_from_sweph(
         "houses": houses,
         "vertex": vertex,
     }
+
+
+def true_earth_obliquity(jd: float) -> float:
+    """Returns the true obliquity of the ecliptic for the given Julian date."""
+    return swe.calc_ut(jd, swe.ECL_NUT)[0][0]
+
+
+def mean_earth_obliquity(jd: float) -> float:
+    """Returns the mean obliquity of the ecliptic for the given Julian date."""
+    return swe.calc_ut(jd, swe.ECL_NUT)[0][1]
+
+
+def orbital_elements(index: int, jd: float) -> tuple:
+    """Returns pysweph's orbital data for the passed object on the
+    given Julian date."""
+    return swe.get_orbital_elements(jd + swe.deltat(jd), _SWE[index], swe.FLG_SWIEPH)
 
 
 def object_type(index: int) -> int:

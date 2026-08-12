@@ -430,7 +430,7 @@ def _get_point(
     """Function for point() and armc_point()."""
     if lat is None:
         raise TypeError("Latitude must be provided.")
-    if index == chart.VERTEX:
+    if index == chart.VERTEX and house_system is not None:
         if armc is not None:
             return sweph.angles_houses_vertex(
                 lat=lat,
