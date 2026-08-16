@@ -4,72 +4,66 @@ Author: Robert Davies (robert@theriftlab.com)
 
 
 This module calculates aspects between chart objects based on
-the settings provided by the setup module.
+the settings provided by the Settings class.
 
 The functions also rely on the object data returned by the
 ephemeris module.
 
 """
 
-from typing import cast
-
 import swisseph as swe
 
 from immanuel.const import calc
-from immanuel.setup import ImmanuelSettings
-from immanuel.setup import settings as default_settings
+from immanuel.settings import DEFAULTS, Settings
 from immanuel.tools import position
 
-_default_settings = cast(ImmanuelSettings, default_settings)
 
-
-def between(
-    object1: dict, object2: dict, settings: ImmanuelSettings = _default_settings
-) -> dict:
+def between(object1: dict, object2: dict, settings: Settings = DEFAULTS) -> dict:
     """Returns any aspect between the two passed objects."""
     active, passive = (
         (object1, object2)
         if abs(object1["speed"]) > abs(object2["speed"])
         else (object2, object1)
     )
+    active_aspect_rule = (
+        settings.aspect_rules[active["index"]]
+        if active["index"] in settings.aspect_rules
+        else settings.default_aspect_rule
+    )
+    passive_aspect_rule = (
+        settings.aspect_rules[passive["index"]]
+        if passive["index"] in settings.aspect_rules
+        else settings.default_aspect_rule
+    )
+    active_orbs = (
+        settings.orbs[active["index"]]
+        if active["index"] in settings.orbs
+        else settings.planet_orbs
+    )
+    passive_orbs = (
+        settings.orbs[passive["index"]]
+        if passive["index"] in settings.orbs
+        else settings.planet_orbs
+    )
+    default_orb = settings.default_orb
+    distance = swe.difdeg2n(passive["lon"], active["lon"])
+    separation = abs(distance)
+
     for aspect in settings.aspects:
-        # Check aspect rules
-        active_aspect_rule = (
-            settings.aspect_rules[active["index"]]
-            if active["index"] in settings.aspect_rules
-            else settings.default_aspect_rule
-        )
-        passive_aspect_rule = (
-            settings.aspect_rules[passive["index"]]
-            if passive["index"] in settings.aspect_rules
-            else settings.default_aspect_rule
-        )
         if (
             aspect not in active_aspect_rule["initiate"]
             or aspect not in passive_aspect_rule["receive"]
         ):
-            return {}
-        # Get orbs
-        active_orb = (
-            settings.orbs[active["index"]][aspect]
-            if active["index"] in settings.orbs
-            else settings.default_orb
-        )
-        passive_orb = (
-            settings.orbs[passive["index"]][aspect]
-            if passive["index"] in settings.orbs
-            else settings.default_orb
-        )
+            continue
+        active_orb = active_orbs[aspect] if active_orbs else default_orb
+        passive_orb = passive_orbs[aspect] if passive_orbs else default_orb
         orb = (
             ((active_orb + passive_orb) / 2)
             if settings.orb_calculation == calc.MEAN
             else max(active_orb, passive_orb)
         )
-        # Look for an aspect
-        distance = swe.difdeg2n(passive["lon"], active["lon"])
-        if aspect - orb <= abs(distance) <= aspect + orb:
-            # Work out aspect information
-            aspect_orb = abs(distance) - aspect
+        if aspect - orb <= separation <= aspect + orb:
+            aspect_orb = separation - aspect
             exact_lon = swe.degnorm(
                 passive["lon"] + (aspect if distance < 0 else -aspect)
             )
@@ -104,7 +98,7 @@ def for_object(
     object: dict,
     objects: dict,
     exclude_same: bool = True,
-    settings: ImmanuelSettings = _default_settings,
+    settings: Settings = Settings(),
 ) -> dict:
     """Returns all chart objects aspecting the passed chart object. If two
     separate sets of objects are being compared (eg. synastry) then
@@ -121,9 +115,7 @@ def for_object(
 
 
 def all(
-    objects: dict,
-    exclude_same: bool = True,
-    settings: ImmanuelSettings = _default_settings,
+    objects: dict, exclude_same: bool = True, settings: Settings = Settings()
 ) -> dict:
     """Returns all aspects between the passed chart objects."""
     aspects = {}
@@ -137,7 +129,7 @@ def all(
 def by_type(
     objects: dict,
     exclude_same: bool = True,
-    settings: ImmanuelSettings = _default_settings,
+    settings: Settings = Settings(),
 ) -> dict:
     """Returns all aspects between the passed chart objects keyed by
     aspect type."""
@@ -157,7 +149,7 @@ def synastry(
     objects1: dict,
     objects2: dict,
     exclude_same: bool = False,
-    settings: ImmanuelSettings = _default_settings,
+    settings: Settings = Settings(),
 ) -> dict:
     """Returns all aspects between the two sets of passed chart objects."""
     aspects = {}

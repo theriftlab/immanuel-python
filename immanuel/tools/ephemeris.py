@@ -273,12 +273,12 @@ def get_planet(index: int, jd: float) -> dict:
 
 
 def get_asteroid(index: int, jd: float) -> dict:
-    """Returns an asteroid by Julian date and pysweph index
-    from an external asteroid's file as specified
-    in the setup module."""
-    if sweph.object_type(index) == chart.ASTEROID:
-        return sweph.planet(index, jd)
-    return sweph.asteroid(index, jd)
+    """Returns an asteroid by Julian date, either one of the major asteroids
+    bundled with pysweph, or one read from an ephemeris file the user has
+    added and addressed by its own number."""
+    if sweph.is_external(index):
+        return sweph.asteroid(index, jd)
+    return sweph.planet(index, jd)
 
 
 def get_fixed_star(name: str, jd: float) -> dict:
@@ -341,14 +341,13 @@ def _get(
     """Function for get() and armc_get()."""
     if armc is not None and armc_obliquity is None:
         armc_obliquity = sweph.true_earth_obliquity(jd)
+    if index == chart.ANGLE:
+        return sweph.angle(ALL, jd, lat, lon, house_system, armc, armc_obliquity)
+    if index == chart.HOUSE:
+        return _get_house(ALL, jd, lat, lon, house_system, armc, armc_obliquity)
+    object_type = sweph.type_of(index)
     if isinstance(index, int):
-        if index < chart.TYPE_MULTIPLIER:
-            return get_asteroid(index, jd)
-        if index == chart.ANGLE:
-            return sweph.angle(ALL, jd, lat, lon, house_system, armc, armc_obliquity)
-        if index == chart.HOUSE:
-            return _get_house(ALL, jd, lat, lon, house_system, armc, armc_obliquity)
-        match sweph.object_type(index):
+        match object_type:
             case chart.ANGLE:
                 return sweph.angle(
                     index, jd, lat, lon, house_system, armc, armc_obliquity
@@ -370,13 +369,16 @@ def _get(
                 )
             case chart.ECLIPSE:
                 return get_eclipse(index, jd)
-            case chart.ASTEROID | chart.PLANET:
+            case chart.PLANET:
                 return get_planet(index, jd)
-        raise ValueError("Invalid object index.")
-    try:
-        return get_fixed_star(index, jd)
-    except swe.Error as e:
-        raise ValueError("Invalid object index.") from e
+            case chart.ASTEROID:
+                return get_asteroid(index, jd)
+    if isinstance(index, str) and object_type == chart.FIXED_STAR:
+        try:
+            return get_fixed_star(index, jd)
+        except swe.Error as e:
+            raise ValueError("Invalid object index.") from e
+    raise ValueError("Invalid object index.")
 
 
 def _get_house(

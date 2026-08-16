@@ -3,11 +3,9 @@ This file is part of immanuel - (C) The Rift Lab
 Author: Robert Davies (robert@theriftlab.com)
 
 
-The subject of a chart - essentially a time and a place, standardized into
-the coordinates, datetime, and Julian date the rest of the package works
-with. Since a subject is what a chart is built from rather than a part of
-one, this sits below both the chart classes and the wrap module so that
-each can share it. It remains available as charts.Subject.
+The subject of a chart - essentially a time and a place,
+standardized into the coordinates, datetime, and Julian date
+the rest of the package's tools work with.
 
 """
 

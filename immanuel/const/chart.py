@@ -5,13 +5,14 @@ Author: Robert Davies (robert@theriftlab.com)
 
 Defines indices for the main chart objects supported by pysweph,
 along with custom-calculated objects based on pysweph. These
-constants are mainly used by the ephemeris module.
+constants are mainly used by the sweph and ephemeris modules.
 
 """
 
 """ Determine object type by dividing index by this. Since asteroids are passed
 by number, this must be higher than the highest-numbered asteroid. """
-TYPE_MULTIPLIER = 1000000
+TYPE_MULTIPLIER = 1_000_000
+
 
 """ Supported chart types. """
 NATAL = 1

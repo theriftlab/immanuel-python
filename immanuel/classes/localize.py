@@ -7,9 +7,9 @@ Sets up translations and provides our own localize() function. This will
 look for a translation file for the full locale and fall back to the parent
 locale, for example pt_BR then pt.
 
-Weekday and month names are translated from dicts in const.names like the other
-strings, so localizing the datetime format depends only on the translation
-files rather than OS-level locales.
+Weekday and month names are translated from dicts in const.dates,
+so localizing the datetime format depends only on the translation files
+rather than OS-level locales.
 
 """
 

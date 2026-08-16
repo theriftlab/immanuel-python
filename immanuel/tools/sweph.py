@@ -73,7 +73,7 @@ def planet(index: int, jd: float) -> dict:
     major asteroids supported by pysweph without using a separate file."""
     ec_res = swe.calc_ut(jd, _SWE[index])[0]
     eq_res = swe.cotrans((ec_res[0], ec_res[1], ec_res[2]), -true_earth_obliquity(jd))
-    asteroid = object_type(index) == chart.ASTEROID
+    asteroid = type_of(index) == chart.ASTEROID
     return {
         "index": index,
         "type": chart.ASTEROID if asteroid else chart.PLANET,
@@ -89,7 +89,7 @@ def planet(index: int, jd: float) -> dict:
 def asteroid(index: int, jd: float) -> dict:
     """Returns an asteroid by Julian date and Swiss Ephemeris
     index from an external asteroid's file as specified
-    in the setup module."""
+    in the settings module."""
     swe_index = index + swe.AST_OFFSET
     name = swe.get_planet_name(swe_index)
     ec_res = swe.calc_ut(jd, swe_index)[0]
@@ -375,6 +375,18 @@ def orbital_elements(index: int, jd: float) -> tuple:
     return swe.get_orbital_elements(jd + swe.deltat(jd), _SWE[index], swe.FLG_SWIEPH)
 
 
-def object_type(index: int) -> int:
-    """Return the type index of a given object's index."""
-    return round(index, -2)
+def type_of(index: int | str) -> int:
+    """Returns the type index of any supported chart object index. This is
+    either an internal object index, an official asteroid number, or a
+    fixed star's name."""
+    if isinstance(index, str):
+        return chart.FIXED_STAR
+    if index < chart.TYPE_MULTIPLIER:
+        return chart.ASTEROID
+    return index // chart.TYPE_MULTIPLIER * chart.TYPE_MULTIPLIER
+
+
+def is_external(index: int | str) -> bool:
+    """Returns whether a chart object must be read from a user-supplied
+    ephemeris file rather than from those bundled with Immanuel."""
+    return isinstance(index, int) and index < chart.TYPE_MULTIPLIER

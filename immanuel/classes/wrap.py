@@ -12,18 +12,14 @@ JSON keys are defined here, either explicitly or as class members.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import cast
 
 from immanuel.classes.localize import gender
 from immanuel.classes.localize import localize as _
 from immanuel.const import calc, chart, dates, dignities, names
 from immanuel.reports import dignity
-from immanuel.setup import ImmanuelSettings
-from immanuel.setup import settings as default_settings
+from immanuel.settings import DEFAULTS, Settings
 from immanuel.subject import Subject as ChartSubject
 from immanuel.tools import condition, convert, date, ephemeris, position
-
-_default_settings = cast(ImmanuelSettings, default_settings)
 
 
 class Angle:
@@ -57,7 +53,7 @@ class Aspect:
         aspect: dict,
         active_name: str,
         passive_name: str,
-        settings: ImmanuelSettings = _default_settings,
+        settings: Settings = DEFAULTS,
     ) -> None:
         self._active_name = _(active_name)
         self._passive_name = _(passive_name)
@@ -243,7 +239,7 @@ class Object:
         out_of_bounds: bool | None = None,
         in_sect: bool | None = None,
         dignity_state: dict | None = None,
-        settings: ImmanuelSettings = _default_settings,
+        settings: Settings = DEFAULTS,
     ) -> None:
         self.index = object["index"]
         if object["type"] == chart.HOUSE:
@@ -335,7 +331,9 @@ class Sign:
 
 class Subject:
     def __init__(
-        self, subject: ChartSubject, settings: ImmanuelSettings = _default_settings
+        self,
+        subject: ChartSubject,
+        settings: Settings = DEFAULTS,
     ) -> None:
         armc = ephemeris.get_angle(
             index=chart.ARMC,

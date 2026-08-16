@@ -8,18 +8,14 @@ provided by the ephemeris module.
 
 """
 
-from typing import cast
 
 import swisseph as swe
 
 from immanuel.const import calc
-from immanuel.setup import ImmanuelSettings
-from immanuel.setup import settings as default_settings
-
-_default_settings = cast(ImmanuelSettings, default_settings)
+from immanuel.settings import DEFAULTS, Settings
 
 
-def chart_shape(objects: dict, settings: ImmanuelSettings = _default_settings) -> int:
+def chart_shape(objects: dict, settings: Settings = DEFAULTS) -> int:
     """Returns which of the predetermined shapes the passed
     chart objects form."""
     # Filter objects
