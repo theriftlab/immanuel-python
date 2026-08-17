@@ -26,10 +26,10 @@ from datetime import datetime
 from immanuel.classes import wrap
 from immanuel.classes.localize import localize as _
 from immanuel.classes.serialize import ToJSON
+from immanuel.classes.subject import Subject
 from immanuel.const import calc, chart, names
 from immanuel.reports import aspect, dignity, pattern, weighting
 from immanuel.settings import DEFAULTS, Settings
-from immanuel.subject import Subject
 from immanuel.tools import (
     condition,
     convert,

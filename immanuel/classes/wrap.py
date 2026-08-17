@@ -15,10 +15,10 @@ from datetime import datetime
 
 from immanuel.classes.localize import gender
 from immanuel.classes.localize import localize as _
+from immanuel.classes.subject import Subject as ChartSubject
 from immanuel.const import calc, chart, dates, dignities, names
 from immanuel.reports import dignity
 from immanuel.settings import DEFAULTS, Settings
-from immanuel.subject import Subject as ChartSubject
 from immanuel.tools import condition, convert, date, ephemeris, position
 
 

@@ -16,10 +16,16 @@ rather than OS-level locales.
 import gettext
 import os
 
-from immanuel.classes.types import Stringable
+from typing import Protocol
+
 from immanuel.const import genders
 
 MAPPINGS = {}
+
+
+class Stringable(Protocol):
+    def __str__(self) -> str:
+        ...
 
 
 class Localize:
