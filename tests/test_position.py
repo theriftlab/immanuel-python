@@ -15,8 +15,8 @@ import os
 
 from pytest import fixture
 
+from immanuel import settings
 from immanuel.const import calc, chart
-from immanuel.setup import settings
 from immanuel.tools import convert, date, ephemeris, position
 
 

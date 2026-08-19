@@ -14,7 +14,8 @@ from zoneinfo import ZoneInfo
 import swisseph as swe
 from pytest import approx, fixture
 
-from immanuel.tools import convert, date
+from immanuel.const import chart
+from immanuel.tools import convert, date, ephemeris
 
 
 @fixture
@@ -206,3 +207,16 @@ def test_to_datetime_microsecond_rounded():
     # date module conversion should erase these
     jd_dt = date.to_datetime(jd)
     assert jd_dt.microsecond == 0
+
+
+def test_deltat(jd):
+    # Courtesy of astro.com "Additional Tables"
+    assert round(date.deltat(jd, True), 1) == 63.8
+
+
+def test_sidereal_time(jd, pst_coords):
+    # Courtesy of https://www.phpsciencelabs.com/sidereal-time-calculator/index.php
+    lat, lon = pst_coords
+    armc = ephemeris.get_angle(chart.ARMC, jd, lat, lon, chart.PLACIDUS)
+    sidereal_time = date.sidereal_time(armc["lon"])
+    assert convert.dec_to_string(sidereal_time, convert.FORMAT_TIME) == "16:54:10"

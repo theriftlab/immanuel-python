@@ -10,7 +10,10 @@ https://www.rapidtables.com/convert/number/degrees-minutes-seconds-to-degrees.ht
 
 from immanuel.tools import convert
 
-""" dms_to_dec() """
+"""
+dms_to_dec()
+-------------------------------------------------------------------------------
+"""
 
 
 def test_dms_to_dec():
@@ -20,7 +23,10 @@ def test_dms_to_dec():
     assert convert.dms_to_dec(("-", 12, 30.75)) == -12.5125
 
 
-""" dec_to_dms() """
+"""
+dec_to_dms()
+-------------------------------------------------------------------------------
+"""
 
 
 def test_dec_to_dms_round_degree():
@@ -49,7 +55,10 @@ def test_dec_to_dms_round_second():
     )
 
 
-""" dms_to_string() """
+"""
+dms_to_string()
+-------------------------------------------------------------------------------
+"""
 
 
 def test_dms_to_string_time_round_degree():
@@ -493,7 +502,10 @@ def test_dms_to_string_lon_round_second():
     )
 
 
-""" string_to_dms() """
+"""
+string_to_dms()
+-------------------------------------------------------------------------------
+"""
 
 
 def test_string_to_dms_time_rounded_degree():
@@ -841,7 +853,10 @@ def test_string_to_dms_lon_rounded_second():
     )
 
 
-""" dec_to_string() """
+"""
+dec_to_string()
+-------------------------------------------------------------------------------
+"""
 
 
 def test_dec_to_string_time_round_degree():
@@ -1181,7 +1196,10 @@ def test_dec_to_string_lon_round_second():
     )
 
 
-""" string_to_dec() """
+"""
+string_to_dec()
+-------------------------------------------------------------------------------
+"""
 
 
 def test_string_to_dec_time():

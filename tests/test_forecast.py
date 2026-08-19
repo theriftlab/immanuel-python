@@ -10,7 +10,7 @@ Test dates compared against astro.com output.
 from pytest import approx, fixture
 
 from immanuel.const import calc, chart
-from immanuel.tools import convert, date, ephemeris, forecast, position
+from immanuel.tools import convert, date, ephemeris, forecast, orbit, position
 
 
 @fixture
@@ -198,7 +198,7 @@ def test_solar_return_lon(jd):
 def test_solar_return_date(jd):
     """Solar return date copied from astro.com"""
     sr_jd = forecast.solar_return(jd, 2030)
-    assert round(sr_jd + ephemeris.deltat(sr_jd), 6) == 2462502.521823
+    assert round(sr_jd + date.deltat(sr_jd), 6) == 2462502.521823
 
 
 def test_progression_date(jd, pjd, coords):
@@ -210,7 +210,7 @@ def test_progression_date(jd, pjd, coords):
     progressed_jd = forecast.progression(
         jd, lat, lon, pjd, chart.PLACIDUS, calc.NAIBOD
     )[forecast.JD]
-    assert round(progressed_jd + ephemeris.deltat(progressed_jd), 6) == 2451570.719456
+    assert round(progressed_jd + date.deltat(progressed_jd), 6) == 2451570.719456
 
 
 def test_progression(jd, pjd, coords, astro):
@@ -225,7 +225,7 @@ def test_progression(jd, pjd, coords, astro):
                 index,
                 progressed_armc_lon,
                 lat,
-                ephemeris.earth_obliquity(progressed_jd),
+                orbit.earth_obliquity(progressed_jd),
                 chart.PLACIDUS,
             )
             sign = position.sign(house)
