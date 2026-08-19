@@ -18,7 +18,7 @@ from immanuel.classes.localize import localize as _
 from immanuel.classes.subject import Subject as ChartSubject
 from immanuel.const import calc, chart, dates, dignities, names
 from immanuel.reports import dignity
-from immanuel.settings import DEFAULTS, Settings
+from immanuel.settings import DEFAULTS, Config
 from immanuel.tools import condition, convert, date, ephemeris, position
 
 
@@ -53,7 +53,7 @@ class Aspect:
         aspect: dict,
         active_name: str,
         passive_name: str,
-        settings: Settings = DEFAULTS,
+        config: Config = DEFAULTS,
     ) -> None:
         self._active_name = _(active_name)
         self._passive_name = _(passive_name)
@@ -62,8 +62,8 @@ class Aspect:
         self.type = _(names.ASPECTS[aspect["aspect"]])
         self.aspect = aspect["aspect"]
         self.orb = aspect["orb"]
-        self.distance = Angle(aspect["distance"], round_to=settings.angle_precision)
-        self.difference = Angle(aspect["difference"], round_to=settings.angle_precision)
+        self.distance = Angle(aspect["distance"], round_to=config.angle_precision)
+        self.difference = Angle(aspect["difference"], round_to=config.angle_precision)
         self.movement = AspectMovement(aspect)
         self.condition = AspectCondition(aspect)
 
@@ -132,7 +132,8 @@ class DateTime:
         self.deltat = date.deltat(self.julian)
         if armc is not None:
             self.sidereal_time = convert.dec_to_string(
-                date.sidereal_time(armc), format=convert.FORMAT_TIME
+                date.sidereal_time(armc["lon"] if isinstance(armc, dict) else armc),
+                format=convert.FORMAT_TIME,
             )
 
     def __str__(self) -> str:
@@ -239,7 +240,7 @@ class Object:
         out_of_bounds: bool | None = None,
         in_sect: bool | None = None,
         dignity_state: dict | None = None,
-        settings: Settings = DEFAULTS,
+        config: Config = DEFAULTS,
     ) -> None:
         self.index = object["index"]
         if object["type"] == chart.HOUSE:
@@ -251,10 +252,10 @@ class Object:
         if date_time is not None:
             self.date_time = DateTime(date_time)
         if "lat" in object:
-            self.latitude = Angle(object["lat"], round_to=settings.angle_precision)
-        self.longitude = Angle(object["lon"], round_to=settings.angle_precision)
+            self.latitude = Angle(object["lat"], round_to=config.angle_precision)
+        self.longitude = Angle(object["lon"], round_to=config.angle_precision)
         self.sign_longitude = Angle(
-            position.sign_longitude(object), round_to=settings.angle_precision
+            position.sign_longitude(object), round_to=config.angle_precision
         )
         self.sign = Sign(position.sign(object))
         self.decan = Decan(position.decan(object))
@@ -266,7 +267,7 @@ class Object:
         if object["type"] not in (chart.HOUSE, chart.ANGLE, chart.FIXED_STAR):
             self.movement = ObjectMovement(object)
         if "dec" in object:
-            self.declination = Angle(object["dec"], round_to=settings.angle_precision)
+            self.declination = Angle(object["dec"], round_to=config.angle_precision)
         if object["type"] not in (chart.HOUSE, chart.ANGLE, chart.FIXED_STAR):
             self.out_of_bounds = out_of_bounds
         if "size" in object:
@@ -275,8 +276,8 @@ class Object:
             self.in_sect = in_sect
         if dignity_state is not None:
             self.dignities = DignityState(object, dignity_state=dignity_state)
-            self.score = dignity.score(dignity_state, settings)
-        self._settings = settings
+            self.score = dignity.score(dignity_state, config)
+        self._config = config
 
     def __str__(self) -> str:
         formatted = _("{name} {longitude} in {sign}").format(
@@ -287,7 +288,7 @@ class Object:
         if hasattr(self, "house"):
             formatted += f", {_(self.house)}"
         if hasattr(self, "movement") and (
-            self._settings.output_typical_object_motion or not self.movement.typical
+            self._config.output_typical_object_motion or not self.movement.typical
         ):
             formatted += f", {_(self.movement)}"
 
@@ -333,14 +334,14 @@ class Subject:
     def __init__(
         self,
         subject: ChartSubject,
-        settings: Settings = DEFAULTS,
+        config: Config = DEFAULTS,
     ) -> None:
         armc = ephemeris.get_angle(
             index=chart.ARMC,
             jd=subject.julian_date,
             lat=subject.latitude,
             lon=subject.longitude,
-            house_system=settings.house_system,
+            house_system=config.house_system,
         )
         self.date_time = DateTime(
             dt=subject.date_time,

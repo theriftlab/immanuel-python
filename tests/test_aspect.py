@@ -16,25 +16,27 @@ from pytest import fixture
 
 from immanuel.const import calc, chart
 from immanuel.reports import aspect
-from immanuel.setup import settings
+from immanuel.settings import Config
 from immanuel.tools import convert, date, ephemeris
 
 
 @fixture
 def objects():
+    config = Config()
     lat, lon = [convert.string_to_dec(v) for v in ("32n43", "117w09")]
     jd = date.to_jd("2000-01-01 10:00", lat, lon)
     return ephemeris.get_objects(
-        settings.objects, jd, lat, lon, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA
+        config.objects, jd, lat, lon, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA
     )
 
 
 @fixture
 def partner_objects():
+    config = Config()
     lat, lon = [convert.string_to_dec(v) for v in ("38n35", "121w30")]
     jd = date.to_jd("2001-02-16 06:00", lat, lon)
     return ephemeris.get_objects(
-        settings.objects, jd, lat, lon, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA
+        config.objects, jd, lat, lon, chart.PLACIDUS, calc.DAY_NIGHT_FORMULA
     )
 
 
@@ -53,10 +55,11 @@ def test_between(objects):
 
 
 def test_for_object(objects):
-    settings.aspect_rules = {
-        chart.ASC: settings.default_aspect_rule,  # astro.com chart visual does not include aspects to Asc but its aspects table does
-    }
-    a = aspect.for_object(objects[chart.SUN], objects)
+    config = Config()
+    config.aspect_rules[chart.ASC] = (
+        config.default_aspect_rule
+    )  # astro.com chart visual does not include aspects to Asc but its aspects table does
+    a = aspect.for_object(objects[chart.SUN], objects, config=config)
     assert sorted(tuple(a.keys())) == sorted(
         (chart.ASC, chart.PART_OF_FORTUNE, chart.MOON, chart.MERCURY, chart.SATURN)
     )
@@ -68,14 +71,17 @@ def test_for_object(objects):
 
 
 def test_all(objects):
-    settings.aspect_rules = {
-        chart.ASC: settings.default_aspect_rule,  # astro.com chart visual does not include aspects to Asc but its aspects table does
-        chart.DESC: {  # Because we're looking at Asc aspects, don't allow Desc any
-            "initiate": (),
-            "receive": (),
-        },
+    config = Config()
+    config.aspect_rules[chart.ASC] = (
+        config.default_aspect_rule
+    )  # astro.com chart visual does not include aspects to Asc but its aspects table does
+    config.aspect_rules[
+        chart.DESC
+    ] = {  # Because we're looking at Asc aspects, don't allow Desc any
+        "initiate": (),
+        "receive": (),
     }
-    all = aspect.all(objects)
+    all = aspect.all(objects, config=config)
     for index, aspect_list in all.items():
         for i, a in aspect_list.items():
             assert i in all
@@ -84,17 +90,18 @@ def test_all(objects):
 
 
 def test_by_type(objects):
-    settings.aspect_rules = {
-        chart.ASC: settings.default_aspect_rule,  # astro.com chart visual does not include aspects to Asc but its aspects table does
-    }
-    settings.aspects = [
+    config = Config()
+    config.aspect_rules[chart.ASC] = (
+        config.default_aspect_rule
+    )  # astro.com chart visual does not include aspects to Asc but its aspects table does
+    config.aspects = [
         calc.CONJUNCTION,
         calc.OPPOSITION,
         calc.SQUARE,
         calc.TRINE,
         calc.SEXTILE,
     ]  # Copy astro.com's "only major aspects"
-    by_type = aspect.by_type(objects)
+    by_type = aspect.by_type(objects, config=config)
     assert sorted(tuple(by_type.keys())) == sorted(
         (calc.CONJUNCTION, calc.OPPOSITION, calc.SQUARE, calc.TRINE, calc.SEXTILE)
     )

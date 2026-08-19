@@ -14,22 +14,6 @@ from immanuel.const import calc, chart
 from immanuel.tools import sweph
 
 
-def is_in_sect(object: dict, is_daytime: bool, sun: dict | float | None = None) -> bool:
-    """Returns whether the passed planet is in sect."""
-    if object["index"] in (chart.SUN, chart.JUPITER, chart.SATURN):
-        return is_daytime
-    if object["index"] in (chart.MOON, chart.VENUS, chart.MARS):
-        return not is_daytime
-    if object["index"] == chart.MERCURY and sun is not None:
-        sun_mercury_position = relative_position(sun, object)
-        return (
-            sun_mercury_position == calc.ORIENTAL
-            if is_daytime
-            else sun_mercury_position == calc.OCCIDENTAL
-        )
-    return False
-
-
 def is_daytime(jd: float, lat: float, lon: float) -> bool:
     """Returns whether the sun is above the horizon line at the time and
     place specified."""
@@ -95,7 +79,43 @@ def is_object_motion_typical(object: dict) -> bool:
     return movement == calc.RETROGRADE if is_node else movement == calc.DIRECT
 
 
-def relative_position(object1: dict | float, object2: dict | float) -> int:
+def is_object_out_of_bounds(
+    object: dict | float, jd: float | None = None, obliquity: float | None = None
+) -> bool:
+    """Returns whether the passed object is out of bounds either on the passed
+    Julian date or relative to the passed obliquity."""
+    if isinstance(object, dict):
+        if "dec" not in object:
+            return False
+        dec = object["dec"]
+    else:
+        dec = object
+    if jd is not None:
+        obliquity = sweph.true_earth_obliquity(jd)
+    if obliquity is None:
+        raise TypeError("Either jd or obliquity must be provided.")
+    return not -obliquity < dec < obliquity
+
+
+def is_object_in_sect(
+    object: dict, is_daytime: bool, sun: dict | float | None = None
+) -> bool:
+    """Returns whether the passed planet is in sect."""
+    if object["index"] in (chart.SUN, chart.JUPITER, chart.SATURN):
+        return is_daytime
+    if object["index"] in (chart.MOON, chart.VENUS, chart.MARS):
+        return not is_daytime
+    if object["index"] == chart.MERCURY and sun is not None:
+        sun_mercury_position = relative_object_position(sun, object)
+        return (
+            sun_mercury_position == calc.ORIENTAL
+            if is_daytime
+            else sun_mercury_position == calc.OCCIDENTAL
+        )
+    return False
+
+
+def relative_object_position(object1: dict | float, object2: dict | float) -> int:
     """Calculate which side of object1 object2 is."""
     lon1, lon2 = (
         object["lon"] if isinstance(object, dict) else object
@@ -128,21 +148,3 @@ def moon_sun_distance(jd: float) -> float:
     sun = sweph.planet(chart.SUN, jd)
     moon = sweph.planet(chart.MOON, jd)
     return swe.difdeg2n(moon["lon"], sun["lon"])
-
-
-def is_out_of_bounds(
-    object: dict | float, jd: float | None = None, obliquity: float | None = None
-) -> bool:
-    """Returns whether the passed object is out of bounds either on the passed
-    Julian date or relative to the passed obliquity."""
-    if isinstance(object, dict):
-        if "dec" not in object:
-            return False
-        dec = object["dec"]
-    else:
-        dec = object
-    if jd is not None:
-        obliquity = sweph.true_earth_obliquity(jd)
-    if obliquity is None:
-        raise TypeError("Either jd or obliquity must be provided.")
-    return not -obliquity < dec < obliquity

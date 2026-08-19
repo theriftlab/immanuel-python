@@ -161,6 +161,6 @@ def deltat(jd: float, seconds: bool = False) -> float:
     return swe.deltat(jd) if not seconds else swe.deltat(jd) * 24 * 3600
 
 
-def sidereal_time(armc: dict | float) -> float:
+def sidereal_time(armc: float) -> float:
     """Returns sidereal time based on ARMC longitude."""
-    return (armc["lon"] if isinstance(armc, dict) else armc) / 15
+    return armc / 15

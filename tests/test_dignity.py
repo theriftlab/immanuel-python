@@ -16,8 +16,8 @@ from pytest import fixture
 
 from immanuel.const import chart, dignities
 from immanuel.reports import dignity
-from immanuel.setup import settings
-from immanuel.tools import calculate, convert, date, ephemeris
+from immanuel.settings import Config
+from immanuel.tools import condition, convert, date, ephemeris
 
 
 @fixture
@@ -50,11 +50,7 @@ def objects(jd):
 
 @fixture
 def is_daytime(jd, coords):
-    return calculate.is_daytime(jd, *coords)
-
-
-def teardown_function():
-    settings.reset()
+    return condition.is_daytime(jd, *coords)
 
 
 def test_ruler(objects):
@@ -78,8 +74,12 @@ def test_triplicity_ruler(objects, is_daytime):
     sun["lon"] = 0  # Force it into Aries
     assert dignity.triplicity_ruler(sun, is_daytime) is True
     # Saturn should be triplicity ruler with participatory included
-    settings.include_participatory_triplicities = True
-    assert dignity.triplicity_ruler(objects[chart.SATURN], is_daytime) is True
+    config = Config()
+    config.include_participatory_triplicities = True
+    assert (
+        dignity.triplicity_ruler(objects[chart.SATURN], is_daytime, config=config)
+        is True
+    )
 
 
 def test_term_ruler(objects):
@@ -209,9 +209,10 @@ def test_all(objects, is_daytime):
     assert all[chart.NEPTUNE][dignities.FALL] is True
     assert all[chart.NEPTUNE][dignities.PEREGRINE] is True
     assert all[chart.PLUTO][dignities.PEREGRINE] is True
-    settings.include_mutual_receptions = False
+    config = Config()
+    config.include_mutual_receptions = False
     for object in objects.values():
-        all[object["index"]] = dignity.all(object, objects, is_daytime)
+        all[object["index"]] = dignity.all(object, objects, is_daytime, config=config)
     assert all[chart.SUN][dignities.MUTUAL_RECEPTION_TRIPLICITY_RULER] is True
     assert all[chart.SUN][dignities.PEREGRINE] is True
     assert all[chart.MOON][dignities.IN_RULERSHIP_ELEMENT] is True
@@ -243,10 +244,11 @@ def test_score(objects, is_daytime):
     assert scores[chart.MARS] == -5
     assert scores[chart.JUPITER] == 0
     assert scores[chart.SATURN] == 0
-    settings.include_mutual_receptions = False
+    config = Config()
+    config.include_mutual_receptions = False
     for object in objects.values():
         scores[object["index"]] = dignity.score(
-            dignity.all(object, objects, is_daytime)
+            dignity.all(object, objects, is_daytime, config=config)
         )
     assert scores[chart.SUN] == -2
     assert scores[chart.MOON] == -4

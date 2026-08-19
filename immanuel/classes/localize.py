@@ -15,7 +15,6 @@ rather than OS-level locales.
 
 import gettext
 import os
-
 from typing import Protocol
 
 from immanuel.const import genders
@@ -24,8 +23,7 @@ MAPPINGS = {}
 
 
 class Stringable(Protocol):
-    def __str__(self) -> str:
-        ...
+    def __str__(self) -> str: ...
 
 
 class Localize:

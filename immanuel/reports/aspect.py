@@ -4,7 +4,7 @@ Author: Robert Davies (robert@theriftlab.com)
 
 
 This module calculates aspects between chart objects based on
-the settings provided by the Settings class.
+the settings provided by the Config class.
 
 The functions also rely on the object data returned by the
 ephemeris module.
@@ -14,11 +14,11 @@ ephemeris module.
 import swisseph as swe
 
 from immanuel.const import calc
-from immanuel.settings import DEFAULTS, Settings
+from immanuel.settings import DEFAULTS, Config
 from immanuel.tools import position
 
 
-def between(object1: dict, object2: dict, settings: Settings = DEFAULTS) -> dict:
+def between(object1: dict, object2: dict, config: Config = DEFAULTS) -> dict:
     """Returns any aspect between the two passed objects."""
     active, passive = (
         (object1, object2)
@@ -26,30 +26,30 @@ def between(object1: dict, object2: dict, settings: Settings = DEFAULTS) -> dict
         else (object2, object1)
     )
     active_aspect_rule = (
-        settings.aspect_rules[active["index"]]
-        if active["index"] in settings.aspect_rules
-        else settings.default_aspect_rule
+        config.aspect_rules[active["index"]]
+        if active["index"] in config.aspect_rules
+        else config.default_aspect_rule
     )
     passive_aspect_rule = (
-        settings.aspect_rules[passive["index"]]
-        if passive["index"] in settings.aspect_rules
-        else settings.default_aspect_rule
+        config.aspect_rules[passive["index"]]
+        if passive["index"] in config.aspect_rules
+        else config.default_aspect_rule
     )
     active_orbs = (
-        settings.orbs[active["index"]]
-        if active["index"] in settings.orbs
-        else settings.planet_orbs
+        config.orbs[active["index"]]
+        if active["index"] in config.orbs
+        else config.planet_orbs
     )
     passive_orbs = (
-        settings.orbs[passive["index"]]
-        if passive["index"] in settings.orbs
-        else settings.planet_orbs
+        config.orbs[passive["index"]]
+        if passive["index"] in config.orbs
+        else config.planet_orbs
     )
-    default_orb = settings.default_orb
+    default_orb = config.default_orb
     distance = swe.difdeg2n(passive["lon"], active["lon"])
     separation = abs(distance)
 
-    for aspect in settings.aspects:
+    for aspect in config.aspects:
         if (
             aspect not in active_aspect_rule["initiate"]
             or aspect not in passive_aspect_rule["receive"]
@@ -59,7 +59,7 @@ def between(object1: dict, object2: dict, settings: Settings = DEFAULTS) -> dict
         passive_orb = passive_orbs[aspect] if passive_orbs else default_orb
         orb = (
             ((active_orb + passive_orb) / 2)
-            if settings.orb_calculation == calc.MEAN
+            if config.orb_calculation == calc.MEAN
             else max(active_orb, passive_orb)
         )
         if aspect - orb <= separation <= aspect + orb:
@@ -69,9 +69,9 @@ def between(object1: dict, object2: dict, settings: Settings = DEFAULTS) -> dict
             )
             associate = position.sign(exact_lon) == position.sign(active)
             exact = (
-                exact_lon - settings.exact_orb
+                exact_lon - config.exact_orb
                 <= active["lon"]
-                <= exact_lon + settings.exact_orb
+                <= exact_lon + config.exact_orb
             )
             applicative = not exact and (
                 (aspect_orb < 0 if distance < 0 else aspect_orb > 0)
@@ -98,7 +98,7 @@ def for_object(
     object: dict,
     objects: dict,
     exclude_same: bool = True,
-    settings: Settings = Settings(),
+    config: Config = Config(),
 ) -> dict:
     """Returns all chart objects aspecting the passed chart object. If two
     separate sets of objects are being compared (eg. synastry) then
@@ -108,19 +108,17 @@ def for_object(
     for index, check_object in objects.items():
         if exclude_same and index == object["index"]:
             continue
-        aspect = between(object, check_object, settings)
+        aspect = between(object, check_object, config=config)
         if aspect:
             aspects[check_object["index"]] = aspect
     return aspects
 
 
-def all(
-    objects: dict, exclude_same: bool = True, settings: Settings = Settings()
-) -> dict:
+def all(objects: dict, exclude_same: bool = True, config: Config = Config()) -> dict:
     """Returns all aspects between the passed chart objects."""
     aspects = {}
     for index, object in objects.items():
-        object_aspects = for_object(object, objects, exclude_same, settings)
+        object_aspects = for_object(object, objects, exclude_same, config=config)
         if object_aspects:
             aspects[index] = object_aspects
     return aspects
@@ -129,13 +127,13 @@ def all(
 def by_type(
     objects: dict,
     exclude_same: bool = True,
-    settings: Settings = Settings(),
+    config: Config = Config(),
 ) -> dict:
     """Returns all aspects between the passed chart objects keyed by
     aspect type."""
     aspects = {}
     for object in objects.values():
-        object_aspects = for_object(object, objects, exclude_same, settings)
+        object_aspects = for_object(object, objects, exclude_same, config=config)
         if object_aspects:
             for object_aspect in object_aspects.values():
                 if object_aspect["aspect"] not in aspects:
@@ -149,12 +147,12 @@ def synastry(
     objects1: dict,
     objects2: dict,
     exclude_same: bool = False,
-    settings: Settings = Settings(),
+    config: Config = Config(),
 ) -> dict:
     """Returns all aspects between the two sets of passed chart objects."""
     aspects = {}
     for index, object in objects1.items():
-        object_aspects = for_object(object, objects2, exclude_same, settings)
+        object_aspects = for_object(object, objects2, exclude_same, config=config)
         if object_aspects:
             aspects[index] = object_aspects
     return aspects

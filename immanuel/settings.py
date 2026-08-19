@@ -3,9 +3,9 @@ This file is part of immanuel - (C) The Rift Lab
 Author: Robert Davies (robert@theriftlab.com)
 
 
-Provides a Settings class that can be passed to a chart class on instantiation.
-If none is passed, the default settings are used - DEFAULTS, a simple instance
-of the Settings class. Some of the aspect and orb settings are maintained in
+Provides a Config class that can be passed to a chart class on instantiation.
+If none is passed, the default config is used - DEFAULTS, a simple instance
+of the Config class. Some of the aspect and orb settings are maintained in
 ChainMaps and getter/setter pairs to allow for cascading behavior.
 
 This module also allows filepath(s) to ephemeris files to be changed or added.
@@ -14,14 +14,12 @@ This module also allows filepath(s) to ephemeris files to be changed or added.
 
 import copy
 import os
-
 from collections import ChainMap
 
 import swisseph as swe
 
 from immanuel.classes.localize import Localize
 from immanuel.const import calc, chart, data, dignities
-
 
 _ANGLES = (
     chart.ASC,
@@ -59,7 +57,7 @@ _POINTS = (
 )
 
 
-class Settings:
+class Config:
     def __init__(self):
         """Data that should be included for each chart type's output."""
         self.chart_data = {
@@ -320,14 +318,14 @@ class Settings:
     def point_orbs(self, value: dict) -> None:
         self._point_orbs.maps[0].update(value)
 
-    def copy(self) -> "Settings":
+    def copy(self) -> "Config":
         return copy.deepcopy(self)
 
 
-"""Anything that requires settings as an argument should fall back to this
+"""Anything that requires config as an argument should fall back to this
 as a default. It should never be modified but should be copied for each chart
 class instance."""
-DEFAULTS = Settings()
+DEFAULTS = Config()
 
 
 """

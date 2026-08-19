@@ -23,7 +23,7 @@ from pytest import fixture
 from immanuel import charts
 from immanuel.classes import wrap
 from immanuel.const import calc, chart, dignities, names
-from immanuel.setup import settings
+from immanuel.settings import Config
 from immanuel.tools import convert
 
 
@@ -84,10 +84,6 @@ def pdt():
     return "2025-06-20 17:00:00"
 
 
-def teardown_function():
-    settings.reset()
-
-
 def test_subject(dob, lat, lon, native, julian_date):
     date_time = datetime.fromisoformat(f"{dob} -08:00")
     latitude, longitude = (convert.string_to_dec(v) for v in (lat, lon))
@@ -107,8 +103,9 @@ def test_subject(dob, lat, lon, native, julian_date):
 
 
 def test_wrapped_data(native):
-    settings.objects.append(chart.PRE_NATAL_LUNAR_ECLIPSE)
-    natal_chart = charts.Natal(native)
+    config = Config()
+    config.objects.append(chart.PRE_NATAL_LUNAR_ECLIPSE)
+    natal_chart = charts.Natal(native, config=config)
     swe_sun = swe.calc_ut(natal_chart.native.date_time.julian, swe.SUN)[0]
     # Angle
     longitude = natal_chart.objects[chart.SUN].longitude
@@ -124,7 +121,7 @@ def test_wrapped_data(native):
     assert aspect.passive == chart.SUN
     assert aspect.type == names.ASPECTS[calc.SEXTILE]
     assert aspect.aspect == calc.SEXTILE
-    assert aspect.orb == settings.planet_orbs[calc.SEXTILE]
+    assert aspect.orb == config.planet_orbs[calc.SEXTILE]
     assert type(aspect.distance) is wrap.Angle  # Tested separately, just ensure type
     assert type(aspect.difference) is wrap.Angle  # Tested separately, just ensure type
     # AspectCondition
@@ -263,7 +260,8 @@ def test_wrapped_data(native):
 
 
 def test_natal(native, lat, lon):
-    natal_chart = charts.Natal(native)
+    config = Config()
+    natal_chart = charts.Natal(native, config=config)
     assert natal_chart.type == names.CHART_TYPES[chart.NATAL]
     assert (
         round(
@@ -274,7 +272,7 @@ def test_natal(native, lat, lon):
     assert natal_chart.native.date_time.timezone == "America/Los_Angeles"
     assert natal_chart.native.coordinates.latitude.formatted == lat
     assert natal_chart.native.coordinates.longitude.formatted == lon
-    assert natal_chart.house_system == names.HOUSE_SYSTEMS[settings.house_system]
+    assert natal_chart.house_system == names.HOUSE_SYSTEMS[config.house_system]
     assert natal_chart.shape == names.CHART_SHAPES[calc.BOWL]
     assert natal_chart.diurnal is True
     assert natal_chart.moon_phase.third_quarter is True
@@ -326,7 +324,8 @@ def test_natal(native, lat, lon):
 
 
 def test_solar_return(native, lat, lon, solar_return_year):
-    solar_return_chart = charts.SolarReturn(native, solar_return_year)
+    config = Config()
+    solar_return_chart = charts.SolarReturn(native, solar_return_year, config=config)
     assert solar_return_chart.type == names.CHART_TYPES[chart.SOLAR_RETURN]
     assert (
         round(
@@ -348,7 +347,7 @@ def test_solar_return(native, lat, lon, solar_return_year):
     assert solar_return_chart.solar_return_date_time.timezone == "America/Los_Angeles"
     assert solar_return_chart.native.coordinates.latitude.formatted == lat
     assert solar_return_chart.native.coordinates.longitude.formatted == lon
-    assert solar_return_chart.house_system == names.HOUSE_SYSTEMS[settings.house_system]
+    assert solar_return_chart.house_system == names.HOUSE_SYSTEMS[config.house_system]
     assert solar_return_chart.shape == names.CHART_SHAPES[calc.LOCOMOTIVE]
     assert solar_return_chart.diurnal is True
     assert solar_return_chart.moon_phase.balsamic is True
@@ -415,12 +414,13 @@ def test_solar_return(native, lat, lon, solar_return_year):
 
 
 def test_progressed(native, lat, lon, pdt):
-    settings.mc_progression_method = calc.NAIBOD
-    progressed_chart = charts.Progressed(native, pdt)
+    config = Config()
+    config.mc_progression_method = calc.NAIBOD
+    progressed_chart = charts.Progressed(native, pdt, config=config)
     assert progressed_chart.type == names.CHART_TYPES[chart.PROGRESSED]
     assert (
         progressed_chart.progression_method
-        == names.PROGRESSION_METHODS[settings.mc_progression_method]
+        == names.PROGRESSION_METHODS[config.mc_progression_method]
     )
     assert (
         round(
@@ -449,7 +449,7 @@ def test_progressed(native, lat, lon, pdt):
     # Ensure coords have been converted back into correct string
     assert progressed_chart.native.coordinates.latitude.formatted == lat
     assert progressed_chart.native.coordinates.longitude.formatted == lon
-    assert progressed_chart.house_system == names.HOUSE_SYSTEMS[settings.house_system]
+    assert progressed_chart.house_system == names.HOUSE_SYSTEMS[config.house_system]
     assert progressed_chart.shape == names.CHART_SHAPES[calc.LOCOMOTIVE]
     assert progressed_chart.diurnal is True
     assert progressed_chart.moon_phase.disseminating is True
@@ -503,7 +503,8 @@ def test_progressed(native, lat, lon, pdt):
 
 
 def test_composite(native, lat, lon, partner, partner_lat, partner_lon):
-    composite_chart = charts.Composite(native, partner)
+    config = Config()
+    composite_chart = charts.Composite(native, partner, config=config)
     assert composite_chart.type == names.CHART_TYPES[chart.COMPOSITE]
     assert (
         round(
@@ -527,7 +528,7 @@ def test_composite(native, lat, lon, partner, partner_lat, partner_lon):
     assert composite_chart.native.coordinates.longitude.formatted == lon
     assert composite_chart.partner.coordinates.latitude.formatted == partner_lat
     assert composite_chart.partner.coordinates.longitude.formatted == partner_lon
-    assert composite_chart.house_system == names.HOUSE_SYSTEMS[settings.house_system]
+    assert composite_chart.house_system == names.HOUSE_SYSTEMS[config.house_system]
     assert composite_chart.diurnal is True
     assert composite_chart.moon_phase.third_quarter is True
     # Spot-check for correct object positions against astro.com
@@ -581,8 +582,8 @@ def test_composite(native, lat, lon, partner, partner_lat, partner_lon):
     assert chart.JUPITER in composite_chart.weightings.modalities.fixed
     assert chart.JUPITER in composite_chart.weightings.quadrants.first
     # Ensure more quirky house systems work
-    settings.house_system = chart.EQUAL
-    composite_chart = charts.Composite(native, partner)
+    config.house_system = chart.EQUAL
+    composite_chart = charts.Composite(native, partner, config=config)
     assert composite_chart.objects[chart.ASC].sign.name == names.SIGNS[chart.AQUARIUS]
     assert composite_chart.objects[chart.ASC].sign_longitude.formatted == "21°26'55\""
     assert composite_chart.objects[chart.ASC].declination.formatted == "-14°21'10\""
@@ -595,8 +596,8 @@ def test_composite(native, lat, lon, partner, partner_lat, partner_lon):
     assert composite_chart.houses[chart.HOUSE2].sign.name == names.SIGNS[chart.PISCES]
     assert composite_chart.houses[chart.HOUSE2].sign_longitude.formatted == "21°26'55\""
     assert composite_chart.houses[chart.HOUSE2].declination.formatted == "-03°23'27\""
-    settings.house_system = chart.VEHLOW_EQUAL
-    composite_chart = charts.Composite(native, partner)
+    config.house_system = chart.VEHLOW_EQUAL
+    composite_chart = charts.Composite(native, partner, config=config)
     assert composite_chart.objects[chart.ASC].sign.name == names.SIGNS[chart.AQUARIUS]
     assert composite_chart.objects[chart.ASC].sign_longitude.formatted == "21°26'55\""
     assert composite_chart.objects[chart.ASC].declination.formatted == "-14°21'10\""
@@ -609,8 +610,8 @@ def test_composite(native, lat, lon, partner, partner_lat, partner_lon):
     assert composite_chart.houses[chart.HOUSE2].sign.name == names.SIGNS[chart.PISCES]
     assert composite_chart.houses[chart.HOUSE2].sign_longitude.formatted == "06°26'55\""
     assert composite_chart.houses[chart.HOUSE2].declination.formatted == "-09°08'42\""
-    settings.house_system = chart.WHOLE_SIGN
-    composite_chart = charts.Composite(native, partner)
+    config.house_system = chart.WHOLE_SIGN
+    composite_chart = charts.Composite(native, partner, config=config)
     assert composite_chart.objects[chart.ASC].sign.name == names.SIGNS[chart.AQUARIUS]
     assert composite_chart.objects[chart.ASC].sign_longitude.formatted == "21°26'55\""
     assert composite_chart.objects[chart.ASC].declination.formatted == "-14°21'10\""
@@ -623,23 +624,24 @@ def test_composite(native, lat, lon, partner, partner_lat, partner_lon):
     assert composite_chart.houses[chart.HOUSE2].sign.name == names.SIGNS[chart.PISCES]
     assert composite_chart.houses[chart.HOUSE2].sign_longitude.formatted == "00°00'00\""
     assert composite_chart.houses[chart.HOUSE2].declination.formatted == "-11°28'17\""
-    settings.house_system = chart.PLACIDUS
+    config.house_system = chart.PLACIDUS
 
 
 def test_transits(native, lat, lon):
-    transits_chart = charts.Transits(lat, lon)
+    config = Config()
+    transits_chart = charts.Transits(lat, lon, config=config)
     assert transits_chart.type == names.CHART_TYPES[chart.TRANSITS]
     assert transits_chart.native.coordinates.latitude.formatted == lat
     assert transits_chart.native.coordinates.longitude.formatted == lon
-    assert transits_chart.house_system == names.HOUSE_SYSTEMS[settings.house_system]
+    assert transits_chart.house_system == names.HOUSE_SYSTEMS[config.house_system]
     default_transits_chart = charts.Transits()
     assert (
         default_transits_chart.native.coordinates.latitude.raw
-        == settings.default_latitude
+        == config.default_latitude
     )
     assert (
         default_transits_chart.native.coordinates.longitude.raw
-        == settings.default_longitude
+        == config.default_longitude
     )
     # Check houses_for_aspected
     native_chart = charts.Natal(native)
