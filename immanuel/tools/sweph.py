@@ -14,7 +14,6 @@ import swisseph as swe
 
 from immanuel.const import chart, names
 
-
 ALL = -1
 
 _SWE = {
@@ -221,16 +220,20 @@ def angle(
 ) -> dict:
     """Returns the specified angle (or all angles if index is ALL) based
     on either Julian date or ARMC."""
-    if lat is None or house_system is None:
-        raise TypeError("Latitude and house system must be provided.")
     if armc is not None:
+        if lat is None or house_system is None or armc_obliquity is None:
+            raise TypeError("lat, house_system, and armc_obliquity must be provided when armc is used.")
         angles = angles_houses_vertex(
             lat=lat, house_system=house_system, armc=armc, armc_obliquity=armc_obliquity
         )["angles"]
-    else:
+    elif jd is not None:
+        if lat is None or lon is None or house_system is None:
+            raise TypeError("lat, lon, and house_system must be provided when jd is used.")
         angles = angles_houses_vertex(
             jd=jd, lat=lat, lon=lon, house_system=house_system
         )["angles"]
+    else:
+        raise TypeError("Either jd or armc and armc_obliquity must be provided.")
     if index == ALL:
         return angles
     return angles[index]
@@ -249,24 +252,9 @@ def angles_houses_vertex(
     along with their speeds. Defaults to Placidus for main angles & vertex if
     a PLANET_ON_FIRST house system is chosen. Based on Julian date and
     lat / lon coordinates."""
-    if jd is not None:
-        cusps, ascmc, cuspsspeed, ascmcspeed = swe.houses_ex2(
-            jd,
-            lat,
-            lon,
-            _SWE[
-                house_system if house_system < chart.PLANET_ON_FIRST else chart.PLACIDUS
-            ],
-        )
-        return _angles_houses_vertex_from_sweph(
-            true_earth_obliquity(jd),
-            cusps,
-            ascmc,
-            cuspsspeed,
-            ascmcspeed,
-            first_house_lon,
-        )
-    if armc is not None and armc_obliquity is not None:
+    if armc is not None:
+        if lat is None or armc_obliquity is None:
+            raise TypeError("lat and armc_obliquity must be provided when armc is used.")
         cusps, ascmc, cuspsspeed, ascmcspeed = swe.houses_armc_ex2(
             armc,
             lat,
@@ -277,6 +265,25 @@ def angles_houses_vertex(
         )
         return _angles_houses_vertex_from_sweph(
             armc_obliquity,
+            cusps,
+            ascmc,
+            cuspsspeed,
+            ascmcspeed,
+            first_house_lon,
+        )
+    if jd is not None:
+        if lat is None or lon is None:
+            raise TypeError("lat and lon must be provided when jd is used.")
+        cusps, ascmc, cuspsspeed, ascmcspeed = swe.houses_ex2(
+            jd,
+            lat,
+            lon,
+            _SWE[
+                house_system if house_system < chart.PLANET_ON_FIRST else chart.PLACIDUS
+            ],
+        )
+        return _angles_houses_vertex_from_sweph(
+            true_earth_obliquity(jd),
             cusps,
             ascmc,
             cuspsspeed,
@@ -369,10 +376,29 @@ def mean_earth_obliquity(jd: float) -> float:
     return swe.calc_ut(jd, swe.ECL_NUT)[0][1]
 
 
-def orbital_elements(index: int, jd: float) -> tuple:
+def orbital_elements(index: int, jd: float) -> dict:
     """Returns pysweph's orbital data for the passed object on the
     given Julian date."""
-    return swe.get_orbital_elements(jd + swe.deltat(jd), _SWE[index], swe.FLG_SWIEPH)
+    elements = swe.get_orbital_elements(jd + swe.deltat(jd), _SWE[index], swe.FLG_SWIEPH | swe.FLG_J2000)
+    return {
+        "semimajor_axis": elements[0],
+        "eccentricity": elements[1],
+        "inclination": elements[2],
+        "longitude_of_ascending_node": elements[3],
+        "argument_of_periapsis": elements[4],
+        "longitude_of_periapsis": elements[5],
+        "mean_anomaly_at_epoch": elements[6],
+        "true_anomaly_at_epoch": elements[7],
+        "eccentric_anomaly_at_epoch": elements[8],
+        "mean_longitude_at_epoch": elements[9],
+        "sidereal_orbital_period": elements[10],
+        "mean_daily_motion": elements[11],
+        "tropical_period": elements[12],
+        "synodic_period": elements[13],
+        "time_of_perihelion_passage": elements[14],
+        "perihelion_distance": elements[15],
+        "aphelion_distance": elements[16],
+    }
 
 
 def type_of(index: int | str) -> int:

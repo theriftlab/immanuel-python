@@ -29,24 +29,24 @@ def earth_obliquity(jd: float, mean: bool = False) -> float:
 
 def orbital_eccentricity(index: int, jd: float) -> float:
     """Returns the passed object's orbital eccentricity."""
-    return sweph.orbital_elements(index, jd)[1]
+    return sweph.orbital_elements(index, jd)["eccentricity"]
 
 
 def sidereal_period(index: int, jd: float, unit: int = DAYS) -> float:
     """Returns the passed object's sidereal orbital period."""
-    sidereal_period = sweph.orbital_elements(index, jd)[10]
+    sidereal_period = sweph.orbital_elements(index, jd)["sidereal_orbital_period"]
     return sidereal_period * solar_year_length(jd) if unit == DAYS else sidereal_period
 
 
 def tropical_period(index: int, jd: float, unit: int = DAYS) -> float:
     """Returns the passed object's tropical orbital period."""
-    tropical_period = sweph.orbital_elements(index, jd)[12]
+    tropical_period = sweph.orbital_elements(index, jd)["tropical_period"]
     return tropical_period * solar_year_length(jd) if unit == DAYS else tropical_period
 
 
 def synodic_period(index: int, jd: float, unit: int = DAYS) -> float:
     """Returns the passed object's synodic period."""
-    synodic_period = sweph.orbital_elements(index, jd)[13]
+    synodic_period = sweph.orbital_elements(index, jd)["synodic_period"]
     return synodic_period if unit == DAYS else synodic_period / solar_year_length(jd)
 
 
@@ -73,8 +73,9 @@ def retrograde_period(index: int, jd: float, unit: int = DAYS) -> float:
     borrowed from https://physics.stackexchange.com/a/476286."""
     if index in (chart.SUN, chart.MOON):
         return 0.0
-    a1, *_, t1 = sweph.orbital_elements(chart.TERRA, jd)[:11]
-    a2 = sweph.orbital_elements(index, jd)[0]
+    terra = sweph.orbital_elements(chart.TERRA, jd)
+    a1, t1 = terra["semimajor_axis"], terra["sidereal_orbital_period"]
+    a2 = sweph.orbital_elements(index, jd)["semimajor_axis"]
     r = a2 / a1
     num = math.acos((math.sqrt(r) + 1) / (r + (1 / math.sqrt(r))))
     den = math.pi * (1 - (1 / (r ** (3 / 2))))
