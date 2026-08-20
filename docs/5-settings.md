@@ -1,92 +1,170 @@
 # Settings
 
-The `setup` module contains a `settings` class for changing Immanuel's default settings. Sensible defaults have been set out of the box, such as which chart objects to include, the preferred house system, aspect rules and orbs, dignity scores, Part of Fortune calculation etc. Many of the defaults are set to match those of astro.com but are easily overridden with Immanuel's built-in constants. Once a setting is changed, it will be applied to all subsequent charts until changed again.
+Immanuel has two tiers of settings:
+
+* **Per-chart config** via the `Config` class. Sensible defaults have been set out of the box, such as which chart objects to include, the preferred house system, aspect rules and orbs, dignity scores, Part of Fortune calculation etc. Many of the defaults are set to match those of astro.com but are easily overridden to your liking. The `Config` instance is then passed to a chart instance. This means different charts can use completely different configs.
+* **Global per-process settings** live in the `settings` module itself as plain functions. These are per-process rather than per-chart, and currently configure the output locale and the ephemeris file paths. These settings will apply to every chart regardless of which `Config` it was given.
 
 ## Quick Example
 
-To specify a different house system or MC progression method:
+To specify a different house system and MC progression method:
 
 ```python
 from immanuel import charts
 from immanuel.const import calc, chart
-from immanuel.setup import settings
+from immanuel.settings import Config
 
 
-settings.house_system = chart.CAMPANUS
+config = Config()
+config.house_system = chart.CAMPANUS
 
 native = charts.Subject('2000-01-01 10:00', '32n43', '117w09')
-# natal.houses will now use Campanus.
-natal = charts.Natal(native)
 
-settings.mc_progression_method = calc.DAILY_HOUSES
+# natal.houses will use Campanus.
+natal = charts.Natal(native, config=config)
 
-# progressed.houses will now use Campanus,
+config.mc_progression_method = calc.DAILY_HOUSES
+
+# progressed.houses will also use Campanus,
 # and its progression method will be Daily Houses.
-progressed = charts.Progressed(native, '2025-06-20 17:00')
+progressed = charts.Progressed(native, '2025-06-20 17:00', config=config)
 ```
 
-Or, to set them at the same time:
+Every chart class takes the same optional `config` keyword argument.
+
+## The Config Class
+
+A `Config` instance is a simple object with attributes corresponding to the settings documented below. For example:
 
 ```python
-settings.set({
-    'house_system': chart.CAMPANUS,
-    'mc_progression_method': calc.DAILY_HOUSES,
-})
+config = Config()
+config.house_system = chart.WHOLE_SIGN
+config.objects.append(chart.CERES)
+config.dignity_scores[dignities.EXALTED] = 5
+```
+
+### Charts take a snapshot
+
+When a chart is created it deep-copies the config it was given, so later changes to that config will not retroactively change any charts you have already generated:
+
+```python
+config = Config()
+config.house_system = chart.PLACIDUS
+placidus_natal = charts.Natal(native, config=config)
+
+config.house_system = chart.CAMPANUS
+campanus_natal = charts.Natal(native, config=config)
+
+# placidus_natal still uses Placidus.
+```
+
+This also means one config can safely be shared between as many charts as you like.
+
+### Copying a config
+
+`Config.copy()` returns a deep copy of itself, which is handy when you want several variations on a common base without repeating yourself:
+
+```python
+base = Config()
+base.house_system = chart.KOCH
+
+whole_sign = base.copy()
+whole_sign.house_system = chart.WHOLE_SIGN
 ```
 
 ## Cascading Settings
 
-Some settings cascade into each other by default - for example, the `aspect_rules` setting (described later) is a dict containing each chart object's rules for which aspects it can initiate and receive. Each of the planets' rules are set to another setting, `planet_aspect_rule`, which is a dict specifying `initiate` and `receive` entries, both of which default to yet another setting, `aspects`, which is simply a list of all aspects being calculated for this chart.
+Some settings cascade into each other by default - for example, the `aspect_rules` setting (described later) is a dict containing each chart object's rules for which aspects it can initiate and receive. Each of the planets' rules is inherited from another setting, `planet_aspect_rule`, which is a dict specifying `initiate` and `receive` entries, both of which default to yet another setting, `aspects`, which is simply a list of all aspects being calculated for this chart.
 
-This means that changing the `aspects` setting to your own list will cascade that new list down to `planet_aspect_rule` which in turn will cascade down to the planets in `aspect_rules`.
-
-With all cascading settings, once you change the setting it will be "locked" and no longer inherit anything, but will still cascade downwards to be inherited. For example, changing the `planet_aspect_rule` setting alone will cause it to ignore `aspects` thereafter but it will still cascade down to `aspect_rules`.
-
-Because of the code required under the hood to maintain the real-time nature of these cascading attributes, they are not subscriptable - eg. to change the aspect rules for just the ascendant to allow all aspects, this will silently fail, despite being intuitively correct:
+This means changing the `aspects` setting to your own list will cascade that new list down to `planet_aspect_rule`, which in turn will cascade down to the planets in `aspect_rules`:
 
 ```python
-settings.aspect_rules[chart.ASC] = settings.default_aspect_rule
+config = Config()
+config.aspects = [calc.CONJUNCTION, calc.TRINE]
+
+config.planet_aspect_rule['initiate']    # [0.0, 120.0]
+config.aspect_rules[chart.SUN]['initiate']    # [0.0, 120.0]
 ```
 
-You will instead have to assign it as a dict which will automatically be merged into the current settings:
+In-place changes cascade just as well as assignment:
 
 ```python
-settings.aspect_rules = {
-    chart.ASC: settings.default_aspect_rule,
+config.aspects.remove(calc.CONJUNCTION)
+config.aspect_rules[chart.SUN]['initiate']    # [120.0]
+```
+
+The cascade runs in one direction only, through these chains:
+
+| Setting | Cascades into |
+| --- | --- |
+| `aspects` | `default_aspect_rule`, `planet_aspect_rule`, `point_aspect_rule`, and therefore `aspect_rules` |
+| `planet_aspect_rule` | `aspect_rules` entries for the ten planets |
+| `point_aspect_rule` | `aspect_rules` entries for the calculated points and the four main angles |
+| `planet_orbs` | `orbs` entries for the ten planets and the four main angles |
+| `point_orbs` | `orbs` entries for the calculated points |
+
+### Assigning to a cascading setting
+
+`planet_aspect_rule`, `point_aspect_rule`, `planet_orbs`, and `point_orbs` are *merged* when assigned a new dict, rather than replaced, and it is only the keys you actually pass in the new dict that stop inheriting. Everything else carries on cascading:
+
+```python
+config = Config()
+config.planet_aspect_rule = {'initiate': [calc.SQUARE]}
+
+# 'initiate' is now locked to your list...
+config.planet_aspect_rule['initiate']    # [90.0]
+
+# ...but 'receive' still follows the aspects setting.
+config.aspects = [calc.SEXTILE]
+config.planet_aspect_rule['receive']    # [60.0]
+```
+
+Assigning to `aspects` replaces its contents in place, so it stays connected to everything downstream. Reassigning it as often as you like will not break the cascade.
+
+### Assigning to a non-cascading setting
+
+Non-cascading settings behave normally - for example, `default_aspect_rule`, `aspect_rules`, and `orbs` are ordinary attributes, so assigning a new dict to them will replace them:
+
+```python
+config = Config()
+config.aspect_rules = {
+    chart.SUN: {'initiate': [], 'receive': []},
+}
+
+chart.MOON in config.aspect_rules    # False - every other entry is gone
+```
+
+To change the rules for one object while leaving the rest of the defaults alone, assign to the individual key:
+
+```python
+config = Config()
+config.aspect_rules[chart.ASC] = {
+    'initiate': list(config.aspects),
+    'receive': list(config.aspects),
 }
 ```
 
-Now the `chart.ASC` rule is locked in - even changing `default_aspect_rule` will not change this setting - while the other `aspect_rules` entries still inherit their default cascading settings.
+The `chart.ASC` entry is now a plain dict which no longer inherits from `point_aspect_rule`, while every other entry keeps cascading as normal.
 
-Note that if you *manually* merge a dict then this will essentially re-assign the settings to their current value and lock them in, so they will no longer inherit:
+### Fallbacks
 
-```python
-# This updates chart.ASC but additionally reads ALL the other aspect_rules
-# entries and then writes them back, locking them all in.
-settings.aspect_rules |= {
-    chart.ASC: settings.default_aspect_rule,
-}
-```
+Not every chart object appears in `aspect_rules` and `orbs` by default - asteroids (including Chiron), eclipses, fixed stars, the ARMC, and any external objects you add are all absent. Aspect calculation falls back in this order:
 
-## Overview
+| Failure | Fallback |
+| --- | --- |
+| Object has no `aspect_rules` entry | `default_aspect_rule` |
+| Object has no per-aspect `orbs` map | `planet_orbs` |
+| Object's per-aspect orb map is missing an aspect | `default_orb` |
 
-There are many detailed customizations for chart data, especially for aspect rules. This section will provide you with an overview, but taking a look through the defaults in `setup.py` and the const files will give you a more detailed idea.
+## Chart Settings
 
-### `locale`
-
-A string specifying the locale for all output on any subsequently-generated charts or chart subjects. Available options:
-
-* `pt_BR` - Brazilian Portuguese
-* `es_ES` - Spanish
-* `de_DE` - German
-
-Default: `None` (effectively `en_US`)
+These are all attributes of the `Config` class. Taking a look through the defaults in `settings.py` and the `const` files will give you a more detailed idea.
 
 ### `chart_data`
 
-A dict which specifies what top-level data each chart type should contain. The values here are fairly self-explanatory as the constants line up with the chart class property names described in the [Returned Data](4-data.md) section.
+A dict which specifies what top-level data each chart type should contain. The values are constants from `const.data` and line up with the chart class property names described in the [Returned Data](4-data.md) section.
 
-The defaults specify the *maximum* amount of available data for each chart type - the only change you can reasonably make is to remove any properties you do not wish to include. Attempting to add data that does not belong (eg. adding `data.SOLAR_RETURN_DATE` to a natal chart) will not end well.
+The defaults specify the *maximum* amount of available data for each chart type - the only change you can reasonably make is to remove any properties you do not wish to include. Adding data that does not belong to a chart type (eg. adding `data.SOLAR_RETURN_YEAR` to a natal chart) is harmless but has no effect, as the chart classes simply ignore anything they have no method for.
 
 Defaults:
 
@@ -156,15 +234,46 @@ Defaults:
 }
 ```
 
+To trim a chart down to just its objects, for example:
+
+```python
+config = Config()
+config.chart_data[chart.NATAL] = [data.NATIVE, data.OBJECTS]
+```
+
+The chart's `type` property is always present and is not affected by this setting.
+
 ### `angle_precision`
 
-Rounding for formatted angles. This only applies to stringified object output and to the `formatted` key of any angle attributes. Available options:
+Rounding for formatted angles. This only applies to stringified object output and to the `formatted` key of any angle attributes - the `raw` value is always the full-precision float. Available options:
 
-* `calc.SECOND`
-* `calc.MINUTE`
-* `calc.DEGREE`
+| Option | Example output |
+| --- | --- |
+| `calc.SECOND` | `Sun 10°37'26" in Capricorn, 11th House` |
+| `calc.MINUTE` | `Sun 10°37' in Capricorn, 11th House` |
+| `calc.DEGREE` | `Sun 11° in Capricorn, 11th House` |
 
 Default: `calc.SECOND`
+
+### `output_typical_object_motion`
+
+A boolean determining whether the stringified output of a chart object should always state its motion (retrograde, direct etc.) even when that motion is typical for the object. With the default `False`, a retrograde Saturn is printed as `Saturn 10°23'27" in Taurus, 2nd House, Retrograde` while a direct Sun is simply `Sun 10°37'26" in Capricorn, 11th House`. Set it to `True` and the Sun becomes `Sun 10°37'26" in Capricorn, 11th House, Direct`.
+
+This only affects the human-readable string - the `movement` property is returned either way.
+
+Default: `False`
+
+### `default_latitude`
+
+The latitude to use for a `Transits` chart when none is passed to its constructor.
+
+Default: `51.4779` (the GMT prime meridian in Greenwich, UK)
+
+### `default_longitude`
+
+The longitude to use for a `Transits` chart when none is passed to its constructor.
+
+Default: `-0.0015`
 
 ### `house_system`
 
@@ -193,6 +302,8 @@ Which house system to use. Available options:
 * `chart.URANUS_ON_FIRST`
 * `chart.NEPTUNE_ON_FIRST`
 * `chart.PLUTO_ON_FIRST`
+
+The `*_ON_FIRST` systems are equal-house systems with the first house cusp on the chosen planet. The main angles and the vertex are still calculated by Placidus in this case, so the Ascendant won't line up with the first house cusp.
 
 Default: `chart.PLACIDUS`
 
@@ -271,10 +382,12 @@ Fixed stars:
 All fixed stars are available out of the box - simply add the name as a string to this list, eg.:
 
 ```python
-settings.objects.append('Antares')
+config.objects.append('Antares')
 ```
 
 Extra objects from external ephemeris files can also be added to this list by their number. See the [External Objects](#external-objects) section below for details how.
+
+Anything else will raise a `ValueError` when the chart is generated.
 
 ### `chart_shape_objects`
 
@@ -289,9 +402,15 @@ A list of which chart objects should be included in the calculations for determi
 
 All chart objects in the previous section are available here too.
 
+### `chart_shape_orb`
+
+The orb used when checking various gap sizes between objects to calculate the chart shape.
+
+Default: `5.0` degrees
+
 ### `aspects`
 
-A list of which aspects to calculate. This setting will cascade into the other settings described below that rely on it. Default:
+A list of which aspects to calculate. This setting cascades into the aspect rules described below, and also acts as the master switch for aspect calculation - an aspect absent from this list is never calculated. Default:
 
 ```python
 [
@@ -319,7 +438,7 @@ Available options:
 
 ### `default_aspect_rule`
 
-A dict which specifies a chart object's default aspect behavior. If a chart object does not have specific rules assigned to it (described below) then Immanuel will fall back to this setting. It has two entries:
+A dict which specifies a chart object's default aspect behavior. If a chart object has no entry in `aspect_rules` (described below) then Immanuel falls back to this setting. It has two entries:
 
 | Key | Value |
 | --- | --- |
@@ -335,11 +454,11 @@ Default:
 }
 ```
 
-That is, both of these default to the list of all the aspects being calculated for this chart, and will by default inherit any changes made to it.
+That is, both of these default to the list of all the aspects being calculated for this chart, and will inherit any changes made to it. Note that unlike the two rules below, assigning to this setting replaces it outright rather than merging.
 
 ### `planet_aspect_rule`
 
-A dict of aspect rules, as above, which will be applied to planets only. Default:
+A dict of aspect rules, as above, which is inherited by the planets' entries in `aspect_rules`. Default:
 
 ```python
 {
@@ -348,36 +467,29 @@ A dict of aspect rules, as above, which will be applied to planets only. Default
 }
 ```
 
-As above, this will by default inherit any changes made to `aspects`.
-
 ### `point_aspect_rule`
 
-A dict of aspect rules, as above, which will be applied to calculated points only - you can see which ones under the next heading. Default:
+A dict of aspect rules, as above, which is inherited by the calculated points' and main angles' entries in `aspect_rules`. Default:
 
 ```python
 {
-    'initiate': (calc.CONJUNCTION,),
+    'initiate': [calc.CONJUNCTION],
     'receive': self.aspects,
 }
 ```
 
-Similar to above, `receive` will by default inherit any changes made to `aspects`.
+That is, points and angles can only initiate a conjunction by default, but can receive anything.
 
 ### `aspect_rules`
 
-A dict of aspect rule dicts like those above, keyed by chart object index. This sets which specific chart objects have which rules, and any object not found in this dict will default to the `default_aspect_rule` rules described above.
+A dict of aspect rule dicts like those above, keyed by chart object index. This sets which specific chart objects have which rules. Any object without an entry here - asteroids, eclipses, fixed stars, external objects - falls back to `default_aspect_rule`.
 
-By default this inherits any changes made to the above planet and point rules.
+By default the planets' entries inherit from `planet_aspect_rule`, while the points' and angles' entries inherit from `point_aspect_rule`.
 
 Default:
 
 ```python
 {
-    chart.ASC: self.point_aspect_rule,
-    chart.DESC: self.point_aspect_rule,
-    chart.MC: self.point_aspect_rule,
-    chart.IC: self.point_aspect_rule,
-
     chart.SUN: self.planet_aspect_rule,
     chart.MOON: self.planet_aspect_rule,
     chart.MERCURY: self.planet_aspect_rule,
@@ -388,6 +500,11 @@ Default:
     chart.URANUS: self.planet_aspect_rule,
     chart.NEPTUNE: self.planet_aspect_rule,
     chart.PLUTO: self.planet_aspect_rule,
+
+    chart.ASC: self.point_aspect_rule,
+    chart.DESC: self.point_aspect_rule,
+    chart.MC: self.point_aspect_rule,
+    chart.IC: self.point_aspect_rule,
 
     chart.NORTH_NODE: self.point_aspect_rule,
     chart.SOUTH_NODE: self.point_aspect_rule,
@@ -404,13 +521,19 @@ Default:
 }
 ```
 
+Remember to assign per-key rather than replacing the whole dict - see [Cascading Settings](#cascading-settings) above.
+
 ### `default_orb`
 
-A numeric value of the default orb to fall back on when one hasn't been specified for the objects and aspect in question. Default `1.0` degree.
+A numeric value of the default orb to fall back on when an object's orb mapping is empty.
+
+Default: `1.0` degree
 
 ### `exact_orb`
 
-A numeric value of the orb within which an aspect can be considered "exact". Default `0.3` degrees.
+A numeric value of the orb within which an aspect can be considered "exact".
+
+Default: `0.3` degrees
 
 ### `orb_calculation`
 
@@ -425,7 +548,7 @@ Default: `calc.MEAN`
 
 ### `planet_orbs`
 
-A dict which specifies orbs for each aspect type, which will be applied to planets only. This will cascade down into the `orbs` setting described below. Default:
+A dict which specifies orbs for each aspect type, inherited by the planets' and main angles' entries in `orbs`. Default:
 
 ```python
 {
@@ -444,9 +567,11 @@ A dict which specifies orbs for each aspect type, which will be applied to plane
 }
 ```
 
+This is also the fallback for any object with no entry in `orbs` at all.
+
 ### `point_orbs`
 
-A dict which specifies orbs for each aspect type, which will be applied to calculated points only. This will cascade down into the `orbs` setting described below. Default:
+A dict which specifies orbs for each aspect type, inherited by the calculated points' entries in `orbs`. Default:
 
 ```python
 {
@@ -467,9 +592,9 @@ A dict which specifies orbs for each aspect type, which will be applied to calcu
 
 ### `orbs`
 
-A dict of orb dicts like those above, keyed by chart object index. This sets which specific chart objects have which orbs for each aspect, and any object not found in this dict will default to the `default_orb` value described above.
+A dict of orb dicts like those above, keyed by chart object index. This sets which specific chart objects have which orbs for each aspect.
 
-By default this inherits any changes made to the above planet and point orbs.
+Note that the four main angles take their orbs from `planet_orbs` even though they take their aspect rules from `point_aspect_rule`.
 
 Default:
 
@@ -506,10 +631,6 @@ Default:
 }
 ```
 
-### `chart_shape_orb`
-
-The orb used when checking various gap sizes between planets to calculate the chart shape. Default `5` degrees.
-
 ### `mc_progression_method`
 
 Which of the three available methods to use to progress the MC in a progressed chart.
@@ -520,7 +641,7 @@ Which of the three available methods to use to progress the MC in a progressed c
 | `calc.SOLAR_ARC` | MC from solar arc | ARMC is calculated by advancing the MC by the same distance the Sun has traveled between the natal and progressed date. |
 | `calc.DAILY_HOUSES` | ARMC 361°/prog.day | Calculates where the ARMC would be on the progressed date. |
 
-Default `calc.NAIBOD`.
+Default: `calc.NAIBOD`
 
 ### `part_formula`
 
@@ -532,7 +653,7 @@ Which formula to use when calculating the Part of Fortune / Spirit / Eros.
 | `calc.NIGHT_FORMULA` | Always use the night formula `asc + sun - moon` |
 | `calc.DAY_NIGHT_FORMULA` | Use whichever of the above is appropriate for the current chart's time of day. |
 
-Default `calc.DAY_NIGHT_FORMULA`.
+Default: `calc.DAY_NIGHT_FORMULA`
 
 ### `rulerships`
 
@@ -543,7 +664,7 @@ Rules for the planets' rulerships. You can see these in the `const.dignities` su
 | `dignities.MODERN_RULERSHIPS` | Modern rulerships which include all ten planets. |
 | `dignities.TRADITIONAL_RULERSHIPS` | Traditional rulerships which only include the first seven planets. |
 
-Default `dignities.MODERN_RULERSHIPS`.
+Default: `dignities.MODERN_RULERSHIPS`
 
 ### `triplicities`
 
@@ -555,7 +676,7 @@ Rules for the planets' triplicity rulerships. You can see these in the `const.di
 | `dignities.LILLEAN_TRIPLICITIES` | William Lilly's 17th-century simplification where each sign only has a day and a night ruler. |
 | `dignities.DOROTHEAN_TRIPLICITIES` | Dorotheus's first-century table, which also has day, night, and participatory rulers, only slightly different from Ptolemy's. |
 
-Default `dignities.PTOLEMAIC_TRIPLICITIES`.
+Default: `dignities.PTOLEMAIC_TRIPLICITIES`
 
 ### `terms`
 
@@ -566,19 +687,19 @@ Rules for the planets' term rulerships. You can see these in the `const.dignitie
 | `dignities.PTOLEMAIC_TERMS` | Ptolemy's terms as described by William Lilly. |
 | `dignities.EGYPTIAN_TERMS` | Egyptian terms as described in Ptolemy's Tetrabiblos. |
 
-Default `dignities.EGYPTIAN_TERMS`.
+Default: `dignities.EGYPTIAN_TERMS`
 
 ### `include_participatory_triplicities`
 
 A boolean to determine whether a participatory ruler counts as a triplicity ruler, or whether to only count day and night rulers. This will affect a planet's dignity state and score.
 
-Default `False`
+Default: `False`
 
 ### `include_mutual_receptions`
 
 A boolean to determine whether a planet being in any of the various mutual receptions will cancel its peregrine state. This will affect a planet's dignity state and score.
 
-Default `True`
+Default: `True`
 
 ### `dignity_scores`
 
@@ -604,28 +725,76 @@ Default:
 }
 ```
 
+Only the dignities listed here contribute to a planet's score, so removing an entry here is equivalent to that dignity state contributing zero to the score.
+
+One further dignity is calculated but deliberately left unscored: `dignities.IN_RULERSHIP_ELEMENT`, which is true when a planet occupies an element it rules. By default this only serves to cancel an otherwise peregrine planet, but adding it to this dict will give it a score of its own:
+
+```python
+config.dignity_scores[dignities.IN_RULERSHIP_ELEMENT] = 2
+```
+
+## Global Settings
+
+The remaining settings are functions in the `settings` module rather than attributes of `Config`. They apply per-process, to every chart, regardless of the config it was given.
+
+## Locale
+
+Immanuel's output can be translated by calling `settings.set_locale()` before generating a chart:
+
+```python
+from immanuel import charts, settings
+from immanuel.const import chart
+
+
+settings.set_locale('pt_BR')
+
+native = charts.Subject('2000-01-01 10:00', '32n43', '117w09')
+natal = charts.Natal(native)
+
+print(natal.objects[chart.SUN])
+# Sol 10°37'26" em Capricórnio, Casa 11
+```
+
+Available locales:
+
+* `pt_BR` - Brazilian Portuguese
+* `es_ES` - Spanish
+* `de_DE` - German
+
+If the full locale has no translation file, Immanuel falls back to the parent language (eg. `pt_BR` falls back to `pt`), and if that fails too it silently reverts to untranslated English rather than raising an error. Passing `None` returns output to untranslated English.
+
+Two related functions are available:
+
+| Function | Description |
+| --- | --- |
+| `settings.locale()` | Returns the currently active locale string, or `None` if output is untranslated. |
+| `settings.reset()` | Resets all global state - both the locale and any ephemeris file paths - back to their defaults. |
+
+Since this is process-wide state rather than per-chart, you might wish to call `settings.reset()` between tests or wherever charts in different languages are generated in the same process.
+
 ## External Objects
 
 As well as the readily-available chart objects listed above in the `objects` setting, it is possible to point Immanuel to any outside ephemeris files you might want to include, and add those extra objects to your chart.
 
-Details on where to find the varous ephemeris files can be found on [the Swiss Ephemeris GitHub repo](https://github.com/aloistr/swisseph).
+Details on where to find the various ephemeris files can be found on [the Swiss Ephemeris GitHub repo](https://github.com/aloistr/swisseph).
 
-For example, to include asteroid Lilith (`1181`), download its ephemeris file `se01181s.se1` (currently available [here](https://www.dropbox.com/scl/fo/y3naz62gy6f6qfrhquu7u/h/all_ast/ast1?rlkey=ejltdhb262zglm7eo6yfj2940&dl=0)). Then you can use the `add_filepath()` function to point to its location, and add `1181` to the `settings.objects` list:
+For example, to include asteroid Lilith (`1181`), download its ephemeris file `se01181s.se1` (currently available [here](https://www.dropbox.com/scl/fo/y3naz62gy6f6qfrhquu7u/h/all_ast/ast1?rlkey=ejltdhb262zglm7eo6yfj2940&dl=0)). Then you can use the `add_filepath()` function to point to its location, and add `1181` to your config's `objects` list:
 
 ```python
 import json
 
-from immanuel import charts
-from immanuel.classes.serialize import ToJSON
-from immanuel.setup import settings
+from immanuel import charts, settings
+from immanuel.settings import Config
 
 
 settings.add_filepath('my/directory/path')
-settings.objects.append(1181)
+
+config = Config()
+config.objects.append(1181)
 
 native = charts.Subject('2000-01-01 10:00', '32n43', '117w09')
-natal = charts.Natal(native)
-print(json.dumps(natal.objects[1181], cls=ToJSON, indent=4))
+natal = charts.Natal(native, config=config)
+print(json.dumps(natal.objects[1181], cls=charts.ToJSON, indent=4))
 ```
 
 This will return a standard asteroid object:
@@ -639,7 +808,7 @@ This will return a standard asteroid object:
         "name": "Asteroid"
     },
     "latitude": {
-        "raw": 4.818541410009123,
+        "raw": 4.8185412257115665,
         "formatted": "04\u00b049'07\"",
         "direction": "+",
         "degrees": 4,
@@ -647,7 +816,7 @@ This will return a standard asteroid object:
         "seconds": 7
     },
     "longitude": {
-        "raw": 348.27965784580425,
+        "raw": 348.27965783420325,
         "formatted": "348\u00b016'47\"",
         "direction": "+",
         "degrees": 348,
@@ -655,7 +824,7 @@ This will return a standard asteroid object:
         "seconds": 47
     },
     "sign_longitude": {
-        "raw": 18.279657845804252,
+        "raw": 18.27965783420325,
         "formatted": "18\u00b016'47\"",
         "direction": "+",
         "degrees": 18,
@@ -664,23 +833,30 @@ This will return a standard asteroid object:
     },
     "sign": {
         "number": 12,
-        "name": "Pisces"
+        "name": "Pisces",
+        "element": "Water",
+        "modality": "Mutable"
+    },
+    "decan": {
+        "number": 2,
+        "name": "2nd Decan"
     },
     "house": {
         "index": 2000001,
         "number": 1,
         "name": "1st House"
     },
-    "distance": 2.4219215373717056,
-    "speed": 0.4102596602496747,
+    "distance": 2.4219215340974056,
+    "speed": 0.41025966444735706,
     "movement": {
         "direct": true,
         "stationary": false,
         "retrograde": false,
+        "typical": true,
         "formatted": "Direct"
     },
     "declination": {
-        "raw": -0.19720685380581718,
+        "raw": -0.1972070280539613,
         "formatted": "-00\u00b011'50\"",
         "direction": "-",
         "degrees": 0,
@@ -693,7 +869,19 @@ This will return a standard asteroid object:
 
 Congratulations - you have imported an external object into your chart.
 
-If you want Immanuel to only use your own ephemeris files for everything, passing `True` as a second parameter to `add_filepath()` will set the passed path as the only path rather than adding it to the default one.
+If a requested object's file cannot be found, the underlying Swiss Ephemeris will raise a `swisseph.Error` naming the missing file and the paths it searched.
+
+`add_filepath()` appends to the existing paths by default. Passing `True` as a second argument will instead set the passed path as the *only* path, replacing the bundled default:
+
+```python
+settings.add_filepath('my/directory/path', True)
+```
+
+Since external objects have no entries in the `aspect_rules` and `orbs` settings, they will use `default_aspect_rule` and `planet_orbs` when aspects are calculated. Add entries for their index if you want to treat them differently:
+
+```python
+config.orbs[1181] = config.point_orbs
+```
 
 ---
 

@@ -6,7 +6,7 @@
 
 *- Marcus Manilius*
 
-Immanuel is an ancient name that means *God is with us*. Since astrology was once revered as a study of the gods in their realm to make sense of their (seemingly) erratic movements, it seems an appropriate name for a package which aims to translate complex astronomical data into simple astrology chart data.
+Immanuel is an ancient name that means *God is with us*. Since the planetary bodies and celestial objects were once seen as gods, and astrology once revered as a study of those gods to make sense of their (seemingly) erratic movements, it seems an appropriate name for a package which aims to translate complex astronomical data into simple astrology chart data.
 
 ## What problem does it solve?
 
@@ -18,7 +18,7 @@ Not only are the basics covered, but more complex calculations such as composite
 
 Since there are seemingly infinite ways to interpret astronomical data into astrological, Immanuel seeks to align much of its output with that of [astro.com](https://astro.com) as this is arguably the most popular free go-to for many amateur and even professional astrologers.
 
-Although it does not offer the vast amount of options or complexity as astro.com and many of the professional astrology software suites, it does generate the most commonly needed charts and their data in great detail and with much flexibility. As well as generating human-friendly output, all of its data is JSON-serializable and highly configurable, making it ideal for powering APIs.
+Although it does not offer the vast amount of options or complexity as astro.com and many of the professional astrology software suites, it does generate the most commonly needed charts and their data in great detail and with much flexibility. As well as generating human-friendly output, all of its data is JSON-serializable and highly configurable, making it ideal both for feeding to AI and for powering APIs.
 
 ## What's with all the objects?
 

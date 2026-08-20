@@ -50,8 +50,6 @@ msgid "Mar"
 msgstr "mar"
 ```
 
-Be sure to include all seven weekdays and all twelve months. When a `msgctxt` lookup fails, Immanuel falls back to the translation without the context, so a missing `msgctxt "weekday"` entry for `"Sun"` will render Sunday as your translation of the planet Sun.
-
 The format of the stringified datetime is itself translatable, so you can reorder it to suit your language rather than being stuck with the English order:
 
 ```

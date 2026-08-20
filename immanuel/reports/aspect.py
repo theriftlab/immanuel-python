@@ -98,7 +98,7 @@ def for_object(
     object: dict,
     objects: dict,
     exclude_same: bool = True,
-    config: Config = Config(),
+    config: Config = DEFAULTS,
 ) -> dict:
     """Returns all chart objects aspecting the passed chart object. If two
     separate sets of objects are being compared (eg. synastry) then
@@ -114,7 +114,7 @@ def for_object(
     return aspects
 
 
-def all(objects: dict, exclude_same: bool = True, config: Config = Config()) -> dict:
+def all(objects: dict, exclude_same: bool = True, config: Config = DEFAULTS) -> dict:
     """Returns all aspects between the passed chart objects."""
     aspects = {}
     for index, object in objects.items():
@@ -127,7 +127,7 @@ def all(objects: dict, exclude_same: bool = True, config: Config = Config()) -> 
 def by_type(
     objects: dict,
     exclude_same: bool = True,
-    config: Config = Config(),
+    config: Config = DEFAULTS,
 ) -> dict:
     """Returns all aspects between the passed chart objects keyed by
     aspect type."""
@@ -147,7 +147,7 @@ def synastry(
     objects1: dict,
     objects2: dict,
     exclude_same: bool = False,
-    config: Config = Config(),
+    config: Config = DEFAULTS,
 ) -> dict:
     """Returns all aspects between the two sets of passed chart objects."""
     aspects = {}

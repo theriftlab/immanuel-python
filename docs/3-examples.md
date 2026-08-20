@@ -44,7 +44,7 @@ composite = charts.Composite(native, partner)
 transits = charts.Transits('32n43', '117w09')
 ```
 
-For the Transits chart, the time is always assumed to be the present. Coordinates are optional, and when omitted they will default to the location of the GMT prime meridian in Greenwich. Coordinates are only needed to calculate the houses and house-based chart objects (Part of Fortune, Vertex, etc.), so if you do not require these in your transits you can safely omit the coordinates and simply call `chart.Transits()`.
+For the Transits chart, the time is always assumed to be the present. Coordinates are optional, and when omitted they will default to the location of the GMT prime meridian in Greenwich, UK. Coordinates are only needed to calculate the houses and house-based chart objects (Part of Fortune, Vertex, etc.), so if you do not require these in your transits you can safely omit the coordinates and simply call `chart.Transits()`.
 
 Synastry charts are not explicitly available as a distinct class, but since a synastry chart is essentially two charts layered on top of each other with aspects between them, you can use the `aspects_to` parameter - available in each chart class - to create a synastry. This takes another chart class instance as an argument, and builds the aspects of the containing instance to point to the planets/objects in the passed instance. For example:
 
@@ -65,9 +65,9 @@ All chart instances additionally feature a `house_for()` method which takes a ch
 
 Similarly, the `Transits` chart class features an additional `houses_for_aspected` boolean parameter. This will give the transits chart the same houses as the `aspected_to` chart for easy transit tracking.
 
-## Human-Readable
+## Human/AI-Readable
 
-You can simply print out a chart's property to see human-readable data, eg.:
+You can simply print out a chart's property to see human/AI-readable data, eg.:
 
 ```python
 print(f'Daytime: {natal.diurnal}')
@@ -133,12 +133,11 @@ A chart property's structure is easier to visualize by serializing it with the b
 import json
 
 from immanuel import charts
-from immanuel.classes.serialize import ToJSON
 
 
 native = charts.Subject('2000-01-01 10:00', '32n43', '117w09')
 natal = charts.Natal(native)
-print(json.dumps(natal.native, cls=ToJSON, indent=4))
+print(json.dumps(natal.native, cls=charts.ToJSON, indent=4))
 ```
 
 This will output the following JSON:
@@ -178,11 +177,11 @@ All chart properties, and the chart itself, can be serialized to JSON:
 
 ```python
 # Just the chart native
-print(json.dumps(natal.native, cls=ToJSON, indent=4))
+print(json.dumps(natal.native, cls=charts.ToJSON, indent=4))
 # Just the planets etc.
-print(json.dumps(natal.objects, cls=ToJSON, indent=4))
+print(json.dumps(natal.objects, cls=charts.ToJSON, indent=4))
 # The whole chart
-print(json.dumps(natal, cls=ToJSON, indent=4))
+print(json.dumps(natal, cls=charts.ToJSON, indent=4))
 ```
 
 This makes Immanuel ideal for powering APIs and other applications. For a deeper dive into the actual data returned, see the next section.

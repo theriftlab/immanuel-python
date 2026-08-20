@@ -7,6 +7,8 @@
     <img src="https://img.shields.io/pepy/dt/immanuel">
 </p>
 
+#### NOTE: This README and the documentation is for the `master` branch which is often in flux. Please use the docs for your downloaded release version to ensure they match the code.
+
 Immanuel is a Python >= 3.10 package to painlessly provide your application with simple yet detailed chart-centric astrology data for planets, points, signs, houses, aspects, weightings, etc. all based on the [Swiss Ephemeris](https://github.com/sailorfe/pysweph). Extra calculations, notably secondary progressions and dignity scores, are modeled on those of [astro.com](https://astro.com) and [Astro Gold](https://www.astrogold.io).
 
 Data for natal charts, solar returns, progressions, and composites are available, as well as the ability to point the aspects from any one chart instance to the planets in another, creating a flexible method to build synastries.
@@ -22,11 +24,11 @@ Immanuel's output is currently available in the following locales / languages:
 * **es_ES:** Spanish
 * **de_DE:** German
 
-See [here](https://github.com/theriftlab/immanuel-python/blob/v1.5.4/docs/5-settings.md#locale) for details on how to switch. The documentation itself is not currently available in other translations. To contribute in-software translations, see [here](https://github.com/theriftlab/immanuel-python/blob/v1.5.4/docs/7-contributions.md).
+See [here](/docs/5-settings.md#locale) for details on how to switch. The documentation itself is not currently available in other translations. To contribute in-software translations, see [here](/docs/7-contributions.md).
 
 ## Documentation
 
-Full documentation is available [here](https://github.com/theriftlab/immanuel-python/blob/v1.5.4/docs/0-contents.md), or follow the Quick Start below to see how to quickly generate a natal chart.
+Full documentation is available [here](/docs/0-contents.md), or follow the Quick Start below to see how to quickly generate a natal chart.
 
 ## Quick Start
 
@@ -82,13 +84,16 @@ Pluto 11°27'49" in Sagittarius, 9th House
 ...
 ```
 
-Add asteroid Ceres into the mix:
+Add asteroid Ceres into the mix via the Config class:
 
 ```python
 from immanuel import charts
 from immanuel.const import chart
-from immanuel.setup import settings
+from immanuel.settings import Config
 
+
+config = Config()
+config.objects.append(chart.CERES)
 
 native = charts.Subject(
         date_time='2000-01-01 10:00',
@@ -96,8 +101,7 @@ native = charts.Subject(
         longitude='117w09'
     )
 
-settings.objects.append(chart.CERES)
-natal = charts.Natal(native)
+natal = charts.Natal(native, config=config)
 
 for object in natal.objects.values():
     print(object)
@@ -109,12 +113,11 @@ Now you will see this appended to the list:
 Ceres 04°30'28" in Libra, 7th House
 ```
 
-More on the settings & constants in the full documentation - for now, we can see much more data by serializing the chart's `objects` property to JSON like this:
+More on the config & constants in the full documentation - for now, we can see much more data by serializing the chart's `objects` property to JSON like this:
 
 ```python
 import json
 
-from immanuel.classes.serialize import ToJSON
 from immanuel import charts
 
 
@@ -126,7 +129,7 @@ native = charts.Subject(
 
 natal = charts.Natal(native)
 
-print(json.dumps(natal.objects, cls=ToJSON, indent=4))
+print(json.dumps(natal.objects, cls=charts.ToJSON, indent=4))
 ```
 
 Which will output each of the chart's objects in this format:
@@ -221,7 +224,7 @@ Which will output each of the chart's objects in this format:
 Note that the entire chart can also be serialized to JSON, eg.:
 
 ```python
-print(json.dumps(natal, cls=ToJSON, indent=4))
+print(json.dumps(natal, cls=charts.ToJSON, indent=4))
 ```
 
 ## Chart Types
@@ -253,7 +256,7 @@ The various chart types return their own sets of data, but you can expect to rec
 
 All properties are available in both human/AI-readable and JSON format as demonstrated above.
 
-Most astronomical objects for astrological use are available for the years 1200-5399. To cover extra celestial objects or years, you can drop in your own ephemeris files from the Swiss Ephemeris, as outlined [in the docs](https://github.com/theriftlab/immanuel-python/blob/v1.5.4/docs/5-settings.md#external-objects)
+Most astronomical objects for astrological use are available for the years 1200-5399. To cover extra celestial objects or years, you can drop in your own ephemeris files from the Swiss Ephemeris, as outlined [in the docs](/docs/5-settings.md#external-objects)
 
 ## Calculations
 
@@ -261,9 +264,9 @@ Immanuel offers the same three methods for MC progression as astro.com, and will
 
 Planetary dignity scores are based on those of Astro Gold, although these are somewhat flexible via the settings.
 
-## Settings
+## Chart Config
 
-The full documentation covers settings in detail, but much of the output can be customized. The settings class allows you to specify and personalize:
+The full documentation covers settings and config in detail, but much of the chart's output can be customized. The settings module and its Config class allow you to specify and personalize:
 
 * Locale / language
 * The house system to use
