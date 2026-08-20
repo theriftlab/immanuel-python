@@ -222,13 +222,17 @@ def angle(
     on either Julian date or ARMC."""
     if armc is not None:
         if lat is None or house_system is None or armc_obliquity is None:
-            raise TypeError("lat, house_system, and armc_obliquity must be provided when armc is used.")
+            raise TypeError(
+                "lat, house_system, and armc_obliquity must be provided when armc is used."
+            )
         angles = angles_houses_vertex(
             lat=lat, house_system=house_system, armc=armc, armc_obliquity=armc_obliquity
         )["angles"]
     elif jd is not None:
         if lat is None or lon is None or house_system is None:
-            raise TypeError("lat, lon, and house_system must be provided when jd is used.")
+            raise TypeError(
+                "lat, lon, and house_system must be provided when jd is used."
+            )
         angles = angles_houses_vertex(
             jd=jd, lat=lat, lon=lon, house_system=house_system
         )["angles"]
@@ -254,7 +258,9 @@ def angles_houses_vertex(
     lat / lon coordinates."""
     if armc is not None:
         if lat is None or armc_obliquity is None:
-            raise TypeError("lat and armc_obliquity must be provided when armc is used.")
+            raise TypeError(
+                "lat and armc_obliquity must be provided when armc is used."
+            )
         cusps, ascmc, cuspsspeed, ascmcspeed = swe.houses_armc_ex2(
             armc,
             lat,
@@ -379,7 +385,9 @@ def mean_earth_obliquity(jd: float) -> float:
 def orbital_elements(index: int, jd: float) -> dict:
     """Returns pysweph's orbital data for the passed object on the
     given Julian date."""
-    elements = swe.get_orbital_elements(jd + swe.deltat(jd), _SWE[index], swe.FLG_SWIEPH | swe.FLG_J2000)
+    elements = swe.get_orbital_elements(
+        jd + swe.deltat(jd), _SWE[index], swe.FLG_SWIEPH | swe.FLG_J2000
+    )
     return {
         "semimajor_axis": elements[0],
         "eccentricity": elements[1],

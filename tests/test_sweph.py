@@ -42,7 +42,7 @@ def jd(coords):
 
 @fixture
 def armc():
-    # ARMC longitude on the above jd / day_jd
+    # ARMC longitude on the above jd
     return 253.55348499294269
 
 
@@ -392,32 +392,46 @@ def test_mean_earth_obliquity(jd):
 def test_orbital_elements(jd):
     # Courtesy of https://ssd.jpl.nasa.gov/horizons/app.html#/
     jpl_orbital_elements = {
-        "EC": 9.331535194932011E-02,
-        "QR": 1.381496721175504E+00,
-        "IN": 1.849876347263833E+00,
-        "OM": 4.956201046382952E+01,
-        "W": 2.865373929182661E+02,
+        "EC": 9.331535194932011e-02,
+        "QR": 1.381496721175504e00,
+        "IN": 1.849876347263833e00,
+        "OM": 4.956201046382952e01,
+        "W": 2.865373929182661e02,
         "Tp": 2451508.062951021828,
-        "N": 5.240391695239175E-01,
-        "MA": 1.948747026345698E+01,
-        "TA": 2.348962906506885E+01,
-        "A": 1.523679400710757E+00,
-        "AD": 1.665862080246011E+00,
-        "PR": 6.869715489532111E+02,
+        "N": 5.240391695239175e-01,
+        "MA": 1.948747026345698e01,
+        "TA": 2.348962906506885e01,
+        "A": 1.523679400710757e00,
+        "AD": 1.665862080246011e00,
+        "PR": 6.869715489532111e02,
     }
     # Not all settings line up exactly between the Swiss Ephemeris functions and JPL Horizons,
     # so we allow for some margin of error in a few of these values and hope nobody notices.
     orbital_elements = sweph.orbital_elements(chart.MARS, jd)
     assert orbital_elements["semimajor_axis"] == approx(jpl_orbital_elements["A"])
     assert orbital_elements["eccentricity"] == approx(jpl_orbital_elements["EC"])
-    assert orbital_elements["inclination"] == approx(jpl_orbital_elements["IN"], abs=1e-4)
-    assert orbital_elements["longitude_of_ascending_node"] == approx(jpl_orbital_elements["OM"], abs=1e-3)
-    assert orbital_elements["argument_of_periapsis"] == approx(jpl_orbital_elements["W"])
-    assert orbital_elements["mean_anomaly_at_epoch"] == approx(jpl_orbital_elements["MA"], abs=1e-3)
-    assert orbital_elements["true_anomaly_at_epoch"] == approx(jpl_orbital_elements["TA"], abs=1e-3)
-    assert orbital_elements["sidereal_orbital_period"] * calc.YEAR_DAYS == approx(jpl_orbital_elements["PR"], abs=1e-3)
+    assert orbital_elements["inclination"] == approx(
+        jpl_orbital_elements["IN"], abs=1e-4
+    )
+    assert orbital_elements["longitude_of_ascending_node"] == approx(
+        jpl_orbital_elements["OM"], abs=1e-3
+    )
+    assert orbital_elements["argument_of_periapsis"] == approx(
+        jpl_orbital_elements["W"]
+    )
+    assert orbital_elements["mean_anomaly_at_epoch"] == approx(
+        jpl_orbital_elements["MA"], abs=1e-3
+    )
+    assert orbital_elements["true_anomaly_at_epoch"] == approx(
+        jpl_orbital_elements["TA"], abs=1e-3
+    )
+    assert orbital_elements["sidereal_orbital_period"] * calc.YEAR_DAYS == approx(
+        jpl_orbital_elements["PR"], abs=1e-3
+    )
     assert orbital_elements["mean_daily_motion"] == approx(jpl_orbital_elements["N"])
-    assert orbital_elements["time_of_perihelion_passage"] == approx(jpl_orbital_elements["Tp"])
+    assert orbital_elements["time_of_perihelion_passage"] == approx(
+        jpl_orbital_elements["Tp"]
+    )
     assert orbital_elements["perihelion_distance"] == approx(jpl_orbital_elements["QR"])
     assert orbital_elements["aphelion_distance"] == approx(jpl_orbital_elements["AD"])
 
@@ -438,13 +452,7 @@ def test_type_of():
             chart.HOUSE11,
             chart.HOUSE12,
         ],
-        chart.ANGLE: [
-            chart.ASC,
-            chart.DESC,
-            chart.MC,
-            chart.IC,
-            chart.ARMC
-        ],
+        chart.ANGLE: [chart.ASC, chart.DESC, chart.MC, chart.IC, chart.ARMC],
         chart.PLANET: [
             chart.SUN,
             chart.MOON,
@@ -490,7 +498,7 @@ def test_type_of():
             chart.PRE_NATAL_LUNAR_ECLIPSE,
             chart.POST_NATAL_SOLAR_ECLIPSE,
             chart.POST_NATAL_LUNAR_ECLIPSE,
-        ]
+        ],
     }
     for object_type, objects in object_types.items():
         for obj in objects:

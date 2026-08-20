@@ -329,7 +329,7 @@ DEFAULTS = Config()
 
 
 """
-Everything below is global rather than per-chart.
+Everything below is global / per-process rather than per-chart.
 """
 
 _DEFAULT_FILE_PATH = f"{os.path.dirname(__file__)}{os.sep}resources{os.sep}ephemeris"

@@ -19,7 +19,7 @@ from pytest import fixture
 
 from immanuel import settings
 from immanuel.const import calc, chart, names
-from immanuel.tools import convert, date, ephemeris, orbit, position
+from immanuel.tools import convert, date, ephemeris, orbit
 
 
 @fixture
