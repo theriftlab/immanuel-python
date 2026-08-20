@@ -121,31 +121,6 @@ config.planet_aspect_rule['receive']    # [60.0]
 
 Assigning to `aspects` replaces its contents in place, so it stays connected to everything downstream. Reassigning it as often as you like will not break the cascade.
 
-### Assigning to a non-cascading setting
-
-Non-cascading settings behave normally - for example, `default_aspect_rule`, `aspect_rules`, and `orbs` are ordinary attributes, so assigning a new dict to them will replace them:
-
-```python
-config = Config()
-config.aspect_rules = {
-    chart.SUN: {'initiate': [], 'receive': []},
-}
-
-chart.MOON in config.aspect_rules    # False - every other entry is gone
-```
-
-To change the rules for one object while leaving the rest of the defaults alone, assign to the individual key:
-
-```python
-config = Config()
-config.aspect_rules[chart.ASC] = {
-    'initiate': list(config.aspects),
-    'receive': list(config.aspects),
-}
-```
-
-The `chart.ASC` entry is now a plain dict which no longer inherits from `point_aspect_rule`, while every other entry keeps cascading as normal.
-
 ### Fallbacks
 
 Not every chart object appears in `aspect_rules` and `orbs` by default - asteroids (including Chiron), eclipses, fixed stars, the ARMC, and any external objects you add are all absent. Aspect calculation falls back in this order:

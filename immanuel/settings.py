@@ -188,9 +188,9 @@ class Config:
         self.part_formula = calc.DAY_NIGHT_FORMULA
 
         """Dignity settings."""
-        self.rulerships = dignities.MODERN_RULERSHIPS
-        self.triplicities = dignities.PTOLEMAIC_TRIPLICITIES
-        self.terms = dignities.EGYPTIAN_TERMS
+        self.rulerships = dignities.MODERN_RULERSHIPS.copy()
+        self.triplicities = dignities.PTOLEMAIC_TRIPLICITIES.copy()
+        self.terms = dignities.EGYPTIAN_TERMS.copy()
         self.include_participatory_triplicities = False
         self.include_mutual_receptions = True
         self.dignity_scores = {
@@ -218,7 +218,7 @@ class Config:
             calc.SEXTILE,
             calc.QUINCUNX,
         ]
-        self.default_aspect_rule = ChainMap(
+        self._default_aspect_rule = ChainMap(
             {"initiate": self._aspects, "receive": self._aspects}
         )
         self._planet_aspect_rule = ChainMap(
@@ -227,11 +227,11 @@ class Config:
         self._point_aspect_rule = ChainMap(
             {"initiate": [calc.CONJUNCTION], "receive": self._aspects}
         )
-        self.aspect_rules = {}
+        self._aspect_rules = ChainMap()
         for p in _PLANETS:
-            self.aspect_rules[p] = ChainMap({}, self._planet_aspect_rule)
+            self._aspect_rules[p] = ChainMap({}, self._planet_aspect_rule)
         for p in _POINTS + _ANGLES:
-            self.aspect_rules[p] = ChainMap({}, self._point_aspect_rule)
+            self._aspect_rules[p] = ChainMap({}, self._point_aspect_rule)
 
         """Orbs for chart objects and their aspects."""
         self.default_orb = 1.0
@@ -269,11 +269,11 @@ class Config:
                 calc.BIQUINTILE: 0.0,
             }
         )
-        self.orbs = {}
+        self._orbs = ChainMap()
         for p in _ANGLES + _PLANETS:
-            self.orbs[p] = ChainMap({}, self._planet_orbs)
+            self._orbs[p] = ChainMap({}, self._planet_orbs)
         for p in _POINTS:
-            self.orbs[p] = ChainMap({}, self._point_orbs)
+            self._orbs[p] = ChainMap({}, self._point_orbs)
 
     """The following getters and setters are simple wrappers for the ChainMaps
     used to maintain our cascading settings behavior for aspects and orbs."""
@@ -285,6 +285,14 @@ class Config:
     @aspects.setter
     def aspects(self, value) -> None:
         self._aspects[:] = value
+
+    @property
+    def default_aspect_rule(self) -> ChainMap:
+        return self._default_aspect_rule
+
+    @default_aspect_rule.setter
+    def default_aspect_rule(self, value: dict) -> None:
+        self._default_aspect_rule.maps[0].update(value)
 
     @property
     def planet_aspect_rule(self) -> ChainMap:
@@ -303,6 +311,14 @@ class Config:
         self._point_aspect_rule.maps[0].update(value)
 
     @property
+    def aspect_rules(self) -> ChainMap:
+        return self._aspect_rules
+
+    @aspect_rules.setter
+    def aspect_rules(self, value: dict) -> None:
+        self._aspect_rules.maps[0].update(value)
+
+    @property
     def planet_orbs(self) -> ChainMap:
         return self._planet_orbs
 
@@ -317,6 +333,14 @@ class Config:
     @point_orbs.setter
     def point_orbs(self, value: dict) -> None:
         self._point_orbs.maps[0].update(value)
+
+    @property
+    def orbs(self) -> ChainMap:
+        return self._orbs
+
+    @orbs.setter
+    def orbs(self, value: dict) -> None:
+        self._orbs.maps[0].update(value)
 
     def copy(self) -> "Config":
         return copy.deepcopy(self)
