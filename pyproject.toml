@@ -27,7 +27,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest",
-    "pytest_lazy_fixtures",
+    "pytest-lazy-fixtures",
     "scipy-stubs",
 ]
 

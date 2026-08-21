@@ -14,68 +14,65 @@ rather than OS-level locales.
 """
 
 import gettext
+import importlib
 import os
 from typing import Protocol
 
-from immanuel.const import genders
 
-MAPPINGS = {}
+_TRANSLATIONS = {}
+
+_CONTEXTS = {}
+
+_LOCALEDIR = f"{os.path.dirname(__file__)}{os.sep}..{os.sep}locales"
 
 
 class Stringable(Protocol):
     def __str__(self) -> str: ...
 
 
-class Localize:
-    lcid = None
-    translation = None
-    localedir = f"{os.path.dirname(__file__)}{os.sep}..{os.sep}locales"
-
-    @staticmethod
-    def set_locale(lcid: str) -> None:
-        languages = (lcid, lcid[:2])
-        translation = gettext.translation(
-            "immanuel", localedir=Localize.localedir, languages=languages, fallback=True
-        )
-        if isinstance(translation, gettext.GNUTranslations):
-            Localize.lcid = lcid
-            Localize.translation = translation
-            mappings_path = (
-                f"{Localize.localedir}{os.sep}{Localize.lcid}{os.sep}mappings.py"
-            )
-            if os.path.isfile(mappings_path):
-                with open(mappings_path, "r") as mappings:
-                    exec(mappings.read(), MAPPINGS)
-        else:
-            Localize.reset()
-
-    @staticmethod
-    def reset() -> None:
-        Localize.lcid = None
-        Localize.translation = None
-        MAPPINGS.clear()
-
-
-def localize(input: str | Stringable, context: str | None = None) -> str:
-    input = str(input)
-    if Localize.translation is None:
-        return input
-    if context is None:
-        return Localize.translation.gettext(input)
-    else:
-        contextualized = Localize.translation.pgettext(context, input)
-        return (
-            contextualized
-            if contextualized != input
-            else Localize.translation.gettext(input)
-        )
-
-
-def gender(index: int | float) -> str | None:
-    if Localize.translation is None:
-        return None
-    return (
-        MAPPINGS["GENDERS"][index]
-        if index in MAPPINGS["GENDERS"]
-        else genders.AMBIGUOUS
+def load_locale(lcid: str) -> bool:
+    """If available, loads the translation and contexts for the given locale
+    into our module's dict cache. Returns True if the locale was successfully
+    loaded, False otherwise."""
+    if lcid in _TRANSLATIONS:
+        return True
+    translation = gettext.translation(
+        "immanuel",
+        localedir=_LOCALEDIR,
+        languages=(lcid, lcid[:2]),
+        fallback=True,
     )
+    if isinstance(translation, gettext.GNUTranslations):
+        _TRANSLATIONS[lcid] = translation
+        try:
+            _CONTEXTS[lcid] = importlib.import_module(
+                f"immanuel.locales.{lcid}.contexts"
+            ).CONTEXTS
+        except ModuleNotFoundError:
+            pass  # we can still translate without contexts
+        return True
+    return False
+
+
+def localize(
+    input: str | Stringable, lcid: str | None, context: str | tuple | None = None
+) -> str:
+    """Localizes a string or Stringable object to the given locale, if
+    available, and auto-loads the locale if not already loaded. The context
+    can be either a plain string, or a (type, key) tuple if the context depends
+    on a key-value pair like the gender list."""
+    input = str(input)
+    if lcid is None or (lcid not in _TRANSLATIONS and not load_locale(lcid)):
+        return input
+    translation = _TRANSLATIONS[lcid]
+    if context is None:
+        return translation.gettext(input)
+    if isinstance(context, tuple):
+        context_type, context_key = context
+        contexts = _CONTEXTS[lcid].get(context_type)
+        if contexts is not None and context_key in contexts:
+            context = contexts[context_key]
+        else:
+            return translation.gettext(input)
+    contextualized = translation.pgettext(context, input)
+    return contextualized if contextualized != input else translation.gettext(input)

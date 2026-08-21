@@ -52,7 +52,7 @@ class Chart:
         aspects_to: Chart | None = None,
         config: Config = DEFAULTS,
     ) -> None:
-        self.type = _(names.CHART_TYPES[type])
+        self.type = _(names.CHART_TYPES[type], config.locale)
         self._type = type
         self._aspects_to = aspects_to
         self._config = config.copy()
@@ -94,18 +94,21 @@ class Chart:
         self.native = wrap.Subject(self._native, config=self._config)
 
     def set_wrapped_house_system(self) -> None:
-        self.house_system = _(names.HOUSE_SYSTEMS[self._config.house_system])
+        self.house_system = _(
+            names.HOUSE_SYSTEMS[self._config.house_system], self._config.locale
+        )
 
     def set_wrapped_shape(self) -> None:
         self.shape = _(
-            names.CHART_SHAPES[pattern.chart_shape(self._objects, config=self._config)]
+            names.CHART_SHAPES[pattern.chart_shape(self._objects, config=self._config)],
+            self._config.locale,
         )
 
     def set_wrapped_diurnal(self) -> None:
         self.diurnal = self._diurnal
 
     def set_wrapped_moon_phase(self) -> None:
-        self.moon_phase = wrap.MoonPhase(self._moon_phase)
+        self.moon_phase = wrap.MoonPhase(self._moon_phase, config=self._config)
 
     def set_wrapped_objects(self) -> None:
         self.objects = {}
@@ -208,6 +211,7 @@ class Chart:
             elements=weighting.elements(self._objects),
             modalities=weighting.modalities(self._objects),
             quadrants=weighting.quadrants(self._objects, self._houses),
+            config=self._config,
         )
 
     def to_json(self, **kwargs) -> str:
@@ -333,6 +337,7 @@ class SolarReturn(Chart):
             longitude=self._native.longitude,
             offset=self._native.timezone_offset,
             timezone=self._native.timezone,
+            config=self._config,
         )
 
 
@@ -413,6 +418,7 @@ class Progressed(Chart):
         self.progression_date_time = wrap.DateTime(
             dt=self._progression_date_time,
             armc=self._progression_armc_longitude,
+            config=self._config,
         )
 
     def set_wrapped_progressed_date_time(self) -> None:
@@ -423,11 +429,13 @@ class Progressed(Chart):
             longitude=self._native.longitude,
             offset=self._native.timezone_offset,
             timezone=self._native.timezone,
+            config=self._config,
         )
 
     def set_wrapped_progression_method(self) -> None:
         self.progression_method = _(
-            names.PROGRESSION_METHODS[self._config.mc_progression_method]
+            names.PROGRESSION_METHODS[self._config.mc_progression_method],
+            self._config.locale,
         )
 
 

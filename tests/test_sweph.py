@@ -164,7 +164,7 @@ def test_planet(jd, astro):
 
 
 def test_asteroid(jd, astro):
-    settings.add_filepath(os.path.dirname(__file__))
+    settings.add_swe_filepath(os.path.dirname(__file__))
     lilith = sweph.asteroid(1181, jd)
     assert lilith["index"] == 1181
     assert lilith["type"] == chart.ASTEROID

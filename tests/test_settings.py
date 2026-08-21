@@ -26,7 +26,7 @@ def native():
 
 
 def teardown_function():
-    settings.reset()
+    settings.reset_swe_filepath()
 
 
 def test_config_attributes():
@@ -73,41 +73,22 @@ def test_config_is_respected(native):
 
 
 def test_add_filepath(native):
-    settings.add_filepath(os.path.dirname(__file__))
+    settings.add_swe_filepath(os.path.dirname(__file__))
     config = Config()
     config.objects.append(1181)
     natal = charts.Natal(native, config=config)
     assert 1181 in natal.objects
-    settings.add_filepath("", True)
+    settings.add_swe_filepath("", True)
     with pytest.raises(swe.Error):
         charts.Natal(native)
 
 
-def test_set_locale(native):
-    settings.set_locale("made_up")
-    natal = charts.Natal(native)
-    assert natal.objects[chart.SUN].name == "Sun"
-    settings.set_locale("pt_BR")
-    natal = charts.Natal(native)
-    assert natal.objects[chart.SUN].name == "Sol"
-
-
-def test_locale():
-    assert settings.locale() == None
-    settings.set_locale("pt_BR")
-    assert settings.locale() == "pt_BR"
-
-
 def test_reset(native):
-    settings.add_filepath(os.path.dirname(__file__))
+    settings.add_swe_filepath(os.path.dirname(__file__))
     config = Config()
     config.objects.append(1181)
     natal = charts.Natal(native, config=config)
     assert 1181 in natal.objects
-    settings.reset()
+    settings.reset_swe_filepath()
     with pytest.raises(swe.Error):
         charts.Natal(native, config=config)
-    settings.set_locale("pt_BR")
-    assert settings.locale() == "pt_BR"
-    settings.reset()
-    assert settings.locale() == None

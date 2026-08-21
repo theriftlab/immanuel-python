@@ -171,32 +171,34 @@ def chart_pattern_birth_data():
 
 
 def teardown_function():
-    settings.reset()
+    settings.reset_swe_filepath()
 
 
 def test_date_locale(native):
-    settings.set_locale("pt_BR")
+    config = Config()
+    config.locale = "pt_BR"
     assert (
-        str(wrap.Subject(native)).lower()
+        str(wrap.Subject(native, config=config)).lower()
         == "Sáb Jan 01 2000 10:00:00 America/Los_Angeles em 32N43.0, 117W9.0".lower()
     )
 
 
 def test_properties_chart_type(native, partner):
-    settings.set_locale("pt_BR")
-    natal = charts.Natal(native)
+    config = Config()
+    config.locale = "pt_BR"
+    natal = charts.Natal(native, config=config)
     assert natal.type == "Natal"
-    solar_return = charts.SolarReturn(native, 2024)
+    solar_return = charts.SolarReturn(native, 2024, config=config)
     assert solar_return.type == "Retorno Solar"
-    progressed = charts.Progressed(native, "2024-01-01")
+    progressed = charts.Progressed(native, "2024-01-01", config=config)
     assert progressed.type == "Progredido"
-    composite = charts.Composite(native, partner)
+    composite = charts.Composite(native, partner, config=config)
     assert composite.type == "Composto"
 
 
 def test_properties_object_house_types(native):
-    settings.set_locale("pt_BR")
     config = Config()
+    config.locale = "pt_BR"
     config.objects += [chart.PRE_NATAL_SOLAR_ECLIPSE, "Antares"]
     natal = charts.Natal(native, config=config)
     assert natal.houses[chart.HOUSE1].type.name == "Casa"
@@ -208,8 +210,9 @@ def test_properties_object_house_types(native):
 
 
 def test_properties_signs(native):
-    settings.set_locale("pt_BR")
-    natal = charts.Natal(native)
+    config = Config()
+    config.locale = "pt_BR"
+    natal = charts.Natal(native, config=config)
     assert natal.houses[chart.HOUSE1].sign.name == "Peixes"
     assert natal.houses[chart.HOUSE2].sign.name == "Áries"
     assert natal.houses[chart.HOUSE3].sign.name == "Touro"
@@ -225,16 +228,18 @@ def test_properties_signs(native):
 
 
 def test_properties_decans(native):
-    settings.set_locale("pt_BR")
-    natal = charts.Natal(native)
+    config = Config()
+    config.locale = "pt_BR"
+    natal = charts.Natal(native, config=config)
     assert natal.objects[chart.MERCURY].decan.name == "1º Decanato"
     assert natal.objects[chart.SUN].decan.name == "2º Decanato"
     assert natal.objects[chart.MARS].decan.name == "3º Decanato"
 
 
 def test_properties_elements(native):
-    settings.set_locale("pt_BR")
-    natal = charts.Natal(native)
+    config = Config()
+    config.locale = "pt_BR"
+    natal = charts.Natal(native, config=config)
     assert natal.objects[chart.VENUS].sign.element == "Fogo"
     assert natal.objects[chart.SUN].sign.element == "Terra"
     assert natal.objects[chart.MARS].sign.element == "Ar"
@@ -242,16 +247,17 @@ def test_properties_elements(native):
 
 
 def test_properties_modalities(native):
-    settings.set_locale("pt_BR")
-    natal = charts.Natal(native)
+    config = Config()
+    config.locale = "pt_BR"
+    natal = charts.Natal(native, config=config)
     assert natal.objects[chart.SUN].sign.modality == "Cardinal"
     assert natal.objects[chart.MOON].sign.modality == "Fixo"
     assert natal.objects[chart.VENUS].sign.modality == "Mutável"
 
 
 def test_properties_house_system(native):
-    settings.set_locale("pt_BR")
     config = Config()
+    config.locale = "pt_BR"
     config.house_system = chart.ALCABITUS
     natal = charts.Natal(native, config=config)
     assert natal.house_system == "Alcabitius"
@@ -294,15 +300,16 @@ def test_properties_house_system(native):
 
 
 def test_properties_house_names(native):
-    settings.set_locale("pt_BR")
-    natal = charts.Natal(native)
+    config = Config()
+    config.locale = "pt_BR"
+    natal = charts.Natal(native, config=config)
     for house in natal.houses.values():
         assert house.name == f"Casa {house.number}"
 
 
 def test_properties_object_names(native, object_names):
-    settings.set_locale("pt_BR")
     config = Config()
+    config.locale = "pt_BR"
     config.objects = list(object_names.keys())
     natal = charts.Natal(native, config=config)
     for object in natal.objects.values():
@@ -310,8 +317,8 @@ def test_properties_object_names(native, object_names):
 
 
 def test_properties_eclipse_types(lat, lon):
-    settings.set_locale("pt_BR")
     config = Config()
+    config.locale = "pt_BR"
     config.objects = [chart.PRE_NATAL_LUNAR_ECLIPSE, chart.PRE_NATAL_SOLAR_ECLIPSE]
     total_native = charts.Subject("2025-03-14 12:00:00", lat, lon)
     natal = charts.Natal(total_native, config=config)
@@ -343,8 +350,8 @@ def test_properties_eclipse_types(lat, lon):
 
 
 def test_properties_aspects(native, aspects):
-    settings.set_locale("pt_BR")
     config = Config()
+    config.locale = "pt_BR"
     config.aspects = aspects
     natal = charts.Natal(native, config=config)
     assert natal.aspects[chart.SUN][chart.PART_OF_FORTUNE].type == "Conjunção"
@@ -362,8 +369,8 @@ def test_properties_aspects(native, aspects):
 
 
 def test_properties_aspect_movements(native, aspects):
-    settings.set_locale("pt_BR")
     config = Config()
+    config.locale = "pt_BR"
     config.aspects = aspects
     natal = charts.Natal(native, config=config)
     assert (
@@ -377,8 +384,8 @@ def test_properties_aspect_movements(native, aspects):
 
 
 def test_properties_aspect_conditions(native, aspects):
-    settings.set_locale("pt_BR")
     config = Config()
+    config.locale = "pt_BR"
     config.aspects = aspects
     natal = charts.Natal(native, config=config)
     assert (
@@ -389,10 +396,10 @@ def test_properties_aspect_conditions(native, aspects):
 
 
 def test_properties_dignities(native):
-    settings.set_locale("pt_BR")
-    natal = charts.Natal(native)
     # Since it is near impossible to calculate a chart with every dignity, we invent some
-    natal.objects[chart.SUN].dignities = wrap.DignityState(
+    config = Config()
+    config.locale = "pt_BR"
+    planet_dignities = wrap.DignityState(
         {"index": chart.SUN},
         {
             v: True
@@ -413,72 +420,84 @@ def test_properties_dignities(native):
                 dignities.PEREGRINE,
             ]
         },
+        config=config,
     )
-    assert "Regente" in natal.objects[chart.SUN].dignities.formatted
-    assert "Exaltado" in natal.objects[chart.SUN].dignities.formatted
-    assert "Regente de Triplicidade" in natal.objects[chart.SUN].dignities.formatted
-    assert "Regente de Termo" in natal.objects[chart.SUN].dignities.formatted
-    assert "Regente de Face" in natal.objects[chart.SUN].dignities.formatted
-    assert "Regente por recepção mútua" in natal.objects[chart.SUN].dignities.formatted
-    assert "Exaltado por recepção mútua" in natal.objects[chart.SUN].dignities.formatted
-    assert (
-        "Regente de Triplicidade por recepção mútua"
-        in natal.objects[chart.SUN].dignities.formatted
-    )
-    assert (
-        "Regente de Termo por recepção mútua"
-        in natal.objects[chart.SUN].dignities.formatted
-    )
-    assert (
-        "Regente de Face por recepção mútua"
-        in natal.objects[chart.SUN].dignities.formatted
-    )
-    assert "No elemento de regência" in natal.objects[chart.SUN].dignities.formatted
-    assert "Em Exílio" in natal.objects[chart.SUN].dignities.formatted
-    assert "Em Queda" in natal.objects[chart.SUN].dignities.formatted
-    assert "Peregrino" in natal.objects[chart.SUN].dignities.formatted
+    assert "Regente" in planet_dignities.formatted
+    assert "Exaltado" in planet_dignities.formatted
+    assert "Regente de Triplicidade" in planet_dignities.formatted
+    assert "Regente de Termo" in planet_dignities.formatted
+    assert "Regente de Face" in planet_dignities.formatted
+    assert "Regente por recepção mútua" in planet_dignities.formatted
+    assert "Exaltado por recepção mútua" in planet_dignities.formatted
+    assert "Regente de Triplicidade por recepção mútua" in planet_dignities.formatted
+    assert "Regente de Termo por recepção mútua" in planet_dignities.formatted
+    assert "Regente de Face por recepção mútua" in planet_dignities.formatted
+    assert "No elemento de regência" in planet_dignities.formatted
+    assert "Em Exílio" in planet_dignities.formatted
+    assert "Em Queda" in planet_dignities.formatted
+    assert "Peregrino" in planet_dignities.formatted
 
 
 def test_properties_moon_phases(lat, lon):
-    settings.set_locale("pt_BR")
-    natal_new = charts.Natal(charts.Subject("2024-01-11 04:00", lat, lon))
+    config = Config()
+    config.locale = "pt_BR"
+    natal_new = charts.Natal(
+        charts.Subject("2024-01-11 04:00", lat, lon), config=config
+    )
     assert natal_new.moon_phase.formatted == "Nova"
-    natal_waxing = charts.Natal(charts.Subject("2024-01-14 12:00", lat, lon))
+    natal_waxing = charts.Natal(
+        charts.Subject("2024-01-14 12:00", lat, lon), config=config
+    )
     assert natal_waxing.moon_phase.formatted == "Crescente"
-    natal_first_quarter = charts.Natal(charts.Subject("2024-01-17 20:00", lat, lon))
+    natal_first_quarter = charts.Natal(
+        charts.Subject("2024-01-17 20:00", lat, lon), config=config
+    )
     assert natal_first_quarter.moon_phase.formatted == "Quarto Crescente"
-    natal_first_quarter = charts.Natal(charts.Subject("2024-01-22 12:00", lat, lon))
+    natal_first_quarter = charts.Natal(
+        charts.Subject("2024-01-22 12:00", lat, lon), config=config
+    )
     assert natal_first_quarter.moon_phase.formatted == "Crescente Gibosa"
-    natal_full = charts.Natal(charts.Subject("2024-01-25 10:00", lat, lon))
+    natal_full = charts.Natal(
+        charts.Subject("2024-01-25 10:00", lat, lon), config=config
+    )
     assert natal_full.moon_phase.formatted == "Cheia"
-    natal_disseminating = charts.Natal(charts.Subject("2024-01-30 12:00", lat, lon))
+    natal_disseminating = charts.Natal(
+        charts.Subject("2024-01-30 12:00", lat, lon), config=config
+    )
     assert natal_disseminating.moon_phase.formatted == "Minguante Gibosa"
-    natal_third_quarter = charts.Natal(charts.Subject("2024-02-02 15:30", lat, lon))
+    natal_third_quarter = charts.Natal(
+        charts.Subject("2024-02-02 15:30", lat, lon), config=config
+    )
     assert natal_third_quarter.moon_phase.formatted == "Quarto Minguante"
-    natal_third_quarter = charts.Natal(charts.Subject("2024-02-07 12:00", lat, lon))
+    natal_third_quarter = charts.Natal(
+        charts.Subject("2024-02-07 12:00", lat, lon), config=config
+    )
     assert natal_third_quarter.moon_phase.formatted == "Minguante"
 
 
 def test_properties_object_movement(native):
-    settings.set_locale("pt_BR")
-    natal = charts.Natal(native)
+    config = Config()
+    config.locale = "pt_BR"
+    natal = charts.Natal(native, config=config)
     assert natal.objects[chart.SUN].movement.formatted == "Direto"
     assert natal.objects[chart.PART_OF_FORTUNE].movement.formatted == "Estacionária"
     assert natal.objects[chart.SATURN].movement.formatted == "Retrógrado"
 
 
 def test_properties_chart_shape(chart_pattern_birth_data):
-    settings.set_locale("pt_BR")
+    config = Config()
+    config.locale = "pt_BR"
     for data in chart_pattern_birth_data.values():
         natal = charts.Natal(
-            charts.Subject(data["dob"], data["latitude"], data["longitude"])
+            charts.Subject(data["dob"], data["latitude"], data["longitude"]),
+            config=config,
         )
         assert natal.shape == data["shape"]
 
 
 def test_properties_progression_method(native):
-    settings.set_locale("pt_BR")
     config = Config()
+    config.locale = "pt_BR"
     config.mc_progression_method = calc.NAIBOD
     progressed_naibod = charts.Progressed(native, "2030-01-01 00:00", config=config)
     assert progressed_naibod.progression_method == "Naibod"
@@ -493,9 +512,10 @@ def test_properties_progression_method(native):
 
 
 def test_formatted_ambiguous_datetime(lat, lon):
-    settings.set_locale("pt_BR")
+    config = Config()
+    config.locale = "pt_BR"
     ambiguous_native = charts.Subject("2022-11-06 01:30", lat, lon)
-    natal = charts.Natal(ambiguous_native)
+    natal = charts.Natal(ambiguous_native, config=config)
     assert (
         str(natal.native.date_time).lower()
         == "Dom Nov 06 2022 01:30:00 America/Los_Angeles (ambíguo)".lower()
@@ -503,8 +523,9 @@ def test_formatted_ambiguous_datetime(lat, lon):
 
 
 def test_formatted_aspect(native):
-    settings.set_locale("pt_BR")
-    natal = charts.Natal(native)
+    config = Config()
+    config.locale = "pt_BR"
+    natal = charts.Natal(native, config=config)
     assert (
         str(natal.aspects[chart.SUN][chart.PART_OF_FORTUNE])
         == "Conjunção entre Sol e Roda da Fortuna dentro de 00°41'15\" (Aplicativa, Associada)"
@@ -512,16 +533,18 @@ def test_formatted_aspect(native):
 
 
 def test_formatted_object(native):
-    settings.set_locale("pt_BR")
-    natal = charts.Natal(native)
+    config = Config()
+    config.locale = "pt_BR"
+    natal = charts.Natal(native, config=config)
     assert str(natal.objects[chart.SUN]) == "Sol 10°37'26\" em Capricórnio, Casa 11"
     assert str(natal.objects[chart.ASC]) == "Ascendente 05°36'38\" em Peixes, Casa 1"
     assert str(natal.houses[chart.HOUSE2]) == "Casa 2 17°59'40\" em Áries"
 
 
 def test_formatted_subject(native):
-    settings.set_locale("pt_BR")
-    natal = charts.Natal(native)
+    config = Config()
+    config.locale = "pt_BR"
+    natal = charts.Natal(native, config=config)
     assert (
         str(natal.native).lower()
         == "Sáb Jan 01 2000 10:00:00 America/Los_Angeles em 32N43.0, 117W9.0".lower()
@@ -529,8 +552,9 @@ def test_formatted_subject(native):
 
 
 def test_formatted_weightings_elements(native):
-    settings.set_locale("pt_BR")
-    natal = charts.Natal(native)
+    config = Config()
+    config.locale = "pt_BR"
+    natal = charts.Natal(native, config=config)
     chart_elements = str(natal.weightings.elements)
     assert "Fogo" in chart_elements
     assert "Terra" in chart_elements
@@ -539,8 +563,9 @@ def test_formatted_weightings_elements(native):
 
 
 def test_formatted_weightings_modalities(native):
-    settings.set_locale("pt_BR")
-    natal = charts.Natal(native)
+    config = Config()
+    config.locale = "pt_BR"
+    natal = charts.Natal(native, config=config)
     chart_modalities = str(natal.weightings.modalities)
     assert "Cardinal" in chart_modalities
     assert "Fixo" in chart_modalities
@@ -548,8 +573,9 @@ def test_formatted_weightings_modalities(native):
 
 
 def test_formatted_weightings_quadrants(native):
-    settings.set_locale("pt_BR")
-    natal = charts.Natal(native)
+    config = Config()
+    config.locale = "pt_BR"
+    natal = charts.Natal(native, config=config)
     chart_quadrants = str(natal.weightings.quadrants)
     assert "Primeiro" in chart_quadrants
     assert "Segundo" in chart_quadrants

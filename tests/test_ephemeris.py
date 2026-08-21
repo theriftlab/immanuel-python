@@ -152,7 +152,7 @@ def test_armc_get_objects(jd, coords, armc):
 
 def test_get(jd, coords):
     lat, lon = coords
-    settings.add_filepath(os.path.dirname(__file__))
+    settings.add_swe_filepath(os.path.dirname(__file__))
     assert ephemeris.get(chart.ASC, jd, lat, lon, chart.PLACIDUS)["index"] == chart.ASC
     assert (
         ephemeris.get(chart.HOUSE2, jd, lat, lon, chart.PLACIDUS)["index"]

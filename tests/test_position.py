@@ -34,7 +34,7 @@ def jd(coords):
 @fixture
 def data(jd, coords):
     lat, lon = coords
-    settings.add_filepath(os.path.dirname(__file__))
+    settings.add_swe_filepath(os.path.dirname(__file__))
     return {
         "asc": ephemeris.get_angle(chart.ASC, jd, lat, lon, chart.PLACIDUS),
         "house_2": ephemeris.get_house(chart.HOUSE2, jd, lat, lon, chart.PLACIDUS),
@@ -129,7 +129,7 @@ def astro():
 
 
 def teardown_function():
-    settings.reset()
+    settings.reset_swe_filepath()
 
 
 def test_sign(data, astro):

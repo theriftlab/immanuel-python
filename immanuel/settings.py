@@ -18,7 +18,6 @@ from collections import ChainMap
 
 import swisseph as swe
 
-from immanuel.classes.localize import Localize
 from immanuel.const import calc, chart, data, dignities
 
 _ANGLES = (
@@ -59,6 +58,9 @@ _POINTS = (
 
 class Config:
     def __init__(self):
+        """Locale ID string. Defaults to None, which is treated as en_US."""
+        self.locale: str | None = None
+
         """Data that should be included for each chart type's output."""
         self.chart_data = {
             chart.NATAL: [
@@ -342,6 +344,8 @@ class Config:
     def orbs(self, value: dict) -> None:
         self._orbs.maps[0].update(value)
 
+    """Chart instances need to deep-copy passed config instances."""
+
     def copy(self) -> "Config":
         return copy.deepcopy(self)
 
@@ -356,49 +360,35 @@ DEFAULTS = Config()
 Everything below is global / per-process rather than per-chart.
 """
 
-_DEFAULT_FILE_PATH = f"{os.path.dirname(__file__)}{os.sep}resources{os.sep}ephemeris"
-_file_path = _DEFAULT_FILE_PATH
+_DEFAULT_SWE_FILE_PATH = (
+    f"{os.path.dirname(__file__)}{os.sep}resources{os.sep}ephemeris"
+)
+_swe_file_path = _DEFAULT_SWE_FILE_PATH
 
 
-def add_filepath(path: str, default: bool = False) -> None:
+def add_swe_filepath(path: str, default: bool = False) -> None:
     """Add an ephemeris file path, or replace the default one."""
-    global _file_path
+    global _swe_file_path
     if default:
-        _file_path = path
+        _swe_file_path = path
     else:
         extra_path = f"{os.pathsep}{path}"
-        if _file_path.endswith(extra_path):
+        if _swe_file_path.endswith(extra_path):
             return
-        _file_path += extra_path
+        _swe_file_path += extra_path
     set_swe_filepath()
 
 
 def set_swe_filepath() -> None:
     """Pass defined path(s) to swisseph."""
-    swe.set_ephe_path(_file_path)
+    swe.set_ephe_path(_swe_file_path)
 
 
-def set_locale(lcid: str | None) -> None:
-    """Set the locale for all translated output, or pass None to return to
-    untranslated English."""
-    if lcid is None:
-        Localize.reset()
-    else:
-        Localize.set_locale(lcid)
-
-
-def locale() -> str | None:
-    """Returns the currently active locale, or None if untranslated."""
-    return Localize.lcid
-
-
-def reset() -> None:
-    """Reset the global settings state - in practice this is the locale
-    and the ephemeris file paths."""
-    global _file_path
-    _file_path = _DEFAULT_FILE_PATH
+def reset_swe_filepath() -> None:
+    """Reset the global settings file paths."""
+    global _swe_file_path
+    _swe_file_path = _DEFAULT_SWE_FILE_PATH
     set_swe_filepath()
-    Localize.reset()
 
 
 set_swe_filepath()
