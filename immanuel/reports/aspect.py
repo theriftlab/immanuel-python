@@ -20,9 +20,16 @@ from immanuel.tools import position
 
 def between(object1: dict, object2: dict, config: ChartConfig = DEFAULTS) -> dict:
     """Returns any aspect between the two passed objects."""
+    object1_speed, object2_speed = abs(object1["speed"]), abs(object2["speed"])
     active, passive = (
         (object1, object2)
-        if abs(object1["speed"]) > abs(object2["speed"])
+        if object1_speed > object2_speed
+        # Ensure consistent ordering for objects with the same speed by using
+        # the only guaranteed-consistent attribute
+        or (
+            object1_speed == object2_speed
+            and str(object1["index"]) < str(object2["index"])
+        )
         else (object2, object1)
     )
     active_aspect_rule = (
