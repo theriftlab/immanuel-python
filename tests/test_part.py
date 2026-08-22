@@ -16,7 +16,7 @@ from pytest import fixture
 from pytest_lazy_fixtures import lf
 
 from immanuel.const import calc, chart
-from immanuel.tools import convert, date, ephemeris, part, position, sweph
+from immanuel.tools import convert, date, part, position, sweph
 
 
 @fixture

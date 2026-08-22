@@ -23,7 +23,7 @@ from __future__ import annotations
 import json
 from datetime import datetime
 
-from immanuel.const import calc, chart, names
+from immanuel.const import chart, names
 from immanuel.reports import aspect, dignity, pattern, weighting
 from immanuel.settings import DEFAULTS, ChartConfig
 from immanuel.support import wrap
