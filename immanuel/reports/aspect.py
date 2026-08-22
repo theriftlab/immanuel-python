@@ -17,6 +17,9 @@ from immanuel.const import calc
 from immanuel.settings import DEFAULTS, ChartConfig
 from immanuel.tools import position
 
+# Clumsy temp var to output how many aspect checks are performed during a chart calculation
+ASPECT_CHECKS = 0
+
 
 def between(object1: dict, object2: dict, config: ChartConfig = DEFAULTS) -> dict:
     """Returns any aspect between the two passed objects."""
@@ -70,6 +73,8 @@ def between(object1: dict, object2: dict, config: ChartConfig = DEFAULTS) -> dic
     separation = abs(distance)
     # Perform the aspect search and return the first & most significant one found
     for aspect in check_aspects:
+        global ASPECT_CHECKS
+        ASPECT_CHECKS += 1
         active_orb = active_orbs[aspect] if aspect in active_orbs else default_orb
         passive_orb = passive_orbs[aspect] if aspect in passive_orbs else default_orb
         orb = (
@@ -134,10 +139,13 @@ def all(
 ) -> dict:
     """Returns all aspects between the passed chart objects."""
     aspects = {}
+    check_objects = objects.copy()
     for index, object in objects.items():
-        object_aspects = for_object(object, objects, exclude_same, config=config)
-        if object_aspects:
-            aspects[index] = object_aspects
+        object_aspects = for_object(object, check_objects, exclude_same, config=config)
+        for aspected_index, object_aspect in object_aspects.items():
+            aspects.setdefault(index, {})[aspected_index] = object_aspect
+            aspects.setdefault(aspected_index, {})[index] = object_aspect
+        check_objects.pop(index)
     return aspects
 
 
