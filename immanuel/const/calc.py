@@ -25,23 +25,14 @@ QUINCUNX = 150.0
 QUINTILE = 72.0
 BIQUINTILE = 144.0
 
-""" Group aspects by type. """
+""" Distinguish significant aspects. Any other aspects, including
+custom user-supplied aspects, are considered minor. """
 MAJOR_ASPECTS = (
     CONJUNCTION,
     OPPOSITION,
     SQUARE,
     TRINE,
     SEXTILE,
-)
-
-MINOR_ASPECTS = (
-    SEPTILE,
-    SEMISQUARE,
-    SESQUISQUARE,
-    SEMISEXTILE,
-    QUINCUNX,
-    QUINTILE,
-    BIQUINTILE,
 )
 
 """ Calculations. """

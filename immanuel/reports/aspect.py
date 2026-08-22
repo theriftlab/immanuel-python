@@ -13,12 +13,9 @@ ephemeris module.
 
 import swisseph as swe
 
-from immanuel.const import calc, names
+from immanuel.const import calc
 from immanuel.settings import DEFAULTS, ChartConfig
 from immanuel.tools import position
-
-
-ASPECT_CHECKS = 0
 
 
 def between(object1: dict, object2: dict, config: ChartConfig = DEFAULTS) -> dict:
@@ -49,7 +46,7 @@ def between(object1: dict, object2: dict, config: ChartConfig = DEFAULTS) -> dic
     # Ordering by major first favors more significant aspects if multiple are found
     check_aspects = [
         aspect for aspect in valid_aspects if aspect in calc.MAJOR_ASPECTS
-    ] + [aspect for aspect in valid_aspects if aspect in calc.MINOR_ASPECTS]
+    ] + [aspect for aspect in valid_aspects if aspect not in calc.MAJOR_ASPECTS]
     # Get the orbs & actual distance
     active_orbs = (
         config.orbs[active["index"]]
@@ -66,8 +63,8 @@ def between(object1: dict, object2: dict, config: ChartConfig = DEFAULTS) -> dic
     separation = abs(distance)
     # Perform the aspect search and return the first & most significant one found
     for aspect in check_aspects:
-        active_orb = active_orbs[aspect] if active_orbs else default_orb
-        passive_orb = passive_orbs[aspect] if passive_orbs else default_orb
+        active_orb = active_orbs[aspect] if aspect in active_orbs else default_orb
+        passive_orb = passive_orbs[aspect] if aspect in passive_orbs else default_orb
         orb = (
             ((active_orb + passive_orb) / 2)
             if config.orb_calculation == calc.MEAN
