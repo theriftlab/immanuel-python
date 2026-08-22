@@ -16,7 +16,7 @@ from pytest import fixture
 
 from immanuel.const import chart, dignities
 from immanuel.reports import dignity
-from immanuel.settings import Config
+from immanuel.settings import ChartConfig
 from immanuel.tools import condition, convert, date, ephemeris
 
 
@@ -74,7 +74,7 @@ def test_triplicity_ruler(objects, is_daytime):
     sun["lon"] = 0  # Force it into Aries
     assert dignity.triplicity_ruler(sun, is_daytime) is True
     # Saturn should be triplicity ruler with participatory included
-    config = Config()
+    config = ChartConfig()
     config.include_participatory_triplicities = True
     assert (
         dignity.triplicity_ruler(objects[chart.SATURN], is_daytime, config=config)
@@ -209,7 +209,7 @@ def test_all(objects, is_daytime):
     assert all[chart.NEPTUNE][dignities.FALL] is True
     assert all[chart.NEPTUNE][dignities.PEREGRINE] is True
     assert all[chart.PLUTO][dignities.PEREGRINE] is True
-    config = Config()
+    config = ChartConfig()
     config.include_mutual_receptions = False
     for object in objects.values():
         all[object["index"]] = dignity.all(object, objects, is_daytime, config=config)
@@ -244,7 +244,7 @@ def test_score(objects, is_daytime):
     assert scores[chart.MARS] == -5
     assert scores[chart.JUPITER] == 0
     assert scores[chart.SATURN] == 0
-    config = Config()
+    config = ChartConfig()
     config.include_mutual_receptions = False
     for object in objects.values():
         scores[object["index"]] = dignity.score(

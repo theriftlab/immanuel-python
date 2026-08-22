@@ -529,7 +529,7 @@ Each of the three dicts is keyed by category, and each category contains an arra
 The human-readable output simply provides a total for each category:
 
 ```python
-print(natal.weightings['elements'])
+print(natal.weightings["elements"])
 ```
 
 Will output:
@@ -582,7 +582,7 @@ from immanuel import charts
 from immanuel.const import chart
 
 
-native = charts.Subject('2000-01-01 10:00', '32n43', '117w09')
+native = charts.Subject("2000-01-01 10:00", "32n43", "117w09")
 natal = charts.Natal(native)
 # chart.SUN = 4000001
 print(natal.objects[chart.SUN])

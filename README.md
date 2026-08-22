@@ -1,6 +1,12 @@
 # <p align="center"><img src="https://github.com/theriftlab/immanuel-python/assets/370745/b834a4b1-9558-410f-8cbd-94018a9e2f1d"></p>
 
 <p align="center">
+    <a href="https://github.com/Essk/ai-contribution-level">
+        <img src="https://raw.githubusercontent.com/Essk/ai-contribution-level/main/badges/level-1.svg" alt="AI Contribution: Level 1 - Research Only">
+    </a>
+</p>
+
+<p align="center">
     <img src="https://img.shields.io/pypi/v/immanuel">
     <img src="https://img.shields.io/python/required-version-toml?tomlFilePath=https://raw.githubusercontent.com/theriftlab/immanuel-python/master/pyproject.toml">
     <img src="https://img.shields.io/github/issues/theriftlab/immanuel-python">
@@ -24,7 +30,7 @@ Immanuel's output is currently available in the following locales / languages:
 * **es_ES:** Spanish
 * **de_DE:** German
 
-See [here](/docs/5-settings.md#locale) for details on how to switch. The documentation itself is not currently available in other translations. To contribute in-software translations, see [here](/docs/7-contributions.md).
+See [here](/docs/5-settings.md#chart-settings) for details on how to switch. The documentation itself is not currently available in other translations. To contribute in-software translations, see [here](/docs/7-contributions.md).
 
 ## Documentation
 
@@ -45,9 +51,9 @@ from immanuel import charts
 
 
 native = charts.Subject(
-        date_time='2000-01-01 10:00',
-        latitude='32n43',
-        longitude='117w09',
+        date_time="2000-01-01 10:00",
+        latitude="32n43",
+        longitude="117w09",
     )
 
 # or, alternatively...
@@ -84,21 +90,21 @@ Pluto 11°27'49" in Sagittarius, 9th House
 ...
 ```
 
-Add asteroid Ceres into the mix via the Config class:
+Add asteroid Ceres into the mix via the ChartConfig class:
 
 ```python
 from immanuel import charts
 from immanuel.const import chart
-from immanuel.settings import Config
+from immanuel.settings import ChartConfig
 
 
-config = Config()
+config = ChartConfig()
 config.objects.append(chart.CERES)
 
 native = charts.Subject(
-        date_time='2000-01-01 10:00',
-        latitude='32n43',
-        longitude='117w09'
+        date_time="2000-01-01 10:00",
+        latitude="32n43",
+        longitude="117w09"
     )
 
 natal = charts.Natal(native, config=config)
@@ -122,9 +128,9 @@ from immanuel import charts
 
 
 native = charts.Subject(
-        date_time='2000-01-01 10:00',
-        latitude='32n43',
-        longitude='117w09'
+        date_time="2000-01-01 10:00",
+        latitude="32n43",
+        longitude="117w09"
     )
 
 natal = charts.Natal(native)
@@ -266,7 +272,7 @@ Planetary dignity scores are based on those of Astro Gold, although these are so
 
 ## Chart Config
 
-The full documentation covers settings and config in detail, but much of the chart's output can be customized. The settings module and its Config class allow you to specify and personalize:
+The full documentation covers settings and config in detail, but much of the chart's output can be customized. The settings module and its ChartConfig class allow you to specify and personalize:
 
 * Locale / language
 * The house system to use
@@ -285,6 +291,10 @@ Tests are available via pytest. If you have cloned the repo, simply run pytest f
 python -m pytest
 ```
 
+## AI Transparency
+
+Immanuel is a passion project, and as such all of the code in this package - including the tests - is 100% hand-rolled by a human. AI is used to assist in planning, checking, and auditing the codebase and documentation, and Claude Code has write permission for the documentation only, in order to provide suggested updates and examples to help keep them in line with code changes.
+
 ## License
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -302,4 +312,4 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 ## Contact
 
-Please post any issues, feature requests, PRs etc. on GitHub. For anything else email robert@theriftlab.com.
+Please post any issues, feature requests, PRs etc. on GitHub.

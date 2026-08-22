@@ -3,7 +3,7 @@ This file is part of immanuel - (C) The Rift Lab
 Author: Robert Davies (robert@theriftlab.com)
 
 
-User-facing names for chart data objects.
+User-facing names for chart data objects and dates.
 
 """
 
@@ -237,26 +237,28 @@ PROGRESSION_METHODS = {
     calc.SOLAR_ARC: "Solar Arc",
     calc.DAILY_HOUSES: "Daily Houses",
 }
+
 WEEKDAYS = {
-    0: "Mon",
-    1: "Tue",
-    2: "Wed",
-    3: "Thu",
-    4: "Fri",
-    5: "Sat",
-    6: "Sun",
+    calc.MONDAY: "Mon",
+    calc.TUESDAY: "Tue",
+    calc.WEDNESDAY: "Wed",
+    calc.THURSDAY: "Thu",
+    calc.FRIDAY: "Fri",
+    calc.SATURDAY: "Sat",
+    calc.SUNDAY: "Sun",
 }
+
 MONTHS = {
-    1: "Jan",
-    2: "Feb",
-    3: "Mar",
-    4: "Apr",
-    5: "May",
-    6: "Jun",
-    7: "Jul",
-    8: "Aug",
-    9: "Sep",
-    10: "Oct",
-    11: "Nov",
-    12: "Dec",
+    calc.JANUARY: "Jan",
+    calc.FEBRUARY: "Feb",
+    calc.MARCH: "Mar",
+    calc.APRIL: "Apr",
+    calc.MAY: "May",
+    calc.JUNE: "Jun",
+    calc.JULY: "Jul",
+    calc.AUGUST: "Aug",
+    calc.SEPTEMBER: "Sep",
+    calc.OCTOBER: "Oct",
+    calc.NOVEMBER: "Nov",
+    calc.DECEMBER: "Dec",
 }

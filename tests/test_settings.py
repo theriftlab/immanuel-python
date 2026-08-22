@@ -4,7 +4,7 @@ Author: Robert Davies (robert@theriftlab.com)
 
 
 Tests for the settings module. These come in two parts - first the per-chart
-settings via the Config class, and second the global, per-process settings via
+settings via the ChartConfig class, and second the global, per-process settings via
 the module's functions.
 
 """
@@ -17,7 +17,7 @@ from pytest import fixture
 
 from immanuel import charts, settings
 from immanuel.const import calc, chart
-from immanuel.settings import Config
+from immanuel.settings import ChartConfig
 
 
 @fixture
@@ -30,7 +30,7 @@ def teardown_function():
 
 
 def test_config_attributes():
-    config = Config()
+    config = ChartConfig()
     config.house_system = chart.POLICH_PAGE
     assert config.house_system == chart.POLICH_PAGE
     # Cascading setting
@@ -42,7 +42,7 @@ def test_config_attributes():
 
 
 def test_config_is_respected(native):
-    config = Config()
+    config = ChartConfig()
     config.house_system = chart.PLACIDUS
     natal = charts.Natal(native, config=config)
     assert natal.houses[chart.HOUSE2].sign.number == 1
@@ -74,7 +74,7 @@ def test_config_is_respected(native):
 
 def test_add_filepath(native):
     settings.add_swe_filepath(os.path.dirname(__file__))
-    config = Config()
+    config = ChartConfig()
     config.objects.append(1181)
     natal = charts.Natal(native, config=config)
     assert 1181 in natal.objects
@@ -85,7 +85,7 @@ def test_add_filepath(native):
 
 def test_reset(native):
     settings.add_swe_filepath(os.path.dirname(__file__))
-    config = Config()
+    config = ChartConfig()
     config.objects.append(1181)
     natal = charts.Natal(native, config=config)
     assert 1181 in natal.objects

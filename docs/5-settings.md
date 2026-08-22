@@ -2,8 +2,8 @@
 
 Immanuel has two tiers of settings:
 
-* **Per-chart config** via the `Config` class. Sensible defaults have been set out of the box, such as which chart objects to include, the preferred house system, aspect rules and orbs, dignity scores, Part of Fortune calculation etc. Many of the defaults are set to match those of astro.com but are easily overridden to your liking. The `Config` instance is then passed to a chart instance. This means different charts can use completely different configs.
-* **Global per-process settings** live in the `settings` module itself as plain functions. These are per-process rather than per-chart, and currently configure the output locale and the ephemeris file paths. These settings will apply to every chart regardless of which `Config` it was given.
+* **Per-chart config** via the `ChartConfig` class. Sensible defaults have been set out of the box, such as which chart objects to include, the preferred house system, aspect rules and orbs, dignity scores, Part of Fortune calculation etc. Many of the defaults are set to match those of astro.com but are easily overridden to your liking. Any of the available locales can be set here too. The `ChartConfig` instance is then passed to a chart instance, which means different charts can use completely different configs.
+* **Global per-process settings** live in the `settings` module itself as plain functions. These are per-process rather than per-chart, and currently configure only the ephemeris file paths. These settings will apply to every chart regardless of which `ChartConfig` it was given.
 
 ## Quick Example
 
@@ -12,13 +12,13 @@ To specify a different house system and MC progression method:
 ```python
 from immanuel import charts
 from immanuel.const import calc, chart
-from immanuel.settings import Config
+from immanuel.settings import ChartConfig
 
 
-config = Config()
+config = ChartConfig()
 config.house_system = chart.CAMPANUS
 
-native = charts.Subject('2000-01-01 10:00', '32n43', '117w09')
+native = charts.Subject("2000-01-01 10:00", "32n43", "117w09")
 
 # natal.houses will use Campanus.
 natal = charts.Natal(native, config=config)
@@ -27,17 +27,17 @@ config.mc_progression_method = calc.DAILY_HOUSES
 
 # progressed.houses will also use Campanus,
 # and its progression method will be Daily Houses.
-progressed = charts.Progressed(native, '2025-06-20 17:00', config=config)
+progressed = charts.Progressed(native, "2025-06-20 17:00", config=config)
 ```
 
 Every chart class takes the same optional `config` keyword argument.
 
-## The Config Class
+## The ChartConfig Class
 
-A `Config` instance is a simple object with attributes corresponding to the settings documented below. For example:
+A `ChartConfig` instance is a simple object with attributes corresponding to the settings documented below. For example:
 
 ```python
-config = Config()
+config = ChartConfig()
 config.house_system = chart.WHOLE_SIGN
 config.objects.append(chart.CERES)
 config.dignity_scores[dignities.EXALTED] = 5
@@ -48,7 +48,7 @@ config.dignity_scores[dignities.EXALTED] = 5
 When a chart is created it deep-copies the config it was given, so later changes to that config will not retroactively change any charts you have already generated:
 
 ```python
-config = Config()
+config = ChartConfig()
 config.house_system = chart.PLACIDUS
 placidus_natal = charts.Natal(native, config=config)
 
@@ -62,10 +62,10 @@ This also means one config can safely be shared between as many charts as you li
 
 ### Copying a config
 
-`Config.copy()` returns a deep copy of itself, which is handy when you want several variations on a common base without repeating yourself:
+`ChartConfig.copy()` returns a deep copy of itself, which is handy when you want minor variations without having to repeat yourself:
 
 ```python
-base = Config()
+base = ChartConfig()
 base.house_system = chart.KOCH
 
 whole_sign = base.copy()
@@ -79,18 +79,18 @@ Some settings cascade into each other by default - for example, the `aspect_rule
 This means changing the `aspects` setting to your own list will cascade that new list down to `planet_aspect_rule`, which in turn will cascade down to the planets in `aspect_rules`:
 
 ```python
-config = Config()
+config = ChartConfig()
 config.aspects = [calc.CONJUNCTION, calc.TRINE]
 
-config.planet_aspect_rule['initiate']    # [0.0, 120.0]
-config.aspect_rules[chart.SUN]['initiate']    # [0.0, 120.0]
+config.planet_aspect_rule["initiate"]    # [0.0, 120.0]
+config.aspect_rules[chart.SUN]["initiate"]    # [0.0, 120.0]
 ```
 
 In-place changes cascade just as well as assignment:
 
 ```python
 config.aspects.remove(calc.CONJUNCTION)
-config.aspect_rules[chart.SUN]['initiate']    # [120.0]
+config.aspect_rules[chart.SUN]["initiate"]    # [120.0]
 ```
 
 The cascade runs in one direction only, through these chains:
@@ -108,15 +108,15 @@ The cascade runs in one direction only, through these chains:
 `planet_aspect_rule`, `point_aspect_rule`, `planet_orbs`, and `point_orbs` are *merged* when assigned a new dict, rather than replaced, and it is only the keys you actually pass in the new dict that stop inheriting. Everything else carries on cascading:
 
 ```python
-config = Config()
-config.planet_aspect_rule = {'initiate': [calc.SQUARE]}
+config = ChartConfig()
+config.planet_aspect_rule = {"initiate": [calc.SQUARE]}
 
-# 'initiate' is now locked to your list...
-config.planet_aspect_rule['initiate']    # [90.0]
+# "initiate" is now locked to your list...
+config.planet_aspect_rule["initiate"]    # [90.0]
 
-# ...but 'receive' still follows the aspects setting.
+# ...but "receive" still follows the aspects setting.
 config.aspects = [calc.SEXTILE]
-config.planet_aspect_rule['receive']    # [60.0]
+config.planet_aspect_rule["receive"]    # [60.0]
 ```
 
 Assigning to `aspects` replaces its contents in place, so it stays connected to everything downstream. Reassigning it as often as you like will not break the cascade.
@@ -133,7 +133,35 @@ Not every chart object appears in `aspect_rules` and `orbs` by default - asteroi
 
 ## Chart Settings
 
-These are all attributes of the `Config` class. Taking a look through the defaults in `settings.py` and the `const` files will give you a more detailed idea.
+These are all attributes of the `ChartConfig` class. Taking a look through the defaults in `settings.py` and the `const` files will give you a more detailed idea.
+
+### `locale`
+
+A chart's output can be translated by setting `locale` on its `ChartConfig`:
+
+```python
+from immanuel import charts
+from immanuel.const import chart
+from immanuel.settings import ChartConfig
+
+
+config = ChartConfig()
+config.locale = "pt_BR"
+
+native = charts.Subject("2000-01-01 10:00", "32n43", "117w09")
+natal = charts.Natal(native, config=config)
+
+print(natal.objects[chart.SUN])
+# Sol 10°37'26" em Capricórnio, Casa 11
+```
+
+Available locales:
+
+* `pt_BR` - Brazilian Portuguese
+* `es_ES` - Spanish
+* `de_DE` - German
+
+If the full locale has no translation file, Immanuel falls back to the parent language (eg. `pt_BR` falls back to `pt`), and if that fails too it silently reverts to untranslated English rather than raising an error. Passing `None` returns output to untranslated English.
 
 ### `chart_data`
 
@@ -212,7 +240,7 @@ Defaults:
 To trim a chart down to just its objects, for example:
 
 ```python
-config = Config()
+config = ChartConfig()
 config.chart_data[chart.NATAL] = [data.NATIVE, data.OBJECTS]
 ```
 
@@ -357,7 +385,7 @@ Fixed stars:
 All fixed stars are available out of the box - simply add the name as a string to this list, eg.:
 
 ```python
-config.objects.append('Antares')
+config.objects.append("Antares")
 ```
 
 Extra objects from external ephemeris files can also be added to this list by their number. See the [External Objects](#external-objects) section below for details how.
@@ -424,8 +452,8 @@ Default:
 
 ```python
 {
-    'initiate': self.aspects,
-    'receive': self.aspects,
+    "initiate": self.aspects,
+    "receive": self.aspects,
 }
 ```
 
@@ -437,8 +465,8 @@ A dict of aspect rules, as above, which is inherited by the planets' entries in 
 
 ```python
 {
-    'initiate': self.aspects,
-    'receive': self.aspects,
+    "initiate": self.aspects,
+    "receive": self.aspects,
 }
 ```
 
@@ -448,8 +476,8 @@ A dict of aspect rules, as above, which is inherited by the calculated points' a
 
 ```python
 {
-    'initiate': [calc.CONJUNCTION],
-    'receive': self.aspects,
+    "initiate": [calc.CONJUNCTION],
+    "receive": self.aspects,
 }
 ```
 
@@ -710,42 +738,23 @@ config.dignity_scores[dignities.IN_RULERSHIP_ELEMENT] = 2
 
 ## Global Settings
 
-The remaining settings are functions in the `settings` module rather than attributes of `Config`. They apply per-process, to every chart, regardless of the config it was given.
+The remaining settings take the form of functions in the `settings` module rather than attributes of `ChartConfig`. They apply per-process, to every chart, regardless of the config the chart instance was given.
 
-## Locale
+### `add_swe_filepath()`
 
-Immanuel's output can be translated by calling `settings.set_locale()` before generating a chart:
+Adds the passed file path to the list of directories to search for ephemeris files. If `True` is passed as the 2nd argument, the passed path will replace the default one.
 
-```python
-from immanuel import charts, settings
-from immanuel.const import chart
+| Argument | Type | Purpose |
+| --- | --- | ---|
+| path | `str` | Absolute file path to a directory containing Swiss Ephemeris files. |
+| default | `bool` | Whether this path should be the default, replacing the location of Immanuel's bundled files. Defaults to `False`, which simply appends the new path to Immanuel's own. |
 
+The next section contains an example of how to use this to get extra, non-bundled chart objects into your charts.
 
-settings.set_locale('pt_BR')
+### `reset_swe_filepath()`
 
-native = charts.Subject('2000-01-01 10:00', '32n43', '117w09')
-natal = charts.Natal(native)
+Simply resets the ephemeris search path back to the bundled default.
 
-print(natal.objects[chart.SUN])
-# Sol 10°37'26" em Capricórnio, Casa 11
-```
-
-Available locales:
-
-* `pt_BR` - Brazilian Portuguese
-* `es_ES` - Spanish
-* `de_DE` - German
-
-If the full locale has no translation file, Immanuel falls back to the parent language (eg. `pt_BR` falls back to `pt`), and if that fails too it silently reverts to untranslated English rather than raising an error. Passing `None` returns output to untranslated English.
-
-Two related functions are available:
-
-| Function | Description |
-| --- | --- |
-| `settings.locale()` | Returns the currently active locale string, or `None` if output is untranslated. |
-| `settings.reset()` | Resets all global state - both the locale and any ephemeris file paths - back to their defaults. |
-
-Since this is process-wide state rather than per-chart, you might wish to call `settings.reset()` between tests or wherever charts in different languages are generated in the same process.
 
 ## External Objects
 
@@ -759,15 +768,15 @@ For example, to include asteroid Lilith (`1181`), download its ephemeris file `s
 import json
 
 from immanuel import charts, settings
-from immanuel.settings import Config
+from immanuel.settings import ChartConfig
 
 
-settings.add_filepath('my/directory/path')
+settings.add_filepath("my/directory/path")
 
-config = Config()
+config = ChartConfig()
 config.objects.append(1181)
 
-native = charts.Subject('2000-01-01 10:00', '32n43', '117w09')
+native = charts.Subject("2000-01-01 10:00", "32n43", "117w09")
 natal = charts.Natal(native, config=config)
 print(json.dumps(natal.objects[1181], cls=charts.ToJSON, indent=4))
 ```
@@ -849,7 +858,7 @@ If a requested object's file cannot be found, the underlying Swiss Ephemeris wil
 `add_filepath()` appends to the existing paths by default. Passing `True` as a second argument will instead set the passed path as the *only* path, replacing the bundled default:
 
 ```python
-settings.add_filepath('my/directory/path', True)
+settings.add_filepath("my/directory/path", True)
 ```
 
 Since external objects have no entries in the `aspect_rules` and `orbs` settings, they will use `default_aspect_rule` and `planet_orbs` when aspects are calculated. Add entries for their index if you want to treat them differently:

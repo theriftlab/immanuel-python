@@ -12,11 +12,11 @@ calculated for each dignity.
 """
 
 from immanuel.const import dignities
-from immanuel.settings import DEFAULTS, Config
+from immanuel.settings import DEFAULTS, ChartConfig
 from immanuel.tools import position
 
 
-def ruler(object: dict, config: Config = DEFAULTS) -> bool:
+def ruler(object: dict, config: ChartConfig = DEFAULTS) -> bool:
     """Returns whether the passed planet is the ruler of its sign."""
     return object["index"] == config.rulerships[position.sign(object)]
 
@@ -29,7 +29,7 @@ def exalted(object: dict) -> bool:
 def triplicity_ruler(
     object: dict,
     is_daytime: bool,
-    config: Config = DEFAULTS,
+    config: ChartConfig = DEFAULTS,
 ) -> bool:
     """Returns whether the passed planet is any type of triplicity ruler."""
     triplicities = config.triplicities[position.sign(object)]
@@ -42,7 +42,7 @@ def triplicity_ruler(
         return object["index"] == triplicities["day" if is_daytime else "night"]
 
 
-def term_ruler(object: dict, config: Config = DEFAULTS) -> bool:
+def term_ruler(object: dict, config: ChartConfig = DEFAULTS) -> bool:
     """Returns whether the passed planet is the term ruler
     within its sign."""
     terms = config.terms[position.sign(object)]
@@ -67,7 +67,7 @@ def face_ruler(object: dict) -> bool:
 def mutual_reception_ruler(
     object: dict,
     objects: dict,
-    config: Config = DEFAULTS,
+    config: ChartConfig = DEFAULTS,
 ) -> bool:
     """Returns whether the passed planet is in mutual reception
     by rulership."""
@@ -98,7 +98,7 @@ def mutual_reception_triplicity_ruler(
     object: dict,
     objects: dict,
     is_daytime: bool,
-    config: Config = DEFAULTS,
+    config: ChartConfig = DEFAULTS,
 ) -> bool:
     """Returns whether the passed planet is in mutual reception
     by any type of triplicity rulership."""
@@ -126,7 +126,7 @@ def mutual_reception_triplicity_ruler(
 def mutual_reception_term_ruler(
     object: dict,
     objects: dict,
-    config: Config = DEFAULTS,
+    config: ChartConfig = DEFAULTS,
 ) -> bool:
     """Returns whether the passed planet is in mutual reception
     by term rulership."""
@@ -160,7 +160,7 @@ def mutual_reception_face_ruler(object: dict, objects: dict) -> bool:
     )
 
 
-def in_rulership_element(object: dict, config: Config = DEFAULTS) -> bool:
+def in_rulership_element(object: dict, config: ChartConfig = DEFAULTS) -> bool:
     """Returns whether the passed planet is in a sign that shares an element
     with its domicile."""
     if object["index"] not in config.rulerships.values():
@@ -170,7 +170,7 @@ def in_rulership_element(object: dict, config: Config = DEFAULTS) -> bool:
     ) == position.element(object)
 
 
-def detriment(object: dict, config: Config = DEFAULTS) -> bool:
+def detriment(object: dict, config: ChartConfig = DEFAULTS) -> bool:
     """Returns whether the passed planet is in detriment within its sign."""
     return position.opposite_sign(object) in _planet_signs(object, config.rulerships)
 
@@ -186,7 +186,7 @@ def all(
     object: dict,
     objects: dict,
     is_daytime: bool,
-    config: Config = DEFAULTS,
+    config: ChartConfig = DEFAULTS,
 ) -> dict:
     """Returns a dict of all dignity states for the passed planet."""
     essential_dignities = {
@@ -232,7 +232,7 @@ def all(
     )
 
 
-def score(dignity_state: dict, config: Config = DEFAULTS) -> int:
+def score(dignity_state: dict, config: ChartConfig = DEFAULTS) -> int:
     """Calculates a planet's dignity score based on config."""
     return sum(
         [

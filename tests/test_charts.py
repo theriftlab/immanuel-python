@@ -21,9 +21,9 @@ import swisseph as swe
 from pytest import fixture
 
 from immanuel import charts
-from immanuel.classes import wrap
 from immanuel.const import calc, chart, dignities, names
-from immanuel.settings import Config
+from immanuel.settings import ChartConfig
+from immanuel.support import wrap
 from immanuel.tools import convert
 
 
@@ -103,7 +103,7 @@ def test_subject(dob, lat, lon, native, julian_date):
 
 
 def test_wrapped_data(native):
-    config = Config()
+    config = ChartConfig()
     config.objects.append(chart.PRE_NATAL_LUNAR_ECLIPSE)
     natal_chart = charts.Natal(native, config=config)
     swe_sun = swe.calc_ut(natal_chart.native.date_time.julian, swe.SUN)[0]
@@ -260,7 +260,7 @@ def test_wrapped_data(native):
 
 
 def test_natal(native, lat, lon):
-    config = Config()
+    config = ChartConfig()
     natal_chart = charts.Natal(native, config=config)
     assert natal_chart.type == names.CHART_TYPES[chart.NATAL]
     assert (
@@ -324,7 +324,7 @@ def test_natal(native, lat, lon):
 
 
 def test_solar_return(native, lat, lon, solar_return_year):
-    config = Config()
+    config = ChartConfig()
     solar_return_chart = charts.SolarReturn(native, solar_return_year, config=config)
     assert solar_return_chart.type == names.CHART_TYPES[chart.SOLAR_RETURN]
     assert (
@@ -414,7 +414,7 @@ def test_solar_return(native, lat, lon, solar_return_year):
 
 
 def test_progressed(native, lat, lon, pdt):
-    config = Config()
+    config = ChartConfig()
     config.mc_progression_method = calc.NAIBOD
     progressed_chart = charts.Progressed(native, pdt, config=config)
     assert progressed_chart.type == names.CHART_TYPES[chart.PROGRESSED]
@@ -503,7 +503,7 @@ def test_progressed(native, lat, lon, pdt):
 
 
 def test_composite(native, lat, lon, partner, partner_lat, partner_lon):
-    config = Config()
+    config = ChartConfig()
     composite_chart = charts.Composite(native, partner, config=config)
     assert composite_chart.type == names.CHART_TYPES[chart.COMPOSITE]
     assert (
@@ -628,7 +628,7 @@ def test_composite(native, lat, lon, partner, partner_lat, partner_lon):
 
 
 def test_transits(native, lat, lon):
-    config = Config()
+    config = ChartConfig()
     transits_chart = charts.Transits(lat, lon, config=config)
     assert transits_chart.type == names.CHART_TYPES[chart.TRANSITS]
     assert transits_chart.native.coordinates.latitude.formatted == lat

@@ -11,10 +11,10 @@ provided by the ephemeris module.
 import swisseph as swe
 
 from immanuel.const import calc
-from immanuel.settings import DEFAULTS, Config
+from immanuel.settings import DEFAULTS, ChartConfig
 
 
-def chart_shape(objects: dict, config: Config = DEFAULTS) -> int:
+def chart_shape(objects: dict, config: ChartConfig = DEFAULTS) -> int:
     """Returns which of the predetermined shapes the passed
     chart objects form."""
     # Filter objects

@@ -7,7 +7,7 @@ Sets up translations and provides our own localize() function. This will
 look for a translation file for the full locale and fall back to the parent
 locale, for example pt_BR then pt.
 
-Weekday and month names are translated from dicts in const.dates,
+Weekday and month names are translated from dicts in const.names,
 so localizing the datetime format depends only on the translation files
 rather than OS-level locales.
 
@@ -18,7 +18,6 @@ import importlib
 import os
 from typing import Protocol
 
-
 _TRANSLATIONS = {}
 
 _CONTEXTS = {}
@@ -27,6 +26,9 @@ _LOCALEDIR = f"{os.path.dirname(__file__)}{os.sep}..{os.sep}locales"
 
 
 class Stringable(Protocol):
+    """This allows us to translate any object that implements __str__()
+    in our localize() as if it were a string."""
+
     def __str__(self) -> str: ...
 
 

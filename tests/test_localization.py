@@ -12,9 +12,9 @@ for Brazilian Portuguese are courtesy of Nathan Octavio.
 from pytest import fixture
 
 from immanuel import charts, settings
-from immanuel.classes import wrap
 from immanuel.const import calc, chart, dignities
-from immanuel.settings import Config
+from immanuel.settings import ChartConfig
+from immanuel.support import wrap
 
 
 @fixture
@@ -175,7 +175,7 @@ def teardown_function():
 
 
 def test_date_locale(native):
-    config = Config()
+    config = ChartConfig()
     config.locale = "pt_BR"
     assert (
         str(wrap.Subject(native, config=config)).lower()
@@ -184,7 +184,7 @@ def test_date_locale(native):
 
 
 def test_properties_chart_type(native, partner):
-    config = Config()
+    config = ChartConfig()
     config.locale = "pt_BR"
     natal = charts.Natal(native, config=config)
     assert natal.type == "Natal"
@@ -197,7 +197,7 @@ def test_properties_chart_type(native, partner):
 
 
 def test_properties_object_house_types(native):
-    config = Config()
+    config = ChartConfig()
     config.locale = "pt_BR"
     config.objects += [chart.PRE_NATAL_SOLAR_ECLIPSE, "Antares"]
     natal = charts.Natal(native, config=config)
@@ -210,7 +210,7 @@ def test_properties_object_house_types(native):
 
 
 def test_properties_signs(native):
-    config = Config()
+    config = ChartConfig()
     config.locale = "pt_BR"
     natal = charts.Natal(native, config=config)
     assert natal.houses[chart.HOUSE1].sign.name == "Peixes"
@@ -228,7 +228,7 @@ def test_properties_signs(native):
 
 
 def test_properties_decans(native):
-    config = Config()
+    config = ChartConfig()
     config.locale = "pt_BR"
     natal = charts.Natal(native, config=config)
     assert natal.objects[chart.MERCURY].decan.name == "1º Decanato"
@@ -237,7 +237,7 @@ def test_properties_decans(native):
 
 
 def test_properties_elements(native):
-    config = Config()
+    config = ChartConfig()
     config.locale = "pt_BR"
     natal = charts.Natal(native, config=config)
     assert natal.objects[chart.VENUS].sign.element == "Fogo"
@@ -247,7 +247,7 @@ def test_properties_elements(native):
 
 
 def test_properties_modalities(native):
-    config = Config()
+    config = ChartConfig()
     config.locale = "pt_BR"
     natal = charts.Natal(native, config=config)
     assert natal.objects[chart.SUN].sign.modality == "Cardinal"
@@ -256,7 +256,7 @@ def test_properties_modalities(native):
 
 
 def test_properties_house_system(native):
-    config = Config()
+    config = ChartConfig()
     config.locale = "pt_BR"
     config.house_system = chart.ALCABITUS
     natal = charts.Natal(native, config=config)
@@ -300,7 +300,7 @@ def test_properties_house_system(native):
 
 
 def test_properties_house_names(native):
-    config = Config()
+    config = ChartConfig()
     config.locale = "pt_BR"
     natal = charts.Natal(native, config=config)
     for house in natal.houses.values():
@@ -308,7 +308,7 @@ def test_properties_house_names(native):
 
 
 def test_properties_object_names(native, object_names):
-    config = Config()
+    config = ChartConfig()
     config.locale = "pt_BR"
     config.objects = list(object_names.keys())
     natal = charts.Natal(native, config=config)
@@ -317,7 +317,7 @@ def test_properties_object_names(native, object_names):
 
 
 def test_properties_eclipse_types(lat, lon):
-    config = Config()
+    config = ChartConfig()
     config.locale = "pt_BR"
     config.objects = [chart.PRE_NATAL_LUNAR_ECLIPSE, chart.PRE_NATAL_SOLAR_ECLIPSE]
     total_native = charts.Subject("2025-03-14 12:00:00", lat, lon)
@@ -350,7 +350,7 @@ def test_properties_eclipse_types(lat, lon):
 
 
 def test_properties_aspects(native, aspects):
-    config = Config()
+    config = ChartConfig()
     config.locale = "pt_BR"
     config.aspects = aspects
     natal = charts.Natal(native, config=config)
@@ -369,7 +369,7 @@ def test_properties_aspects(native, aspects):
 
 
 def test_properties_aspect_movements(native, aspects):
-    config = Config()
+    config = ChartConfig()
     config.locale = "pt_BR"
     config.aspects = aspects
     natal = charts.Natal(native, config=config)
@@ -384,7 +384,7 @@ def test_properties_aspect_movements(native, aspects):
 
 
 def test_properties_aspect_conditions(native, aspects):
-    config = Config()
+    config = ChartConfig()
     config.locale = "pt_BR"
     config.aspects = aspects
     natal = charts.Natal(native, config=config)
@@ -397,7 +397,7 @@ def test_properties_aspect_conditions(native, aspects):
 
 def test_properties_dignities(native):
     # Since it is near impossible to calculate a chart with every dignity, we invent some
-    config = Config()
+    config = ChartConfig()
     config.locale = "pt_BR"
     planet_dignities = wrap.DignityState(
         {"index": chart.SUN},
@@ -439,7 +439,7 @@ def test_properties_dignities(native):
 
 
 def test_properties_moon_phases(lat, lon):
-    config = Config()
+    config = ChartConfig()
     config.locale = "pt_BR"
     natal_new = charts.Natal(
         charts.Subject("2024-01-11 04:00", lat, lon), config=config
@@ -476,7 +476,7 @@ def test_properties_moon_phases(lat, lon):
 
 
 def test_properties_object_movement(native):
-    config = Config()
+    config = ChartConfig()
     config.locale = "pt_BR"
     natal = charts.Natal(native, config=config)
     assert natal.objects[chart.SUN].movement.formatted == "Direto"
@@ -485,7 +485,7 @@ def test_properties_object_movement(native):
 
 
 def test_properties_chart_shape(chart_pattern_birth_data):
-    config = Config()
+    config = ChartConfig()
     config.locale = "pt_BR"
     for data in chart_pattern_birth_data.values():
         natal = charts.Natal(
@@ -496,7 +496,7 @@ def test_properties_chart_shape(chart_pattern_birth_data):
 
 
 def test_properties_progression_method(native):
-    config = Config()
+    config = ChartConfig()
     config.locale = "pt_BR"
     config.mc_progression_method = calc.NAIBOD
     progressed_naibod = charts.Progressed(native, "2030-01-01 00:00", config=config)
@@ -512,7 +512,7 @@ def test_properties_progression_method(native):
 
 
 def test_formatted_ambiguous_datetime(lat, lon):
-    config = Config()
+    config = ChartConfig()
     config.locale = "pt_BR"
     ambiguous_native = charts.Subject("2022-11-06 01:30", lat, lon)
     natal = charts.Natal(ambiguous_native, config=config)
@@ -523,7 +523,7 @@ def test_formatted_ambiguous_datetime(lat, lon):
 
 
 def test_formatted_aspect(native):
-    config = Config()
+    config = ChartConfig()
     config.locale = "pt_BR"
     natal = charts.Natal(native, config=config)
     assert (
@@ -533,7 +533,7 @@ def test_formatted_aspect(native):
 
 
 def test_formatted_object(native):
-    config = Config()
+    config = ChartConfig()
     config.locale = "pt_BR"
     natal = charts.Natal(native, config=config)
     assert str(natal.objects[chart.SUN]) == "Sol 10°37'26\" em Capricórnio, Casa 11"
@@ -542,7 +542,7 @@ def test_formatted_object(native):
 
 
 def test_formatted_subject(native):
-    config = Config()
+    config = ChartConfig()
     config.locale = "pt_BR"
     natal = charts.Natal(native, config=config)
     assert (
@@ -552,7 +552,7 @@ def test_formatted_subject(native):
 
 
 def test_formatted_weightings_elements(native):
-    config = Config()
+    config = ChartConfig()
     config.locale = "pt_BR"
     natal = charts.Natal(native, config=config)
     chart_elements = str(natal.weightings.elements)
@@ -563,7 +563,7 @@ def test_formatted_weightings_elements(native):
 
 
 def test_formatted_weightings_modalities(native):
-    config = Config()
+    config = ChartConfig()
     config.locale = "pt_BR"
     natal = charts.Natal(native, config=config)
     chart_modalities = str(natal.weightings.modalities)
@@ -573,7 +573,7 @@ def test_formatted_weightings_modalities(native):
 
 
 def test_formatted_weightings_quadrants(native):
-    config = Config()
+    config = ChartConfig()
     config.locale = "pt_BR"
     natal = charts.Natal(native, config=config)
     chart_quadrants = str(natal.weightings.quadrants)

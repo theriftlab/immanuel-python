@@ -8,16 +8,16 @@ The Subject class constructor takes a date/time either as a standard ISO format 
 from immanuel import charts
 
 
-native = charts.Subject('2000-01-01 10:00', '32n43', '117w09')
-native = charts.Subject('2000-01-01 10:00:00', "32°43'", "-117°09'")
-native = charts.Subject(datetime.fromisoformat('2000-01-01 10:00:00'), '32.71667n', '117.15w')
+native = charts.Subject("2000-01-01 10:00", "32n43", "117w09")
+native = charts.Subject("2000-01-01 10:00:00", "32°43'", "-117°09'")
+native = charts.Subject(datetime.fromisoformat("2000-01-01 10:00:00"), "32.71667n", "117.15w")
 native = charts.Subject(datetime(2000, 1, 1, 10, 0, 0), 32.71667, -117.15)
-native = charts.Subject(datetime(year=2000, month=1, day=1, hour=10), ('+', 32, 43, 0), ['-', 117, 9, 0])
+native = charts.Subject(datetime(year=2000, month=1, day=1, hour=10), ("+", 32, 43, 0), ["-", 117, 9, 0])
 # Or if you prefer named arguments...
 native = charts.Subject(
-        date_time='2023-11-05 01:30',
-        latitude='32n43',
-        longitude='117w09',
+        date_time="2023-11-05 01:30",
+        latitude="32n43",
+        longitude="117w09",
         time_is_dst=True,
     )
 ```
@@ -34,14 +34,14 @@ To generate one of each type of supported chart, you could do the following:
 from immanuel import charts
 
 
-native = charts.Subject('2000-01-01 10:00', '32n43', '117w09')
-partner = charts.Subject('2001-06-21 18:30', '51n28.69', '0e0.1')
+native = charts.Subject("2000-01-01 10:00", "32n43", "117w09")
+partner = charts.Subject("2001-06-21 18:30", "51n28.69", "0e0.1")
 
 natal = charts.Natal(native)
 solar_return = charts.SolarReturn(native, 2025)
-progressed = charts.Progressed(native, '2025-06-20 17:00')
+progressed = charts.Progressed(native, "2025-06-20 17:00")
 composite = charts.Composite(native, partner)
-transits = charts.Transits('32n43', '117w09')
+transits = charts.Transits("32n43", "117w09")
 ```
 
 For the Transits chart, the time is always assumed to be the present. Coordinates are optional, and when omitted they will default to the location of the GMT prime meridian in Greenwich, UK. Coordinates are only needed to calculate the houses and house-based chart objects (Part of Fortune, Vertex, etc.), so if you do not require these in your transits you can safely omit the coordinates and simply call `chart.Transits()`.
@@ -52,8 +52,8 @@ Synastry charts are not explicitly available as a distinct class, but since a sy
 from immanuel import charts
 
 
-native = charts.Subject('2000-01-01 10:00', '32n43', '117w09')
-partner = charts.Subject('2001-06-21 18:30', '51n28.69', '0e0.1')
+native = charts.Subject("2000-01-01 10:00", "32n43", "117w09")
+partner = charts.Subject("2001-06-21 18:30", "51n28.69", "0e0.1")
 
 partner_chart = charts.Natal(partner)
 native_chart = charts.Natal(native, aspects_to=partner_chart)
@@ -70,8 +70,8 @@ Similarly, the `Transits` chart class features an additional `houses_for_aspecte
 You can simply print out a chart's property to see human/AI-readable data, eg.:
 
 ```python
-print(f'Daytime: {natal.diurnal}')
-print(f'Moon phase: {natal.moon_phase}\n')
+print(f"Daytime: {natal.diurnal}")
+print(f"Moon phase: {natal.moon_phase}\n")
 
 for object in natal.objects.values():
     print(object)
@@ -79,10 +79,10 @@ for object in natal.objects.values():
 print()
 
 for index, aspects in natal.aspects.items():
-    print(f'Aspects for {natal.objects[index].name}:')
+    print(f"Aspects for {natal.objects[index].name}:")
 
     for aspect in aspects.values():
-        print(f' - {aspect}')
+        print(f" - {aspect}")
 ```
 
 The (abridged) output will look something like this:
@@ -135,7 +135,7 @@ import json
 from immanuel import charts
 
 
-native = charts.Subject('2000-01-01 10:00', '32n43', '117w09')
+native = charts.Subject("2000-01-01 10:00", "32n43", "117w09")
 natal = charts.Natal(native)
 print(json.dumps(natal.native, cls=charts.ToJSON, indent=4))
 ```

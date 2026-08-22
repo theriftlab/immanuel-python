@@ -3,12 +3,14 @@ This file is part of immanuel - (C) The Rift Lab
 Author: Robert Davies (robert@theriftlab.com)
 
 
-Provides a Config class that can be passed to a chart class on instantiation.
-If none is passed, the default config is used - DEFAULTS, a simple instance
-of the Config class. Some of the aspect and orb settings are maintained in
-ChainMaps and getter/setter pairs to allow for cascading behavior.
+Provides a ChartConfig class that can be passed to a chart class on
+instantiation. If none is passed, the default config is used - DEFAULTS,
+a simple instance of the ChartConfig class. Some of the aspect and orb
+settings are maintained in ChainMaps and getter/setter pairs to allow for
+cascading behavior.
 
-This module also allows filepath(s) to ephemeris files to be changed or added.
+This module also allows the filepath(s) to the ephemeris files to be changed
+or appended.
 
 """
 
@@ -56,7 +58,7 @@ _POINTS = (
 )
 
 
-class Config:
+class ChartConfig:
     def __init__(self):
         """Locale ID string. Defaults to None, which is treated as en_US."""
         self.locale: str | None = None
@@ -230,10 +232,10 @@ class Config:
             {"initiate": [calc.CONJUNCTION], "receive": self._aspects}
         )
         self._aspect_rules = ChainMap()
-        for p in _PLANETS:
-            self._aspect_rules[p] = ChainMap({}, self._planet_aspect_rule)
-        for p in _POINTS + _ANGLES:
-            self._aspect_rules[p] = ChainMap({}, self._point_aspect_rule)
+        for index in _PLANETS:
+            self._aspect_rules[index] = ChainMap({}, self._planet_aspect_rule)
+        for index in _POINTS + _ANGLES:
+            self._aspect_rules[index] = ChainMap({}, self._point_aspect_rule)
 
         """Orbs for chart objects and their aspects."""
         self.default_orb = 1.0
@@ -272,10 +274,10 @@ class Config:
             }
         )
         self._orbs = ChainMap()
-        for p in _ANGLES + _PLANETS:
-            self._orbs[p] = ChainMap({}, self._planet_orbs)
-        for p in _POINTS:
-            self._orbs[p] = ChainMap({}, self._point_orbs)
+        for index in _ANGLES + _PLANETS:
+            self._orbs[index] = ChainMap({}, self._planet_orbs)
+        for index in _POINTS:
+            self._orbs[index] = ChainMap({}, self._point_orbs)
 
     """The following getters and setters are simple wrappers for the ChainMaps
     used to maintain our cascading settings behavior for aspects and orbs."""
@@ -344,16 +346,23 @@ class Config:
     def orbs(self, value: dict) -> None:
         self._orbs.maps[0].update(value)
 
-    """Chart instances need to deep-copy passed config instances."""
+    """Chart instances need to deep-copy passed ChartConfig instances."""
 
-    def copy(self) -> "Config":
+    def copy(self) -> "ChartConfig":
         return copy.deepcopy(self)
 
 
-"""Anything that requires config as an argument should fall back to this
-as a default. It should never be modified but should be copied for each chart
-class instance."""
-DEFAULTS = Config()
+"""Anything that requires a ChartConfig instance as an argument should fall
+back to this as a default. It should never be modified but should be copied
+for each chart class instance."""
+
+
+class DefaultChartConfig(ChartConfig):
+    def copy(self) -> ChartConfig:
+        return ChartConfig()
+
+
+DEFAULTS = DefaultChartConfig()
 
 
 """
@@ -364,6 +373,11 @@ _DEFAULT_SWE_FILE_PATH = (
     f"{os.path.dirname(__file__)}{os.sep}resources{os.sep}ephemeris"
 )
 _swe_file_path = _DEFAULT_SWE_FILE_PATH
+
+
+def set_swe_filepath() -> None:
+    """Pass defined path(s) to swisseph."""
+    swe.set_ephe_path(_swe_file_path)
 
 
 def add_swe_filepath(path: str, default: bool = False) -> None:
@@ -379,16 +393,8 @@ def add_swe_filepath(path: str, default: bool = False) -> None:
     set_swe_filepath()
 
 
-def set_swe_filepath() -> None:
-    """Pass defined path(s) to swisseph."""
-    swe.set_ephe_path(_swe_file_path)
-
-
 def reset_swe_filepath() -> None:
     """Reset the global settings file paths."""
     global _swe_file_path
     _swe_file_path = _DEFAULT_SWE_FILE_PATH
     set_swe_filepath()
-
-
-set_swe_filepath()

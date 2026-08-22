@@ -4,7 +4,7 @@ Author: Robert Davies (robert@theriftlab.com)
 
 
 This module calculates aspects between chart objects based on
-the settings provided by the Config class.
+the settings provided by the ChartConfig class.
 
 The functions also rely on the object data returned by the
 ephemeris module.
@@ -14,11 +14,11 @@ ephemeris module.
 import swisseph as swe
 
 from immanuel.const import calc
-from immanuel.settings import DEFAULTS, Config
+from immanuel.settings import DEFAULTS, ChartConfig
 from immanuel.tools import position
 
 
-def between(object1: dict, object2: dict, config: Config = DEFAULTS) -> dict:
+def between(object1: dict, object2: dict, config: ChartConfig = DEFAULTS) -> dict:
     """Returns any aspect between the two passed objects."""
     active, passive = (
         (object1, object2)
@@ -98,7 +98,7 @@ def for_object(
     object: dict,
     objects: dict,
     exclude_same: bool = True,
-    config: Config = DEFAULTS,
+    config: ChartConfig = DEFAULTS,
 ) -> dict:
     """Returns all chart objects aspecting the passed chart object. If two
     separate sets of objects are being compared (eg. synastry) then
@@ -114,7 +114,9 @@ def for_object(
     return aspects
 
 
-def all(objects: dict, exclude_same: bool = True, config: Config = DEFAULTS) -> dict:
+def all(
+    objects: dict, exclude_same: bool = True, config: ChartConfig = DEFAULTS
+) -> dict:
     """Returns all aspects between the passed chart objects."""
     aspects = {}
     for index, object in objects.items():
@@ -127,7 +129,7 @@ def all(objects: dict, exclude_same: bool = True, config: Config = DEFAULTS) -> 
 def by_type(
     objects: dict,
     exclude_same: bool = True,
-    config: Config = DEFAULTS,
+    config: ChartConfig = DEFAULTS,
 ) -> dict:
     """Returns all aspects between the passed chart objects keyed by
     aspect type."""
@@ -147,7 +149,7 @@ def synastry(
     objects1: dict,
     objects2: dict,
     exclude_same: bool = False,
-    config: Config = DEFAULTS,
+    config: ChartConfig = DEFAULTS,
 ) -> dict:
     """Returns all aspects between the two sets of passed chart objects."""
     aspects = {}

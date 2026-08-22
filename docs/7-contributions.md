@@ -6,7 +6,7 @@ New translations for Immanuel's output are always welcome, although it is curren
 * Create a branch named after the locale, eg. `translations/pr_BR` - locale names for various languages can be found online, for example [here](https://learn.microsoft.com/en-us/openspecs/office_standards/ms-oe376/6c085406-a698-4e12-9d4d-c3b0ee3dbc4a), although you should use an underscore rather than a hyphen.
 * Create a subdirectory named after your locale code in the existing `/immanuel/locales` directory, and another sub-directory under this called `LC_MESSAGES`.
 * Copy `/immanuel/locales/immanuel.pot` into your new `LC_MESSAGES` sub-directory and rename it `immanuel.po`.
-* To map noun genders, a file `mappings.py` will need to be created under your new locale directory alongside `LC_MESSAGES`. See existing mapping files for an example of how to assign all of Immanuel's objects a gender for your language.
+* To map noun genders, a file `contexts.py` will need to be created under your new locale directory alongside `LC_MESSAGES`. See existing `contexts.py` files for an example of how to assign all of Immanuel's objects a gender for your language.
 
 Your file tree should now look something like this:
 
@@ -18,7 +18,7 @@ immanuel/
 │  ├─ xx_XX/
 │  │  ├─ LC_MESSAGES/
 │  │  │  ├─ immanuel.po
-│  │  ├─ mappings.py
+│  │  ├─ contexts.py
 │  ├─ immanuel.pot
 ```
 
@@ -34,7 +34,7 @@ msgid "Applicative"
 msgstr "Aplicativa"
 ```
 
-The masculine and feminine versions of these adjectives (and neuter if applicable) are determined by the relevant noun's gender as specified in your new `mappings.py` file.
+The masculine and feminine versions of these adjectives (and neuter if applicable) are determined by the relevant noun's gender as specified in your new `contexts.py` file.
 
 ## Dates
 
