@@ -179,7 +179,7 @@ def test_date_locale(native):
     config.locale = "pt_BR"
     assert (
         str(wrap.Subject(native, config=config)).lower()
-        == "Sáb Jan 01 2000 10:00:00 America/Los_Angeles em 32N43.0, 117W9.0".lower()
+        == "sáb. 01 jan. 2000 10:00:00 America/Los_Angeles em 32N43.0, 117W9.0".lower()
     )
 
 
@@ -519,7 +519,7 @@ def test_formatted_ambiguous_datetime(lat, lon):
     natal = charts.Natal(ambiguous_native, config=config)
     assert (
         str(natal.native.date_time).lower()
-        == "Dom Nov 06 2022 01:30:00 America/Los_Angeles (ambíguo)".lower()
+        == "dom. 06 nov. 2022 01:30:00 America/Los_Angeles (ambíguo)".lower()
     )
 
 
@@ -549,7 +549,7 @@ def test_formatted_subject(native):
     natal = charts.Natal(native, config=config)
     assert (
         str(natal.native).lower()
-        == "Sáb Jan 01 2000 10:00:00 America/Los_Angeles em 32N43.0, 117W9.0".lower()
+        == "sáb. 01 jan. 2000 10:00:00 America/Los_Angeles em 32N43.0, 117W9.0".lower()
     )
 
 

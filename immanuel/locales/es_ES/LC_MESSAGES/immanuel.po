@@ -633,9 +633,10 @@ msgid "Fourth"
 msgstr "Cuarto"
 
 
-# Weekday & month abbreviations, and the layout of a formatted
-# date-time. These strings were auto-generated and were not contributed
-# by this file's translator.
+# Weekday & month abbreviations, and the layout of a formatted date-time.
+# These strings were added by Robert Davies using the following source:
+# https://www.ihmadrid.com/en/blog/months-in-spanish.html
+# https://www.ihmadrid.com/en/blog/a-helpful-guide-for-days-of-the-week-in-spanish.html
 
 msgctxt "weekday"
 msgid "Mon"
@@ -643,19 +644,19 @@ msgstr "lun."
 
 msgctxt "weekday"
 msgid "Tue"
-msgstr "mar."
+msgstr "mart."
 
 msgctxt "weekday"
 msgid "Wed"
-msgstr "mié."
+msgstr "miérc."
 
 msgctxt "weekday"
 msgid "Thu"
-msgstr "jue."
+msgstr "juev."
 
 msgctxt "weekday"
 msgid "Fri"
-msgstr "vie."
+msgstr "vier."
 
 msgctxt "weekday"
 msgid "Sat"
@@ -714,4 +715,4 @@ msgid "Dec"
 msgstr "dic."
 
 msgid "{weekday} {month} {day} {year} {time} {timezone}"
-msgstr "{weekday} {month} {day} {year} {time} {timezone}"
+msgstr "{weekday} {day} {month} {year} {time} {timezone}"

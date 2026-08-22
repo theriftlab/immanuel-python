@@ -633,85 +633,85 @@ msgid "Fourth"
 msgstr "Quarto"
 
 
-# Weekday & month abbreviations, and the layout of a formatted
-# date-time. These strings were auto-generated and were not contributed
-# by this file's translator.
+# Weekday & month abbreviations, and the layout of a formatted date-time.
+# These strings were added by Robert Davies using the following source:
+# https://academia.org.br/nossa-lingua/reducoes
 
 msgctxt "weekday"
 msgid "Mon"
-msgstr "seg"
+msgstr "seg."
 
 msgctxt "weekday"
 msgid "Tue"
-msgstr "ter"
+msgstr "ter."
 
 msgctxt "weekday"
 msgid "Wed"
-msgstr "qua"
+msgstr "qua."
 
 msgctxt "weekday"
 msgid "Thu"
-msgstr "qui"
+msgstr "qui."
 
 msgctxt "weekday"
 msgid "Fri"
-msgstr "sex"
+msgstr "sex."
 
 msgctxt "weekday"
 msgid "Sat"
-msgstr "sáb"
+msgstr "sáb."
 
 msgctxt "weekday"
 msgid "Sun"
-msgstr "dom"
+msgstr "dom."
 
 msgctxt "month"
 msgid "Jan"
-msgstr "jan"
+msgstr "jan."
 
 msgctxt "month"
 msgid "Feb"
-msgstr "fev"
+msgstr "fev."
 
 msgctxt "month"
 msgid "Mar"
-msgstr "mar"
+msgstr "mar."
 
 msgctxt "month"
 msgid "Apr"
-msgstr "abr"
+msgstr "abr."
 
 msgctxt "month"
 msgid "May"
-msgstr "mai"
+msgstr "mai."
 
 msgctxt "month"
 msgid "Jun"
-msgstr "jun"
+msgstr "jun."
 
 msgctxt "month"
 msgid "Jul"
-msgstr "jul"
+msgstr "jul."
 
 msgctxt "month"
 msgid "Aug"
-msgstr "ago"
+msgstr "ago."
 
 msgctxt "month"
 msgid "Sep"
-msgstr "set"
+msgstr "set."
 
 msgctxt "month"
 msgid "Oct"
-msgstr "out"
+msgstr "out."
 
 msgctxt "month"
 msgid "Nov"
-msgstr "nov"
+msgstr "nov."
 
 msgctxt "month"
 msgid "Dec"
-msgstr "dez"
+msgstr "dez."
 
 msgid "{weekday} {month} {day} {year} {time} {timezone}"
-msgstr "{weekday} {month} {day} {year} {time} {timezone}"
+msgstr "{weekday} {day} {month} {year} {time} {timezone}"

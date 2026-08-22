@@ -575,9 +575,9 @@ msgid "Fourth"
 msgstr "Vierter"
 
 
-# Weekday & month abbreviations, and the layout of a formatted
-# date-time. These strings were auto-generated and were not contributed
-# by this file's translator.
+# Weekday & month abbreviations, and the layout of a formatted date-time.
+# These strings were added by Robert Davies using the following source:
+# https://duden.de
 
 msgctxt "weekday"
 msgid "Mon"
@@ -613,7 +613,7 @@ msgstr "Jan."
 
 msgctxt "month"
 msgid "Feb"
-msgstr "Feb."
+msgstr "Febr."
 
 msgctxt "month"
 msgid "Mar"
@@ -641,7 +641,7 @@ msgstr "Aug."
 
 msgctxt "month"
 msgid "Sep"
-msgstr "Sep."
+msgstr "Sept."
 
 msgctxt "month"
 msgid "Oct"
@@ -656,4 +656,4 @@ msgid "Dec"
 msgstr "Dez."
 
 msgid "{weekday} {month} {day} {year} {time} {timezone}"
-msgstr "{weekday} {month} {day} {year} {time} {timezone}"
+msgstr "{weekday} {day} {month} {year} {time} {timezone}"
