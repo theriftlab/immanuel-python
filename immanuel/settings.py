@@ -22,41 +22,6 @@ import swisseph as swe
 
 from immanuel.const import calc, chart, data, dignities
 
-_ANGLES = (
-    chart.ASC,
-    chart.DESC,
-    chart.MC,
-    chart.IC,
-)
-
-_PLANETS = (
-    chart.SUN,
-    chart.MOON,
-    chart.MERCURY,
-    chart.VENUS,
-    chart.MARS,
-    chart.JUPITER,
-    chart.SATURN,
-    chart.URANUS,
-    chart.NEPTUNE,
-    chart.PLUTO,
-)
-
-_POINTS = (
-    chart.NORTH_NODE,
-    chart.SOUTH_NODE,
-    chart.TRUE_NORTH_NODE,
-    chart.TRUE_SOUTH_NODE,
-    chart.SYZYGY,
-    chart.PART_OF_FORTUNE,
-    chart.PART_OF_SPIRIT,
-    chart.PART_OF_EROS,
-    chart.VERTEX,
-    chart.LILITH,
-    chart.TRUE_LILITH,
-    chart.INTERPOLATED_LILITH,
-)
-
 
 class ChartConfig:
     def __init__(self):
@@ -232,9 +197,9 @@ class ChartConfig:
             {"initiate": [calc.CONJUNCTION], "receive": self._aspects}
         )
         self._aspect_rules = ChainMap()
-        for index in _PLANETS:
+        for index in chart.PLANETS:
             self._aspect_rules[index] = ChainMap({}, self._planet_aspect_rule)
-        for index in _POINTS + _ANGLES:
+        for index in chart.POINTS + chart.ANGLES:
             self._aspect_rules[index] = ChainMap({}, self._point_aspect_rule)
 
         """Orbs for chart objects and their aspects."""
@@ -274,9 +239,9 @@ class ChartConfig:
             }
         )
         self._orbs = ChainMap()
-        for index in _ANGLES + _PLANETS:
+        for index in chart.ANGLES + chart.PLANETS:
             self._orbs[index] = ChainMap({}, self._planet_orbs)
-        for index in _POINTS:
+        for index in chart.POINTS:
             self._orbs[index] = ChainMap({}, self._point_orbs)
 
     """The following getters and setters are simple wrappers for the ChainMaps

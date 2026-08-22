@@ -154,3 +154,48 @@ SATURN_ON_FIRST = PLANET_ON_FIRST + SATURN
 URANUS_ON_FIRST = PLANET_ON_FIRST + URANUS
 NEPTUNE_ON_FIRST = PLANET_ON_FIRST + NEPTUNE
 PLUTO_ON_FIRST = PLANET_ON_FIRST + PLUTO
+
+""" Explicitly group our major object types. """
+ANGLES = (
+    ASC,
+    DESC,
+    MC,
+    IC,
+)
+
+PLANETS = (
+    SUN,
+    MOON,
+    MERCURY,
+    VENUS,
+    MARS,
+    JUPITER,
+    SATURN,
+    URANUS,
+    NEPTUNE,
+    PLUTO,
+)
+
+ASTEROIDS = (
+    CHIRON,
+    PHOLUS,
+    CERES,
+    PALLAS,
+    JUNO,
+    VESTA,
+)
+
+POINTS = (
+    NORTH_NODE,
+    SOUTH_NODE,
+    TRUE_NORTH_NODE,
+    TRUE_SOUTH_NODE,
+    VERTEX,
+    LILITH,
+    TRUE_LILITH,
+    INTERPOLATED_LILITH,
+    SYZYGY,
+    PART_OF_FORTUNE,
+    PART_OF_SPIRIT,
+    PART_OF_EROS,
+)

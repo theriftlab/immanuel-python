@@ -148,7 +148,7 @@ class Chart:
                     config=self._config,
                 )
                 if object["type"] == chart.PLANET
-                and calc.PLANETS.issubset(self._objects)
+                and all(planet in self._objects for planet in chart.PLANETS)
                 else None
             )
             date_time = (
