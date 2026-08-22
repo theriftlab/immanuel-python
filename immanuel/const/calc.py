@@ -25,25 +25,30 @@ QUINCUNX = 150.0
 QUINTILE = 72.0
 BIQUINTILE = 144.0
 
+""" Group aspects by type. """
+MAJOR_ASPECTS = (
+    CONJUNCTION,
+    OPPOSITION,
+    SQUARE,
+    TRINE,
+    SEXTILE,
+)
+
+MINOR_ASPECTS = (
+    SEPTILE,
+    SEMISQUARE,
+    SESQUISQUARE,
+    SEMISEXTILE,
+    QUINCUNX,
+    QUINTILE,
+    BIQUINTILE,
+)
+
 """ Calculations. """
 MAX_ERROR = 0.000001  # For precise exact conjunctions
 STATION_SPEED = 0.0003  # ~1 arc-second of movement
 YEAR_DAYS = 365.24219893  # Average days in a solar year (see swisseph swehouse.c)
 J2000 = 2451545  # Julian year 2000
-
-""" Explicitly specify all of our planets as a set. """
-PLANETS = {
-    chart.SUN,
-    chart.MOON,
-    chart.MERCURY,
-    chart.VENUS,
-    chart.MARS,
-    chart.JUPITER,
-    chart.SATURN,
-    chart.URANUS,
-    chart.NEPTUNE,
-    chart.PLUTO,
-}
 
 """ Mean daily planetary motions. """
 MEAN_MOTIONS = {

@@ -13,9 +13,12 @@ ephemeris module.
 
 import swisseph as swe
 
-from immanuel.const import calc
+from immanuel.const import calc, names
 from immanuel.settings import DEFAULTS, ChartConfig
 from immanuel.tools import position
+
+
+ASPECT_CHECKS = 0
 
 
 def between(object1: dict, object2: dict, config: ChartConfig = DEFAULTS) -> dict:
@@ -35,6 +38,19 @@ def between(object1: dict, object2: dict, config: ChartConfig = DEFAULTS) -> dic
         if passive["index"] in config.aspect_rules
         else config.default_aspect_rule
     )
+    # Intersect the aspects each object can make with the ones allowed by the config
+    valid_aspects = [
+        aspect
+        for aspect in (
+            set(active_aspect_rule["initiate"]) & set(passive_aspect_rule["receive"])
+        )
+        if aspect in config.aspects
+    ]
+    # Ordering by major first favors more significant aspects if multiple are found
+    check_aspects = [
+        aspect for aspect in valid_aspects if aspect in calc.MAJOR_ASPECTS
+    ] + [aspect for aspect in valid_aspects if aspect in calc.MINOR_ASPECTS]
+    # Get the orbs & actual distance
     active_orbs = (
         config.orbs[active["index"]]
         if active["index"] in config.orbs
@@ -48,13 +64,8 @@ def between(object1: dict, object2: dict, config: ChartConfig = DEFAULTS) -> dic
     default_orb = config.default_orb
     distance = swe.difdeg2n(passive["lon"], active["lon"])
     separation = abs(distance)
-
-    for aspect in config.aspects:
-        if (
-            aspect not in active_aspect_rule["initiate"]
-            or aspect not in passive_aspect_rule["receive"]
-        ):
-            continue
+    # Perform the aspect search and return the first & most significant one found
+    for aspect in check_aspects:
         active_orb = active_orbs[aspect] if active_orbs else default_orb
         passive_orb = passive_orbs[aspect] if passive_orbs else default_orb
         orb = (
