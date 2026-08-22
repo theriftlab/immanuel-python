@@ -157,14 +157,12 @@ def by_type(
     """Returns all aspects between the passed chart objects keyed by
     aspect type."""
     aspects = {}
-    for object in objects.values():
-        object_aspects = for_object(object, objects, exclude_same, config=config)
-        if object_aspects:
-            for object_aspect in object_aspects.values():
-                if object_aspect["aspect"] not in aspects:
-                    aspects[object_aspect["aspect"]] = []
-                if object_aspect not in aspects[object_aspect["aspect"]]:
-                    aspects[object_aspect["aspect"]].append(object_aspect)
+    check_objects = objects.copy()
+    for index, object in objects.items():
+        object_aspects = for_object(object, check_objects, exclude_same, config=config)
+        for object_aspect in object_aspects.values():
+            aspects.setdefault(object_aspect["aspect"], []).append(object_aspect)
+        check_objects.pop(index)
     return aspects
 
 
