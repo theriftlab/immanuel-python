@@ -507,6 +507,6 @@ def test_type_of():
 
 def test_is_external():
     # I'm losing steam, let's keep this simple
-    assert sweph.is_external(chart.SUN) == False
-    assert sweph.is_external("Antares") == False
-    assert sweph.is_external(1181) == True
+    assert sweph.is_external(chart.SUN) is False
+    assert sweph.is_external("Antares") is False
+    assert sweph.is_external(1181) is True
