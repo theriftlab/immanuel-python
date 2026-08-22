@@ -134,7 +134,8 @@ def test_part_of_spirit_day_formula(p_day_jd, p_coords, p_day_armc):
     sign = position.sign(pos)
     lon = position.sign_longitude(pos)
     assert sign == chart.ARIES
-    # Since astro-seek does all its calculations without arc-seconds, we will have to be approximate
+    # Since astro-seek does all its calculations without arc-seconds,
+    # we will have to be approximate
     assert round(lon, 1) == round(convert.to_dec("29°54'"), 1)
 
 
@@ -164,7 +165,8 @@ def test_part_of_spirit_night_formula(p_night_jd, p_coords, p_night_armc):
     sign = position.sign(pos)
     lon = position.sign_longitude(pos)
     assert sign == chart.LEO
-    # Since astro-seek does all its calculations without arc-seconds, we will have to be approximate
+    # Since astro-seek does all its calculations without arc-seconds,
+    # we will have to be approximate
     assert round(lon, 1) == round(convert.to_dec("12°18'"), 1)
 
 
@@ -188,7 +190,8 @@ def test_part_of_eros_day_formula(p_day_jd, p_coords, p_day_armc):
     sign = position.sign(poe)
     lon = position.sign_longitude(poe)
     assert sign == chart.LIBRA
-    # Since astro-seek does all its calculations without arc-seconds, we will have to be approximate
+    # Since astro-seek does all its calculations without arc-seconds,
+    # we will have to be approximate
     assert round(lon, 1) == round(convert.to_dec("07°34'"), 1)
 
 
@@ -218,5 +221,6 @@ def test_part_of_eros_night_formula(p_night_jd, p_coords, p_night_armc):
     sign = position.sign(poe)
     lon = position.sign_longitude(poe)
     assert sign == chart.GEMINI
-    # Since astro-seek does all its calculations without arc-seconds, we will have to be approximate
+    # Since astro-seek does all its calculations without arc-seconds,
+    # we will have to be approximate
     assert round(lon, 1) == round(convert.to_dec("22°08'"), 1)

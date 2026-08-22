@@ -356,7 +356,8 @@ def test_get_planet(jd, all_planets):
 
 
 def test_get_asteroid(jd, all_asteroids):
-    # This includes 1181 from an external ephemeris file, so we're testing correct dispatch here
+    # This includes 1181 from an external ephemeris file,
+    # so we're testing correct dispatch here
     for index in all_asteroids:
         asteroid = ephemeris.get_asteroid(index, jd)
         assert asteroid["index"] == index
@@ -364,7 +365,8 @@ def test_get_asteroid(jd, all_asteroids):
         if index in names.ASTEROIDS:
             assert asteroid["name"] == names.ASTEROIDS[index]
         else:
-            # Cheekily borrow a pysweph call to grab the name for the sake of completeness
+            # Cheekily borrow a pysweph call to grab the name
+            # for the sake of completeness
             assert asteroid["name"] == swe.get_planet_name(index + swe.AST_OFFSET)
 
 

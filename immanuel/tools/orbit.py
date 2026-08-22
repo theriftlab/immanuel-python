@@ -8,7 +8,6 @@ eccentricity, and various kinds of orbital period are calculated here.
 
 """
 
-
 from immanuel.const import calc
 from immanuel.tools import sweph
 

@@ -104,7 +104,8 @@ def astro():
             "sign": chart.PISCES,
             "lon": "02°39'48\"",
             "lat": "00°00'00\"",
-            # This is the only figure disagreeing with astro.com (~1 arcsec) and nobody knows why
+            # This is the only figure disagreeing with astro.com (~1 arcsec)
+            # and nobody knows why. It is not mean vs true obliquty, or a Delta-T thing.
             # 'speed': '00°01\'18"',
             "dec": "-10°31'28\"",
         },

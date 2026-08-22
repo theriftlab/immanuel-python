@@ -54,8 +54,8 @@ def astro():
         # angle
         chart.ASC: {
             "lon": "05°36'38\"",
-            # This is the only figure disagreeing with astro.com (~1 arcsec) and nobody knows why
-            # It is not mean vs true obliquty, or a Delta-T thing
+            # This is the only figure disagreeing with astro.com (~1 arcsec)
+            # and nobody knows why. It is not mean vs true obliquty, or a Delta-T thing.
             # "dec": "-09°27'13\"",
         },
         # house
@@ -218,7 +218,8 @@ def test_pre_post_natal_eclipse(jd, coords, astro):
 def test_syzygy(jd, coords):
     # Same again - syzygy calculations are made in the transits module.
     # Ecliptic longitude courtesy of https://horoscopes.astro-seek.com
-    # astro.com does not support syzygy and astro-seek only provides longitude in degrees and minutes
+    # astro.com does not support syzygy and astro-seek only provides
+    # longitudein degrees and minutes
     syzygy_jd = (
         transit.previous_new_moon(jd)
         if condition.moon_sun_distance(jd) > 0
@@ -405,8 +406,9 @@ def test_orbital_elements(jd):
         "AD": 1.665862080246011e00,
         "PR": 6.869715489532111e02,
     }
-    # Not all settings line up exactly between the Swiss Ephemeris functions and JPL Horizons,
-    # so we allow for some margin of error in a few of these values and hope nobody notices.
+    # Not all settings line up exactly between the Swiss Ephemeris functions and
+    # JPL Horizons, so we allow for some margin of error in a few of these values
+    # and hope nobody notices.
     orbital_elements = sweph.orbital_elements(chart.MARS, jd)
     assert orbital_elements["semimajor_axis"] == approx(jpl_orbital_elements["A"])
     assert orbital_elements["eccentricity"] == approx(jpl_orbital_elements["EC"])

@@ -396,7 +396,8 @@ def test_properties_aspect_conditions(native, aspects):
 
 
 def test_properties_dignities(native):
-    # Since it is near impossible to calculate a chart with every dignity, we invent some
+    # Since it is near impossible to calculate a chart with every dignity,
+    # we invent some
     config = ChartConfig()
     config.locale = "pt_BR"
     planet_dignities = wrap.DignityState(
@@ -528,7 +529,8 @@ def test_formatted_aspect(native):
     natal = charts.Natal(native, config=config)
     assert (
         str(natal.aspects[chart.SUN][chart.PART_OF_FORTUNE])
-        == "Conjunção entre Sol e Roda da Fortuna dentro de 00°41'15\" (Aplicativa, Associada)"
+        == "Conjunção entre Sol e Roda da Fortuna dentro de 00°41'15\" "
+        "(Aplicativa, Associada)"
     )
 
 

@@ -31,6 +31,9 @@ dev = [
     "scipy-stubs",
 ]
 
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
 [project.urls]
 "Homepage" = "https://github.com/theriftlab/immanuel-python"
 "Documentation" = "https://github.com/theriftlab/immanuel-python/blob/master/docs/1-overview.md"

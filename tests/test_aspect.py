@@ -56,9 +56,8 @@ def test_between(objects):
 
 def test_for_object(objects):
     config = ChartConfig()
-    config.aspect_rules[chart.ASC] = (
-        config.default_aspect_rule
-    )  # astro.com chart visual does not include aspects to Asc but its aspects table does
+    # astro.com chart visual does not include aspects to Asc but its aspects table does
+    config.aspect_rules[chart.ASC] = config.default_aspect_rule
     a = aspect.for_object(objects[chart.SUN], objects, config=config)
     assert sorted(tuple(a.keys())) == sorted(
         (chart.ASC, chart.PART_OF_FORTUNE, chart.MOON, chart.MERCURY, chart.SATURN)
@@ -72,15 +71,8 @@ def test_for_object(objects):
 
 def test_all(objects):
     config = ChartConfig()
-    config.aspect_rules[chart.ASC] = (
-        config.default_aspect_rule
-    )  # astro.com chart visual does not include aspects to Asc but its aspects table does
-    config.aspect_rules[
-        chart.DESC
-    ] = {  # Because we're looking at Asc aspects, don't allow Desc any
-        "initiate": (),
-        "receive": (),
-    }
+    # astro.com chart visual does not include aspects to Asc but its aspects table does
+    config.aspect_rules[chart.ASC] = config.default_aspect_rule
     all = aspect.all(objects, config=config)
     for index, aspect_list in all.items():
         for i, a in aspect_list.items():
@@ -91,9 +83,8 @@ def test_all(objects):
 
 def test_by_type(objects):
     config = ChartConfig()
-    config.aspect_rules[chart.ASC] = (
-        config.default_aspect_rule
-    )  # astro.com chart visual does not include aspects to Asc but its aspects table does
+    # astro.com chart visual does not include aspects to Asc but its aspects table does
+    config.aspect_rules[chart.ASC] = config.default_aspect_rule
     config.aspects = [
         calc.CONJUNCTION,
         calc.OPPOSITION,
@@ -109,7 +100,8 @@ def test_by_type(objects):
 
 def test_synastry(objects, partner_objects):
     synastry = aspect.synastry(objects, partner_objects)
-    # Due to the sheer number of aspects between 2 charts, we spot-check the sun against astro.com
+    # Due to the sheer number of aspects between 2 charts, we spot-check the sun against
+    # astro.com
     sun = synastry[chart.SUN]
     assert chart.TRUE_NORTH_NODE in sun
     assert sun[chart.TRUE_NORTH_NODE]["aspect"] == calc.OPPOSITION

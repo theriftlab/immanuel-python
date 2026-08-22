@@ -223,7 +223,8 @@ def angle(
     if armc is not None:
         if lat is None or house_system is None or armc_obliquity is None:
             raise TypeError(
-                "lat, house_system, and armc_obliquity must be provided when armc is used."
+                "lat, house_system, and armc_obliquity must be provided when "
+                "armc is used."
             )
         angles = angles_houses_vertex(
             lat=lat, house_system=house_system, armc=armc, armc_obliquity=armc_obliquity

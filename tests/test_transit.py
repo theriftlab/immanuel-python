@@ -26,9 +26,10 @@ def jd(coords):
 
 
 def test_previous_sign_ingress(jd, coords):
-    # https://horoscopes.astro-seek.com reports 01:26 UTC for ingress into Taurus / egress from Aries
-    # so when counting backwards this is the moment Saturn ingresses into Aries from Taurus
-    # and we can accept 01:25:45 UTC as the last time Saturn was in Aries since it rounds to 26 minutes
+    # https://horoscopes.astro-seek.com reports 01:26 UTC for ingress into
+    # Taurus / egress from Aries so when counting backwards this is the moment Saturn
+    # ingresses into Aries from Taurus and we can accept 01:25:45 UTC as the last time
+    # Saturn was in Aries since it rounds to 26 minutes
     si_jd = transit.previous_sign_ingress(chart.SATURN, chart.ARIES, jd)
     si_dt = date.to_datetime(si_jd, *coords)
     assert si_dt.strftime("%Y-%m-%d %H:%M") == "1999-02-28 17:25"
@@ -36,24 +37,27 @@ def test_previous_sign_ingress(jd, coords):
 
 def test_next_sign_ingress(jd, coords):
     # https://horoscopes.astro-seek.com reports 02:27 UTC for ingress into Gemini
-    # so we can accept 02:26:33 UTC as the next time Saturn will be in Gemini since it rounds to 27 minutes
+    # so we can accept 02:26:33 UTC as the next time Saturn will be in Gemini since
+    # it rounds to 27 minutes
     si_jd = transit.next_sign_ingress(chart.SATURN, chart.GEMINI, jd)
     si_dt = date.to_datetime(si_jd, *coords)
     assert si_dt.strftime("%Y-%m-%d %H:%M") == "2000-08-09 19:26"
 
 
 def test_previous_sign_egress(jd, coords):
-    # https://horoscopes.astro-seek.com reports 01:26 UTC for ingress into Taurus / egress from Aries
-    # so when counting backwards this is the moment Saturn egresses from Taurus into Aries
-    # and we can accept 01:25:45 UTC as the last time Saturn was in Aries since it rounds to 26 minutes
+    # https://horoscopes.astro-seek.com reports 01:26 UTC for ingress into
+    # Taurus / egress from Aries so when counting backwards this is the moment Saturn
+    # egresses from Taurus into Aries and we can accept 01:25:45 UTC as the last time
+    # Saturn was in Aries since it rounds to 26 minutes
     se_jd = transit.previous_sign_egress(chart.SATURN, chart.TAURUS, jd)
     se_dt = date.to_datetime(se_jd, *coords)
     assert se_dt.strftime("%Y-%m-%d %H:%M") == "1999-02-28 17:25"
 
 
 def test_next_sign_egress(jd, coords):
-    # https://horoscopes.astro-seek.com reports 02:27 UTC for ingress into Gemini / egress from Taurus
-    # so we can accept 02:26:33 UTC as the last time Saturn was in Taurus since it rounds to 27 minutes
+    # https://horoscopes.astro-seek.com reports 02:27 UTC for ingress into
+    # Gemini / egress from Taurus so we can accept 02:26:33 UTC as the last time Saturn
+    # was in Taurus since it rounds to 27 minutes
     se_jd = transit.next_sign_egress(chart.SATURN, chart.TAURUS, jd)
     se_dt = date.to_datetime(se_jd, *coords)
     assert se_dt.strftime("%Y-%m-%d %H:%M") == "2000-08-09 19:26"

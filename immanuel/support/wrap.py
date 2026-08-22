@@ -145,7 +145,8 @@ class DateTime:
 
     def __str__(self) -> str:
         formatted = _(
-            "{weekday} {month} {day} {year} {time} {timezone}",  # This must match the format in immanuel.po
+            # This must match the format in immanuel.po
+            "{weekday} {month} {day} {year} {time} {timezone}",
             self._config.locale,
         ).format(
             weekday=_(
@@ -425,7 +426,12 @@ class Elements:
         self.water = elements[chart.WATER]
 
     def __str__(self) -> str:
-        return f"{_('Fire', self._config.locale)}: {len(self.fire)}, {_('Earth', self._config.locale)}: {len(self.earth)}, {_('Air', self._config.locale)}: {len(self.air)}, {_('Water', self._config.locale)}: {len(self.water)}"
+        return (
+            f"{_('Fire', self._config.locale)}: {len(self.fire)}, "
+            f"{_('Earth', self._config.locale)}: {len(self.earth)}, "
+            f"{_('Air', self._config.locale)}: {len(self.air)}, "
+            f"{_('Water', self._config.locale)}: {len(self.water)}"
+        )
 
 
 class Modalities:
@@ -436,7 +442,11 @@ class Modalities:
         self.mutable = modalities[chart.MUTABLE]
 
     def __str__(self) -> str:
-        return f"{_('Cardinal', self._config.locale)}: {len(self.cardinal)}, {_('Fixed', self._config.locale)}: {len(self.fixed)}, {_('Mutable', self._config.locale)}: {len(self.mutable)}"
+        return (
+            f"{_('Cardinal', self._config.locale)}: {len(self.cardinal)}, "
+            f"{_('Fixed', self._config.locale)}: {len(self.fixed)}, "
+            f"{_('Mutable', self._config.locale)}: {len(self.mutable)}"
+        )
 
 
 class Quadrants:
@@ -448,4 +458,9 @@ class Quadrants:
         self.fourth = quadrants[4]
 
     def __str__(self) -> str:
-        return f"{_('First', self._config.locale)}: {len(self.first)}, {_('Second', self._config.locale)}: {len(self.second)}, {_('Third', self._config.locale)}: {len(self.third)}, {_('Fourth', self._config.locale)}: {len(self.fourth)}"
+        return (
+            f"{_('First', self._config.locale)}: {len(self.first)}, "
+            f"{_('Second', self._config.locale)}: {len(self.second)}, "
+            f"{_('Third', self._config.locale)}: {len(self.third)}, "
+            f"{_('Fourth', self._config.locale)}: {len(self.fourth)}"
+        )
