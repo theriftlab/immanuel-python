@@ -17,46 +17,48 @@ from immanuel.settings import DEFAULTS, ChartConfig
 def chart_shape(objects: dict, config: ChartConfig = DEFAULTS) -> int:
     """Returns which of the predetermined shapes the passed
     chart objects form."""
-    # Filter objects
-    objects = {k: v for k, v in objects.items() if k in config.chart_shape_objects}
-    if len(objects) <= 1:
+    # Filter & sort objects by longitude
+    longitudes = sorted(
+        [v["lon"] for k, v in objects.items() if k in config.chart_shape_objects]
+    )
+    # Default to splash if the chart is unfeasibly small
+    if len(longitudes) <= 1:
         return calc.SPLASH
-    # Sort objects by longitude
-    longitudes = sorted([v["lon"] for v in objects.values()])
-    diffs = [swe.difdegn(_next(longitudes, k), v) for k, v in enumerate(longitudes)]
-    max_diff = max(diffs)
+    # Calculate the gaps between consecutive longitudes
+    gaps = [swe.difdegn(next, lon) for lon, next in _wrapped(longitudes)]
+    max_gap = max(gaps)
+    chart_shape_orb = config.chart_shape_orb
     # All planets within 120º can only be a bundle
-    if max_diff >= 240 - config.chart_shape_orb:
+    if max_gap >= 240 - chart_shape_orb:
         return calc.BUNDLE
-    # Bucket handle planet(s) must be at least 90º from edges of main cluster
-    for k, v in enumerate(diffs):
-        next = _next(diffs, k)
-        second_next = _next(diffs, k, 2)
-        if v >= 90 - config.chart_shape_orb and (
-            next >= 90 - config.chart_shape_orb
-            or (
-                next <= config.chart_shape_orb
-                and second_next >= 90 - config.chart_shape_orb
-            )
+    # For a bucket to form, the handle planet(s) must be at least 90º from the
+    # edges of main cluster. We allow up to two planets (conjunct within
+    # chart_shape_orb) to form the handle - any more and this will be
+    # classified as a seesaw.
+    for gap, next, second_next in _wrapped(gaps, steps=2):
+        if gap >= 90 - chart_shape_orb and (
+            next >= 90 - chart_shape_orb
+            or (next <= chart_shape_orb and second_next >= 90 - chart_shape_orb)
         ):
             return calc.BUCKET
     # All planets being within 180º with no bucket handle means a bowl
-    if max_diff >= 180 - config.chart_shape_orb:
+    if max_gap >= 180 - chart_shape_orb:
         return calc.BOWL
     # All planets being within 240º with no bucket handle means a locomotive
-    if max_diff >= 120 - config.chart_shape_orb:
+    if max_gap >= 120 - chart_shape_orb:
         return calc.LOCOMOTIVE
-    diffs.sort()
     # Only two gaps of at least 60º mean a seesaw
-    if len([v for v in diffs if v >= 60 - config.chart_shape_orb]) == 2:
+    if sum(gap >= 60 - chart_shape_orb for gap in gaps) == 2:
         return calc.SEESAW
     # Three gaps of at least 30º mean a splay
-    if len([v for v in diffs if v >= 30 - config.chart_shape_orb]) == 3:
+    if sum(gap >= 30 - chart_shape_orb for gap in gaps) == 3:
         return calc.SPLAY
     # Default to no particular pattern
     return calc.SPLASH
 
 
-def _next(data: list, key: int, step: int = 1) -> float:
-    """Returns the next item in data after the passed key."""
-    return data[(key + step) % (len(data))]
+def _wrapped(data: list, steps: int = 1) -> zip:
+    """Returns a zip with each entry containing the current and next "steps"
+    entries of the passed list, wrapping back to the start if the indices fall
+    off the end."""
+    return zip(*[data[i:] + data[:i] for i in range(0, steps + 1)])
