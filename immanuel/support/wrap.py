@@ -59,7 +59,13 @@ class Aspect:
         self._passive_name = _(passive_name, config.locale)
         self.active = aspect["active"]
         self.passive = aspect["passive"]
-        self.type = _(names.ASPECTS[aspect["aspect"]], config.locale)
+        self.type = _(
+            names.ASPECTS.get(
+                aspect["aspect"],
+                config.aspect_names.get(aspect["aspect"], "Custom Aspect"),
+            ),
+            config.locale,
+        )
         self.aspect = aspect["aspect"]
         self.orb = aspect["orb"]
         self.distance = Angle(aspect["distance"], round_to=config.angle_precision)

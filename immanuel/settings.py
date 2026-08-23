@@ -187,6 +187,7 @@ class ChartConfig:
             calc.SEXTILE,
             calc.QUINCUNX,
         ]
+        self.aspect_names = {}
         self._default_aspect_rule = ChainMap(
             {"initiate": self._aspects, "receive": self._aspects}
         )
