@@ -10,7 +10,6 @@ Transits, eclipses, moon phases, etc. are calculated in this module.
 import math
 
 import swisseph as swe
-from scipy.optimize import brentq
 
 from immanuel.const import calc, chart
 from immanuel.tools import position, sweph
@@ -202,6 +201,8 @@ def _sign_ingress_search(index: int, sign: int, jd: float, direction: int) -> fl
     """Iteratively searches for and returns the Julian date of the previous
     or next requested ingress into the given sign. If the planet is already in
     the given sign, it will search for egress first."""
+    from scipy.optimize import brentq
+
     planet = sweph.planet(index, jd)
     planet_sign = position.sign(planet)
     if planet_sign == sign:
@@ -225,6 +226,8 @@ def _sign_egress_search(index: int, sign: int, jd: float, direction: int) -> flo
     """Iteratively searches for and returns the Julian date of the previous
     or next requested egress from the given sign. If the planet is not already
     in the given sign, it will search for ingress first."""
+    from scipy.optimize import brentq
+
     planet = sweph.planet(index, jd)
     planet_sign = position.sign(planet)
     if planet_sign != sign:
