@@ -17,6 +17,8 @@ or appended.
 import copy
 import os
 from collections import ChainMap
+from types import MappingProxyType
+from typing import Any
 
 import swisseph as swe
 
@@ -311,23 +313,48 @@ class ChartConfig:
     def orbs(self, value: dict) -> None:
         self._orbs.maps[0].update(value)
 
-    """Chart instances need to deep-copy passed ChartConfig instances."""
-
     def copy(self) -> "ChartConfig":
         return copy.deepcopy(self)
 
 
-"""Anything that requires a ChartConfig instance as an argument should fall
-back to this as a default. It should never be modified but should be copied
-for each chart class instance."""
+class FrozenChartConfig(ChartConfig):
+    """This creates an immutable snapshot of a ChartConfig instance. For read-only
+    purposes, this is much more efficient to read from and copy."""
+
+    _CHAINMAPS = {
+        "_aspect_rules",
+        "_default_aspect_rule",
+        "_orbs",
+        "_planet_aspect_rule",
+        "_planet_orbs",
+        "_point_aspect_rule",
+        "_point_orbs",
+    }
+
+    def __init__(self, config: ChartConfig) -> None:
+        for key, value in config.__dict__.items():
+            self.__dict__[key] = (
+                _freeze(value) if key in self._CHAINMAPS else copy.deepcopy(value)
+            )
+
+    def __setattr__(self, name, value):
+        raise AttributeError("Cannot set attribute on an immutable instance.")
+
+    def copy(self) -> "FrozenChartConfig":
+        return self
 
 
-class DefaultChartConfig(ChartConfig):
-    def copy(self) -> ChartConfig:
-        return ChartConfig()
+def _freeze(value: Any) -> Any:
+    """Recursively freeze ChartConfig's ChainMaps and lists
+    into immutable types."""
+    if isinstance(value, (ChainMap, dict)):
+        return MappingProxyType({key: _freeze(item) for key, item in value.items()})
+    if isinstance(value, list):
+        return tuple(value)
+    return value
 
 
-DEFAULTS = DefaultChartConfig()
+DEFAULTS = FrozenChartConfig(ChartConfig())
 
 
 """

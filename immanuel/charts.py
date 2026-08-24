@@ -25,7 +25,7 @@ from datetime import datetime
 
 from immanuel.const import chart, names
 from immanuel.reports import aspect, dignity, pattern, weighting
-from immanuel.settings import DEFAULTS, ChartConfig
+from immanuel.settings import DEFAULTS, FrozenChartConfig, ChartConfig
 from immanuel.support import wrap
 from immanuel.support.localize import localize as _
 from immanuel.support.serialize import ToJSON
@@ -55,7 +55,11 @@ class Chart:
         self.type = _(names.CHART_TYPES[type], config.locale)
         self._type = type
         self._aspects_to = aspects_to
-        self._config = config.copy()
+        self._config = (
+            config
+            if isinstance(config, FrozenChartConfig)
+            else FrozenChartConfig(config)
+        )
         self._native: Subject
         self._obliquity: float
         self._diurnal: bool
