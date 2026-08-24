@@ -413,7 +413,7 @@ Default: `5.0` degrees
 
 ### `aspects`
 
-A list of which aspects to calculate. This setting cascades into the aspect rules described below, and also acts as the master switch for aspect calculation - an aspect absent from this list is never calculated. Default:
+A list of which aspects to calculate and include in the chart. This setting cascades into the aspect rules described below, and has the final say over which aspects are actually calculated, regardless of what is included in the rules. Default:
 
 ```python
 [
@@ -438,6 +438,34 @@ Available options:
 | `calc.QUINCUNX` | 150.0° |
 | `calc.QUINTILE` | 72.0° |
 | `calc.BIQUINTILE` | 144.0° |
+
+You may add your own aspects here - simply `append()` a `float` value that defines the aspect's angle. Then, in order for the chart to generate successfully, you will need to supply a string for the new aspect's name under `aspect_names`.
+
+### `aspect_names`
+
+The names of any custom aspects you might have added, keyed byt the aspect's angle `float`:
+
+```python
+from immanuel import charts
+from immanuel.const import chart
+from immanuel.settings import ChartConfig
+
+
+new_aspect = 54.3   # add a weird aspect
+
+config = ChartConfig()
+config.aspects.append(new_aspect)
+config.aspect_names[new_aspect] = "Wrongle"
+
+native = charts.Subject("2000-01-01 10:00", "32n43", "117w09")
+natal = charts.Natal(native, config=config)
+
+for aspect in natal.aspects[chart.MOON].values():
+    print(aspect)
+
+# Moon Part of Fortune Wrongle within 00°41'12" (Applicative, Associate)
+# ...
+```
 
 ### `default_aspect_rule`
 
