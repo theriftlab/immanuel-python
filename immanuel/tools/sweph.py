@@ -6,7 +6,7 @@ Author: Robert Davies (robert@theriftlab.com)
 This module provides easy access to relatively consistently standardized
 pysweph data for all of the supported angles, houses, points and planets
 relevant to creating charts. Many of the functions here, including angle
-and house functions, accept either a Julian date or ARMC values.
+and house functions, accept either a Julian date or ARMC values as input.
 
 """
 

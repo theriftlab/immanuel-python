@@ -5,10 +5,10 @@ Author: Robert Davies (robert@theriftlab.com)
 
 The actual user-facing chart classes are contained in this module. Each
 chart class is easily serializable using the ToJSON class. Each chart type
-is instantiated by passing an instance of Subject, apart from Transits.
-This assumes the current moment and optionally takes a pair of coordinates
-for house calculations, although these will default to those specified in
-the config if they are not required.
+is instantiated by passing an instance of Subject, apart from Transits,
+which assumes the current moment and optionally takes a pair of coordinates
+for house calculations. These will fall back to those specified in the default
+or passed config if they are not required.
 
 Instead of a dedicated synastry chart, the optional aspects_to parameter
 in each chart type's constructor takes another Chart instance and forms its

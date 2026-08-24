@@ -4,8 +4,8 @@ Author: Robert Davies (robert@theriftlab.com)
 
 
 Defines flexible classes to represent data in multiple formats.
-While user-friendly names are defined in the const.names module,
-JSON keys are defined here, either explicitly or as class members.
+While user-friendly names and values are defined in the const.names
+module, JSON keys are defined here, either explicitly or as class members.
 
 """
 

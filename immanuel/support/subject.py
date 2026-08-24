@@ -3,9 +3,9 @@ This file is part of immanuel - (C) The Rift Lab
 Author: Robert Davies (robert@theriftlab.com)
 
 
-The subject of a chart - essentially a time and a place,
-standardized into the coordinates, datetime, and Julian date
-the rest of the package's tools work with.
+The subject of a chart - time and a place data standardized into the
+coordinate, date/time, and Julian date formats that the rest of
+Immanuel's tools work with.
 
 """
 

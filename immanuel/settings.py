@@ -4,10 +4,12 @@ Author: Robert Davies (robert@theriftlab.com)
 
 
 Provides a ChartConfig class that can be passed to a chart class on
-instantiation. If none is passed, the default config is used - DEFAULTS,
-a simple instance of the ChartConfig class. Some of the aspect and orb
-settings are maintained in ChainMaps and getter/setter pairs to allow for
-cascading behavior.
+instantiation. This gets converted internally to a FrozenChartConfig instance,
+an immutable inheritance of ChartConfig optimized for reads. If none is passed,
+the default config is used - DEFAULTS, an instance of FrozenChartConfig.
+
+Many of the aspect and orb settings in ChartConfig are maintained in ChainMaps
+and getter/setter pairs to allow for cascading behavior.
 
 This module also allows the filepath(s) to the ephemeris files to be changed
 or appended.

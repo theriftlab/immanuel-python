@@ -4,6 +4,8 @@ Author: Robert Davies (robert@theriftlab.com)
 
 
 Transits, eclipses, moon phases, etc. are calculated in this module.
+Several of the transit searches are not used by the chart classes,
+such as sign ingress / egress.
 
 """
 

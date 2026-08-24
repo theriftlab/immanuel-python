@@ -67,7 +67,7 @@ def between(object1: dict, object2: dict, config: ChartConfig = DEFAULTS) -> dic
     default_orb = config.default_orb
     distance = swe.difdeg2n(passive["lon"], active["lon"])
     separation = abs(distance)
-    # Perform the aspect search and return the first & most significant one found
+    # Perform the actual aspect search
     for aspect in check_aspects:
         active_orb = active_orbs[aspect] if aspect in active_orbs else default_orb
         passive_orb = passive_orbs[aspect] if aspect in passive_orbs else default_orb

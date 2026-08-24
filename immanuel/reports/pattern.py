@@ -3,8 +3,8 @@ This file is part of immanuel - (C) The Rift Lab
 Author: Robert Davies (robert@theriftlab.com)
 
 
-Extracts chart-shape and aspect patterns from a dict of chart objects
-provided by the ephemeris module.
+Extracts the chart-shape pattern from a dict of chart objects provided
+by the sweph or ephemeris modules.
 
 """
 
@@ -32,7 +32,7 @@ def chart_shape(objects: dict, config: ChartConfig = DEFAULTS) -> int:
     if max_gap >= 240 - chart_shape_orb:
         return calc.BUNDLE
     # For a bucket to form, the handle planet(s) must be at least 90º from the
-    # edges of main cluster. We allow up to two planets (conjunct within
+    # edges of the main cluster. We allow up to two planets (conjunct within
     # chart_shape_orb) to form the handle - any more and this will be
     # classified as a seesaw.
     for gap, next, second_next in _wrapped(gaps, steps=2):

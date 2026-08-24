@@ -26,8 +26,8 @@ _LOCALEDIR = f"{os.path.dirname(__file__)}{os.sep}..{os.sep}locales"
 
 
 class Stringable(Protocol):
-    """This allows us to translate any object that implements __str__()
-    in our localize() as if it were a string."""
+    """This allows us to pass any object that implements __str__() into our
+    localize() as if it were a string."""
 
     def __str__(self) -> str: ...
 
