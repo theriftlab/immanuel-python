@@ -51,8 +51,8 @@ def between(object1: dict, object2: dict, config: Config = DEFAULTS) -> dict:
     ]
     # Ordering by major first favors more significant aspects if multiple are found
     check_aspects = [
-        aspect for aspect in valid_aspects if aspect in calc.MAJOR_ASPECTS
-    ] + [aspect for aspect in valid_aspects if aspect not in calc.MAJOR_ASPECTS]
+        aspect for aspect in valid_aspects if aspect in config.major_aspects
+    ] + [aspect for aspect in valid_aspects if aspect not in config.major_aspects]
     # Get the orbs & actual distance
     active_orbs = (
         config.orbs[active["index"]]

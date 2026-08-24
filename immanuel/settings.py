@@ -183,6 +183,13 @@ class Config:
         }
 
         """Which aspects to calculate and which objects can use them."""
+        self.major_aspects = [
+            calc.CONJUNCTION,
+            calc.OPPOSITION,
+            calc.SQUARE,
+            calc.TRINE,
+            calc.SEXTILE,
+        ]
         self._aspects = [
             calc.CONJUNCTION,
             calc.OPPOSITION,

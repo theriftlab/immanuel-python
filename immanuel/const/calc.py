@@ -25,16 +25,6 @@ QUINCUNX = 150.0
 QUINTILE = 72.0
 BIQUINTILE = 144.0
 
-""" Distinguish significant aspects. Any other aspects, including
-custom user-supplied aspects, are considered minor. """
-MAJOR_ASPECTS = (
-    CONJUNCTION,
-    OPPOSITION,
-    SQUARE,
-    TRINE,
-    SEXTILE,
-)
-
 """ Calculations. """
 MAX_ERROR = 0.000001  # For precise exact conjunctions
 STATION_SPEED = 0.0003  # ~1 arc-second of movement

@@ -464,6 +464,20 @@ for aspect in natal.aspects[chart.MOON].values():
 # ...
 ```
 
+### `major_aspects`
+
+Which aspects are considered significant, and will therefore take precedence over any other competing aspects when orbs overlap. To ensure any custom aspect you might have added wins out, you may wish to add it here and remove any that it's likely to clash with. Default:
+
+```python
+[
+    calc.CONJUNCTION,
+    calc.OPPOSITION,
+    calc.SQUARE,
+    calc.TRINE,
+    calc.SEXTILE,
+]
+```
+
 ### `default_aspect_rule`
 
 A dict which specifies a chart object's default aspect behavior. If a chart object has no entry in `aspect_rules` (described below) then Immanuel falls back to this setting. It has two entries:
