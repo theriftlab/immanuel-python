@@ -25,7 +25,7 @@ from datetime import datetime
 
 from immanuel.const import chart, names
 from immanuel.reports import aspect, dignity, pattern, weighting
-from immanuel.settings import DEFAULTS, ChartConfig, FrozenChartConfig
+from immanuel.settings import DEFAULTS, Config, FrozenConfig
 from immanuel.support import wrap
 from immanuel.support.localize import localize as _
 from immanuel.support.serialize import ToJSON
@@ -50,15 +50,13 @@ class Chart:
         self,
         type: int,
         aspects_to: Chart | None = None,
-        config: ChartConfig = DEFAULTS,
+        config: Config = DEFAULTS,
     ) -> None:
         self.type = _(names.CHART_TYPES[type], config.locale)
         self._type = type
         self._aspects_to = aspects_to
         self._config = (
-            config
-            if isinstance(config, FrozenChartConfig)
-            else FrozenChartConfig(config)
+            config if isinstance(config, FrozenConfig) else FrozenConfig(config)
         )
         self._native: Subject
         self._obliquity: float
@@ -230,7 +228,7 @@ class Natal(Chart):
         self,
         native: Subject,
         aspects_to: Chart | None = None,
-        config: ChartConfig = DEFAULTS,
+        config: Config = DEFAULTS,
     ) -> None:
         self._native = native
         super().__init__(chart.NATAL, aspects_to, config)
@@ -280,7 +278,7 @@ class SolarReturn(Chart):
         native: Subject,
         year: int,
         aspects_to: Chart | None = None,
-        config: ChartConfig = DEFAULTS,
+        config: Config = DEFAULTS,
     ) -> None:
         self._native = native
         self._solar_return_year = year
@@ -354,7 +352,7 @@ class Progressed(Chart):
         native: Subject,
         date_time: datetime | str,
         aspects_to: Chart | None = None,
-        config: ChartConfig = DEFAULTS,
+        config: Config = DEFAULTS,
     ) -> None:
         self._native = native
         self._date_time = date_time
@@ -451,7 +449,7 @@ class Composite(Chart):
         native: Subject,
         partner: Subject,
         aspects_to: Chart | None = None,
-        config: ChartConfig = DEFAULTS,
+        config: Config = DEFAULTS,
     ) -> None:
         self._native = native
         self._partner = partner
@@ -582,7 +580,7 @@ class Transits(Chart):
         timezone: str | None = None,
         aspects_to: Chart | None = None,
         houses_for_aspected: bool = False,
-        config: ChartConfig = DEFAULTS,
+        config: Config = DEFAULTS,
     ) -> None:
         lat, lon = convert.coordinates(
             config.default_latitude if latitude is None else latitude,

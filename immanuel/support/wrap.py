@@ -15,7 +15,7 @@ from datetime import datetime
 
 from immanuel.const import calc, chart, contexts, dignities, names
 from immanuel.reports import dignity
-from immanuel.settings import DEFAULTS, ChartConfig
+from immanuel.settings import DEFAULTS, Config
 from immanuel.support.localize import localize as _
 from immanuel.support.subject import Subject as ChartSubject
 from immanuel.tools import condition, convert, date, ephemeris, position
@@ -52,7 +52,7 @@ class Aspect:
         aspect: dict,
         active_name: str,
         passive_name: str,
-        config: ChartConfig = DEFAULTS,
+        config: Config = DEFAULTS,
     ) -> None:
         self._config = config
         self._active_name = _(active_name, config.locale)
@@ -88,7 +88,7 @@ class Aspect:
 
 
 class AspectCondition:
-    def __init__(self, aspect: dict, config: ChartConfig = DEFAULTS) -> None:
+    def __init__(self, aspect: dict, config: Config = DEFAULTS) -> None:
         self.associate = aspect["condition"] == calc.ASSOCIATE
         self.dissociate = aspect["condition"] == calc.DISSOCIATE
         self.formatted = _(
@@ -102,7 +102,7 @@ class AspectCondition:
 
 
 class AspectMovement:
-    def __init__(self, aspect: dict, config: ChartConfig = DEFAULTS) -> None:
+    def __init__(self, aspect: dict, config: Config = DEFAULTS) -> None:
         self.applicative = aspect["movement"] == calc.APPLICATIVE
         self.exact = aspect["movement"] == calc.EXACT
         self.separative = aspect["movement"] == calc.SEPARATIVE
@@ -135,7 +135,7 @@ class DateTime:
         offset: float | None = None,
         timezone: str | None = None,
         time_is_dst: bool | None = None,
-        config: ChartConfig = DEFAULTS,
+        config: Config = DEFAULTS,
     ) -> None:
         self._config = config
         self.datetime = date.to_datetime(dt, latitude, longitude, offset, timezone)
@@ -176,7 +176,7 @@ class DateTime:
 
 
 class Decan:
-    def __init__(self, number: int, config: ChartConfig = DEFAULTS) -> None:
+    def __init__(self, number: int, config: Config = DEFAULTS) -> None:
         self.number = number
         self.name = _(names.DECANS[self.number], config.locale)
 
@@ -186,7 +186,7 @@ class Decan:
 
 class DignityState:
     def __init__(
-        self, object: dict, dignity_state: dict, config: ChartConfig = DEFAULTS
+        self, object: dict, dignity_state: dict, config: Config = DEFAULTS
     ) -> None:
         self.ruler = dignity_state[dignities.RULER]
         self.exalted = dignity_state[dignities.EXALTED]
@@ -224,7 +224,7 @@ class DignityState:
 
 
 class EclipseType:
-    def __init__(self, eclipse_type: int, config: ChartConfig = DEFAULTS) -> None:
+    def __init__(self, eclipse_type: int, config: Config = DEFAULTS) -> None:
         self.total = eclipse_type == chart.TOTAL
         self.annular = eclipse_type == chart.ANNULAR
         self.partial = eclipse_type == chart.PARTIAL
@@ -237,7 +237,7 @@ class EclipseType:
 
 
 class House:
-    def __init__(self, house: dict, config: ChartConfig = DEFAULTS) -> None:
+    def __init__(self, house: dict, config: Config = DEFAULTS) -> None:
         self.index = house["index"]
         self.number = house["number"]
         self.name = _(house["name"], config.locale)
@@ -247,7 +247,7 @@ class House:
 
 
 class MoonPhase:
-    def __init__(self, moon_phase: int, config: ChartConfig = DEFAULTS) -> None:
+    def __init__(self, moon_phase: int, config: Config = DEFAULTS) -> None:
         self.new_moon = moon_phase == calc.NEW_MOON
         self.waxing_crescent = moon_phase == calc.WAXING_CRESCENT
         self.first_quarter = moon_phase == calc.FIRST_QUARTER
@@ -271,7 +271,7 @@ class Object:
         out_of_bounds: bool | None = None,
         in_sect: bool | None = None,
         dignity_state: dict | None = None,
-        config: ChartConfig = DEFAULTS,
+        config: Config = DEFAULTS,
     ) -> None:
         self._config = config
         self.index = object["index"]
@@ -330,7 +330,7 @@ class Object:
 
 
 class ObjectMovement:
-    def __init__(self, object: dict, config: ChartConfig = DEFAULTS) -> None:
+    def __init__(self, object: dict, config: Config = DEFAULTS) -> None:
         self._movement = condition.object_motion(object)
         self.direct = self._movement == calc.DIRECT
         self.stationary = self._movement == calc.STATIONARY
@@ -347,7 +347,7 @@ class ObjectMovement:
 
 
 class ObjectType:
-    def __init__(self, type: int, config: ChartConfig = DEFAULTS) -> None:
+    def __init__(self, type: int, config: Config = DEFAULTS) -> None:
         self.index = type
         self.name = _(names.OBJECTS[type], config.locale)
 
@@ -356,7 +356,7 @@ class ObjectType:
 
 
 class Sign:
-    def __init__(self, number: int, config: ChartConfig = DEFAULTS) -> None:
+    def __init__(self, number: int, config: Config = DEFAULTS) -> None:
         self.number = number
         self.name = _(names.SIGNS[self.number], config.locale)
         self.element = _(
@@ -374,7 +374,7 @@ class Subject:
     def __init__(
         self,
         subject: ChartSubject,
-        config: ChartConfig = DEFAULTS,
+        config: Config = DEFAULTS,
     ) -> None:
         self._config = config
         armc = ephemeris.get_angle(
@@ -413,7 +413,7 @@ class Weightings:
         elements: dict,
         modalities: dict,
         quadrants: dict,
-        config: ChartConfig = DEFAULTS,
+        config: Config = DEFAULTS,
     ) -> None:
         self.elements = Elements(elements, config=config)
         self.modalities = Modalities(modalities, config=config)
@@ -424,7 +424,7 @@ class Weightings:
 
 
 class Elements:
-    def __init__(self, elements: dict, config: ChartConfig = DEFAULTS) -> None:
+    def __init__(self, elements: dict, config: Config = DEFAULTS) -> None:
         self._config = config
         self.fire = elements[chart.FIRE]
         self.earth = elements[chart.EARTH]
@@ -441,7 +441,7 @@ class Elements:
 
 
 class Modalities:
-    def __init__(self, modalities: dict, config: ChartConfig = DEFAULTS) -> None:
+    def __init__(self, modalities: dict, config: Config = DEFAULTS) -> None:
         self._config = config
         self.cardinal = modalities[chart.CARDINAL]
         self.fixed = modalities[chart.FIXED]
@@ -456,7 +456,7 @@ class Modalities:
 
 
 class Quadrants:
-    def __init__(self, quadrants: dict, config: ChartConfig = DEFAULTS) -> None:
+    def __init__(self, quadrants: dict, config: Config = DEFAULTS) -> None:
         self._config = config
         self.first = quadrants[1]
         self.second = quadrants[2]

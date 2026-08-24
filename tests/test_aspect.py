@@ -16,13 +16,13 @@ from pytest import fixture
 
 from immanuel.const import calc, chart
 from immanuel.reports import aspect
-from immanuel.settings import ChartConfig
+from immanuel.settings import Config
 from immanuel.tools import convert, date, ephemeris
 
 
 @fixture
 def objects():
-    config = ChartConfig()
+    config = Config()
     lat, lon = [convert.string_to_dec(v) for v in ("32n43", "117w09")]
     jd = date.to_jd("2000-01-01 10:00", lat, lon)
     return ephemeris.get_objects(
@@ -32,7 +32,7 @@ def objects():
 
 @fixture
 def partner_objects():
-    config = ChartConfig()
+    config = Config()
     lat, lon = [convert.string_to_dec(v) for v in ("38n35", "121w30")]
     jd = date.to_jd("2001-02-16 06:00", lat, lon)
     return ephemeris.get_objects(
@@ -55,7 +55,7 @@ def test_between(objects):
 
 
 def test_for_object(objects):
-    config = ChartConfig()
+    config = Config()
     # astro.com chart visual does not include aspects to Asc but its aspects table does
     config.aspect_rules[chart.ASC] = config.default_aspect_rule
     a = aspect.for_object(objects[chart.SUN], objects, config=config)
@@ -70,7 +70,7 @@ def test_for_object(objects):
 
 
 def test_all(objects):
-    config = ChartConfig()
+    config = Config()
     # astro.com chart visual does not include aspects to Asc but its aspects table does
     config.aspect_rules[chart.ASC] = config.default_aspect_rule
     all = aspect.all(objects, config=config)
@@ -82,7 +82,7 @@ def test_all(objects):
 
 
 def test_by_type(objects):
-    config = ChartConfig()
+    config = Config()
     # astro.com chart visual does not include aspects to Asc but its aspects table does
     config.aspect_rules[chart.ASC] = config.default_aspect_rule
     config.aspects = [

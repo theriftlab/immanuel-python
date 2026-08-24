@@ -11,10 +11,10 @@ by the sweph or ephemeris modules.
 import swisseph as swe
 
 from immanuel.const import calc
-from immanuel.settings import DEFAULTS, ChartConfig
+from immanuel.settings import DEFAULTS, Config
 
 
-def chart_shape(objects: dict, config: ChartConfig = DEFAULTS) -> int:
+def chart_shape(objects: dict, config: Config = DEFAULTS) -> int:
     """Returns which of the predetermined shapes the passed
     chart objects form."""
     # Filter & sort objects by longitude

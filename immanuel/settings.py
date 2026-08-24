@@ -3,12 +3,12 @@ This file is part of immanuel - (C) The Rift Lab
 Author: Robert Davies (robert@theriftlab.com)
 
 
-Provides a ChartConfig class that can be passed to a chart class on
-instantiation. This gets converted internally to a FrozenChartConfig instance,
-an immutable inheritance of ChartConfig optimized for reads. If none is passed,
-the default config is used - DEFAULTS, an instance of FrozenChartConfig.
+Provides a Config class that can be passed to a chart class on
+instantiation. This gets converted internally to a FrozenConfig instance,
+an immutable inheritance of Config optimized for reads. If none is passed,
+the default config is used - DEFAULTS, an instance of FrozenConfig.
 
-Many of the aspect and orb settings in ChartConfig are maintained in ChainMaps
+Many of the aspect and orb settings in Config are maintained in ChainMaps
 and getter/setter pairs to allow for cascading behavior.
 
 This module also allows the filepath(s) to the ephemeris files to be changed
@@ -27,7 +27,7 @@ import swisseph as swe
 from immanuel.const import calc, chart, data, dignities
 
 
-class ChartConfig:
+class Config:
     def __init__(self):
         """Locale ID string. Defaults to None, which is treated as en_US."""
         self.locale: str | None = None
@@ -316,12 +316,12 @@ class ChartConfig:
     def orbs(self, value: dict) -> None:
         self._orbs.maps[0].update(value)
 
-    def copy(self) -> "ChartConfig":
+    def copy(self) -> "Config":
         return copy.deepcopy(self)
 
 
-class FrozenChartConfig(ChartConfig):
-    """This creates an immutable snapshot of a ChartConfig instance. For read-only
+class FrozenConfig(Config):
+    """This creates an immutable snapshot of a Config instance. For read-only
     purposes, this is much more efficient to read from and copy."""
 
     _CHAINMAPS = {
@@ -334,7 +334,7 @@ class FrozenChartConfig(ChartConfig):
         "_point_orbs",
     }
 
-    def __init__(self, config: ChartConfig) -> None:
+    def __init__(self, config: Config) -> None:
         for key, value in config.__dict__.items():
             self.__dict__[key] = (
                 _freeze(value) if key in self._CHAINMAPS else copy.deepcopy(value)
@@ -343,12 +343,12 @@ class FrozenChartConfig(ChartConfig):
     def __setattr__(self, name, value):
         raise AttributeError("Cannot set attribute on an immutable instance.")
 
-    def copy(self) -> "FrozenChartConfig":
+    def copy(self) -> "FrozenConfig":
         return self
 
 
 def _freeze(value: Any) -> Any:
-    """Recursively freeze ChartConfig's ChainMaps and lists
+    """Recursively freeze Config's ChainMaps and lists
     into immutable types."""
     if isinstance(value, (ChainMap, dict)):
         return MappingProxyType({key: _freeze(item) for key, item in value.items()})
@@ -357,7 +357,7 @@ def _freeze(value: Any) -> Any:
     return value
 
 
-DEFAULTS = FrozenChartConfig(ChartConfig())
+DEFAULTS = FrozenConfig(Config())
 
 
 """

@@ -15,36 +15,17 @@
 
 #### NOTE: This README and the documentation are for the `master` branch which is often in flux. Please check the docs for your installed release version to ensure they match the code.
 
-Immanuel is a Python >= 3.10 package to painlessly provide your application with simple yet detailed chart-centric astrology data for planets, points, signs, houses, aspects, weightings, etc. all based on the [Swiss Ephemeris](https://github.com/sailorfe/pysweph). Extra calculations, notably secondary progressions and dignity scores, are modeled on those of [astro.com](https://astro.com) and [Astro Gold](https://www.astrogold.io).
-
-Data for natal charts, solar returns, progressions, and composites are available, as well as the ability to point the aspects from any one chart instance to the planets in another, creating a flexible method to build synastries.
-
-Simply pass in a date and coordinates to one of the available chart classes, and the returned instance will contain all data necessary to construct a full astrological chart. A serializer is bundled to easily output all data as JSON, or it can simply be printed out as human/AI-readable text.
-
-## Translations
-
-Immanuel's output is currently available in the following locales / languages:
-
-* **en_US:** (default) US English
-* **pt_BR:** Brazilian Portuguese
-* **es_ES:** Spanish
-* **de_DE:** German
-
-See [here](/docs/5-settings.md#chart-settings) for details on how to switch. The documentation itself is not currently available in other translations. To contribute in-software translations, see [here](/docs/7-contributions.md).
-
-## Documentation
-
-Full documentation is available [here](/docs/0-contents.md), or follow the Quick Start below to see how to quickly generate a natal chart.
+Immanuel is a Python >= 3.10 package with a focus on speed, simplicity, and precision. Its classes generate chart-centric astrology data - planets, points, signs, houses, aspects, weightings, and more - based on the [Swiss Ephemeris](https://github.com/sailorfe/pysweph), with progressions and dignity scores modeled on [astro.com](https://astro.com) and [Astro Gold](https://www.astrogold.io). This makes it a breeze to generate natal, solar return, progressed, and composite charts, plus create cross-chart aspects for flexible synastries.
 
 ## Quick Start
 
-You can get started with full natal chart data in minutes. Simply install Immanuel:
+Full documentation is available [here](/docs/0-contents.md), but you can get started with full natal chart data in minutes. Simply install Immanuel:
 
 ```bash
 pip install immanuel
 ```
 
-Once you've imported Immanuel's chart classes into your application, you will need to hand them a person or event. This is made easy with the Subject class, which takes a date and geographical coordinates. The date can be an ISO-formatted string or a Python datetime instance, and coordinates can be strings or decimals.
+Once you've imported Immanuel's chart classes, you will need to hand them a `Subject`, which takes a date and geographical coordinates. The date can be an ISO-formatted string or a Python `datetime` instance, and coordinates can be strings or floats.
 
 ```python
 from immanuel import charts
@@ -72,33 +53,28 @@ natal = charts.Natal(native)
 
 for object in natal.objects.values():
     print(object)
+
+# Sun 10°37'26" in Capricorn, 11th House
+# Moon 16°19'29" in Scorpio, 8th House
+# Mercury 02°16'43" in Capricorn, 10th House
+# Venus 01°52'05" in Sagittarius, 9th House
+# Mars 28°09'26" in Aquarius, 12th House
+# Jupiter 25°15'48" in Aries, 2nd House
+# Saturn 10°23'27" in Taurus, 2nd House, Retrograde
+# Uranus 14°49'19" in Aquarius, 12th House
+# Neptune 03°12'07" in Aquarius, 12th House
+# Pluto 11°27'49" in Sagittarius, 9th House
+# ...etc.
 ```
 
-This will output all the chart objects (planets, points, asteroids etc.) in this format:
-
-```
-Sun 10°37'26" in Capricorn, 11th House
-Moon 16°19'29" in Scorpio, 8th House
-Mercury 02°16'43" in Capricorn, 10th House
-Venus 01°52'05" in Sagittarius, 9th House
-Mars 28°09'26" in Aquarius, 12th House
-Jupiter 25°15'48" in Aries, 2nd House
-Saturn 10°23'27" in Taurus, 2nd House, Retrograde
-Uranus 14°49'19" in Aquarius, 12th House
-Neptune 03°12'07" in Aquarius, 12th House
-Pluto 11°27'49" in Sagittarius, 9th House
-...
-```
-
-Add asteroid Ceres into the mix via the ChartConfig class:
+Add asteroid Ceres into the mix via the Config class:
 
 ```python
 from immanuel import charts
 from immanuel.const import chart
-from immanuel.settings import ChartConfig
 
 
-config = ChartConfig()
+config = charts.Config()
 config.objects.append(chart.CERES)
 
 native = charts.Subject(
@@ -111,20 +87,18 @@ natal = charts.Natal(native, config=config)
 
 for object in natal.objects.values():
     print(object)
+
+# This now appears:
+# Ceres 04°30'28" in Libra, 7th House
 ```
 
-Now you will see this appended to the list:
-
-```
-Ceres 04°30'28" in Libra, 7th House
-```
-
-More on the config & constants in the full documentation - for now, we can see much more data by serializing the chart's `objects` property to JSON like this:
+We can see much more data by serializing the chart's properties (or even the whole chart itself) to JSON. See  like this:
 
 ```python
 import json
 
 from immanuel import charts
+from immanuel.const import chart
 
 
 native = charts.Subject(
@@ -135,7 +109,7 @@ native = charts.Subject(
 
 natal = charts.Natal(native)
 
-print(json.dumps(natal.objects, cls=charts.ToJSON, indent=4))
+print(json.dumps(natal.objects[chart.SUN], cls=charts.ToJSON, indent=4))
 ```
 
 Which will output each of the chart's objects in this format:
@@ -149,7 +123,7 @@ Which will output each of the chart's objects in this format:
         "name": "Planet"
     },
     "latitude": {
-        "raw": 0.0002259471008556382,
+        "raw": 0.00022547880358658867,
         "formatted": "00\u00b000'01\"",
         "direction": "+",
         "degrees": 0,
@@ -157,7 +131,7 @@ Which will output each of the chart's objects in this format:
         "seconds": 1
     },
     "longitude": {
-        "raw": 280.6237802656368,
+        "raw": 280.62378011422516,
         "formatted": "280\u00b037'26\"",
         "direction": "+",
         "degrees": 280,
@@ -165,7 +139,7 @@ Which will output each of the chart's objects in this format:
         "seconds": 26
     },
     "sign_longitude": {
-        "raw": 10.62378026563681,
+        "raw": 10.623780114225156,
         "formatted": "10\u00b037'26\"",
         "direction": "+",
         "degrees": 10,
@@ -187,16 +161,17 @@ Which will output each of the chart's objects in this format:
         "number": 11,
         "name": "11th House"
     },
-    "distance": 0.9833259257690341,
-    "speed": 1.0194579691359147,
+    "distance": 0.9833259252292994,
+    "speed": 1.0194579732387614,
     "movement": {
         "direct": true,
         "stationary": false,
         "retrograde": false,
+        "typical": true,
         "formatted": "Direct"
     },
     "declination": {
-        "raw": -23.01236501586868,
+        "raw": -23.012365494740244,
         "formatted": "-23\u00b000'45\"",
         "direction": "-",
         "degrees": 23,
@@ -227,62 +202,6 @@ Which will output each of the chart's objects in this format:
 }
 ```
 
-Note that the entire chart can also be serialized to JSON, eg.:
-
-```python
-print(json.dumps(natal, cls=charts.ToJSON, indent=4))
-```
-
-## Chart Types
-
-Currently Immanuel supports the following chart types:
-
-* Natal
-* Solar return
-* Progressed
-* Composite
-* Transits
-
-Synastry is also available with an extra step - all chart classes allow an instance of another chart class to be passed as an argument, which will then calculate the main chart's aspects in relation to the passed chart. This way synastry (and transit) charts can be generated with great flexibility.
-
-## Returned Chart Data
-
-The various chart types return their own sets of data, but you can expect to receive at least the following in all of them:
-
-* Chart date
-* Chart coordinates
-* House system
-* Chart shape type (eg. bowl, splash etc.)
-* Whether the chart is diurnal (ie. daytime)
-* Moon phase
-* All chart objects (eg. planets, asteroids, primary angles etc.) and their positions & dignities if applicable
-* Houses
-* Aspects
-* Weightings (ie. which objects are in which elements / modalities etc.)
-
-All properties are available in both human/AI-readable and JSON format as demonstrated above.
-
-Most astronomical objects for astrological use are available for the years 1200-5399. To cover extra celestial objects or years, you can drop in your own ephemeris files from the Swiss Ephemeris, as outlined [in the docs](/docs/5-settings.md#external-objects)
-
-## Calculations
-
-Immanuel offers the same three methods for MC progression as astro.com, and will produce the same progressed date, sidereal time, and house positions.
-
-Planetary dignity scores are based on those of Astro Gold, although these are somewhat flexible via the settings.
-
-## Chart Config
-
-The full documentation covers settings and config in detail, but much of the chart's output can be customized. The settings module and its ChartConfig class allow you to specify and personalize:
-
-* Locale / language
-* The house system to use
-* What data each chart returns
-* What planets, points, asteroid etc. to include
-* Details of the aspect calculations
-* Which dignities to use and their scores
-* The progression method to use for secondary progressions
-* ...and much more.
-
 ## Tests
 
 Tests are available via pytest. If you have cloned the repo, simply run pytest from the root:
@@ -290,6 +209,17 @@ Tests are available via pytest. If you have cloned the repo, simply run pytest f
 ```bash
 python -m pytest
 ```
+
+## Translations
+
+Immanuel's output is currently available in the following locales / languages:
+
+* **en_US:** (default) US English
+* **pt_BR:** Brazilian Portuguese
+* **es_ES:** Spanish
+* **de_DE:** German
+
+See [here](/docs/5-settings.md#chart-settings) for details on how to switch. The documentation itself is not currently available in other translations. To contribute in-software translations, see [here](/docs/7-contributions.md).
 
 ## AI Transparency
 

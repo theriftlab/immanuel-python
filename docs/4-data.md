@@ -112,7 +112,7 @@ The core of any chart, the `objects` property is a dict of Python objects repres
         "name": "Planet"
     },
     "latitude": {
-        "raw": 0.0002259471008556382,
+        "raw": 0.00022547880358658867,
         "formatted": "00\u00b000'01\"",
         "direction": "+",
         "degrees": 0,
@@ -120,7 +120,7 @@ The core of any chart, the `objects` property is a dict of Python objects repres
         "seconds": 1
     },
     "longitude": {
-        "raw": 280.6237802656368,
+        "raw": 280.62378011422516,
         "formatted": "280\u00b037'26\"",
         "direction": "+",
         "degrees": 280,
@@ -128,7 +128,7 @@ The core of any chart, the `objects` property is a dict of Python objects repres
         "seconds": 26
     },
     "sign_longitude": {
-        "raw": 10.62378026563681,
+        "raw": 10.623780114225156,
         "formatted": "10\u00b037'26\"",
         "direction": "+",
         "degrees": 10,
@@ -150,16 +150,17 @@ The core of any chart, the `objects` property is a dict of Python objects repres
         "number": 11,
         "name": "11th House"
     },
-    "distance": 0.9833259257690341,
-    "speed": 1.0194579691359147,
+    "distance": 0.9833259252292994,
+    "speed": 1.0194579732387614,
     "movement": {
         "direct": true,
         "stationary": false,
         "retrograde": false,
+        "typical": true,
         "formatted": "Direct"
     },
     "declination": {
-        "raw": -23.01236501586868,
+        "raw": -23.012365494740244,
         "formatted": "-23\u00b000'45\"",
         "direction": "-",
         "degrees": 23,
@@ -377,7 +378,7 @@ Moon Sun Sextile within -05°42'03" (Separative, Associate)
 You can of course also serialize this object into JSON for a deeper look:
 
 ```python
-print(json.dumps(natal.aspects[4000001][4000002], cls=ToJSON, indent=4))
+print(json.dumps(natal.aspects[4000001][4000002], cls=charts.ToJSON, indent=4))
 ```
 
 Which gives us this data:
@@ -390,7 +391,7 @@ Which gives us this data:
     "aspect": 60.0,
     "orb": 6.0,
     "distance": {
-        "raw": 54.29916852653977,
+        "raw": 54.29916722763241,
         "formatted": "54\u00b017'57\"",
         "direction": "+",
         "degrees": 54,
@@ -398,7 +399,7 @@ Which gives us this data:
         "seconds": 57
     },
     "difference": {
-        "raw": -5.700831473460227,
+        "raw": -5.7008327723675905,
         "formatted": "-05\u00b042'03\"",
         "direction": "-",
         "degrees": 5,
@@ -619,6 +620,10 @@ To demonstrate, asteroid Lilith is number 1181 as designated by the Internationa
 Once you have the correct ephemeris file and have pointed Immanuel at it, you only need to add the number `1181` to the requested chart objects in your chart's `Config` for the asteroid object to be returned with an index of `1181` in the `objects` property (see the [Settings](5-settings.md#external-objects) section for details on how to do this). Anywhere else this index appears in the chart's data can then be cross-referenced with its entry in `objects` to retrieve Lilith's information.
 
 Fixed stars (which are included without you having to bring your own ephemeris file) are an exception as they are indexed by their name, which will be a string (eg. `"Antares"`) rather than a number. Any object whose index is a string will be assumed to be a fixed star.
+
+## Bundled Ephemeris Range
+
+Most astronomical objects for astrological use are available for the years 1200-5399. To cover extra celestial objects or years, you can drop in your own ephemeris files from the Swiss Ephemeris, as outlined in the [Settings](5-settings.md#external-objects) section.
 
 ---
 
