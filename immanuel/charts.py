@@ -25,7 +25,7 @@ from datetime import datetime
 
 from immanuel.const import chart, names
 from immanuel.reports import aspect, dignity, pattern, weighting
-from immanuel.settings import DEFAULTS, FrozenChartConfig, ChartConfig
+from immanuel.settings import DEFAULTS, ChartConfig, FrozenChartConfig
 from immanuel.support import wrap
 from immanuel.support.localize import localize as _
 from immanuel.support.serialize import ToJSON

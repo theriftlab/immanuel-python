@@ -5,7 +5,7 @@ Author: Robert Davies (robert@theriftlab.com)
 
 This module largely acts as a wrapper for the sweph module,
 offering convenience functions for chart assembly that dispatch
-to its more granular and technical functions.
+to sweph's more granular and technical functions.
 
 """
 

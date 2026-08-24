@@ -3,8 +3,8 @@ This file is part of immanuel - (C) The Rift Lab
 Author: Robert Davies (robert@theriftlab.com)
 
 
-The Parts of Fortune, Spirit, and Eros are calculated here. These functions
-return the part's ecliptic longitude only.
+The Parts of Fortune, Spirit, and Eros are calculated here. This singular
+function returns the part's ecliptic longitude only.
 
 """
 
