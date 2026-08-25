@@ -3,13 +3,13 @@ This file is part of immanuel - (C) The Rift Lab
 Author: Robert Davies (robert@theriftlab.com)
 
 
-Provides a Config class that can be passed to a chart class on
-instantiation. This gets converted internally to a FrozenConfig instance,
-an immutable inheritance of Config optimized for reads. If none is passed,
-the default config is used - DEFAULTS, an instance of FrozenConfig.
+Provides a Config class that can be passed to a chart class on instantiation.
+This gets converted internally to a FrozenConfig instance, an immutable child
+of Config optimized for reads. If none is passed, the default config is used:
+DEFAULTS, an instance of FrozenConfig.
 
-Many of the aspect and orb settings in Config are maintained in ChainMaps
-and getter/setter pairs to allow for cascading behavior.
+Many of the aspect and orb settings in Config are maintained in ChainMaps and
+getter/setter pairs to allow for cascading behavior.
 
 This module also allows the filepath(s) to the ephemeris files to be changed
 or appended.
