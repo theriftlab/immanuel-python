@@ -14,10 +14,6 @@ from immanuel.tools import sweph
 DAYS = 0
 TROPICAL_YEARS = 1
 
-SYNODIC_MIN = -1
-SYNODIC_AVG = 0
-SYNODIC_MAX = 1
-
 
 def earth_obliquity(jd: float, mean: bool = False) -> float:
     """Returns the true or mean obliquity of the ecliptic for the given
