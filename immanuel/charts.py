@@ -114,6 +114,8 @@ class Chart:
 
     def set_wrapped_objects(self) -> None:
         self.objects = {}
+        # We can only calculate all dignities accurately if we have all planets present
+        calculate_dignities = all(planet in self._objects for planet in chart.PLANETS)
 
         for index, object in self._objects.items():
             house = position.house(
@@ -149,8 +151,7 @@ class Chart:
                     is_daytime=self._diurnal,
                     config=self._config,
                 )
-                if object["type"] == chart.PLANET
-                and all(planet in self._objects for planet in chart.PLANETS)
+                if calculate_dignities and object["type"] == chart.PLANET
                 else None
             )
             date_time = (
