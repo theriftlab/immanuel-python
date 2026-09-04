@@ -23,7 +23,7 @@ from __future__ import annotations
 import json
 from datetime import datetime
 
-from immanuel.const import chart, names
+from immanuel.const import chart, data, names
 from immanuel.reports import aspect, dignity, pattern, weighting
 from immanuel.settings import DEFAULTS, Config, FrozenConfig
 from immanuel.support import wrap
@@ -45,6 +45,8 @@ from immanuel.tools import (
 class Chart:
     """Base chart class. This acts as an abstract class for the actual chart
     classes to inherit from."""
+
+    _wrap_functions: dict = {}
 
     def __init__(
         self,
@@ -69,6 +71,17 @@ class Chart:
         }
         self._objects: dict
         self._houses: dict
+        self._wrap_functions = {
+            data.NATIVE: self.wrap_native,
+            data.HOUSE_SYSTEM: self.wrap_house_system,
+            data.SHAPE: self.wrap_shape,
+            data.DIURNAL: self.wrap_diurnal,
+            data.MOON_PHASE: self.wrap_moon_phase,
+            data.OBJECTS: self.wrap_objects,
+            data.ASPECTS: self.wrap_aspects,
+            data.HOUSES: self.wrap_houses,
+            data.WEIGHTINGS: self.wrap_weightings,
+        } | self._wrap_functions
         self.generate()
         self.wrap()
 
@@ -87,32 +100,31 @@ class Chart:
         """Loop through the required data and wrap each one with a custom
         function."""
         for index in self._config.chart_data[self._type]:
-            method = f"set_wrapped_{index}"
-            if hasattr(self, method):
-                getattr(self, method)()
+            if index in self._wrap_functions:
+                self._wrap_functions[index]()
 
     # Base class provides wrappers for properties common to all classes.
-    def set_wrapped_native(self) -> None:
+    def wrap_native(self) -> None:
         self.native = wrap.Subject(self._native, config=self._config)
 
-    def set_wrapped_house_system(self) -> None:
+    def wrap_house_system(self) -> None:
         self.house_system = _(
             names.HOUSE_SYSTEMS[self._config.house_system], self._config.locale
         )
 
-    def set_wrapped_shape(self) -> None:
+    def wrap_shape(self) -> None:
         self.shape = _(
             names.CHART_SHAPES[pattern.chart_shape(self._objects, config=self._config)],
             self._config.locale,
         )
 
-    def set_wrapped_diurnal(self) -> None:
+    def wrap_diurnal(self) -> None:
         self.diurnal = self._diurnal
 
-    def set_wrapped_moon_phase(self) -> None:
+    def wrap_moon_phase(self) -> None:
         self.moon_phase = wrap.MoonPhase(self._moon_phase, config=self._config)
 
-    def set_wrapped_objects(self) -> None:
+    def wrap_objects(self) -> None:
         self.objects = {}
         # We can only calculate all dignities accurately if we have all planets present
         calculate_dignities = all(planet in self._objects for planet in chart.PLANETS)
@@ -175,13 +187,13 @@ class Chart:
                 config=self._config,
             )
 
-    def set_wrapped_houses(self) -> None:
+    def wrap_houses(self) -> None:
         self.houses = {
             index: wrap.Object(object=house, config=self._config)
             for index, house in self._houses.items()
         }
 
-    def set_wrapped_aspects(self) -> None:
+    def wrap_aspects(self) -> None:
         def resolve_object_name(index: int) -> str:
             if index in self._objects:
                 return self._objects[index]["name"]
@@ -209,7 +221,7 @@ class Chart:
             for index, aspect_list in aspects.items()
         }
 
-    def set_wrapped_weightings(self) -> None:
+    def wrap_weightings(self) -> None:
         self.weightings = wrap.Weightings(
             elements=weighting.elements(self._objects),
             modalities=weighting.modalities(self._objects),
@@ -283,6 +295,10 @@ class SolarReturn(Chart):
     ) -> None:
         self._native = native
         self._solar_return_year = year
+        self._wrap_functions = {
+            data.SOLAR_RETURN_YEAR: self.wrap_solar_return_year,
+            data.SOLAR_RETURN_DATE_TIME: self.wrap_solar_return_date_time,
+        }
         super().__init__(chart.SOLAR_RETURN, aspects_to, config)
 
     def generate(self) -> None:
@@ -329,10 +345,10 @@ class SolarReturn(Chart):
             house_system=self._config.house_system,
         )
 
-    def set_wrapped_solar_return_year(self) -> None:
+    def wrap_solar_return_year(self) -> None:
         self.solar_return_year = self._solar_return_year
 
-    def set_wrapped_solar_return_date_time(self) -> None:
+    def wrap_solar_return_date_time(self) -> None:
         self.solar_return_date_time = wrap.DateTime(
             dt=self._solar_return_jd,
             armc=self._solar_return_armc,
@@ -357,6 +373,11 @@ class Progressed(Chart):
     ) -> None:
         self._native = native
         self._date_time = date_time
+        self._wrap_functions = {
+            data.PROGRESSION_DATE_TIME: self.wrap_progression_date_time,
+            data.PROGRESSED_DATE_TIME: self.wrap_progressed_date_time,
+            data.PROGRESSION_METHOD: self.wrap_progression_method,
+        }
         super().__init__(chart.PROGRESSED, aspects_to, config)
 
     def generate(self) -> None:
@@ -417,14 +438,14 @@ class Progressed(Chart):
             house_system=self._config.house_system,
         )
 
-    def set_wrapped_progression_date_time(self) -> None:
+    def wrap_progression_date_time(self) -> None:
         self.progression_date_time = wrap.DateTime(
             dt=self._progression_date_time,
             armc=self._progression_armc_longitude,
             config=self._config,
         )
 
-    def set_wrapped_progressed_date_time(self) -> None:
+    def wrap_progressed_date_time(self) -> None:
         self.progressed_date_time = wrap.DateTime(
             dt=self._progressed_jd,
             armc=self._progressed_armc_longitude,
@@ -435,7 +456,7 @@ class Progressed(Chart):
             config=self._config,
         )
 
-    def set_wrapped_progression_method(self) -> None:
+    def wrap_progression_method(self) -> None:
         self.progression_method = _(
             names.PROGRESSION_METHODS[self._config.mc_progression_method],
             self._config.locale,
@@ -454,6 +475,9 @@ class Composite(Chart):
     ) -> None:
         self._native = native
         self._partner = partner
+        self._wrap_functions = {
+            data.PARTNER: self.wrap_partner,
+        }
         super().__init__(chart.COMPOSITE, aspects_to, config)
 
     def generate(self) -> None:
@@ -565,7 +589,7 @@ class Composite(Chart):
             self._triad[chart.SUN], self._triad[chart.MOON]
         )
 
-    def set_wrapped_partner(self):
+    def wrap_partner(self):
         self.partner = wrap.Subject(self._partner, config=self._config)
 
 
