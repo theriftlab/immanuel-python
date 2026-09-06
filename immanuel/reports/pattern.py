@@ -129,6 +129,11 @@ def aspect_patterns(aspects: dict) -> dict:
 def chart_shape(objects: dict, config: Config = DEFAULTS) -> int:
     """Returns which of the predetermined shapes the passed
     chart objects form."""
+
+    # Wrapping "next n steps in list" helper function
+    def wrapped(data: list, steps: int = 1) -> zip:
+        return zip(*[data[i:] + data[:i] for i in range(0, steps + 1)])
+
     # Filter & sort objects by longitude
     longitudes = sorted(
         [v["lon"] for k, v in objects.items() if k in config.chart_shape_objects]
@@ -137,7 +142,7 @@ def chart_shape(objects: dict, config: Config = DEFAULTS) -> int:
     if len(longitudes) <= 1:
         return calc.SPLASH
     # Calculate the gaps between consecutive longitudes
-    gaps = [swe.difdegn(next, lon) for lon, next in _wrapped(longitudes)]
+    gaps = [swe.difdegn(next, lon) for lon, next in wrapped(longitudes)]
     max_gap = max(gaps)
     chart_shape_orb = config.chart_shape_orb
     # All planets within 120º can only be a bundle
@@ -147,7 +152,7 @@ def chart_shape(objects: dict, config: Config = DEFAULTS) -> int:
     # edges of the main cluster. We allow up to two planets (conjunct within
     # chart_shape_orb) to form the handle - any more and this will be
     # classified as a seesaw.
-    for gap, next, second_next in _wrapped(gaps, steps=2):
+    for gap, next, second_next in wrapped(gaps, steps=2):
         if gap >= 90 - chart_shape_orb and (
             next >= 90 - chart_shape_orb
             or (next <= chart_shape_orb and second_next >= 90 - chart_shape_orb)
@@ -167,10 +172,3 @@ def chart_shape(objects: dict, config: Config = DEFAULTS) -> int:
         return calc.SPLAY
     # Default to no particular pattern
     return calc.SPLASH
-
-
-def _wrapped(data: list, steps: int = 1) -> zip:
-    """Returns a zip with each entry containing the current and next "steps"
-    entries of the passed list, wrapping back to the start if the indices fall
-    off the end."""
-    return zip(*[data[i:] + data[:i] for i in range(0, steps + 1)])
