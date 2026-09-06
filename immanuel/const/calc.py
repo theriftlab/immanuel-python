@@ -25,6 +25,17 @@ QUINCUNX = 150.0
 QUINTILE = 72.0
 BIQUINTILE = 144.0
 
+""" Aspect patterns. """
+T_SQUARE = 0
+GRAND_TRINE = 1
+YOD = 2
+GRAND_CROSS = 3
+KITE = 4
+MYSTIC_RECTANGLE = 5
+CRADLE = 6
+GRAND_SEXTILE = 7
+GRAND_QUINTILE = 8
+
 """ Calculations. """
 MAX_ERROR = 0.000001  # For precise exact conjunctions
 STATION_SPEED = 0.0003  # ~1 arc-second of movement
