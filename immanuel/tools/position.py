@@ -43,8 +43,7 @@ def house(object: dict | float, houses: dict) -> dict:
     lon = object["lon"] if isinstance(object, dict) else object
     for house in houses.values():
         lon_diff = swe.difdeg2n(lon, house["lon"])
-        next_cusp_diff = swe.difdeg2n(house["lon"] + house["size"], house["lon"])
-        if 0 <= lon_diff < next_cusp_diff:
+        if 0 <= lon_diff < house["size"]:
             return house
     return {}
 
