@@ -13,6 +13,34 @@ import swisseph as swe
 from immanuel.const import calc, chart
 from immanuel.tools import sweph
 
+_SECT_PLANETS = frozenset(
+    (
+        chart.SUN,
+        chart.MOON,
+        chart.MERCURY,
+        chart.VENUS,
+        chart.MARS,
+        chart.JUPITER,
+        chart.SATURN,
+    )
+)
+
+_DAY_SECT_PLANETS = frozenset(
+    (
+        chart.SUN,
+        chart.JUPITER,
+        chart.SATURN,
+    )
+)
+
+_NIGHT_SECT_PLANETS = frozenset(
+    (
+        chart.MOON,
+        chart.VENUS,
+        chart.MARS,
+    )
+)
+
 
 def is_daytime(jd: float, lat: float, lon: float) -> bool:
     """Returns whether the sun is above the horizon line at the time and
@@ -99,11 +127,13 @@ def is_object_out_of_bounds(
 
 def is_object_in_sect(
     object: dict, is_daytime: bool, sun: dict | float | None = None
-) -> bool:
+) -> bool | None:
     """Returns whether the passed planet is in sect."""
-    if object["index"] in (chart.SUN, chart.JUPITER, chart.SATURN):
+    if object["index"] not in _SECT_PLANETS:
+        return None
+    if object["index"] in _DAY_SECT_PLANETS:
         return is_daytime
-    if object["index"] in (chart.MOON, chart.VENUS, chart.MARS):
+    if object["index"] in _NIGHT_SECT_PLANETS:
         return not is_daytime
     if object["index"] == chart.MERCURY and sun is not None:
         sun_mercury_position = relative_object_position(sun, object)

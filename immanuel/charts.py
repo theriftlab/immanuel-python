@@ -160,23 +160,10 @@ class Chart:
                 object=object,
                 obliquity=self._obliquity,
             )
-            in_sect = (
-                condition.is_object_in_sect(
-                    object=object,
-                    is_daytime=self._diurnal,
-                    sun=self._triad[chart.SUN],
-                )
-                if object["index"]
-                in (
-                    chart.SUN,
-                    chart.MOON,
-                    chart.MERCURY,
-                    chart.VENUS,
-                    chart.MARS,
-                    chart.JUPITER,
-                    chart.SATURN,
-                )
-                else None
+            in_sect = condition.is_object_in_sect(
+                object=object,
+                is_daytime=self._diurnal,
+                sun=self._triad[chart.SUN],
             )
             dignity_state = (
                 dignity.all(
