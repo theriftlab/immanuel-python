@@ -301,6 +301,11 @@ class Object:
         config: Config = DEFAULTS,
     ) -> None:
         self._config = config
+        can_have_movement = can_be_out_of_bounds = object["type"] not in (
+            chart.HOUSE,
+            chart.ANGLE,
+            chart.FIXED_STAR,
+        )
         self.index = object["index"]
         if object["type"] == chart.HOUSE:
             self.number = object["number"]
@@ -323,11 +328,11 @@ class Object:
         if "dist" in object:
             self.distance = object["dist"]
         self.speed = object["speed"]
-        if object["type"] not in (chart.HOUSE, chart.ANGLE, chart.FIXED_STAR):
+        if can_have_movement:
             self.movement = ObjectMovement(object, config=config)
         if "dec" in object:
             self.declination = Angle(object["dec"], round_to=config.angle_precision)
-        if object["type"] not in (chart.HOUSE, chart.ANGLE, chart.FIXED_STAR):
+        if can_be_out_of_bounds:
             self.out_of_bounds = out_of_bounds
         if "size" in object:
             self.size = object["size"]
@@ -338,7 +343,6 @@ class Object:
                 object, dignity_state=dignity_state, config=config
             )
             self.score = dignity.score(dignity_state, config)
-        self._config = config
 
     def __str__(self) -> str:
         formatted = _("{name} {longitude} in {sign}", self._config.locale).format(
@@ -386,12 +390,9 @@ class Sign:
     def __init__(self, number: int, config: Config = DEFAULTS) -> None:
         self.number = number
         self.name = _(names.SIGNS[self.number], config.locale)
-        self.element = _(
-            names.ELEMENTS[position.element((self.number - 1) * 30)], config.locale
-        )
-        self.modality = _(
-            names.MODALITIES[position.modality((self.number - 1) * 30)], config.locale
-        )
+        sign_cusp = (self.number - 1) * 30
+        self.element = _(names.ELEMENTS[position.element(sign_cusp)], config.locale)
+        self.modality = _(names.MODALITIES[position.modality(sign_cusp)], config.locale)
 
     def __str__(self) -> str:
         return self.name
