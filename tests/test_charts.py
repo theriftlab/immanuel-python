@@ -274,6 +274,12 @@ def test_natal(native, lat, lon):
     assert natal_chart.native.coordinates.longitude.formatted == lon
     assert natal_chart.house_system == names.HOUSE_SYSTEMS[config.house_system]
     assert natal_chart.shape == names.CHART_SHAPES[calc.BOWL]
+    assert len(natal_chart.aspect_patterns.t_square) == 1
+    assert (
+        (chart.MOON,) in natal_chart.aspect_patterns.t_square[0]
+        and (chart.SATURN,) in natal_chart.aspect_patterns.t_square[0]
+        and (chart.URANUS,) in natal_chart.aspect_patterns.t_square[0]
+    )
     assert natal_chart.diurnal is True
     assert natal_chart.moon_phase.third_quarter is True
     # Spot-check for correct object positions against astro.com
