@@ -13,7 +13,7 @@
     <img src="https://img.shields.io/pepy/dt/immanuel">
 </p>
 
-#### NOTE: This README and the documentation are for the `master` branch which is often in flux. Please check the docs for your installed release version to ensure they match the code.
+#### NOTE: v1.6.0 introduces breaking changes. Please see the [release notes](https://github.com/theriftlab/immanuel-python/releases/tag/v1.6.0) for details.
 
 Immanuel is a Python >= 3.10 package with a focus on speed, simplicity, and precision. Its classes generate chart-centric astrology data - planets, points, signs, houses, aspects, weightings, and more - based on the [Swiss Ephemeris](https://github.com/sailorfe/pysweph), with progressions and dignity scores modeled on [astro.com](https://astro.com) and [Astro Gold](https://www.astrogold.io). This makes it a breeze to generate natal, solar return, progressed, and composite charts, plus create cross-chart aspects for flexible synastries.
 
