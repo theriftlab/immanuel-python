@@ -83,6 +83,13 @@ def aspect_patterns(aspects: dict) -> dict:
             conjunct, *(clusters[i] for i in conjunct if i in clusters)
         )
         clusters.update(dict.fromkeys(cluster, cluster))
+    # Synastry aspects are not guaranteed bidirectional, so objects in one chart
+    # might end up aspecting objects in the other without receiving an aspect of
+    # its own. Here we ensure the aspects work in both directions, ready for the
+    # aspect graph construction.
+    for aspect_list in aspects.values():
+        for aspected in aspect_list:
+            clusters.setdefault(aspected, frozenset({aspected}))
     # Now build a graph keyed by cluster and aspect, with sets of aspected
     # clusters as values
     aspect_graph = defaultdict(set)
