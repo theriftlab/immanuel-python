@@ -30,7 +30,7 @@ ROUND_NONE = (4, 0)
 
 def dms_to_dec(dms: list | tuple) -> float:
     """Returns the decimal conversion of a D:M:S list."""
-    dec = sum([float(abs(v)) / 60**k for k, v in enumerate(dms[1:])])
+    dec = sum(abs(v) / 60**k for k, v in enumerate(dms[1:]))
     return dec if dms[0] == "+" else -dec
 
 
@@ -53,24 +53,7 @@ def dms_to_string(
 ) -> str:
     """Returns a D:M:S list as either a D:M:S, D°M'S" or
     lat/lon coordinate string."""
-    pad_rounded = (
-        True
-        if format in (FORMAT_LAT, FORMAT_LON)
-        or (pad_rounded is None and format != FORMAT_DMS)
-        else pad_rounded
-    )
-    dms = dec_to_dms(dms_to_dec(dms), round_to, pad_rounded)
-    if format == FORMAT_DMS:
-        return _dms_to_string_format_dms(dms)
-    if format == FORMAT_TIME:
-        return _dms_to_string_format_time(dms)
-    if format == FORMAT_TIME_OFFSET:
-        return _dms_to_string_format_time_offset(dms)
-    if format == FORMAT_LAT:
-        return _dms_to_string_format_lat(dms)
-    if format == FORMAT_LON:
-        return _dms_to_string_format_lon(dms)
-    raise ValueError("Invalid format.")
+    return dec_to_string(dms_to_dec(dms), format, round_to, pad_rounded)
 
 
 def string_to_dms(
@@ -88,7 +71,27 @@ def dec_to_string(
     pad_rounded: bool | None = None,
 ) -> str:
     """Returns a decimal float as either a D:M:S or a D°M'S" string."""
-    return dms_to_string(dec_to_dms(dec, round_to), format, round_to, pad_rounded)
+    pad_rounded = (
+        True
+        if format in (FORMAT_LAT, FORMAT_LON)
+        or (pad_rounded is None and format != FORMAT_DMS)
+        else pad_rounded
+    )
+    dms = dec_to_dms(dec, round_to, pad_rounded)
+    # Ensure values rounded to zero are positive
+    if not any(dms[1:]):
+        dms = ("+", *dms[1:])
+    if format == FORMAT_DMS:
+        return _dms_to_string_format_dms(dms)
+    if format == FORMAT_TIME:
+        return _dms_to_string_format_time(dms)
+    if format == FORMAT_TIME_OFFSET:
+        return _dms_to_string_format_time_offset(dms)
+    if format == FORMAT_LAT:
+        return _dms_to_string_format_lat(dms)
+    if format == FORMAT_LON:
+        return _dms_to_string_format_lon(dms)
+    raise ValueError("Invalid format.")
 
 
 def string_to_dec(string: str) -> float:
