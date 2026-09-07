@@ -114,8 +114,8 @@ class Chart:
         """Loop through the required data and wrap each one with a custom
         function."""
         for index in self._config.chart_data[self._type]:
-            if index in self._wrap_functions:
-                self._wrap_functions[index]()
+            if wrap := self._wrap_functions.get(index):
+                wrap()
 
     # Base class provides wrappers for properties common to all classes.
     def wrap_native(self) -> None:
@@ -217,11 +217,10 @@ class Chart:
 
     def wrap_aspects(self) -> None:
         def resolve_object_name(index: int) -> str:
-            if index in self._objects:
-                return self._objects[index]["name"]
-            elif self._aspects_to and index in self._aspects_to._objects:
-                return self._aspects_to._objects[index]["name"]
-            return ""
+            object = self._objects.get(index) or (
+                self._aspects_to and self._aspects_to._objects.get(index)
+            )
+            return object["name"] if object else ""
 
         self.aspects = {
             index: {
