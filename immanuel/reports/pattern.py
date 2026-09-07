@@ -129,15 +129,10 @@ def aspect_patterns(aspects: dict) -> dict:
         for vertices, match in candidate.items():
             # Only register this pattern if it isn't a subset of a larger one
             if not any(vertices < competing for competing in vertex_sets):
-                patterns.setdefault(aspect_pattern, []).append(match)
-    # Convert our frozensets into tuples
-    return {
-        k: [
-            tuple(tuple(vertex_indices) for vertex_indices in vertices)
-            for vertices in v
-        ]
-        for k, v in patterns.items()
-    }
+                patterns.setdefault(aspect_pattern, []).append(
+                    tuple(tuple(vertex_indices) for vertex_indices in match)
+                )
+    return patterns
 
 
 def chart_shape(objects: dict, config: Config = DEFAULTS) -> int:
