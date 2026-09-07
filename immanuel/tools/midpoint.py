@@ -19,10 +19,10 @@ def all(objects1: dict, objects2: dict, obliquity: float | None = None) -> dict:
     """Takes two dicts of chart objects typically returned by the ephemeris
     module and returns the averaged data for both sets as a third dict of
     composite objects."""
-    objects = {}
-    for index, object in objects1.items():
-        objects[index] = composite(object, objects2[index], obliquity)
-    return objects
+    return {
+        index: composite(object, objects2[index], obliquity)
+        for index, object in objects1.items()
+    }
 
 
 def composite(object1: dict, object2: dict, obliquity: float | None = None) -> dict:

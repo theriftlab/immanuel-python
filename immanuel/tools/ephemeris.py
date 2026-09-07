@@ -313,9 +313,8 @@ def _get_objects(
     armc_obliquity: float | None,
 ) -> dict:
     """Function for get_objects() and armc_get_objects()."""
-    objects = {}
-    for index in object_list:
-        objects[index] = _get(
+    return {
+        index: _get(
             index=index,
             jd=jd,
             lat=lat,
@@ -325,7 +324,8 @@ def _get_objects(
             armc=armc,
             armc_obliquity=armc_obliquity,
         )
-    return objects
+        for index in object_list
+    }
 
 
 def _get(
