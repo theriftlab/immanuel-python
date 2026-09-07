@@ -163,12 +163,23 @@ def test_aspect_pattern(aspect_objects):
         aspects = aspect.all(test_objects, config=config)
         aspect_patterns = pattern.aspect_patterns(aspects)
         assert pattern_type in aspect_patterns
+        assert len(aspect_patterns[pattern_type]) == 1
+        assert len(aspect_patterns[pattern_type][0]) == len(angles)
+        vertex_sizes = [len(vertex) for vertex in aspect_patterns[pattern_type][0]]
+        assert all(size == 1 for size in vertex_sizes)
         # test conjunct vertices by adding Pluto conjunct Sun for every pattern
         test_objects[chart.PLUTO] = aspect_objects[chart.PLUTO] | {"lon": 0.0}
         aspects = aspect.all(test_objects, config=config)
         aspect_patterns = pattern.aspect_patterns(aspects)
         assert pattern_type in aspect_patterns
         assert len(aspect_patterns[pattern_type]) == 1
+        assert len(aspect_patterns[pattern_type][0]) == len(angles)
+        vertex_sizes = [len(vertex) for vertex in aspect_patterns[pattern_type][0]]
+        assert (
+            vertex_sizes.count(2) == 1
+            and vertex_sizes.count(1) == len(vertex_sizes) - 1
+        )
+
         # ensure nested patterns don't show
         if pattern_type == calc.GRAND_CROSS:
             assert calc.T_SQUARE not in aspect_patterns
