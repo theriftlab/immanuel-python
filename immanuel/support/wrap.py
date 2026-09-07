@@ -116,6 +116,33 @@ class AspectMovement:
         return self.formatted
 
 
+class AspectPatterns:
+    def __init__(self, aspect_patterns: dict, config: Config = DEFAULTS) -> None:
+        self._aspect_patterns = aspect_patterns
+        self._config = config
+        self.t_square = aspect_patterns.get(calc.T_SQUARE, [])
+        self.grand_trine = aspect_patterns.get(calc.GRAND_TRINE, [])
+        self.yod = aspect_patterns.get(calc.YOD, [])
+        self.grand_cross = aspect_patterns.get(calc.GRAND_CROSS, [])
+        self.kite = aspect_patterns.get(calc.KITE, [])
+        self.mystic_rectangle = aspect_patterns.get(calc.MYSTIC_RECTANGLE, [])
+        self.cradle = aspect_patterns.get(calc.CRADLE, [])
+        self.grand_sextile = aspect_patterns.get(calc.GRAND_SEXTILE, [])
+        self.grand_quintile = aspect_patterns.get(calc.GRAND_QUINTILE, [])
+
+    def __str__(self) -> str:
+        return (
+            ", ".join(
+                f"{_(names.ASPECT_PATTERNS[pattern_type], self._config.locale)}: "
+                + str(len(patterns))
+                for pattern_type, patterns in self._aspect_patterns.items()
+                if patterns
+            )
+            if self._aspect_patterns
+            else "None"
+        )
+
+
 class Coordinates:
     def __init__(self, latitude: float, longitude: float) -> None:
         self.latitude = Angle(latitude, format=convert.FORMAT_LAT)

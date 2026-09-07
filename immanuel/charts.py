@@ -71,10 +71,12 @@ class Chart:
         }
         self._objects: dict
         self._houses: dict
+        self._aspects: dict
         self._wrap_functions = {
             data.NATIVE: self.wrap_native,
             data.HOUSE_SYSTEM: self.wrap_house_system,
             data.SHAPE: self.wrap_shape,
+            data.ASPECT_PATTERNS: self.wrap_aspect_patterns,
             data.DIURNAL: self.wrap_diurnal,
             data.MOON_PHASE: self.wrap_moon_phase,
             data.OBJECTS: self.wrap_objects,
@@ -83,6 +85,7 @@ class Chart:
             data.WEIGHTINGS: self.wrap_weightings,
         } | self._wrap_functions
         self.generate()
+        self.set_aspects()
         self.wrap()
 
     def house_for(self, object: wrap.Object) -> int:
@@ -95,6 +98,17 @@ class Chart:
         """Generating the raw data is each descendant class's
         responsibility."""
         pass
+
+    def set_aspects(self) -> None:
+        """Set the chart's aspects based on the generated data. Since this is
+        step common to all chart types, we do it in the base class."""
+        self._aspects = (
+            aspect.all(self._objects, config=self._config)
+            if self._aspects_to is None
+            else aspect.synastry(
+                self._objects, self._aspects_to._objects, config=self._config
+            )
+        )
 
     def wrap(self) -> None:
         """Loop through the required data and wrap each one with a custom
@@ -116,6 +130,14 @@ class Chart:
         self.shape = _(
             names.CHART_SHAPES[pattern.chart_shape(self._objects, config=self._config)],
             self._config.locale,
+        )
+
+    def wrap_aspect_patterns(self) -> None:
+        self.aspect_patterns = wrap.AspectPatterns(
+            pattern.aspect_patterns(
+                self._aspects,
+            ),
+            config=self._config,
         )
 
     def wrap_diurnal(self) -> None:
@@ -201,13 +223,6 @@ class Chart:
                 return self._aspects_to._objects[index]["name"]
             return ""
 
-        aspects = (
-            aspect.all(self._objects, config=self._config)
-            if self._aspects_to is None
-            else aspect.synastry(
-                self._objects, self._aspects_to._objects, config=self._config
-            )
-        )
         self.aspects = {
             index: {
                 object_index: wrap.Aspect(
@@ -218,7 +233,7 @@ class Chart:
                 )
                 for object_index, object_aspect in aspect_list.items()
             }
-            for index, aspect_list in aspects.items()
+            for index, aspect_list in self._aspects.items()
         }
 
     def wrap_weightings(self) -> None:

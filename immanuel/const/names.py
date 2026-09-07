@@ -232,6 +232,18 @@ CHART_SHAPES = {
     calc.SPLASH: "Splash",
 }
 
+ASPECT_PATTERNS = {
+    calc.T_SQUARE: "T-Square",
+    calc.GRAND_TRINE: "Grand Trine",
+    calc.YOD: "Yod",
+    calc.GRAND_CROSS: "Grand Cross",
+    calc.KITE: "Kite",
+    calc.MYSTIC_RECTANGLE: "Mystic Rectangle",
+    calc.CRADLE: "Cradle",
+    calc.GRAND_SEXTILE: "Grand Sextile",
+    calc.GRAND_QUINTILE: "Grand Quintile",
+}
+
 PROGRESSION_METHODS = {
     calc.NAIBOD: "Naibod",
     calc.SOLAR_ARC: "Solar Arc",
