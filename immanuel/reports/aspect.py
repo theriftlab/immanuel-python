@@ -38,17 +38,15 @@ def between(object1: dict, object2: dict, config: Config = DEFAULTS) -> dict:
         passive["index"], config.default_aspect_rule
     )
     # Intersect the aspects each object can make with the ones allowed by the config
-    valid_aspects = [
-        aspect
-        for aspect in (
-            set(active_aspect_rule["initiate"]) & set(passive_aspect_rule["receive"])
+    valid_aspects = set(active_aspect_rule["initiate"]).intersection(
+        passive_aspect_rule["receive"], config.aspects
+    )
+    # Distinguish major vs minor aspects for prioritization
+    major_aspects, minor_aspects = [], []
+    for aspect in valid_aspects:
+        (major_aspects if aspect in config.major_aspects else minor_aspects).append(
+            aspect
         )
-        if aspect in config.aspects
-    ]
-    # Ordering by major first favors more significant aspects if multiple are found
-    check_aspects = [
-        aspect for aspect in valid_aspects if aspect in config.major_aspects
-    ] + [aspect for aspect in valid_aspects if aspect not in config.major_aspects]
     # Get the orbs & actual distance
     active_orbs = config.orbs.get(active["index"], config.planet_orbs)
     passive_orbs = config.orbs.get(passive["index"], config.planet_orbs)
@@ -56,7 +54,7 @@ def between(object1: dict, object2: dict, config: Config = DEFAULTS) -> dict:
     distance = swe.difdeg2n(passive["lon"], active["lon"])
     separation = abs(distance)
     # Perform the actual aspect search
-    for aspect in check_aspects:
+    for aspect in major_aspects + minor_aspects:
         active_orb = active_orbs.get(aspect, default_orb)
         passive_orb = passive_orbs.get(aspect, default_orb)
         orb = (
