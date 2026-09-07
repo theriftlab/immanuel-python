@@ -50,6 +50,6 @@ def quadrants(objects: dict, houses: dict) -> dict:
     }
     for object in objects.values():
         house = position.house(object, houses)
-        quadrant = int((house["number"] - 1) / 3) + 1
+        quadrant = (house["number"] - 1) // 3 + 1
         weightings[quadrant].append(object["index"])
     return weightings

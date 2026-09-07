@@ -41,19 +41,17 @@ def house(object: dict | float, houses: dict) -> dict:
     """Given a object and a dict of houses from the ephemeris module, this
     returns which house the object is in."""
     lon = object["lon"] if isinstance(object, dict) else object
-    for house in houses.values():
-        lon_diff = swe.difdeg2n(lon, house["lon"])
-        if 0 <= lon_diff < house["size"]:
-            return house
+    for h in houses.values():
+        lon_diff = swe.difdeg2n(lon, h["lon"])
+        if 0 <= lon_diff < h["size"]:
+            return h
     return {}
 
 
 def opposite_house(object: dict | float, houses: dict) -> int:
     """Given a object and a dict of houses from the ephemeris
     module, this returns the house opposite where the object is."""
-    house_number = house(
-        (object["lon"] if isinstance(object, dict) else object), houses
-    )["number"]
+    house_number = house(object, houses)["number"]
     index = chart.HOUSE + house_number + (6 if house_number <= 6 else -6)
     return houses[index]
 

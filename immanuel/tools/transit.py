@@ -172,10 +172,7 @@ def _aspect_search(
         if diff <= calc.MAX_ERROR:
             return jd
         add = direction
-        speed = abs(
-            max(planet1["speed"], planet2["speed"])
-            - min(planet1["speed"], planet2["speed"])
-        )
+        speed = abs(planet1["speed"] - planet2["speed"])
         if diff < speed:
             add *= diff / 180
         jd += add
