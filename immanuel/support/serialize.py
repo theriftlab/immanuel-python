@@ -16,6 +16,4 @@ class ToJSON(JSONEncoder):
             return o.__json__()
         if hasattr(o, "__dict__"):
             return {k: v for k, v in o.__dict__.items() if k[0] != "_"}
-        if hasattr(o, "__str__"):
-            return str(o)
-        return None
+        return str(o)
