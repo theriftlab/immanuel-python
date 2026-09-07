@@ -22,6 +22,7 @@ from zoneinfo import ZoneInfo
 import swisseph as swe
 from dateutil import tz
 
+from immanuel.support.timezone import TimezoneFinder
 from immanuel.tools import convert
 
 
@@ -105,7 +106,7 @@ def to_jd(
             date_time_utc.second + date_time_utc.microsecond / 1_000_000,
         )
     )
-    return swe.julday(*date_time_utc.timetuple()[0:3], hour)
+    return swe.julday(date_time_utc.year, date_time_utc.month, date_time_utc.day, hour)
 
 
 def localize(
@@ -140,9 +141,7 @@ def get_timezone(
 
 def timezone_lookup(lat: float, lon: float) -> str:
     """Returns a timezone string based on decimal lat/lon coordinates."""
-    from timezonefinder import TimezoneFinder
-
-    return TimezoneFinder().timezone_at(lat=lat, lng=lon)
+    return TimezoneFinder.timezone_at(lat, lon)
 
 
 def timezone_name(dt: datetime) -> str | None:
@@ -158,7 +157,8 @@ def ambiguous(dt: datetime) -> bool:
 def deltat(jd: float, seconds: bool = False) -> float:
     """Return the Delta-T value of the passed Julian date. Optionally it
     will return this value in seconds."""
-    return swe.deltat(jd) if not seconds else swe.deltat(jd) * 24 * 3600
+    days = swe.deltat(jd)
+    return days * 24 * 3600 if seconds else days
 
 
 def sidereal_time(armc: float) -> float:
