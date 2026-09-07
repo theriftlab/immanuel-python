@@ -113,6 +113,8 @@ For example, below shows a T-square between the Moon, Saturn, and Uranus. If Mar
 }
 ```
 
+Note: quintiles and biquintiles are not calculated by default, so `grand_quintile` will never appear without those aspects being added to the config.
+
 ### `natal.diurnal`
 
 #### boolean
