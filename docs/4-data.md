@@ -67,6 +67,52 @@ The overall chart shape formed by the planets. To change which chart objects thi
 "Bowl"
 ```
 
+### `natal.aspect_patterns`
+
+#### object
+
+A summary of any major patterns formed by your chart's aspects. Patterns currently supported:
+
+- T-square
+- Grand trine
+- Yod
+- Grand cross
+- Kite
+- Mystic rectangle
+- Cradle
+- Grand sextile
+- Grand quintile
+
+Any patterns reported here will contain a tuple of the indices of the chart objects forming the pattern(s). Each object index itself will be a tuple, however - this is to neatly deal with conjunctions on the pattern's vertices to prevent them triggering multiple matches for what is essentially the same pattern.
+
+For example, below shows a T-square between the Moon, Saturn, and Uranus. If Mars had been conjunct Uranus, then a naive search might have reported a 2nd T-square between the Moon, Saturn, and Mars. However, rather than overlap like this, Immanuel will fold Mars into Uranus' tuple and the JSON below would show `[4000006, 4000009]` as the 2nd vertex.
+
+```json
+{
+    "t_square": [
+        [
+            [
+                4000002
+            ],
+            [
+                4000009
+            ],
+            [
+                4000008
+            ]
+        ]
+    ],
+    "grand_trine": [],
+    "yod": [],
+    "grand_cross": [],
+    "kite": [],
+    "mystic_rectangle": [],
+    "cradle": [],
+    "grand_sextile": [],
+    "grand_quintile": []
+}
+```
+
 ### `natal.diurnal`
 
 #### boolean

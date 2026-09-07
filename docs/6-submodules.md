@@ -26,7 +26,7 @@ These submodules represent Immanuel's backbone and therefore contain far too muc
 | --- | --- |
 | aspect | Calculates all aspects between a chart's objects, based on the settings. |
 | dignity | Calculates a chart object's dignity state, and assigns it an Astro Gold-style score based on the settings. |
-| pattern | Finds which pattern a chart's objects make. |
+| pattern | Finds aspect patterns and also which pattern a chart's objects make. |
 | weighting | Provides breakdowns of a chart's objects between element, modality, and house quadrants. |
 
 ---
