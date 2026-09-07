@@ -31,15 +31,11 @@ def between(object1: dict, object2: dict, config: Config = DEFAULTS) -> dict:
         )
         else (object2, object1)
     )
-    active_aspect_rule = (
-        config.aspect_rules[active["index"]]
-        if active["index"] in config.aspect_rules
-        else config.default_aspect_rule
+    active_aspect_rule = config.aspect_rules.get(
+        active["index"], config.default_aspect_rule
     )
-    passive_aspect_rule = (
-        config.aspect_rules[passive["index"]]
-        if passive["index"] in config.aspect_rules
-        else config.default_aspect_rule
+    passive_aspect_rule = config.aspect_rules.get(
+        passive["index"], config.default_aspect_rule
     )
     # Intersect the aspects each object can make with the ones allowed by the config
     valid_aspects = [
@@ -54,23 +50,15 @@ def between(object1: dict, object2: dict, config: Config = DEFAULTS) -> dict:
         aspect for aspect in valid_aspects if aspect in config.major_aspects
     ] + [aspect for aspect in valid_aspects if aspect not in config.major_aspects]
     # Get the orbs & actual distance
-    active_orbs = (
-        config.orbs[active["index"]]
-        if active["index"] in config.orbs
-        else config.planet_orbs
-    )
-    passive_orbs = (
-        config.orbs[passive["index"]]
-        if passive["index"] in config.orbs
-        else config.planet_orbs
-    )
+    active_orbs = config.orbs.get(active["index"], config.planet_orbs)
+    passive_orbs = config.orbs.get(passive["index"], config.planet_orbs)
     default_orb = config.default_orb
     distance = swe.difdeg2n(passive["lon"], active["lon"])
     separation = abs(distance)
     # Perform the actual aspect search
     for aspect in check_aspects:
-        active_orb = active_orbs[aspect] if aspect in active_orbs else default_orb
-        passive_orb = passive_orbs[aspect] if aspect in passive_orbs else default_orb
+        active_orb = active_orbs.get(aspect, default_orb)
+        passive_orb = passive_orbs.get(aspect, default_orb)
         orb = (
             ((active_orb + passive_orb) / 2)
             if config.orb_calculation == calc.MEAN
