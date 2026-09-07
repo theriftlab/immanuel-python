@@ -376,9 +376,10 @@ DEFAULTS = FrozenConfig(Config())
 Everything below is global / per-process rather than per-chart.
 """
 
-_DEFAULT_SWE_FILE_PATH = (
-    f"{os.path.dirname(__file__)}{os.sep}resources{os.sep}ephemeris"
+_DEFAULT_SWE_FILE_PATH = os.path.join(
+    os.path.dirname(__file__), "resources", "ephemeris"
 )
+
 _swe_file_path = _DEFAULT_SWE_FILE_PATH
 
 
@@ -393,10 +394,10 @@ def add_swe_filepath(path: str, default: bool = False) -> None:
     if default:
         _swe_file_path = path
     else:
-        extra_path = f"{os.pathsep}{path}"
-        if _swe_file_path.endswith(extra_path):
-            return
-        _swe_file_path += extra_path
+        paths = _swe_file_path.split(os.pathsep)
+        if path not in paths:
+            paths.append(path)
+            _swe_file_path = os.pathsep.join(paths)
     set_swe_filepath()
 
 

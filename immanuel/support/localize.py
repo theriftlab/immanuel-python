@@ -22,7 +22,7 @@ _TRANSLATIONS = {}
 
 _CONTEXTS = {}
 
-_LOCALEDIR = f"{os.path.dirname(__file__)}{os.sep}..{os.sep}locales"
+_LOCALEDIR = os.path.join(os.path.dirname(__file__), "..", "locales")
 
 
 class Stringable(Protocol):
