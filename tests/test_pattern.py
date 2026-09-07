@@ -3,8 +3,8 @@ This file is part of immanuel - (C) The Rift Lab
 Author: Robert Davies (robert@theriftlab.com)
 
 
-Test various birth charts with known chart shapes.
-Celebrity natal chart data & chart shapes courtesy of
+Test aspect pattern detection and various birth charts with known
+chart shapes. Celebrity natal chart data & chart shapes are courtesy of
 https://horoscopes.astro-seek.com
 
 """
@@ -13,9 +13,66 @@ from datetime import datetime
 
 from pytest import fixture
 
+from immanuel import charts
 from immanuel.const import calc, chart
-from immanuel.reports import pattern
+from immanuel.reports import aspect, pattern
 from immanuel.tools import convert, date, ephemeris
+
+
+@fixture
+def aspect_objects():
+    return {
+        chart.SUN: {
+            "index": chart.SUN,
+            "speed": 0.0,
+            "lon": None,
+        },
+        chart.MOON: {
+            "index": chart.MOON,
+            "speed": 0.0,
+            "lon": None,
+        },
+        chart.MERCURY: {
+            "index": chart.MERCURY,
+            "speed": 0.0,
+            "lon": None,
+        },
+        chart.VENUS: {
+            "index": chart.VENUS,
+            "speed": 0.0,
+            "lon": None,
+        },
+        chart.MARS: {
+            "index": chart.MARS,
+            "speed": 0.0,
+            "lon": None,
+        },
+        chart.JUPITER: {
+            "index": chart.JUPITER,
+            "speed": 0.0,
+            "lon": None,
+        },
+        chart.SATURN: {
+            "index": chart.SATURN,
+            "speed": 0.0,
+            "lon": None,
+        },
+        chart.URANUS: {
+            "index": chart.URANUS,
+            "speed": 0.0,
+            "lon": None,
+        },
+        chart.NEPTUNE: {
+            "index": chart.NEPTUNE,
+            "speed": 0.0,
+            "lon": None,
+        },
+        chart.PLUTO: {
+            "index": chart.PLUTO,
+            "speed": 0.0,
+            "lon": None,
+        },
+    }
 
 
 @fixture
@@ -80,6 +137,43 @@ def birth_data():
             "dob": "1902-01-01 10:00:00",
         },
     }
+
+
+def test_aspect_pattern(aspect_objects):
+    vertices = {
+        calc.T_SQUARE: (0, 90, 180),
+        calc.GRAND_TRINE: (0, 120, 240),
+        calc.YOD: (0, 60, 210),
+        calc.GRAND_CROSS: (0, 90, 180, 270),
+        calc.KITE: (0, 120, 180, 240),
+        calc.MYSTIC_RECTANGLE: (0, 60, 180, 240),
+        calc.CRADLE: (0, 60, 120, 180),
+        calc.GRAND_SEXTILE: (0, 60, 120, 180, 240, 300),
+        calc.GRAND_QUINTILE: (0, 72, 144, 216, 288),
+    }
+
+    config = charts.Config()
+    config.aspects += (calc.QUINTILE, calc.BIQUINTILE)
+    for pattern_type, angles in vertices.items():
+        test_objects = {
+            aspect_objects[index]["index"]: aspect_objects[index] | {"lon": lon}
+            for index, lon in zip(aspect_objects, angles)
+        }
+        # test straightforward patterns
+        aspects = aspect.all(test_objects, config=config)
+        aspect_patterns = pattern.aspect_patterns(aspects)
+        assert pattern_type in aspect_patterns
+        # test conjunct vertices by adding Pluto conjunct Sun for every pattern
+        test_objects[chart.PLUTO] = aspect_objects[chart.PLUTO] | {"lon": 0.0}
+        aspects = aspect.all(test_objects, config=config)
+        aspect_patterns = pattern.aspect_patterns(aspects)
+        assert pattern_type in aspect_patterns
+        assert len(aspect_patterns[pattern_type]) == 1
+        # ensure nested patterns don't show
+        if pattern_type == calc.GRAND_CROSS:
+            assert calc.T_SQUARE not in aspect_patterns
+        elif pattern_type == calc.KITE:
+            assert calc.GRAND_TRINE not in aspect_patterns
 
 
 def test_chart_shape(object_indices, birth_data):
