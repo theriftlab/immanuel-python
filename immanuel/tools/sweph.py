@@ -71,7 +71,7 @@ def planet(index: int, jd: float) -> dict:
     """Returns a planet by Julian date. Can be used to return the six
     major asteroids supported by pysweph without using a separate file."""
     ec_res = swe.calc_ut(jd, _SWE[index])[0]
-    eq_res = swe.cotrans((ec_res[0], ec_res[1], ec_res[2]), -true_earth_obliquity(jd))
+    eq_res = swe.cotrans(ec_res[:3], -true_earth_obliquity(jd))
     asteroid = type_of(index) == chart.ASTEROID
     return {
         "index": index,
@@ -92,7 +92,7 @@ def asteroid(index: int, jd: float) -> dict:
     swe_index = index + swe.AST_OFFSET
     name = swe.get_planet_name(swe_index)
     ec_res = swe.calc_ut(jd, swe_index)[0]
-    eq_res = swe.cotrans((ec_res[0], ec_res[1], ec_res[2]), -true_earth_obliquity(jd))
+    eq_res = swe.cotrans(ec_res[:3], -true_earth_obliquity(jd))
     return {
         "index": index,
         "type": chart.ASTEROID,
@@ -133,7 +133,7 @@ def pre_post_natal_eclipse(
         chart.POST_NATAL_LUNAR_ECLIPSE: swe.MOON,
     }[index]
     ec_res = swe.calc_ut(eclipse_jd, eclipse_object)[0]
-    eq_res = swe.cotrans((ec_res[0], ec_res[1], ec_res[2]), -true_earth_obliquity(jd))
+    eq_res = swe.cotrans(ec_res[:3], -true_earth_obliquity(jd))
     return {
         "index": index,
         "type": chart.ECLIPSE,
@@ -257,6 +257,9 @@ def angles_houses_vertex(
     along with their speeds. Defaults to Placidus for main angles & vertex if
     a PLANET_ON_FIRST house system is chosen. Based on Julian date and
     lat / lon coordinates."""
+    swe_house_system = _SWE[
+        house_system if house_system < chart.PLANET_ON_FIRST else chart.PLACIDUS
+    ]
     if armc is not None:
         if lat is None or armc_obliquity is None:
             raise TypeError(
@@ -266,9 +269,7 @@ def angles_houses_vertex(
             armc,
             lat,
             armc_obliquity,
-            _SWE[
-                house_system if house_system < chart.PLANET_ON_FIRST else chart.PLACIDUS
-            ],
+            swe_house_system,
         )
         return _angles_houses_vertex_from_sweph(
             armc_obliquity,
@@ -285,9 +286,7 @@ def angles_houses_vertex(
             jd,
             lat,
             lon,
-            _SWE[
-                house_system if house_system < chart.PLANET_ON_FIRST else chart.PLACIDUS
-            ],
+            swe_house_system,
         )
         return _angles_houses_vertex_from_sweph(
             true_earth_obliquity(jd),
