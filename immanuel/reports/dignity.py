@@ -33,13 +33,10 @@ def triplicity_ruler(
 ) -> bool:
     """Returns whether the passed planet is any type of triplicity ruler."""
     triplicities = config.triplicities[position.sign(object)]
-    if config.include_participatory_triplicities:
-        return object["index"] in (
-            triplicities["day" if is_daytime else "night"],
-            triplicities.get("participatory"),
-        )
-    else:
-        return object["index"] == triplicities["day" if is_daytime else "night"]
+    rulers = {triplicities["day" if is_daytime else "night"]}
+    if config.include_participatory_triplicities and "participatory" in triplicities:
+        rulers.add(triplicities["participatory"])
+    return object["index"] in rulers
 
 
 def term_ruler(object: dict, config: Config = DEFAULTS) -> bool:
@@ -132,8 +129,9 @@ def mutual_reception_term_ruler(
     by term rulership."""
     if term_ruler(object, config):
         return False
+    object_lon = position.sign_longitude(object)
     for index, boundaries in config.terms[position.sign(object)].items():
-        if boundaries[0] <= position.sign_longitude(object) < boundaries[1]:
+        if boundaries[0] <= object_lon < boundaries[1]:
             term_ruler_terms = config.terms[position.sign(objects[index])]
             return (
                 object["index"] in term_ruler_terms
@@ -235,11 +233,9 @@ def all(
 def score(dignity_state: dict, config: Config = DEFAULTS) -> int:
     """Calculates a planet's dignity score based on config."""
     return sum(
-        [
-            v
-            for k, v in config.dignity_scores.items()
-            if k in dignity_state and dignity_state[k]
-        ]
+        dignity_score
+        for dignity_type, dignity_score in config.dignity_scores.items()
+        if dignity_state.get(dignity_type)
     )
 
 
