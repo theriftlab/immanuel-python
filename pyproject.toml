@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=77.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -9,18 +9,28 @@ description = "Quickly produce both human-readable and JSON-formatted astrology 
 authors = [
   { name = "Robert Davies", email = "robert@theriftlab.com" },
 ]
+license = "AGPL-3.0-or-later"
 license-files = ["LICENSE.md"]
 readme = "README.md"
 keywords = ["astrology", "api", "pyswisseph", "pysweph", "swisseph", "swiss ephemeris", "astro.com", "astro gold"]
 classifiers = [
-    "Programming Language :: Python :: 3",
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
     "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 requires-python = ">=3.10"
 dependencies = [
     "pysweph>=2.10.3.3",
-    "python-dateutil",
-    "scipy",
+    "python-dateutil>=2.8.2",
+    "scipy>=1.10",
     "timezonefinder~=5.2",
 ]
 
@@ -31,10 +41,22 @@ dev = [
     "scipy-stubs",
 ]
 
-[tool.ruff.lint]
-select = ["E", "F", "I"]
-
 [project.urls]
 "Homepage" = "https://github.com/theriftlab/immanuel-python"
 "Documentation" = "https://github.com/theriftlab/immanuel-python/blob/master/docs/1-overview.md"
 "Bug Tracker" = "https://github.com/theriftlab/immanuel-python/issues"
+
+[tool.setuptools.packages.find]
+include = ["immanuel*"]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.ruff]
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
