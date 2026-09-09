@@ -54,9 +54,16 @@ def astro():
         # angle
         chart.ASC: {
             "lon": "05°36'38\"",
-            # This is the only figure disagreeing with astro.com (~1 arcsec)
-            # and nobody knows why. It is not mean vs true obliquty, or a Delta-T thing.
-            # "dec": "-09°27'13\"",
+            # This is the only figure disagreeing with astro.com (by ~1 arcsec).
+            # See tests/test_midpoint.py for a similar one-off discrepancy with
+            # composite Neptune's speed. According to astro.com's swetest, their
+            # underlying declination figure is identical to Immanuel's at
+            # -9.4534709, so this is no doubt due to astro.com's underlying
+            # legacy software which still uses centiseconds in various places.
+            # Rounding the 12.4950867" to 1250 centiseconds would then round up
+            # the seconds to 13", whereas we round directly down to 12".
+            "dec": "-09°27'13\"",
+            "raw_dec": -9.4534709,  # Hard-coded value from swetest
         },
         # house
         chart.HOUSE2: {
@@ -299,6 +306,7 @@ def test_angle(p_jd, p_coords, p_armc, p_astro):
         convert.dec_to_string(position.sign_longitude(asc["lon"]))
         == astro[chart.ASC]["lon"]
     )
+    assert round(asc["dec"], 7) == astro[chart.ASC]["raw_dec"]
     # assert convert.dec_to_string(asc["dec"]) == astro[chart.ASC]["dec"]
 
 

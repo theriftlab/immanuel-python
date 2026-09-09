@@ -104,10 +104,17 @@ def astro():
             "sign": chart.PISCES,
             "lon": "02°39'48\"",
             "lat": "00°00'00\"",
-            # This is the only figure disagreeing with astro.com (~1 arcsec)
-            # and nobody knows why. It is not mean vs true obliquty, or a Delta-T thing.
-            # 'speed': '00°01\'18"',
+            # This is the only figure disagreeing with astro.com (by ~1 arcsec).
+            # See tests/test_sweph.py for a similar one-off discrepancy with the
+            # Asc declination. According to swetest, the mean speed here is:
+            # (0.0356242 + 0.0074300) / 2 = 0.0215271 which agrees with Immanuel
+            # exactly, so this is no doubt due to astro.com's underlying
+            # legacy software which still uses centiseconds in various places.
+            # Rounding the 17.4976032" to 1750 centiseconds would then round up
+            # the seconds to 18", whereas we round directly down to 17".
+            "speed": "00°01'18\"",
             "dec": "-10°31'28\"",
+            "raw_speed": 0.0215271,  # Hard-coded value from swetest
         },
         chart.PLUTO: {
             "sign": chart.CAPRICORN,
@@ -149,7 +156,10 @@ def test_all(coords, jd1, jd2, obliquity, astro):
         assert convert.dec_to_string(sign_lon) == astro[index]["lon"]
         for key in ("lat", "speed", "dec"):
             if key in astro[index] and key in composite:
-                assert convert.dec_to_string(composite[key]) == astro[index][key]
+                if index == chart.NEPTUNE and key == "speed":
+                    assert round(composite["speed"], 7) == astro[index]["raw_speed"]
+                else:
+                    assert convert.dec_to_string(composite[key]) == astro[index][key]
 
 
 def test_composite(coords, jd1, jd2, obliquity, astro):
@@ -168,7 +178,10 @@ def test_composite(coords, jd1, jd2, obliquity, astro):
         assert convert.dec_to_string(sign_lon) == astro[index]["lon"]
         for key in ("lat", "speed", "dec"):
             if key in astro[index] and key in composite:
-                assert convert.dec_to_string(composite[key]) == astro[index][key]
+                if index == chart.NEPTUNE and key == "speed":
+                    assert round(composite["speed"], 7) == astro[index]["raw_speed"]
+                else:
+                    assert convert.dec_to_string(composite[key]) == astro[index][key]
 
 
 def test_obliquity(jd1, jd2):
