@@ -13,7 +13,7 @@
     <img src="https://img.shields.io/pepy/dt/immanuel">
 </p>
 
-#### NOTE: v1.6.0 introduces breaking changes. Please see the [release notes](https://github.com/theriftlab/immanuel-python/releases/tag/v1.6.0) for details.
+#### NOTE: v1.6.x introduces breaking changes from 1.5.x. Please see the [v1.6.0 release notes](https://github.com/theriftlab/immanuel-python/releases/tag/v1.6.0) for details.
 
 Immanuel is a Python >= 3.10 package with a focus on speed, simplicity, and precision. Its classes generate chart-centric astrology data - planets, points, signs, houses, aspects, weightings, and more - based on the [Swiss Ephemeris](https://github.com/sailorfe/pysweph), with progressions and dignity scores modeled on [astro.com](https://astro.com) and [Astro Gold](https://www.astrogold.io). This makes it a breeze to generate natal, solar return, progressed, and composite charts, plus create cross-chart aspects for flexible synastries.
 
@@ -92,7 +92,7 @@ for object in natal.objects.values():
 # Ceres 04°30'28" in Libra, 7th House
 ```
 
-We can see much more data by serializing the chart's properties (or even the whole chart itself) to JSON. See  like this:
+We can see much more data by serializing the chart's properties (or even the whole chart itself) to JSON. For example, to see the Sun's full dataset:
 
 ```python
 import json
@@ -112,7 +112,7 @@ natal = charts.Natal(native)
 print(json.dumps(natal.objects[chart.SUN], cls=charts.ToJSON, indent=4))
 ```
 
-Which will output each of the chart's objects in this format:
+Which will output this:
 
 ```json
 {
@@ -235,7 +235,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 * [@aloistr](https://github.com/aloistr) / Alois Treindl and Dieter Koch at Astrodienst for the mighty [Swiss Ephemeris](https://github.com/aloistr/swisseph)
 * [@astrorigin](https://github.com/astrorigin) / Stanislas Marquis for the OG Python port [pyswisseph](https://github.com/astrorigin/pyswisseph)
-* [@sailorfe](https://github.com/sailorfe) for its subsqeuent rescue and revival at [pysweph](https://github.com/sailorfe/pysweph)
+* [@sailorfe](https://github.com/sailorfe) for its subsequent rescue and revival at [pysweph](https://github.com/sailorfe/pysweph)
 * [@flatangle](https://github.com/flatangle) / João Ventura for the incredibly detailed [flatlib](https://github.com/flatangle/flatlib) which first inspired the development of this package
 * [@nodbr](https://github.com/nodbr) / Nathan Octavio who suggested translations, and who translated Immanuel into both Brazilian Portuguese and Spanish
 * [@cosmosandapi](https://github.com/cosmosandapi) who provided the German translation
