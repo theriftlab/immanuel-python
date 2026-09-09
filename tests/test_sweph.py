@@ -410,32 +410,36 @@ def test_orbital_elements(jd):
     # JPL Horizons, so we allow for some margin of error in a few of these values
     # and hope nobody notices.
     orbital_elements = sweph.orbital_elements(chart.MARS, jd)
-    assert orbital_elements["semimajor_axis"] == approx(jpl_orbital_elements["A"])
-    assert orbital_elements["eccentricity"] == approx(jpl_orbital_elements["EC"])
-    assert orbital_elements["inclination"] == approx(
+    assert orbital_elements[calc.SEMIMAJOR_AXIS] == approx(jpl_orbital_elements["A"])
+    assert orbital_elements[calc.ECCENTRICITY] == approx(jpl_orbital_elements["EC"])
+    assert orbital_elements[calc.INCLINATION] == approx(
         jpl_orbital_elements["IN"], abs=1e-4
     )
-    assert orbital_elements["longitude_of_ascending_node"] == approx(
+    assert orbital_elements[calc.LONGITUDE_OF_ASCENDING_NODE] == approx(
         jpl_orbital_elements["OM"], abs=1e-3
     )
-    assert orbital_elements["argument_of_periapsis"] == approx(
+    assert orbital_elements[calc.ARGUMENT_OF_PERIAPSIS] == approx(
         jpl_orbital_elements["W"]
     )
-    assert orbital_elements["mean_anomaly_at_epoch"] == approx(
+    assert orbital_elements[calc.MEAN_ANOMALY_AT_EPOCH] == approx(
         jpl_orbital_elements["MA"], abs=1e-3
     )
-    assert orbital_elements["true_anomaly_at_epoch"] == approx(
+    assert orbital_elements[calc.TRUE_ANOMALY_AT_EPOCH] == approx(
         jpl_orbital_elements["TA"], abs=1e-3
     )
-    assert orbital_elements["sidereal_orbital_period"] * calc.YEAR_DAYS == approx(
+    assert orbital_elements[calc.SIDEREAL_ORBITAL_PERIOD] * calc.YEAR_DAYS == approx(
         jpl_orbital_elements["PR"], abs=1e-3
     )
-    assert orbital_elements["mean_daily_motion"] == approx(jpl_orbital_elements["N"])
-    assert orbital_elements["time_of_perihelion_passage"] == approx(
+    assert orbital_elements[calc.MEAN_DAILY_MOTION] == approx(jpl_orbital_elements["N"])
+    assert orbital_elements[calc.TIME_OF_PERIHELION_PASSAGE] == approx(
         jpl_orbital_elements["Tp"]
     )
-    assert orbital_elements["perihelion_distance"] == approx(jpl_orbital_elements["QR"])
-    assert orbital_elements["aphelion_distance"] == approx(jpl_orbital_elements["AD"])
+    assert orbital_elements[calc.PERIHELION_DISTANCE] == approx(
+        jpl_orbital_elements["QR"]
+    )
+    assert orbital_elements[calc.APHELION_DISTANCE] == approx(
+        jpl_orbital_elements["AD"]
+    )
 
 
 def test_type_of():

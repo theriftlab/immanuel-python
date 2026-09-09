@@ -7,6 +7,10 @@ This module largely acts as a wrapper for the sweph module, offering
 convenience functions for chart assembly that dispatch to sweph's more
 granular and technical functions.
 
+Some of the functions here will perform calculations to then pass into
+the sweph module to convert to chart objects - for example eclipse dates,
+lunar phases, or Arabic part longitudes.
+
 """
 
 import swisseph as swe
@@ -15,6 +19,13 @@ from immanuel.const import chart
 from immanuel.tools import condition, part, sweph, transit
 
 ALL = -1
+
+_ECLIPSE_FUNCTIONS = {
+    chart.PRE_NATAL_SOLAR_ECLIPSE: transit.previous_solar_eclipse,
+    chart.PRE_NATAL_LUNAR_ECLIPSE: transit.previous_lunar_eclipse,
+    chart.POST_NATAL_SOLAR_ECLIPSE: transit.next_solar_eclipse,
+    chart.POST_NATAL_LUNAR_ECLIPSE: transit.next_lunar_eclipse,
+}
 
 
 def get_objects(
@@ -290,12 +301,7 @@ def get_eclipse(index: int, jd: float) -> dict:
     """Returns a calculated object based on the Moon's or Sun's position
     during a pre or post-natal lunar or solar eclipse. The declination
     value is based on the natal date."""
-    eclipse_function = {
-        chart.PRE_NATAL_SOLAR_ECLIPSE: transit.previous_solar_eclipse,
-        chart.PRE_NATAL_LUNAR_ECLIPSE: transit.previous_lunar_eclipse,
-        chart.POST_NATAL_SOLAR_ECLIPSE: transit.next_solar_eclipse,
-        chart.POST_NATAL_LUNAR_ECLIPSE: transit.next_lunar_eclipse,
-    }.get(index)
+    eclipse_function = _ECLIPSE_FUNCTIONS.get(index)
     if eclipse_function is None:
         raise ValueError("Invalid eclipse type.")
     eclipse_type, eclipse_jd = eclipse_function(jd)

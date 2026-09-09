@@ -13,7 +13,7 @@ module's functions.
 
 from pytest import approx, fixture
 
-from immanuel.const import chart
+from immanuel.const import calc, chart
 from immanuel.tools import orbit, sweph
 
 
@@ -32,7 +32,7 @@ def test_orbital_eccentricity(jd):
     """Simple dispatch to sweph module."""
     assert (
         orbit.orbital_eccentricity(chart.MARS, jd)
-        == sweph.orbital_elements(chart.MARS, jd)["eccentricity"]
+        == sweph.orbital_elements(chart.MARS, jd)[calc.ECCENTRICITY]
     )
 
 
@@ -40,7 +40,7 @@ def test_sidereal_period(jd):
     """Simple dispatch to sweph module."""
     assert (
         orbit.sidereal_period(chart.MARS, jd, unit=orbit.TROPICAL_YEARS)
-        == sweph.orbital_elements(chart.MARS, jd)["sidereal_orbital_period"]
+        == sweph.orbital_elements(chart.MARS, jd)[calc.SIDEREAL_ORBITAL_PERIOD]
     )
 
 
@@ -48,7 +48,7 @@ def test_tropical_period(jd):
     """Simple dispatch to sweph module."""
     assert (
         orbit.tropical_period(chart.MARS, jd, unit=orbit.TROPICAL_YEARS)
-        == sweph.orbital_elements(chart.MARS, jd)["tropical_period"]
+        == sweph.orbital_elements(chart.MARS, jd)[calc.TROPICAL_PERIOD]
     )
 
 
@@ -56,7 +56,7 @@ def test_synodic_period(jd):
     """Simple dispatch to sweph module."""
     assert (
         orbit.synodic_period(chart.MARS, jd, unit=orbit.DAYS)
-        == sweph.orbital_elements(chart.MARS, jd)["synodic_period"]
+        == sweph.orbital_elements(chart.MARS, jd)[calc.SYNODIC_PERIOD]
     )
 
 

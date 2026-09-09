@@ -5,7 +5,8 @@ Author: Robert Davies (robert@theriftlab.com)
 
 Defines certain astrological and astronomical constants used for chart
 calculations. YEAR_DAYS and the sun's MEAN_MOTION are set to the same
-constants used by astro.com's calculations.
+constants used by astro.com's calculations. The orbital element ints
+must agree with the indices returned by swe.get_orbital_elements().
 
 """
 
@@ -41,6 +42,25 @@ MAX_ERROR = 0.000001  # For precise exact conjunctions
 STATION_SPEED = 0.0003  # ~1 arc-second of movement
 YEAR_DAYS = 365.24219893  # Average days in a solar year (see swisseph swehouse.c)
 J2000 = 2451545  # Julian year 2000
+
+""" Orbital elements. """
+SEMIMAJOR_AXIS = 0
+ECCENTRICITY = 1
+INCLINATION = 2
+LONGITUDE_OF_ASCENDING_NODE = 3
+ARGUMENT_OF_PERIAPSIS = 4
+LONGITUDE_OF_PERIAPSIS = 5
+MEAN_ANOMALY_AT_EPOCH = 6
+TRUE_ANOMALY_AT_EPOCH = 7
+ECCENTRIC_ANOMALY_AT_EPOCH = 8
+MEAN_LONGITUDE_AT_EPOCH = 9
+SIDEREAL_ORBITAL_PERIOD = 10
+MEAN_DAILY_MOTION = 11
+TROPICAL_PERIOD = 12
+SYNODIC_PERIOD = 13
+TIME_OF_PERIHELION_PASSAGE = 14
+PERIHELION_DISTANCE = 15
+APHELION_DISTANCE = 16
 
 """ Mean daily planetary motions. """
 MEAN_MOTIONS = {

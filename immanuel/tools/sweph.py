@@ -66,6 +66,13 @@ _SWE = {
     chart.PART_OF_EROS: chart.PART_OF_EROS,
 }
 
+_ECLIPSE_OBJECTS = {
+    chart.PRE_NATAL_SOLAR_ECLIPSE: swe.SUN,
+    chart.PRE_NATAL_LUNAR_ECLIPSE: swe.MOON,
+    chart.POST_NATAL_SOLAR_ECLIPSE: swe.SUN,
+    chart.POST_NATAL_LUNAR_ECLIPSE: swe.MOON,
+}
+
 
 def planet(index: int, jd: float) -> dict:
     """Returns a planet by Julian date. Can be used to return the six
@@ -126,13 +133,7 @@ def pre_post_natal_eclipse(
     """Returns a calculated object based on the Moon's or Sun's position
     during a pre or post-natal lunar or solar eclipse. The declination
     value is based on the natal date."""
-    eclipse_object = {
-        chart.PRE_NATAL_SOLAR_ECLIPSE: swe.SUN,
-        chart.PRE_NATAL_LUNAR_ECLIPSE: swe.MOON,
-        chart.POST_NATAL_SOLAR_ECLIPSE: swe.SUN,
-        chart.POST_NATAL_LUNAR_ECLIPSE: swe.MOON,
-    }[index]
-    ec_res = swe.calc_ut(eclipse_jd, eclipse_object)[0]
+    ec_res = swe.calc_ut(eclipse_jd, _ECLIPSE_OBJECTS[index])[0]
     eq_res = swe.cotrans(ec_res[:3], -true_earth_obliquity(jd))
     return {
         "index": index,
@@ -385,28 +386,9 @@ def mean_earth_obliquity(jd: float) -> float:
 def orbital_elements(index: int, jd: float) -> dict:
     """Returns pysweph's orbital data for the passed object on the
     given Julian date."""
-    elements = swe.get_orbital_elements(
+    return swe.get_orbital_elements(
         jd + swe.deltat(jd), _SWE[index], swe.FLG_SWIEPH | swe.FLG_J2000
     )
-    return {
-        "semimajor_axis": elements[0],
-        "eccentricity": elements[1],
-        "inclination": elements[2],
-        "longitude_of_ascending_node": elements[3],
-        "argument_of_periapsis": elements[4],
-        "longitude_of_periapsis": elements[5],
-        "mean_anomaly_at_epoch": elements[6],
-        "true_anomaly_at_epoch": elements[7],
-        "eccentric_anomaly_at_epoch": elements[8],
-        "mean_longitude_at_epoch": elements[9],
-        "sidereal_orbital_period": elements[10],
-        "mean_daily_motion": elements[11],
-        "tropical_period": elements[12],
-        "synodic_period": elements[13],
-        "time_of_perihelion_passage": elements[14],
-        "perihelion_distance": elements[15],
-        "aphelion_distance": elements[16],
-    }
 
 
 def type_of(index: int | str) -> int:
