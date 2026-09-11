@@ -105,11 +105,11 @@ def aspect_patterns(aspects: dict) -> dict:
             inline_matches = []
             for match in matches:
                 candidate_sets = []
-                # Match our index / required aspect pair with actual
+                # Match our cluster / required aspect pair with actual
                 # cluster / aspect pairs - defaultdict(set) ensures we
                 # will always have something to append
-                for index, aspect in zip(match, required_aspects):
-                    candidate_sets.append(aspect_graph[index, aspect])
+                for cluster, aspect in zip(match, required_aspects):
+                    candidate_sets.append(aspect_graph[cluster, aspect])
                 # Collapse the candidate sets into unique, valid candidates
                 valid_candidates = set.intersection(*candidate_sets)
                 for candidate in valid_candidates:
@@ -117,7 +117,7 @@ def aspect_patterns(aspects: dict) -> dict:
             matches = inline_matches
         # Ensure unique cluster combos per pattern
         if matches:
-            candidates[aspect_pattern] = {frozenset(m): m for m in matches}
+            candidates[aspect_pattern] = {frozenset(match): match for match in matches}
     # By now "candidates" will contain valid aspect patterns - our next step
     # is to prevent multiple hits stemming from nested patterns sitting within
     # larger ones, even if they're technically valid
