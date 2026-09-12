@@ -30,7 +30,6 @@ requires-python = ">=3.10"
 dependencies = [
     "pysweph>=2.10.3.3",
     "python-dateutil>=2.8.2",
-    "scipy>=1.10",
     "timezonefinder~=5.2",
 ]
 
@@ -38,7 +37,6 @@ dependencies = [
 dev = [
     "pytest",
     "pytest-lazy-fixtures",
-    "scipy-stubs",
 ]
 
 [project.urls]
