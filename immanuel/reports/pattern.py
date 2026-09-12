@@ -100,21 +100,21 @@ def aspect_patterns(aspects: dict) -> dict:
     initial_matches = list({(cluster,) for cluster in clusters.values()})
     candidates = {}
     for aspect_pattern, vertex_aspects in _ASPECT_PATTERNS.items():
-        matches = initial_matches.copy()
+        matches = initial_matches
         for required_aspects in vertex_aspects:
-            inline_matches = []
-            for match in matches:
-                candidate_sets = []
+            next_matches = []
+            for aspecting_clusters in matches:
+                aspected_clusters = []
                 # Match our cluster / required aspect pair with actual
                 # cluster / aspect pairs - defaultdict(set) ensures we
                 # will always have something to append
-                for cluster, aspect in zip(match, required_aspects):
-                    candidate_sets.append(aspect_graph[cluster, aspect])
-                # Collapse the candidate sets into unique, valid candidates
-                valid_candidates = set.intersection(*candidate_sets)
+                for cluster, aspect in zip(aspecting_clusters, required_aspects):
+                    aspected_clusters.append(aspect_graph[cluster, aspect])
+                # Collapse the aspected clusters into unique, valid candidates
+                valid_candidates = set.intersection(*aspected_clusters)
                 for candidate in valid_candidates:
-                    inline_matches.append(match + (candidate,))
-            matches = inline_matches
+                    next_matches.append(aspecting_clusters + (candidate,))
+            matches = next_matches
         # Ensure unique cluster combos per pattern
         if matches:
             candidates[aspect_pattern] = {frozenset(match): match for match in matches}
