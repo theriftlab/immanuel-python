@@ -22,6 +22,8 @@ NEXT = 1
 INGRESS = 1
 EGRESS = 2
 
+_MIN_STEP = 0.01
+
 _SWE_ECLIPSES = {
     swe.ECL_TOTAL: chart.TOTAL,
     swe.ECL_ANNULAR: chart.ANNULAR,
@@ -34,25 +36,25 @@ _SWE_ECLIPSES = {
 def previous_sign_ingress(index: int, sign: int, jd: float) -> float:
     """Returns the Julian date of the passed planet's previous ingress into
     the given sign."""
-    return _sign_ingress_search(index, sign, jd, PREVIOUS)
+    return _sign_ingress_egress_search(index, sign, jd, PREVIOUS, INGRESS)
 
 
 def next_sign_ingress(index: int, sign: int, jd: float) -> float:
     """Returns the Julian date of the passed planet's next ingress into
     the given sign."""
-    return _sign_ingress_search(index, sign, jd, NEXT)
+    return _sign_ingress_egress_search(index, sign, jd, NEXT, INGRESS)
 
 
 def previous_sign_egress(index: int, sign: int, jd: float) -> float:
     """Returns the Julian date of the passed planet's previous egress from
     the given sign."""
-    return _sign_egress_search(index, sign, jd, PREVIOUS)
+    return _sign_ingress_egress_search(index, sign, jd, PREVIOUS, EGRESS)
 
 
 def next_sign_egress(index: int, sign: int, jd: float) -> float:
     """Returns the Julian date of the passed planet's next egress from
     the given sign."""
-    return _sign_egress_search(index, sign, jd, NEXT)
+    return _sign_ingress_egress_search(index, sign, jd, NEXT, EGRESS)
 
 
 def previous_aspect_between(
@@ -69,51 +71,35 @@ def next_aspect_between(index1: int, index2: int, jd: float, aspect: float) -> f
     return _aspect_search(index1, index2, jd, aspect, NEXT)
 
 
-def previous_aspect_to(index: int, point: float, jd: float, aspect: float) -> float:
-    """Returns the Julian day of the requested aspect between a fixed point and
-    a moving planet previous to the passed Julian day."""
-    return _fixed_aspect_search(index, point, jd, aspect, PREVIOUS)
+def previous_aspect_to(index: int, lon: float, jd: float, aspect: float) -> float:
+    """Returns the Julian day of the requested aspect between a given longitude
+    and a moving planet previous to the passed Julian day."""
+    return _fixed_aspect_search(index, lon, jd, aspect, PREVIOUS)
 
 
-def next_aspect_to(index: int, point: float, jd: float, aspect: float) -> float:
-    """Returns the Julian day of the requested aspect between a fixed point and
-    a moving planet after the passed Julian day."""
-    return _fixed_aspect_search(index, point, jd, aspect, NEXT)
+def next_aspect_to(index: int, lon: float, jd: float, aspect: float) -> float:
+    """Returns the Julian day of the requested aspect between a given longitude
+    and a moving planet after the passed Julian day."""
+    return _fixed_aspect_search(index, lon, jd, aspect, NEXT)
 
 
 def previous_new_moon(jd: float) -> float:
-    """Fast rewind to approximate conjunction."""
-    sun = sweph.planet(chart.SUN, jd)
-    moon = sweph.planet(chart.MOON, jd)
-    distance = swe.difdegn(moon["lon"], sun["lon"])
-    jd -= math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
+    """Returns the Julian date of the previous Sun / Moon conjunction."""
     return previous_aspect_between(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
 
 
 def previous_full_moon(jd: float) -> float:
-    """Fast rewind to approximate opposition."""
-    sun = sweph.planet(chart.SUN, jd)
-    moon = sweph.planet(chart.MOON, jd)
-    distance = swe.difdegn(moon["lon"], sun["lon"] + 180)
-    jd -= math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
+    """Returns the Julian date of the previous Sun / Moon opposition."""
     return previous_aspect_between(chart.SUN, chart.MOON, jd, calc.OPPOSITION)
 
 
 def next_new_moon(jd: float) -> float:
-    """Fast forward to approximate conjunction."""
-    sun = sweph.planet(chart.SUN, jd)
-    moon = sweph.planet(chart.MOON, jd)
-    distance = swe.difdegn(sun["lon"], moon["lon"])
-    jd += math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
+    """Returns the Julian date of the next Sun / Moon conjunction."""
     return next_aspect_between(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
 
 
 def next_full_moon(jd: float) -> float:
-    """Fast forward to approximate opposition."""
-    sun = sweph.planet(chart.SUN, jd)
-    moon = sweph.planet(chart.MOON, jd)
-    distance = swe.difdegn(sun["lon"] + 180, moon["lon"])
-    jd += math.floor(distance) / math.ceil(calc.MEAN_MOTIONS[chart.MOON])
+    """Returns the Julian date of the next Sun / Moon opposition."""
     return next_aspect_between(chart.SUN, chart.MOON, jd, calc.OPPOSITION)
 
 
@@ -161,109 +147,139 @@ def _eclipse_type(swe_index: int) -> int:
 def _aspect_search(
     index1: int, index2: int, jd: float, aspect: float, direction: int
 ) -> float:
-    """Iteratively searches for and returns the Julian date of the previous
-    or next requested aspect. Useful for short dates and fast planets but too
-    expensive for anything more advanced."""
-    while True:
-        planet1 = sweph.planet(index1, jd)
-        planet2 = sweph.planet(index2, jd)
-        distance = abs(swe.difdeg2n(planet1["lon"], planet2["lon"]))
-        diff = abs(aspect - distance)
-        if diff <= calc.MAX_ERROR:
-            return jd
-        add = direction
-        speed = abs(planet1["speed"] - planet2["speed"])
-        if diff < speed:
-            add *= diff / 180
-        jd += add
+    """Returns the Julian date of the previous or next requested aspect
+    between two planets."""
+    targets = _aspect_targets(calc.CONJUNCTION, aspect)
+    return _crossing(index1, targets, jd, direction, NEXT, index2=index2)[0]
 
 
 def _fixed_aspect_search(
-    index: int, point: float, jd: float, aspect: float, direction: int
+    index: int, lon: float, jd: float, aspect: float, direction: int
 ) -> float:
-    """Iteratively searches for and returns the Julian date of the previous
-    or next requested aspect between a fixed point and a moving planet."""
-    while True:
-        planet = sweph.planet(index, jd)
-        distance = abs(swe.difdeg2n(planet["lon"], point))
-        diff = abs(aspect - distance)
-        if diff <= calc.MAX_ERROR:
-            return jd
-        add = direction
-        speed = abs(planet["speed"])
-        if diff < speed:
-            add *= diff / 180
-        jd += add
+    """Returns the Julian date of the previous or next requested aspect
+    between a planet and a given longitude."""
+    targets = _aspect_targets(lon, aspect)
+    return _crossing(index, targets, jd, direction, NEXT)[0]
 
 
-def _sign_ingress_search(index: int, sign: int, jd: float, direction: int) -> float:
-    """Iteratively searches for and returns the Julian date of the previous
-    or next requested ingress into the given sign. If the planet is already in
-    the given sign, it will search for egress first."""
-    from scipy.optimize import brentq
-
-    planet = sweph.planet(index, jd)
-    planet_sign = position.sign(planet)
-    if planet_sign == sign:
-        jd = _sign_egress_search(index, sign, jd, direction)
-    start_jd, end_jd = _sign_ingress_egress_jd_bracket(
-        index, sign, jd, direction, INGRESS
-    )
-    ingress_jd = brentq(
-        _sign_ingress_egress_root_finder,
-        start_jd,
-        end_jd,
-        args=(index, sign),
-        xtol=calc.MAX_ERROR,
-    )
-    while position.sign(planet := sweph.planet(index, ingress_jd)) != sign:
-        ingress_jd += direction * calc.MAX_ERROR / abs(planet["speed"])
-    return ingress_jd
-
-
-def _sign_egress_search(index: int, sign: int, jd: float, direction: int) -> float:
-    """Iteratively searches for and returns the Julian date of the previous
-    or next requested egress from the given sign. If the planet is not already
-    in the given sign, it will search for ingress first."""
-    from scipy.optimize import brentq
-
-    planet = sweph.planet(index, jd)
-    planet_sign = position.sign(planet)
-    if planet_sign != sign:
-        jd = _sign_ingress_search(index, sign, jd, direction)
-    start_jd, end_jd = _sign_ingress_egress_jd_bracket(
-        index, sign, jd, direction, EGRESS
-    )
-    egress_jd = brentq(
-        _sign_ingress_egress_root_finder,
-        start_jd,
-        end_jd,
-        args=(index, sign),
-        xtol=calc.MAX_ERROR,
-    )
-    while position.sign(planet := sweph.planet(index, egress_jd)) == sign:
-        egress_jd += direction * calc.MAX_ERROR / abs(planet["speed"])
-    return egress_jd
-
-
-def _sign_ingress_egress_jd_bracket(
+def _sign_ingress_egress_search(
     index: int, sign: int, jd: float, direction: int, type: int
+) -> float:
+    """Returns the Julian date of the previous or next ingress into or egress
+    out of the given sign. If the planet is already in the requested state,
+    it runs the search again to find the next one in the given direction."""
+    sign_boundaries = {swe.degnorm((sign - 1) * 30.0), swe.degnorm(sign * 30.0)}
+    jd, lon = _crossing(index, sign_boundaries, jd, direction, direction)
+    in_sign = position.sign(lon) == sign
+    in_ingress = type == INGRESS
+    if in_sign != in_ingress:
+        jd = _crossing(index, sign_boundaries, jd, direction, direction)[0]
+    return jd
+
+
+def _crossing(
+    index1: int,
+    targets: set,
+    jd: float,
+    direction: int,
+    side: int,
+    index2: int | None = None,
 ) -> tuple:
-    """Returns the Julian date bracket of the sign ingress or egress."""
-    prev_jd = jd
+    """Returns the Julian date and longitude of the passed planet's first
+    crossing of any target longitude in the given direction. If a second planet
+    is also passed, the first planet's longitude is measured relative to it."""
+
+    def sample(jd: float) -> tuple:
+        """Returns the longitude and speed at the Julian date, relative to the
+        second planet if there is one, plus the distance from each target to
+        that longitude."""
+        planet1 = sweph.planet(index1, jd)
+        lon, speed = planet1["lon"], planet1["speed"]
+        if index2 is not None:
+            planet2 = sweph.planet(index2, jd)
+            lon, speed = swe.degnorm(lon - planet2["lon"]), speed - planet2["speed"]
+        return lon, speed, {target: swe.difdeg2n(lon, target) for target in targets}
+
+    def crossings(prev_offsets: dict, offsets: dict) -> list:
+        """Returns the targets whose offsets changed mathematical sign between
+        two samples, ignoring 180° crossings."""
+        return [
+            target
+            for target, offset in offsets.items()
+            if offset * prev_offsets[target] < 0
+            and abs(offset) + abs(prev_offsets[target]) < 180
+        ]
+
+    max_speed = sum(
+        calc.MAX_MOTIONS.get(index, calc.MAX_MOTIONS[chart.MOON])
+        for index in (index1, index2)
+        if index is not None
+    )
+    lon, speed, offsets = sample(jd)
+    # Treat already being on target as being behind the search
+    for target, offset in offsets.items():
+        if abs(offset) <= calc.MAX_ERROR:
+            offsets[target] = math.copysign(calc.MAX_ERROR, speed * direction)
+
     while True:
-        planet = sweph.planet(index, jd)
-        planet_sign = position.sign(planet)
-        if (type == EGRESS and planet_sign != sign) or (
-            type == INGRESS and planet_sign == sign
-        ):
-            return (prev_jd, jd) if direction == NEXT else (jd, prev_jd)
-        prev_jd = jd
-        jd += direction / abs(planet["speed"])
+        # Store our old values
+        prev_jd, prev_speed, prev_offsets = jd, speed, offsets
+        # Update the current values
+        distance = min(abs(offset) for offset in offsets.values())
+        jd += direction * max(distance, _MIN_STEP) / max_speed
+        lon, speed, offsets = sample(jd)
+        # An offset that's exactly on target should never happen in practice
+        # but if it does, the offset will be unsigned and therefore not be on
+        # either side (- or +) so we need to step a tiny fraction further and
+        # resample to get a bracket
+        if 0 in offsets.values():
+            jd += direction * calc.MAX_ERROR / max_speed
+            lon, speed, offsets = sample(jd)
+        # If a planet stations within a _MIN_STEP sized gap, we can end up
+        # missing a crossing, so we do do an extra crossing check here
+        if distance < _MIN_STEP and prev_speed * speed < 0:
+            step = jd - prev_jd
+            step_fraction = prev_speed / (prev_speed - speed)
+            station_jd = prev_jd + step * step_fraction
+            station = sample(station_jd)
+            if crossings(prev_offsets, station[2]):
+                jd, (lon, speed, offsets) = station_jd, station
+        # See if any of our offsets have changed mathematical sign
+        crossed = crossings(prev_offsets, offsets)
+        if crossed:
+            break
+    # Crossing found, time to find & refine the root - first ensure there's
+    # only one target (for most non-edge cases we will already only have one)
+    target = min(crossed, key=lambda target: abs(prev_offsets[target]))
+    # Here we aim to overshoot the target by a tiny fraction to ensure
+    # we end up on the correct side of it
+    overshoot_sign = math.copysign(1, side * direction * offsets[target])
+    prev_overshoot = overshoot_sign * prev_offsets[target]
+    overshoot = overshoot_sign * offsets[target]
+    # Key the date brackets by which one is already overshooting
+    ends = {
+        prev_overshoot > 0: (prev_jd, prev_overshoot),
+        overshoot > 0: (jd, overshoot),
+    }
+    # Keep interpolating until our sample only overshoots by <= calc.MAX_ERROR
+    target_overshoot = calc.MAX_ERROR / 2
+    while not 0 < overshoot <= calc.MAX_ERROR:
+        before_jd, before_overshoot = ends[False]
+        after_jd, after_overshoot = ends[True]
+        # Step towards target_overshoot
+        step = after_jd - before_jd
+        overshoot_range = after_overshoot - before_overshoot
+        step_fraction = (target_overshoot - before_overshoot) / overshoot_range
+        jd = before_jd + step * step_fraction
+        # Resample at the new jd
+        lon, _, offsets = sample(jd)
+        overshoot = overshoot_sign * offsets[target]
+        ends[overshoot > 0] = (jd, overshoot)
+    return jd, lon
 
 
-def _sign_ingress_egress_root_finder(jd: float, index: int, sign: int) -> int:
-    """Callback for brentq() checks for the planet's sign changing."""
-    planet = sweph.planet(index, jd)
-    planet_sign = position.sign(planet)
-    return 1 if planet_sign == sign else -1
+def _aspect_targets(lon: float, aspect: float) -> set:
+    """Returns the longitudes at which a planet makes the passed aspect to the
+    passed longitude. Besides conjunctions and oppositions, there will be two
+    target longitudes."""
+    return {swe.degnorm(lon + aspect), swe.degnorm(lon - aspect)}
