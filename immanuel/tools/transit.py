@@ -193,11 +193,10 @@ def _crossing(
         """Returns the longitude and speed at the Julian date, relative to the
         second planet if there is one, plus the distance from each target to
         that longitude."""
-        planet1 = sweph.planet(index1, jd)
-        lon, speed = planet1["lon"], planet1["speed"]
+        lon, speed = sweph.longitude(index1, jd)
         if index2 is not None:
-            planet2 = sweph.planet(index2, jd)
-            lon, speed = swe.degnorm(lon - planet2["lon"]), speed - planet2["speed"]
+            lon2, speed2 = sweph.longitude(index2, jd)
+            lon, speed = swe.degnorm(lon - lon2), speed - speed2
         return lon, speed, {target: swe.difdeg2n(lon, target) for target in targets}
 
     def crossings(prev_offsets: dict, offsets: dict) -> list:

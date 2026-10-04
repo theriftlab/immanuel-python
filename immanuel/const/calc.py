@@ -81,7 +81,7 @@ MEAN_MOTIONS = {
     chart.PLUTO: 0.004167,
 }
 
-""" Maximum daily planetary motions. """
+""" Maximum daily motions of chart objects. """
 MAX_MOTIONS = {
     chart.SUN: 1.2,
     chart.MOON: 17,
@@ -99,6 +99,13 @@ MAX_MOTIONS = {
     chart.PALLAS: 0.68,
     chart.JUNO: 0.67,
     chart.VESTA: 0.61,
+    chart.NORTH_NODE: 0.06,
+    chart.SOUTH_NODE: 0.06,
+    chart.TRUE_NORTH_NODE: 0.36,
+    chart.TRUE_SOUTH_NODE: 0.36,
+    chart.LILITH: 0.125,
+    chart.TRUE_LILITH: 7.1,
+    chart.INTERPOLATED_LILITH: 0.265,
 }
 
 """ Moon phases. """

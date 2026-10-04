@@ -73,11 +73,32 @@ _ECLIPSE_OBJECTS = {
     chart.POST_NATAL_LUNAR_ECLIPSE: swe.MOON,
 }
 
+_NODES = {
+    chart.NORTH_NODE: 0,
+    chart.SOUTH_NODE: 180,
+    chart.TRUE_NORTH_NODE: 0,
+    chart.TRUE_SOUTH_NODE: 180,
+}
+
+_JD_POINTS = (
+    *_NODES,
+    chart.LILITH,
+    chart.TRUE_LILITH,
+    chart.INTERPOLATED_LILITH,
+)
+
+
+def longitude(index: int, jd: float) -> tuple:
+    """Returns the ecliptic longitude and speed of any chart object whose
+    position depends only on the Julian date."""
+    ec_res = _ecliptic(index, jd)
+    return ec_res[0], ec_res[3]
+
 
 def planet(index: int, jd: float) -> dict:
     """Returns a planet by Julian date. Can be used to return the six
     major asteroids supported by pysweph without using a separate file."""
-    ec_res = swe.calc_ut(jd, _SWE[index])[0]
+    ec_res = _ecliptic(index, jd)
     eq_res = swe.cotrans(ec_res[:3], -true_earth_obliquity(jd))
     asteroid = type_of(index) == chart.ASTEROID
     return {
@@ -98,7 +119,7 @@ def asteroid(index: int, jd: float) -> dict:
     in the settings module."""
     swe_index = index + swe.AST_OFFSET
     name = swe.get_planet_name(swe_index)
-    ec_res = swe.calc_ut(jd, swe_index)[0]
+    ec_res = _ecliptic(index, jd)
     eq_res = swe.cotrans(ec_res[:3], -true_earth_obliquity(jd))
     return {
         "index": index,
@@ -179,33 +200,16 @@ def part(index: int, jd: float, lon: float) -> dict:
 
 
 def point(index: int, jd: float) -> dict:
-    """Pull any remaining non-calculated points straight from pysweph."""
-    res = swe.calc_ut(jd, _SWE[index])[0]
-    lon = (
-        res[0]
-        if index not in (chart.SOUTH_NODE, chart.TRUE_SOUTH_NODE)
-        else swe.degnorm(res[0] - 180)
-    )
-    lat = (
-        res[1]
-        if index
-        not in (
-            chart.NORTH_NODE,
-            chart.TRUE_NORTH_NODE,
-            chart.SOUTH_NODE,
-            chart.TRUE_SOUTH_NODE,
-        )
-        else 0.0
-    )
-    speed = res[3]
-    dec = swe.cotrans((lon, lat, 0), -true_earth_obliquity(jd))[1]
+    """Returns one of the lunar nodes or Liliths by Julian date."""
+    ec_res = _ecliptic(index, jd)
+    dec = swe.cotrans(ec_res[:3], -true_earth_obliquity(jd))[1]
     return {
         "index": index,
         "type": chart.POINT,
         "name": names.POINTS[index],
-        "lon": lon,
-        "lat": lat,
-        "speed": speed,
+        "lon": ec_res[0],
+        "lat": ec_res[1],
+        "speed": ec_res[3],
         "dec": dec,
     }
 
@@ -406,3 +410,20 @@ def is_external(index: int | str) -> bool:
     """Returns whether a chart object must be read from a user-supplied
     ephemeris file rather than from those bundled with Immanuel."""
     return isinstance(index, int) and index < chart.TYPE_MULTIPLIER
+
+
+def _ecliptic(index: int, jd: float) -> tuple:
+    """Returns the ecliptic longitude, latitude, distance, and speeds
+    for objects whose positions only need a Julian date."""
+    if is_external(index):
+        swe_index = index + swe.AST_OFFSET
+    elif type_of(index) in (chart.PLANET, chart.ASTEROID) or index in _JD_POINTS:
+        swe_index = _SWE[index]
+    else:
+        raise ValueError(
+            f"Chart object {index} cannot be calculated from Julian date only."
+        )
+    ec_res = swe.calc_ut(jd, swe_index)[0]
+    if index in _NODES:
+        return swe.degnorm(ec_res[0] + _NODES[index]), 0.0, *ec_res[2:]
+    return ec_res
