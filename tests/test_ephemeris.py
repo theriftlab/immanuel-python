@@ -4,11 +4,11 @@ Author: Robert Davies (robert@theriftlab.com)
 
 
 The ephemeris module is essentially a wrapper for the sweph module, providing
-convenience functions for retriveving chart ojects in bulk and for making
+convenience functions for retrieving chart objects in bulk and for making
 ARMC-based function calls easier.
 
-Testing the functions' outputs is therefore  a job for the sweph tests, so we
-simply check the correct
+Testing the functions' outputs is therefore a job for the sweph tests, so we
+simply check the correct chart objects are returned.
 
 """
 
