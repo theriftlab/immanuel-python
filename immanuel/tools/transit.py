@@ -33,54 +33,73 @@ _SWE_ECLIPSES = {
 }
 
 
-def previous_sign_ingress(index: int, sign: int, jd: float) -> float:
-    """Returns the Julian date of the passed planet's previous ingress into
-    the given sign."""
-    return _sign_ingress_egress_search(index, sign, jd, PREVIOUS, INGRESS)
+class NotFoundError(Exception):
+    """Raised when a search reaches either its passed-in limit date,
+    or the end of the available ephemeris."""
 
 
-def next_sign_ingress(index: int, sign: int, jd: float) -> float:
-    """Returns the Julian date of the passed planet's next ingress into
-    the given sign."""
-    return _sign_ingress_egress_search(index, sign, jd, NEXT, INGRESS)
+def previous_sign_ingress(
+    index: int, sign: int, jd: float, limit: float | None = None
+) -> float:
+    """Returns the Julian date of the passed planet's previous ingress into the
+    given sign."""
+    return _sign_ingress_egress_search(index, sign, jd, PREVIOUS, INGRESS, limit)
 
 
-def previous_sign_egress(index: int, sign: int, jd: float) -> float:
-    """Returns the Julian date of the passed planet's previous egress from
-    the given sign."""
-    return _sign_ingress_egress_search(index, sign, jd, PREVIOUS, EGRESS)
+def next_sign_ingress(
+    index: int, sign: int, jd: float, limit: float | None = None
+) -> float:
+    """Returns the Julian date of the passed planet's next ingress into the
+    given sign."""
+    return _sign_ingress_egress_search(index, sign, jd, NEXT, INGRESS, limit)
 
 
-def next_sign_egress(index: int, sign: int, jd: float) -> float:
-    """Returns the Julian date of the passed planet's next egress from
-    the given sign."""
-    return _sign_ingress_egress_search(index, sign, jd, NEXT, EGRESS)
+def previous_sign_egress(
+    index: int, sign: int, jd: float, limit: float | None = None
+) -> float:
+    """Returns the Julian date of the passed planet's previous egress from the
+    given sign."""
+    return _sign_ingress_egress_search(index, sign, jd, PREVIOUS, EGRESS, limit)
+
+
+def next_sign_egress(
+    index: int, sign: int, jd: float, limit: float | None = None
+) -> float:
+    """Returns the Julian date of the passed planet's next egress from the
+    given sign."""
+    return _sign_ingress_egress_search(index, sign, jd, NEXT, EGRESS, limit)
 
 
 def previous_aspect_between(
-    index1: int, index2: int, jd: float, aspect: float
+    index1: int, index2: int, jd: float, aspect: float, limit: float | None = None
 ) -> float:
-    """Returns the Julian day of the requested aspect between two moving planets
-    previous to the passed Julian day."""
-    return _aspect_search(index1, index2, jd, aspect, PREVIOUS)
+    """Returns the Julian day of the requested aspect between two moving
+    planets previous to the passed Julian day."""
+    return _aspect_search(index1, index2, jd, aspect, PREVIOUS, limit)
 
 
-def next_aspect_between(index1: int, index2: int, jd: float, aspect: float) -> float:
-    """Returns the Julian day of the requested aspect between two moving planets
-    after the passed Julian day."""
-    return _aspect_search(index1, index2, jd, aspect, NEXT)
+def next_aspect_between(
+    index1: int, index2: int, jd: float, aspect: float, limit: float | None = None
+) -> float:
+    """Returns the Julian day of the requested aspect between two moving
+    planets after the passed Julian day."""
+    return _aspect_search(index1, index2, jd, aspect, NEXT, limit)
 
 
-def previous_aspect_to(index: int, lon: float, jd: float, aspect: float) -> float:
+def previous_aspect_to(
+    index: int, lon: float, jd: float, aspect: float, limit: float | None = None
+) -> float:
     """Returns the Julian day of the requested aspect between a given longitude
     and a moving planet previous to the passed Julian day."""
-    return _fixed_aspect_search(index, lon, jd, aspect, PREVIOUS)
+    return _fixed_aspect_search(index, lon, jd, aspect, PREVIOUS, limit)
 
 
-def next_aspect_to(index: int, lon: float, jd: float, aspect: float) -> float:
+def next_aspect_to(
+    index: int, lon: float, jd: float, aspect: float, limit: float | None = None
+) -> float:
     """Returns the Julian day of the requested aspect between a given longitude
     and a moving planet after the passed Julian day."""
-    return _fixed_aspect_search(index, lon, jd, aspect, NEXT)
+    return _fixed_aspect_search(index, lon, jd, aspect, NEXT, limit)
 
 
 def previous_new_moon(jd: float) -> float:
@@ -145,35 +164,50 @@ def _eclipse_type(swe_index: int) -> int:
 
 
 def _aspect_search(
-    index1: int, index2: int, jd: float, aspect: float, direction: int
+    index1: int,
+    index2: int,
+    jd: float,
+    aspect: float,
+    direction: int,
+    limit: float | None,
 ) -> float:
     """Returns the Julian date of the previous or next requested aspect
     between two planets."""
     targets = _aspect_targets(calc.CONJUNCTION, aspect)
-    return _crossing(index1, targets, jd, direction, NEXT, index2=index2)[0]
+    return _crossing(index1, targets, jd, direction, NEXT, index2, limit)[0]
 
 
 def _fixed_aspect_search(
-    index: int, lon: float, jd: float, aspect: float, direction: int
+    index: int,
+    lon: float,
+    jd: float,
+    aspect: float,
+    direction: int,
+    limit: float | None,
 ) -> float:
     """Returns the Julian date of the previous or next requested aspect
     between a planet and a given longitude."""
     targets = _aspect_targets(lon, aspect)
-    return _crossing(index, targets, jd, direction, NEXT)[0]
+    return _crossing(index, targets, jd, direction, NEXT, limit=limit)[0]
 
 
 def _sign_ingress_egress_search(
-    index: int, sign: int, jd: float, direction: int, type: int
+    index: int,
+    sign: int,
+    jd: float,
+    direction: int,
+    type: int,
+    limit: float | None,
 ) -> float:
     """Returns the Julian date of the previous or next ingress into or egress
     out of the given sign. If the planet is already in the requested state,
     it runs the search again to find the next one in the given direction."""
     sign_boundaries = {swe.degnorm((sign - 1) * 30.0), swe.degnorm(sign * 30.0)}
-    jd, lon = _crossing(index, sign_boundaries, jd, direction, direction)
+    jd, lon = _crossing(index, sign_boundaries, jd, direction, direction, limit=limit)
     in_sign = position.sign(lon) == sign
     in_ingress = type == INGRESS
     if in_sign != in_ingress:
-        jd = _crossing(index, sign_boundaries, jd, direction, direction)[0]
+        jd = _crossing(index, sign_boundaries, jd, direction, direction, limit=limit)[0]
     return jd
 
 
@@ -184,10 +218,12 @@ def _crossing(
     direction: int,
     side: int,
     index2: int | None = None,
+    limit: float | None = None,
 ) -> tuple:
     """Returns the Julian date and longitude of the passed planet's first
     crossing of any target longitude in the given direction. If a second planet
-    is also passed, the first planet's longitude is measured relative to it."""
+    is also passed, the first planet's longitude is measured relative to it.
+    If a limit arg is present, NotFoundError will be raised when it is exceeded."""
 
     def sample(jd: float) -> tuple:
         """Returns the longitude and speed at the Julian date, relative to the
@@ -209,7 +245,11 @@ def _crossing(
             and abs(offset) + abs(prev_offsets[target]) < 180
         ]
 
+    # Ensure we're starting ahead of any passed limit value
+    if limit is not None and (limit - jd) * direction <= 0:
+        raise NotFoundError(f"Limit date {limit} should be ahead of the start date.")
     max_speed = sum(
+        # Default to the moon since this is usually the fastest
         calc.MAX_MOTIONS.get(index, calc.MAX_MOTIONS[chart.MOON])
         for index in (index1, index2)
         if index is not None
@@ -219,61 +259,92 @@ def _crossing(
     for target, offset in offsets.items():
         if abs(offset) <= calc.MAX_ERROR:
             offsets[target] = math.copysign(calc.MAX_ERROR, speed * direction)
-
-    while True:
-        # Store our old values
-        prev_jd, prev_speed, prev_offsets = jd, speed, offsets
-        # Update the current values
-        distance = min(abs(offset) for offset in offsets.values())
-        jd += direction * max(distance, _MIN_STEP) / max_speed
-        lon, speed, offsets = sample(jd)
-        # An offset that's exactly on target should never happen in practice
-        # but if it does, the offset will be unsigned and therefore not be on
-        # either side (- or +) so we need to step a tiny fraction further and
-        # resample to get a bracket
-        if 0 in offsets.values():
-            jd += direction * calc.MAX_ERROR / max_speed
+    # Catch any searches that attempt to step past the available ephemeris limits
+    try:
+        while True:
+            # Store our old values
+            prev_jd, prev_lon, prev_speed, prev_offsets = jd, lon, speed, offsets
+            # Update the current values
+            distance = min(abs(offset) for offset in offsets.values())
+            jd += direction * max(distance, _MIN_STEP) / max_speed
+            # If we have gone past the passed limit, we didn't find anything
+            if limit is not None and (jd - limit) * direction > 0:
+                if prev_jd == limit:
+                    raise NotFoundError(f"No transit found before limit date {limit}.")
+                jd = limit
             lon, speed, offsets = sample(jd)
-        # If a planet stations within a _MIN_STEP sized gap, we can end up
-        # missing a crossing, so we do do an extra crossing check here
-        if distance < _MIN_STEP and prev_speed * speed < 0:
-            step = jd - prev_jd
-            step_fraction = prev_speed / (prev_speed - speed)
-            station_jd = prev_jd + step * step_fraction
-            station = sample(station_jd)
-            if crossings(prev_offsets, station[2]):
-                jd, (lon, speed, offsets) = station_jd, station
-        # See if any of our offsets have changed mathematical sign
-        crossed = crossings(prev_offsets, offsets)
-        if crossed:
-            break
-    # Crossing found, time to find & refine the root - first ensure there's
-    # only one target (for most non-edge cases we will already only have one)
-    target = min(crossed, key=lambda target: abs(prev_offsets[target]))
-    # Here we aim to overshoot the target by a tiny fraction to ensure
-    # we end up on the correct side of it
-    overshoot_sign = math.copysign(1, side * direction * offsets[target])
-    prev_overshoot = overshoot_sign * prev_offsets[target]
-    overshoot = overshoot_sign * offsets[target]
-    # Key the date brackets by which one is already overshooting
-    ends = {
-        prev_overshoot > 0: (prev_jd, prev_overshoot),
-        overshoot > 0: (jd, overshoot),
-    }
-    # Keep interpolating until our sample only overshoots by <= calc.MAX_ERROR
-    target_overshoot = calc.MAX_ERROR / 2
-    while not 0 < overshoot <= calc.MAX_ERROR:
-        before_jd, before_overshoot = ends[False]
-        after_jd, after_overshoot = ends[True]
-        # Step towards target_overshoot
-        step = after_jd - before_jd
-        overshoot_range = after_overshoot - before_overshoot
-        step_fraction = (target_overshoot - before_overshoot) / overshoot_range
-        jd = before_jd + step * step_fraction
-        # Resample at the new jd
-        lon, _, offsets = sample(jd)
+            # An offset that's exactly on target should never happen in practice
+            # but if it does, the offset will be unsigned and therefore not be on
+            # either side (- or +) so we need to step a tiny fraction further and
+            # resample to get a bracket
+            if 0 in offsets.values():
+                jd += direction * calc.MAX_ERROR / max_speed
+                lon, speed, offsets = sample(jd)
+            # If a planet stations within a _MIN_STEP sized gap, we can end up
+            # missing a crossing, so we do an extra crossing check here
+            if distance < _MIN_STEP and prev_speed * speed < 0:
+                step = jd - prev_jd
+                step_fraction = prev_speed / (prev_speed - speed)
+                station_jd = prev_jd + step * step_fraction
+                station = sample(station_jd)
+                if crossings(prev_offsets, station[2]):
+                    jd, (lon, speed, offsets) = station_jd, station
+            # See if any of our offsets have changed mathematical sign
+            crossed = crossings(prev_offsets, offsets)
+            if crossed:
+                break
+        # Crossing found, time to find & refine the root - first ensure there's
+        # only one target (for most non-edge cases we will already only have one)
+        target = min(crossed, key=lambda target: abs(prev_offsets[target]))
+        # Here we aim to overshoot the target by a tiny fraction to ensure
+        # we end up on the correct side of it
+        overshoot_sign = math.copysign(1, side * direction * offsets[target])
+        prev_overshoot = overshoot_sign * prev_offsets[target]
         overshoot = overshoot_sign * offsets[target]
-        ends[overshoot > 0] = (jd, overshoot)
+        # Key the date brackets by which one is already overshooting
+        ends = {
+            prev_overshoot > 0: (prev_jd, prev_overshoot, prev_lon),
+            overshoot > 0: (jd, overshoot, lon),
+        }
+        # Keep interpolating until our sample only overshoots by <= calc.MAX_ERROR
+        target_overshoot = calc.MAX_ERROR / 2
+        previous_side = None
+        repeated_side = False
+        while ends[True][1] > calc.MAX_ERROR:
+            before_jd, before_overshoot, _ = ends[False]
+            after_jd, after_overshoot, _ = ends[True]
+            step = after_jd - before_jd
+            if repeated_side:
+                # In rare cases such as a Moon / True Lilith conjunction, we can
+                # end up with 2 samples on the same side of the target, so we
+                # simply halve the bracket here
+                jd = before_jd + step / 2
+            else:
+                # Step towards target_overshoot
+                overshoot_range = after_overshoot - before_overshoot
+                step_fraction = (target_overshoot - before_overshoot) / overshoot_range
+                jd = before_jd + step * step_fraction
+            # Jittery ephemeris data can produce date differences too small to
+            # work with, so here we check if either side rounds to the current
+            # jd and dip if there's a match
+            if jd in (before_jd, after_jd):
+                break
+            # Resample at the new jd
+            lon, _, offsets = sample(jd)
+            overshoot = overshoot_sign * offsets[target]
+            ends[overshoot > 0] = (jd, overshoot, lon)
+            current_side = overshoot > 0
+            repeated_side = current_side == previous_side
+            previous_side = current_side
+    except swe.Error as error:
+        raise NotFoundError(
+            "No transit found before the end of the available ephemeris."
+        ) from error
+    jd, _, lon = ends[True]
+    # Our overshoot target means that a crossing right at the limit
+    # can settle a fraction beyond it
+    if limit is not None and (jd - limit) * direction > 0:
+        raise NotFoundError(f"No transit found before limit date {limit}.")
     return jd, lon
 
 

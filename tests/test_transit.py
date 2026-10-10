@@ -8,7 +8,8 @@ cited in each test function's comments.
 
 """
 
-from pytest import fixture
+import swisseph as swe
+from pytest import fixture, raises
 
 from immanuel.const import calc, chart
 from immanuel.tools import condition, convert, date, position, sweph, transit
@@ -226,3 +227,44 @@ def test_next_lunar_eclipse(jd, coords):
     ec_dt = date.to_datetime(ec_jd, *coords)
     assert ec_type == chart.TOTAL
     assert ec_dt.strftime("%Y-%m-%d %H:%M") == "2000-01-20 20:43"
+
+
+def test_search_limit(jd):
+    # Searches beyond the specified limit should raise an exception. We use
+    # the known date of Saturn's ingress into Gemini to test.
+    limit = jd - 10  # Limit before start date should abort
+    with raises(transit.NotFoundError):
+        transit.next_sign_ingress(chart.SATURN, chart.GEMINI, jd, limit=limit)
+    limit = jd + 220  # Actual ingress is approx ~221 days away, this stops short
+    with raises(transit.NotFoundError):
+        transit.next_sign_ingress(chart.SATURN, chart.GEMINI, jd, limit=limit)
+    limit = jd + 222  # This should succeed
+    si_jd = transit.next_sign_ingress(chart.SATURN, chart.GEMINI, jd, limit=limit)
+    assert si_jd <= limit
+
+
+def test_search_beyond_ephemeris_limit_raises_exception():
+    # Searches beyond the bounds of the default ephemeris files
+    # should raise a direct pysweph exception
+    jd = date.to_jd("6000-01-01")
+    with raises(swe.Error):
+        transit.next_sign_ingress(chart.SATURN, chart.GEMINI, jd)
+
+
+def test_impossible_aspect_search_raises_exception():
+    # Mercury will never oppose the Sun, that would be weird -
+    # we can safely pick a far-off point to reduce test execution time
+    jd = date.to_jd("4500-01-01")
+    with raises(transit.NotFoundError):
+        transit.next_aspect_between(chart.MERCURY, chart.SUN, jd, calc.OPPOSITION)
+
+
+def test_moon_true_lilith_conjunction(jd):
+    # The Swiss Ephemeris' True Lilith calculations start to break down near and
+    # through a conjunction with the Moon, and this was causing the search code
+    # to loop infinitely. Here we test the bracket-halving fix to make sure we
+    # get as close as possible.
+    ab_jd = transit.next_aspect_between(
+        chart.MOON, chart.TRUE_LILITH, jd, calc.CONJUNCTION
+    )
+    assert ab_jd > jd  # Date doesn't matter much, as long as it returns one
