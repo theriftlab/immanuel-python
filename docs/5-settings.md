@@ -801,7 +801,7 @@ As well as the readily-available chart objects listed above in the `objects` set
 
 Details on where to find the various ephemeris files can be found on [the Swiss Ephemeris GitHub repo](https://github.com/aloistr/swisseph).
 
-For example, to include asteroid Lilith (`1181`), download its ephemeris file `se01181s.se1` (currently available [here](https://www.dropbox.com/scl/fo/y3naz62gy6f6qfrhquu7u/h/all_ast/ast1?rlkey=ejltdhb262zglm7eo6yfj2940&dl=0)). Then you can use the `add_filepath()` function to point to its location, and add `1181` to your config's `objects` list:
+For example, to include asteroid Lilith (`1181`), download its ephemeris file `se01181s.se1` (currently available [here](https://www.dropbox.com/scl/fo/y3naz62gy6f6qfrhquu7u/h/all_ast/ast1?rlkey=ejltdhb262zglm7eo6yfj2940&dl=0)). Then you can use the `add_swe_filepath()` function to point to its location, and add `1181` to your config's `objects` list:
 
 ```python
 import json
@@ -809,7 +809,7 @@ import json
 from immanuel import charts, settings
 
 
-settings.add_filepath("my/directory/path")
+settings.add_swe_filepath("my/directory/path")
 
 config = charts.Config()
 config.objects.append(1181)
@@ -893,10 +893,10 @@ Congratulations - you have imported an external object into your chart.
 
 If a requested object's file cannot be found, the underlying Swiss Ephemeris will raise a `swisseph.Error` naming the missing file and the paths it searched.
 
-`add_filepath()` appends to the existing paths by default. Passing `True` as a second argument will instead set the passed path as the *only* path, replacing the bundled default:
+`add_swe_filepath()` appends to the existing paths by default. Passing `True` as a second argument will instead set the passed path as the *only* path, replacing the bundled default:
 
 ```python
-settings.add_filepath("my/directory/path", True)
+settings.add_swe_filepath("my/directory/path", True)
 ```
 
 Since external objects have no entries in the `aspect_rules` and `orbs` settings, they will use `default_aspect_rule` and `planet_orbs` when aspects are calculated. Add entries for their index if you want to treat them differently:

@@ -72,7 +72,7 @@ def test_config_is_respected(native):
     assert chart.SUN not in natal.aspects
 
 
-def test_add_filepath(native):
+def test_add_swe_filepath(native):
     settings.add_swe_filepath(os.path.dirname(__file__))
     config = Config()
     config.objects.append(1181)
