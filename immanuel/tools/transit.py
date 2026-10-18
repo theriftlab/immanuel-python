@@ -9,6 +9,7 @@ such as sign ingress / egress.
 
 """
 
+import bisect
 import math
 
 import swisseph as swe
@@ -203,7 +204,9 @@ def _sign_ingress_egress_search(
     out of the given sign. If the planet is already in the requested state,
     it runs the search again to find the next one in the given direction."""
     sign_boundaries = {swe.degnorm((sign - 1) * 30.0), swe.degnorm(sign * 30.0)}
-    jd, lon = _crossing(index, sign_boundaries, jd, direction, direction, limit=limit)
+    jd, lon, _ = _crossing(
+        index, sign_boundaries, jd, direction, direction, limit=limit
+    )
     in_sign = position.sign(lon) == sign
     in_ingress = type == INGRESS
     if in_sign != in_ingress:
@@ -220,87 +223,102 @@ def _crossing(
     index2: int | None = None,
     limit: float | None = None,
 ) -> tuple:
-    """Returns the Julian date and longitude of the passed planet's first
-    crossing of any target longitude in the given direction. If a second planet
-    is also passed, the first planet's longitude is measured relative to it.
-    If a limit arg is present, NotFoundError will be raised when it is exceeded."""
+    """Returns the Julian date, longitude and target of the passed planet's
+    first crossing of any target longitude in the given direction. If a second
+    planet is also passed, the first planet's longitude is measured relative to
+    it. If a limit arg is present, NotFoundError will be raised when it is
+    exceeded."""
 
     def sample(jd: float) -> tuple:
         """Returns the longitude and speed at the Julian date, relative to the
-        second planet if there is one, plus the distance from each target to
-        that longitude."""
+        second planet if there is one."""
         lon, speed = sweph.longitude(index1, jd)
         if index2 is not None:
             lon2, speed2 = sweph.longitude(index2, jd)
             lon, speed = swe.degnorm(lon - lon2), speed - speed2
-        return lon, speed, {target: swe.difdeg2n(lon, target) for target in targets}
+        return lon, speed
 
-    def crossings(prev_offsets: dict, offsets: dict) -> list:
-        """Returns the targets whose offsets changed mathematical sign between
-        two samples, ignoring 180° crossings."""
-        return [
-            target
-            for target, offset in offsets.items()
-            if offset * prev_offsets[target] < 0
-            and abs(offset) + abs(prev_offsets[target]) < 180
-        ]
+    def nearest_distance(lon: float) -> float:
+        """Returns the distance from the passed longitude to the nearest target,
+        which will be one of its two neighbors in sorted_targets."""
+        lon_index = bisect.bisect_left(sorted_targets, lon)
+        nearest_targets = (
+            sorted_targets[lon_index % len(sorted_targets)],
+            sorted_targets[lon_index - 1],
+        )
+        return min(abs(swe.difdeg2n(lon, target)) for target in nearest_targets)
+
+    def crossings(from_lon: float, to_lon: float) -> list:
+        """Returns the targets crossed in an arc between from_lon
+        and to_lon, in the order they were crossed, using simple bisection."""
+        # Ensure we're always searching forwards even if the arc went backwards
+        if swe.difdeg2n(to_lon, from_lon) < 0:
+            return crossings(to_lon, from_lon)[::-1]
+        # Find the indices of the start and end targets
+        start = bisect.bisect_right(sorted_targets, from_lon)
+        end = bisect.bisect_left(sorted_targets, to_lon)
+        # If start > end we'll get an empty list
+        if from_lon <= to_lon:
+            return sorted_targets[start:end]
+        # Wrap our list if the current arc crosses 0°
+        return sorted_targets[start:] + sorted_targets[:end]
 
     # Ensure we're starting ahead of any passed limit value
     if limit is not None and (limit - jd) * direction <= 0:
         raise NotFoundError(f"Limit date {limit} should be ahead of the start date.")
+    sorted_targets = sorted(targets)
     max_speed = sum(
         # Default to the moon since this is usually the fastest
         calc.MAX_MOTIONS.get(index, calc.MAX_MOTIONS[chart.MOON])
         for index in (index1, index2)
         if index is not None
     )
-    lon, speed, offsets = sample(jd)
-    # Treat already being on target as being behind the search
-    for target, offset in offsets.items():
-        if abs(offset) <= calc.MAX_ERROR:
-            offsets[target] = math.copysign(calc.MAX_ERROR, speed * direction)
+    lon, speed = sample(jd)
+    # Start the search a fraction ahead
+    from_lon = swe.degnorm(lon + math.copysign(calc.MAX_ERROR, speed * direction))
     # Catch any searches that attempt to step past the available ephemeris limits
     try:
         while True:
             # Store our old values
-            prev_jd, prev_lon, prev_speed, prev_offsets = jd, lon, speed, offsets
+            prev_jd, prev_lon, prev_speed = jd, lon, speed
             # Update the current values
-            distance = min(abs(offset) for offset in offsets.values())
+            distance = nearest_distance(lon)
             jd += direction * max(distance, _MIN_STEP) / max_speed
             # If we have gone past the passed limit, we didn't find anything
             if limit is not None and (jd - limit) * direction > 0:
                 if prev_jd == limit:
                     raise NotFoundError(f"No transit found before limit date {limit}.")
                 jd = limit
-            lon, speed, offsets = sample(jd)
-            # An offset that's exactly on target should never happen in practice
-            # but if it does, the offset will be unsigned and therefore not be on
-            # either side (- or +) so we need to step a tiny fraction further and
-            # resample to get a bracket
-            if 0 in offsets.values():
+            lon, speed = sample(jd)
+            # A sample that's exactly on target should never happen in practice
+            # but if it does, it will not be on either side (- or +) so we need
+            # to step a tiny fraction further and resample to get a bracket
+            if lon in targets:
                 jd += direction * calc.MAX_ERROR / max_speed
-                lon, speed, offsets = sample(jd)
+                lon, speed = sample(jd)
             # If a planet stations within a _MIN_STEP sized gap, we can end up
             # missing a crossing, so we do an extra crossing check here
             if distance < _MIN_STEP and prev_speed * speed < 0:
                 step = jd - prev_jd
                 step_fraction = prev_speed / (prev_speed - speed)
                 station_jd = prev_jd + step * step_fraction
-                station = sample(station_jd)
-                if crossings(prev_offsets, station[2]):
-                    jd, (lon, speed, offsets) = station_jd, station
-            # See if any of our offsets have changed mathematical sign
-            crossed = crossings(prev_offsets, offsets)
+                station_lon, station_speed = sample(station_jd)
+                if crossings(from_lon, station_lon):
+                    jd, lon, speed = station_jd, station_lon, station_speed
+            # See if we have crossed any targets
+            crossed = crossings(from_lon, lon)
             if crossed:
                 break
-        # Crossing found, time to find & refine the root - first ensure there's
-        # only one target (for most non-edge cases we will already only have one)
-        target = min(crossed, key=lambda target: abs(prev_offsets[target]))
+            from_lon = lon
+        # Crossing found, time to find & refine the root - the first target
+        # along the arc is the first one crossed
+        target = crossed[0]
+        offset = swe.difdeg2n(lon, target)
         # Here we aim to overshoot the target by a tiny fraction to ensure
         # we end up on the correct side of it
-        overshoot_sign = math.copysign(1, side * direction * offsets[target])
-        prev_overshoot = overshoot_sign * prev_offsets[target]
-        overshoot = overshoot_sign * offsets[target]
+        overshoot_sign = math.copysign(1, side * direction * offset)
+        prev_overshoot = overshoot_sign * swe.difdeg2n(prev_lon, target)
+        overshoot = overshoot_sign * offset
         # Key the date brackets by which one is already overshooting
         ends = {
             prev_overshoot > 0: (prev_jd, prev_overshoot, prev_lon),
@@ -326,12 +344,12 @@ def _crossing(
                 jd = before_jd + step * step_fraction
             # Jittery ephemeris data can produce date differences too small to
             # work with, so here we check if either side rounds to the current
-            # jd and dip if there's a match
+            # jd and exit if there's a match
             if jd in (before_jd, after_jd):
                 break
             # Resample at the new jd
-            lon, _, offsets = sample(jd)
-            overshoot = overshoot_sign * offsets[target]
+            lon = sample(jd)[0]
+            overshoot = overshoot_sign * swe.difdeg2n(lon, target)
             ends[overshoot > 0] = (jd, overshoot, lon)
             current_side = overshoot > 0
             repeated_side = current_side == previous_side
@@ -345,7 +363,7 @@ def _crossing(
     # can settle a fraction beyond it
     if limit is not None and (jd - limit) * direction > 0:
         raise NotFoundError(f"No transit found before limit date {limit}.")
-    return jd, lon
+    return jd, lon, target
 
 
 def _aspect_targets(lon: float, aspect: float) -> set:
