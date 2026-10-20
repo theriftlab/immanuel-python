@@ -11,6 +11,7 @@ such as sign ingress / egress.
 
 import bisect
 import math
+from collections.abc import Iterator
 
 import swisseph as swe
 
@@ -175,7 +176,7 @@ def _aspect_search(
     """Returns the Julian date of the previous or next requested aspect
     between two planets."""
     targets = _aspect_targets(calc.CONJUNCTION, aspect)
-    return _crossing(index1, targets, jd, direction, NEXT, index2, limit)[0]
+    return next(_crossings(index1, targets, jd, direction, NEXT, index2, limit))[0]
 
 
 def _fixed_aspect_search(
@@ -189,7 +190,7 @@ def _fixed_aspect_search(
     """Returns the Julian date of the previous or next requested aspect
     between a planet and a given longitude."""
     targets = _aspect_targets(lon, aspect)
-    return _crossing(index, targets, jd, direction, NEXT, limit=limit)[0]
+    return next(_crossings(index, targets, jd, direction, NEXT, limit=limit))[0]
 
 
 def _sign_ingress_egress_search(
@@ -201,20 +202,19 @@ def _sign_ingress_egress_search(
     limit: float | None,
 ) -> float:
     """Returns the Julian date of the previous or next ingress into or egress
-    out of the given sign. If the planet is already in the requested state,
-    it runs the search again to find the next one in the given direction."""
+    out of the given sign. If the first search puts the planet in the wrong
+    state, it runs the search again to return the correct one."""
     sign_boundaries = {swe.degnorm((sign - 1) * 30.0), swe.degnorm(sign * 30.0)}
-    jd, lon, _ = _crossing(
-        index, sign_boundaries, jd, direction, direction, limit=limit
-    )
+    crossings = _crossings(index, sign_boundaries, jd, direction, direction, limit=limit)
+    jd, lon, _ = next(crossings)
     in_sign = position.sign(lon) == sign
     in_ingress = type == INGRESS
     if in_sign != in_ingress:
-        jd = _crossing(index, sign_boundaries, jd, direction, direction, limit=limit)[0]
+        jd = next(crossings)[0]
     return jd
 
 
-def _crossing(
+def _crossings(
     index1: int,
     targets: set,
     jd: float,
@@ -222,12 +222,13 @@ def _crossing(
     side: int,
     index2: int | None = None,
     limit: float | None = None,
-) -> tuple:
-    """Returns the Julian date, longitude and target of the passed planet's
-    first crossing of any target longitude in the given direction. If a second
-    planet is also passed, the first planet's longitude is measured relative to
-    it. If a limit arg is present, NotFoundError will be raised when it is
-    exceeded."""
+) -> Iterator[tuple]:
+    """Yields the Julian date, longitude, and target of every crossing of any of
+    the target longitudes by the passed planet, in the given direction and in
+    the order they happen. If a second planet is also passed, the first planet's
+    longitude is measured relative to it. NotFoundError is raised if the search
+    goes beyond the limit arg (if passed) or the end of the available ephemeris'
+    supported date range."""
 
     def sample(jd: float) -> tuple:
         """Returns the longitude and speed at the Julian date, relative to the
@@ -248,12 +249,13 @@ def _crossing(
         )
         return min(abs(swe.difdeg2n(lon, target)) for target in nearest_targets)
 
-    def crossings(from_lon: float, to_lon: float) -> list:
+    def crossed_targets(from_lon: float, to_lon: float) -> list:
         """Returns the targets crossed in an arc between from_lon
-        and to_lon, in the order they were crossed, using simple bisection."""
+        and to_lon, in the order they were crossed, using simple target
+        list bisections."""
         # Ensure we're always searching forwards even if the arc went backwards
         if swe.difdeg2n(to_lon, from_lon) < 0:
-            return crossings(to_lon, from_lon)[::-1]
+            return crossed_targets(to_lon, from_lon)[::-1]
         # Find the indices of the start and end targets
         start = bisect.bisect_right(sorted_targets, from_lon)
         end = bisect.bisect_left(sorted_targets, to_lon)
@@ -262,6 +264,60 @@ def _crossing(
             return sorted_targets[start:end]
         # Wrap our list if the current arc crosses 0°
         return sorted_targets[start:] + sorted_targets[:end]
+
+    def crossing_point(target: float, start: tuple, end: tuple) -> tuple:
+        """Returns the Julian date and longitude at the point between the
+        start and end samples where the passed target was crossed. The result
+        is ensured to be within calc.MAX_ERROR and on the required side
+        of the target."""
+        (start_jd, start_lon), (end_jd, end_lon) = start, end
+        offset = swe.difdeg2n(end_lon, target)
+        # Here we aim to overshoot the target by a tiny fraction to ensure
+        # we end up on the correct side of it
+        overshoot_sign = math.copysign(1, side * direction * offset)
+        start_overshoot = overshoot_sign * swe.difdeg2n(start_lon, target)
+        end_overshoot = overshoot_sign * offset
+        # If a target is the same as the previous one crossed in this step
+        # then we're already good to go
+        if start_overshoot > 0 and end_overshoot > 0:
+            return start
+        # Key the date brackets by which one is already overshooting
+        ends = {
+            start_overshoot > 0: (start_jd, start_overshoot, start_lon),
+            end_overshoot > 0: (end_jd, end_overshoot, end_lon),
+        }
+        # Keep interpolating until our sample only overshoots by <= calc.MAX_ERROR
+        target_overshoot = calc.MAX_ERROR / 2
+        previous_side = None
+        repeated_side = False
+        while ends[True][1] > calc.MAX_ERROR:
+            before_jd, before_overshoot, _ = ends[False]
+            after_jd, after_overshoot, _ = ends[True]
+            step = after_jd - before_jd
+            if repeated_side:
+                # In rare cases such as a Moon / True Lilith conjunction, we can
+                # end up with 2 samples on the same side of the target, so we
+                # simply halve the bracket here
+                jd = before_jd + step / 2
+            else:
+                # Step towards target_overshoot
+                overshoot_range = after_overshoot - before_overshoot
+                step_fraction = (target_overshoot - before_overshoot) / overshoot_range
+                jd = before_jd + step * step_fraction
+            # Jittery ephemeris data can produce date differences too small to
+            # work with, so here we check if either side rounds to the current
+            # jd and exit if there's a match
+            if jd in (before_jd, after_jd):
+                break
+            # Resample at the new jd
+            lon = sample(jd)[0]
+            overshoot = overshoot_sign * swe.difdeg2n(lon, target)
+            ends[overshoot > 0] = (jd, overshoot, lon)
+            current_side = overshoot > 0
+            repeated_side = current_side == previous_side
+            previous_side = current_side
+        jd, _, lon = ends[True]
+        return jd, lon
 
     # Ensure we're starting ahead of any passed limit value
     if limit is not None and (limit - jd) * direction <= 0:
@@ -303,67 +359,24 @@ def _crossing(
                 step_fraction = prev_speed / (prev_speed - speed)
                 station_jd = prev_jd + step * step_fraction
                 station_lon, station_speed = sample(station_jd)
-                if crossings(from_lon, station_lon):
+                if crossed_targets(from_lon, station_lon):
                     jd, lon, speed = station_jd, station_lon, station_speed
-            # See if we have crossed any targets
-            crossed = crossings(from_lon, lon)
-            if crossed:
-                break
+            # Refine all of our crossed targets
+            start = prev_jd, prev_lon
+            for target in crossed_targets(from_lon, lon):
+                end = jd, lon
+                crossing_jd, crossing_lon = crossing_point(target, start, end)
+                # Our overshoot target means that a crossing right at the
+                # limit can settle a fraction beyond it
+                if limit is not None and (crossing_jd - limit) * direction > 0:
+                    raise NotFoundError(f"No transit found before limit date {limit}.")
+                yield crossing_jd, crossing_lon, target
+                start = crossing_jd, crossing_lon
             from_lon = lon
-        # Crossing found, time to find & refine the root - the first target
-        # along the arc is the first one crossed
-        target = crossed[0]
-        offset = swe.difdeg2n(lon, target)
-        # Here we aim to overshoot the target by a tiny fraction to ensure
-        # we end up on the correct side of it
-        overshoot_sign = math.copysign(1, side * direction * offset)
-        prev_overshoot = overshoot_sign * swe.difdeg2n(prev_lon, target)
-        overshoot = overshoot_sign * offset
-        # Key the date brackets by which one is already overshooting
-        ends = {
-            prev_overshoot > 0: (prev_jd, prev_overshoot, prev_lon),
-            overshoot > 0: (jd, overshoot, lon),
-        }
-        # Keep interpolating until our sample only overshoots by <= calc.MAX_ERROR
-        target_overshoot = calc.MAX_ERROR / 2
-        previous_side = None
-        repeated_side = False
-        while ends[True][1] > calc.MAX_ERROR:
-            before_jd, before_overshoot, _ = ends[False]
-            after_jd, after_overshoot, _ = ends[True]
-            step = after_jd - before_jd
-            if repeated_side:
-                # In rare cases such as a Moon / True Lilith conjunction, we can
-                # end up with 2 samples on the same side of the target, so we
-                # simply halve the bracket here
-                jd = before_jd + step / 2
-            else:
-                # Step towards target_overshoot
-                overshoot_range = after_overshoot - before_overshoot
-                step_fraction = (target_overshoot - before_overshoot) / overshoot_range
-                jd = before_jd + step * step_fraction
-            # Jittery ephemeris data can produce date differences too small to
-            # work with, so here we check if either side rounds to the current
-            # jd and exit if there's a match
-            if jd in (before_jd, after_jd):
-                break
-            # Resample at the new jd
-            lon = sample(jd)[0]
-            overshoot = overshoot_sign * swe.difdeg2n(lon, target)
-            ends[overshoot > 0] = (jd, overshoot, lon)
-            current_side = overshoot > 0
-            repeated_side = current_side == previous_side
-            previous_side = current_side
     except swe.Error as error:
         raise NotFoundError(
             "No transit found before the end of the available ephemeris."
         ) from error
-    jd, _, lon = ends[True]
-    # Our overshoot target means that a crossing right at the limit
-    # can settle a fraction beyond it
-    if limit is not None and (jd - limit) * direction > 0:
-        raise NotFoundError(f"No transit found before limit date {limit}.")
-    return jd, lon, target
 
 
 def _aspect_targets(lon: float, aspect: float) -> set:
