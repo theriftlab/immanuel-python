@@ -104,6 +104,19 @@ def next_aspect_to(
     return _fixed_aspect_search(index, lon, jd, aspect, NEXT, limit)
 
 
+def can_aspect(index1: int, index2: int, aspect: float) -> bool:
+    """Returns whether or not two moving chart objects can ever form
+    the passed aspect."""
+    if index1 == index2:
+        return False
+    max_separation = calc.MAX_SEPARATIONS.get(frozenset((index1, index2)))
+    if max_separation is None:
+        return True
+    centre, half_width = max_separation
+    targets = _aspect_targets(calc.CONJUNCTION, aspect)
+    return any(abs(swe.difdeg2n(target, centre)) < half_width for target in targets)
+
+
 def previous_new_moon(jd: float) -> float:
     """Returns the Julian date of the previous Sun / Moon conjunction."""
     return previous_aspect_between(chart.SUN, chart.MOON, jd, calc.CONJUNCTION)
@@ -174,7 +187,11 @@ def _aspect_search(
     limit: float | None,
 ) -> float:
     """Returns the Julian date of the previous or next requested aspect
-    between two planets."""
+    between two planets. Raises ValueError if they can never form it."""
+    if not can_aspect(index1, index2, aspect):
+        raise ValueError(
+            f"Impossible aspect {aspect} for chart objects {index1} and {index2}."
+        )
     targets = _aspect_targets(calc.CONJUNCTION, aspect)
     return next(_crossings(index1, targets, jd, direction, NEXT, index2, limit))[0]
 
@@ -205,7 +222,9 @@ def _sign_ingress_egress_search(
     out of the given sign. If the first search puts the planet in the wrong
     state, it runs the search again to return the correct one."""
     sign_boundaries = {swe.degnorm((sign - 1) * 30.0), swe.degnorm(sign * 30.0)}
-    crossings = _crossings(index, sign_boundaries, jd, direction, direction, limit=limit)
+    crossings = _crossings(
+        index, sign_boundaries, jd, direction, direction, limit=limit
+    )
     jd, lon, _ = next(crossings)
     in_sign = position.sign(lon) == sign
     in_ingress = type == INGRESS
@@ -259,11 +278,10 @@ def _crossings(
         # Find the indices of the start and end targets
         start = bisect.bisect_right(sorted_targets, from_lon)
         end = bisect.bisect_left(sorted_targets, to_lon)
-        # If start > end we'll get an empty list
-        if from_lon <= to_lon:
-            return sorted_targets[start:end]
         # Wrap our list if the current arc crosses 0°
-        return sorted_targets[start:] + sorted_targets[:end]
+        if from_lon - to_lon > 180:
+            return sorted_targets[start:] + sorted_targets[:end]
+        return sorted_targets[start:end]
 
     def crossing_point(target: float, start: tuple, end: tuple) -> tuple:
         """Returns the Julian date and longitude at the point between the

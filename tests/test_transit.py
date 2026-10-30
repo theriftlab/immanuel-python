@@ -156,6 +156,15 @@ def test_next_aspect_to(jd, coords):
     assert at_dt.strftime("%Y-%m-%d %H:%M") == "2000-08-09 19:26"
 
 
+def test_can_aspect(jd):
+    # We have bounded Sun / Mercury aspects to 28°
+    assert transit.can_aspect(chart.SUN, chart.MERCURY, 27.0)
+    assert not transit.can_aspect(chart.SUN, chart.MERCURY, 29.0)
+    # Ensure two-way set keys
+    assert transit.can_aspect(chart.MERCURY, chart.SUN, 27.0)
+    assert not transit.can_aspect(chart.MERCURY, chart.SUN, 29.0)
+
+
 def test_previous_new_moon(jd, coords):
     # https://www.timeanddate.com/moon/phases/?year=1999
     nm_jd = transit.previous_new_moon(jd)
@@ -251,11 +260,10 @@ def test_search_beyond_ephemeris_limit_raises_exception():
         transit.next_sign_ingress(chart.SATURN, chart.GEMINI, jd)
 
 
-def test_impossible_aspect_search_raises_exception():
-    # Mercury will never oppose the Sun, that would be weird -
-    # we can safely pick a far-off point to reduce test execution time
-    jd = date.to_jd("4500-01-01")
-    with raises(transit.NotFoundError):
+def test_impossible_aspect_search_raises_exception(jd):
+    # Mercury will never oppose the Sun, so this should trigger a False
+    # from can_aspect() under the hood
+    with raises(ValueError):
         transit.next_aspect_between(chart.MERCURY, chart.SUN, jd, calc.OPPOSITION)
 
 
