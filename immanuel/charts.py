@@ -16,6 +16,9 @@ aspects to the planets in that chart rather than its own. An additional
 houses_for_aspected boolean is available on the Transits chart to use the
 houses of the passed aspects_to chart.
 
+For subjects with an unknown time the chart will drop houses, time-sensitive
+chart objects, sect calculation, and sect-based dignities.
+
 """
 
 from __future__ import annotations
@@ -85,13 +88,28 @@ class Chart:
             data.WEIGHTINGS: self.wrap_weightings,
         } | self._wrap_functions
         self.generate()
+        if not self._time_known:
+            self._objects = {
+                index: object
+                for index, object in self._objects.items()
+                if object["type"] not in chart.TIME_DEPENDENT_TYPES
+                and index not in chart.TIME_DEPENDENT_POINTS
+            }
         self.set_aspects()
         self.wrap()
+
+    @property
+    def _time_known(self) -> bool:
+        """Determines whether we should calculate houses & angles
+        and all the things that depends on them."""
+        return self._native.time_status == chart.TIME_KNOWN
 
     def house_for(self, object: wrap.Object) -> int:
         """Returns the index of the house where any passed arbitrary object
         would appear in the current chart. Useful for synastries and
         transit charts."""
+        if not self._time_known:
+            raise ValueError("Chart has no houses without a known time.")
         return position.house(object.longitude.raw, self._houses)["index"]
 
     def generate(self) -> None:
@@ -114,6 +132,8 @@ class Chart:
         """Loop through the required data and wrap each one with a custom
         function."""
         for index in self._config.chart_data[self._type]:
+            if not self._time_known and index in data.TIME_DEPENDENT:
+                continue
             if wrap := self._wrap_functions.get(index):
                 wrap()
 
@@ -150,26 +170,35 @@ class Chart:
         self.objects = {}
         # We can only calculate all dignities accurately if we have all planets present
         calculate_dignities = all(planet in self._objects for planet in chart.PLANETS)
+        is_daytime = self._diurnal if self._time_known else None
 
         for index, object in self._objects.items():
-            house = position.house(
-                object=object,
-                houses=self._houses,
+            house = (
+                position.house(
+                    object=object,
+                    houses=self._houses,
+                )
+                if self._time_known
+                else None
             )
             out_of_bounds = condition.is_object_out_of_bounds(
                 object=object,
                 obliquity=self._obliquity,
             )
-            in_sect = condition.is_object_in_sect(
-                object=object,
-                is_daytime=self._diurnal,
-                sun=self._triad[chart.SUN],
+            in_sect = (
+                condition.is_object_in_sect(
+                    object=object,
+                    is_daytime=is_daytime,
+                    sun=self._triad[chart.SUN],
+                )
+                if self._time_known and is_daytime
+                else None
             )
             dignity_state = (
                 dignity.all(
                     object=object,
                     objects=self._objects,
-                    is_daytime=self._diurnal,
+                    is_daytime=is_daytime,
                     config=self._config,
                 )
                 if calculate_dignities and object["type"] == chart.PLANET
@@ -226,7 +255,11 @@ class Chart:
         self.weightings = wrap.Weightings(
             elements=weighting.elements(self._objects),
             modalities=weighting.modalities(self._objects),
-            quadrants=weighting.quadrants(self._objects, self._houses),
+            quadrants=(
+                weighting.quadrants(self._objects, self._houses)
+                if self._time_known
+                else None
+            ),
             config=self._config,
         )
 
@@ -357,6 +390,7 @@ class SolarReturn(Chart):
             longitude=self._native.longitude,
             offset=self._native.timezone_offset,
             timezone=self._native.timezone,
+            time_status=self._native.time_status,
             config=self._config,
         )
 
@@ -454,6 +488,7 @@ class Progressed(Chart):
             longitude=self._native.longitude,
             offset=self._native.timezone_offset,
             timezone=self._native.timezone,
+            time_status=self._native.time_status,
             config=self._config,
         )
 
@@ -590,6 +625,13 @@ class Composite(Chart):
             self._triad[chart.SUN], self._triad[chart.MOON]
         )
 
+    @property
+    def _time_known(self) -> bool:
+        return (
+            self._native.time_status == chart.TIME_KNOWN
+            and self._partner.time_status == chart.TIME_KNOWN
+        )
+
     def wrap_partner(self):
         self.partner = wrap.Subject(self._partner, config=self._config)
 
@@ -613,6 +655,12 @@ class Transits(Chart):
             config.default_longitude if longitude is None else longitude,
         )
         date_time = date.localize(datetime.now(), lat, lon, offset, timezone)
+        if (
+            houses_for_aspected
+            and aspects_to is not None
+            and not aspects_to._time_known
+        ):
+            raise ValueError("Aspected chart has no houses without a known time.")
         self._native = Subject(date_time, lat, lon, offset, timezone)
         self._houses_for_aspected = houses_for_aspected
         super().__init__(chart.TRANSITS, aspects_to, config)

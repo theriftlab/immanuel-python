@@ -24,3 +24,10 @@ OBJECTS = 12
 ASPECTS = 13
 HOUSES = 14
 WEIGHTINGS = 15
+
+""" Chart data that depends on a known subject time. """
+TIME_DEPENDENT = (
+    HOUSE_SYSTEM,
+    DIURNAL,
+    HOUSES,
+)

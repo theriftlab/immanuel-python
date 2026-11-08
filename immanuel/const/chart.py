@@ -21,6 +21,11 @@ PROGRESSED = 3
 COMPOSITE = 4
 TRANSITS = 5
 
+""" Subject time statuses. """
+TIME_KNOWN = 1
+TIME_APPROXIMATE = 2
+TIME_UNKNOWN = 3
+
 """ Signs. """
 ARIES = 1
 TAURUS = 2
@@ -195,6 +200,19 @@ POINTS = (
     TRUE_LILITH,
     INTERPOLATED_LILITH,
     SYZYGY,
+    PART_OF_FORTUNE,
+    PART_OF_SPIRIT,
+    PART_OF_EROS,
+)
+
+""" Time-dependent chart objects. """
+TIME_DEPENDENT_TYPES = (
+    HOUSE,
+    ANGLE,
+)
+
+TIME_DEPENDENT_POINTS = (
+    VERTEX,
     PART_OF_FORTUNE,
     PART_OF_SPIRIT,
     PART_OF_EROS,

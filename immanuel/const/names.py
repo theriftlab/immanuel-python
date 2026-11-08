@@ -17,6 +17,12 @@ CHART_TYPES = {
     chart.TRANSITS: "Transits",
 }
 
+TIME_STATUSES = {
+    chart.TIME_KNOWN: "Known time",
+    chart.TIME_APPROXIMATE: "Approximate time",
+    chart.TIME_UNKNOWN: "Unknown time",
+}
+
 OBJECTS = {
     chart.HOUSE: "House",
     chart.ANGLE: "Angle",

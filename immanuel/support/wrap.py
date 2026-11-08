@@ -162,15 +162,18 @@ class DateTime:
         offset: float | None = None,
         timezone: str | None = None,
         time_is_dst: bool | None = None,
+        time_status: int = chart.TIME_KNOWN,
         config: Config = DEFAULTS,
     ) -> None:
         self._config = config
+        self._time_status = time_status
         self.datetime = date.to_datetime(dt, latitude, longitude, offset, timezone)
         self.timezone = date.timezone_name(self.datetime)
         self.ambiguous = date.ambiguous(self.datetime) and time_is_dst is None
+        self.time_status = _(names.TIME_STATUSES[time_status], config.locale)
         self.julian = date.to_jd(dt)
         self.deltat = date.deltat(self.julian)
-        if armc is not None:
+        if armc is not None and time_status == chart.TIME_KNOWN:
             self.sidereal_time = convert.dec_to_string(
                 date.sidereal_time(armc["lon"] if isinstance(armc, dict) else armc),
                 format=convert.FORMAT_TIME,
@@ -197,8 +200,13 @@ class DateTime:
             time=self.datetime.strftime("%H:%M:%S"),
             timezone=self.timezone,
         )
+        state = []
         if self.ambiguous:
-            formatted += f" ({_('ambiguous', self._config.locale)})"
+            state.append(_("Ambiguous", self._config.locale))
+        if self._time_status != chart.TIME_KNOWN:
+            state.append(self.time_status)
+        if state:
+            formatted += f" ({', '.join(state)})"
         return formatted
 
 
@@ -420,6 +428,7 @@ class Subject:
             offset=subject.timezone_offset,
             timezone=subject.timezone,
             time_is_dst=subject.time_is_dst,
+            time_status=subject.time_status,
             config=config,
         )
         self.coordinates = Coordinates(
@@ -440,15 +449,19 @@ class Weightings:
         self,
         elements: dict,
         modalities: dict,
-        quadrants: dict,
+        quadrants: dict | None = None,
         config: Config = DEFAULTS,
     ) -> None:
         self.elements = Elements(elements, config=config)
         self.modalities = Modalities(modalities, config=config)
-        self.quadrants = Quadrants(quadrants, config=config)
+        if quadrants is not None:
+            self.quadrants = Quadrants(quadrants, config=config)
 
     def __str__(self) -> str:
-        return f"{self.elements}\n{self.modalities}\n{self.quadrants}"
+        formatted = f"{self.elements}\n{self.modalities}"
+        if hasattr(self, "quadrants"):
+            formatted += f"\n{self.quadrants}"
+        return formatted
 
 
 class Elements:

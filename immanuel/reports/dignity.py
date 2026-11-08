@@ -28,12 +28,16 @@ def exalted(object: dict) -> bool:
 
 def triplicity_ruler(
     object: dict,
-    is_daytime: bool,
+    is_daytime: bool | None,
     config: Config = DEFAULTS,
 ) -> bool:
     """Returns whether the passed planet is any type of triplicity ruler."""
     triplicities = config.triplicities[position.sign(object)]
-    rulers = {triplicities["day" if is_daytime else "night"]}
+    rulers = (
+        set()
+        if is_daytime is None
+        else {triplicities["day" if is_daytime else "night"]}
+    )
     if config.include_participatory_triplicities and "participatory" in triplicities:
         rulers.add(triplicities["participatory"])
     return object["index"] in rulers
@@ -94,21 +98,22 @@ def mutual_reception_exalted(object: dict, objects: dict) -> bool:
 def mutual_reception_triplicity_ruler(
     object: dict,
     objects: dict,
-    is_daytime: bool,
+    is_daytime: bool | None,
     config: Config = DEFAULTS,
 ) -> bool:
     """Returns whether the passed planet is in mutual reception
     by any type of triplicity rulership."""
     if triplicity_ruler(object, is_daytime, config):
         return False
-    key = "day" if is_daytime else "night"
     object_sign = position.sign(object)
     object_triplicities = config.triplicities[object_sign]
-    day_night_ruler_triplicities = config.triplicities[
-        position.sign(objects[object_triplicities[key]])
-    ]
-    if object["index"] == day_night_ruler_triplicities[key]:
-        return True
+    if is_daytime is not None:
+        key = "day" if is_daytime else "night"
+        day_night_ruler_triplicities = config.triplicities[
+            position.sign(objects[object_triplicities[key]])
+        ]
+        if object["index"] == day_night_ruler_triplicities[key]:
+            return True
     if (
         not config.include_participatory_triplicities
         or "participatory" not in object_triplicities
@@ -183,7 +188,7 @@ def fall(object: dict) -> bool:
 def all(
     object: dict,
     objects: dict,
-    is_daytime: bool,
+    is_daytime: bool | None,
     config: Config = DEFAULTS,
 ) -> dict:
     """Returns a dict of all dignity states for the passed planet."""
