@@ -27,6 +27,18 @@ msgid "Composite"
 msgstr "Compuesto"
 
 
+# Time statuses
+
+msgid "Known time"
+msgstr "Hora conocida"
+
+msgid "Approximate time"
+msgstr "Hora aproximada"
+
+msgid "Unknown time"
+msgstr "Hora desconocida"
+
+
 # Objects
 
 msgid "House"
@@ -603,9 +615,9 @@ msgstr "Casas Diarias"
 
 # Formatted sentences & words
 
-# For datetimes, eg. Sun Nov 06 2022 01:30:00 AM America/Los_Angeles (ambiguous)
-msgid "ambiguous"
-msgstr "ambíguo"
+# For datetimes, eg. Sun Nov 06 2022 01:30:00 AM America/Los_Angeles (Ambiguous, Approximate time)
+msgid "Ambiguous"
+msgstr "Ambiguo"
 
 # For aspects, eg. Moon Sun Sextile within -05°42'03" (Separative, Associate)
 msgid "{active} {passive} {type} within {difference} ({movement}, {condition})"
