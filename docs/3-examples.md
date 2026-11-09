@@ -24,6 +24,22 @@ native = charts.Subject(
 
 The optional `time_is_dst` parameter is a boolean to clarify ambiguous times - for example 1:30am on a night when switching to US daylight savings could be in either the standard or the DST timezone. To specify which one, pass either `True` or `False` to this argument. For all other non-ambiguous times, `time_is_dst` can safely be omitted.
 
+If the time is not known, pass one of the time status constants from `const.chart` to the optional `time_status` parameter:
+
+* `TIME_KNOWN` **(default)** - the passed time is taken as accurate and the chart is calculated as normal.
+* `TIME_APPROXIMATE` - the chart is calculated at the passed time, but anything that depends on an accurate time is left out.
+* `TIME_UNKNOWN` - similar to `TIME_APPROXIMATE`, except that any time passed is replaced with local noon. This is fairly traditional for truly unknown birth times and keeps the Moon within approx. ~6.5° of its true position.
+
+```python
+from immanuel import charts
+from immanuel.const import chart
+
+
+native = charts.Subject("2000-01-01", "32n43", "117w09", time_status=chart.TIME_UNKNOWN)
+```
+
+A date with no time is fine for `TIME_UNKNOWN` since the time is always replaced with noon. With the other two statuses, a date alone would be read as midnight. The houses, angles and other data left out of unknown-time and approximate-time charts are listed in the [Returned Data](4-data.md#unknown-birth-times) section.
+
 You may provide a string argument to the optional `timezone` parameter if you'd like to bypass the coordinate lookup. This will speed up chart generation and could potentially be more accurate if your own timezone data is more up to date than Immanuel's offline lookup.
 
 There is also an optional `timezone_offset` parameter. This is a float which explicitly sets the UTC offset in hours for the location specified by the passed coordinates. While Immanuel will do its best to look up the correct timezone for the coordinates, it might not always be accurate, especially when boundaries or offsets have changed since the given birth date. This parameter can safely be ignored for most use cases.
@@ -61,9 +77,9 @@ native_chart = charts.Natal(native, aspects_to=partner_chart)
 
 Now `native_chart`'s planets/objects will aspect `partner_chart`'s planets/objects instead of its own. This makes things very flexible - a synastry chart can be created as above, with two natal charts, or a natal+transits chart can be created by passing a transits chart into a natal chart. It might also be useful to pass transits into a progressed or composite chart. You could even pass a composite chart into another composite chart to view synastry aspects between them.
 
-All chart instances additionally feature a `house_for()` method which takes a chart object as a parameter. This simply returns the index of the current chart's house where the passed chart object would appear. This can be useful in conjunction with the above functionality to see which houses a transiting planet is in, or which houses in your chart a partner's planets appear.
+All chart instances additionally feature a `house_for()` method which takes a chart object as a parameter. This simply returns the index of the current chart's house where the passed chart object would appear. This can be useful in conjunction with the above functionality to see which houses a transiting planet is in, or which houses in your chart a partner's planets appear. Since a chart without a known time has no houses, calling `house_for()` on one raises a `ValueError`.
 
-Similarly, the `Transits` chart class features an additional `houses_for_aspected` boolean parameter. This will give the transits chart the same houses as the `aspected_to` chart for easy transit tracking.
+Similarly, the `Transits` chart class features an additional `houses_for_aspected` boolean parameter. This will give the transits chart the same houses as the `aspects_to` chart for easy transit tracking. If the `aspects_to` chart does not have a known time, this raises a `ValueError`.
 
 ## Human/AI-Readable
 
@@ -148,6 +164,7 @@ This will output the following JSON:
         "datetime": "2000-01-01 10:00:00-08:00",
         "timezone": "America/Los_Angeles",
         "ambiguous": false,
+        "time_status": "Known time",
         "julian": 2451545.25,
         "deltat": 0.0007387629899254968,
         "sidereal_time": "16:54:13"

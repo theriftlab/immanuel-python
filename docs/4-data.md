@@ -18,6 +18,7 @@ The chart native, based on the date and coordinates you will have passed in when
         "datetime": "2000-01-01 10:00:00-08:00",
         "timezone": "America/Los_Angeles",
         "ambiguous": false,
+        "time_status": "Known time",
         "julian": 2451545.25,
         "deltat": 0.0007387629899254968,
         "sidereal_time": "16:54:13"
@@ -46,6 +47,8 @@ The chart native, based on the date and coordinates you will have passed in when
 The `date_time` structure is consistent for all dates returned by Immanuel's natal charts, and the `latitude` and `longitude` are similarly consistent for all angles returned.
 
 Note that `ambiguous` is set to `true` when a time during the daylight savings switchover is passed without passing `time_is_dst` as discussed in the [Examples](3-examples.md#json) section. For instance, `2023-11-05 01:30` on the USA's West Coast could be either PDT or PST. By specifying `time_is_dst` when constructing the chart's subject, `ambiguous` will be `false`.
+
+Every `date_time` also carries a `time_status` string reflecting the accuracy of the time passed to the chart's subject. The solar return and progressed date times also inherit this from the native. When the time is not known, `sidereal_time` is left out, and the printed date notes the status alongside any ambiguity, eg. `Sun Nov 06 2022 01:30:00 America/Los_Angeles (Ambiguous, Approximate time)`.
 
 ### `natal.house_system`
 
@@ -619,6 +622,18 @@ So far we have seen what gets returned from a simple natal chart. Other chart ty
 | Property | Type | Description |
 |---|---|---|
 | partner | object | Based on the partner's `Subject` instance passed to the chart class constructor. |
+
+## Unknown Birth Times
+
+When a chart's subject is created with a `time_status` of `TIME_APPROXIMATE` or `TIME_UNKNOWN`, as described in the [Examples](3-examples.md) section, anything that depends on an accurate time is left out of the chart:
+
+* `house_system`, `diurnal` and `houses` are dropped completely.
+* Angles, house cusps, Vertex and the Parts (Fortune, Spirit and Eros) are removed from `objects`, and so never appear in `aspects`, `aspect_patterns` or `weightings`.
+* The remaining chart objects have no `house` or `in_sect` properties.
+* `weightings` has no `quadrants` entry (since this refers to house quadrants).
+* Since the chart's sect is unknown, only participatory rulers count towards triplicity dignities. If `include_participatory_triplicities` is off, no planet will be a triplicity ruler.
+
+The same applies to solar return and progressed charts generated from a subject with approximate or unknown time, and to a composite chart where either subject's time is not known. A chart aspecting one of these via `aspects_to` will not form aspects to its missing angles or points.
 
 ## Object Indexing
 
