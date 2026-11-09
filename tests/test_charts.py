@@ -24,7 +24,7 @@ from immanuel import charts
 from immanuel.const import calc, chart, dignities, names
 from immanuel.settings import Config
 from immanuel.support import wrap
-from immanuel.tools import convert
+from immanuel.tools import convert, sweph
 
 
 @fixture
@@ -97,9 +97,25 @@ def test_subject(dob, lat, lon, native, julian_date):
     assert native.longitude == longitude
     assert not native.date_time_ambiguous
     assert native.julian_date == julian_date
+
+
+def test_subject_time_state(dob, lat, lon):
+    # Ambiguous time due to DST
     ambiguous_date_time = datetime(2022, 11, 6, 1, 30)
     ambiguous_native = charts.Subject(ambiguous_date_time, lat, lon)
     assert ambiguous_native.date_time_ambiguous
+    # Unknown knocks our 10:00 time to noon
+    unknown_time_native = charts.Subject(dob, lat, lon, time_status=chart.TIME_UNKNOWN)
+    assert unknown_time_native.date_time.hour == 12
+    assert unknown_time_native.date_time.minute == 0
+    assert unknown_time_native.date_time.second == 0
+    # Approximate doesn't change anything here
+    approximate_time_native = charts.Subject(
+        dob, lat, lon, time_status=chart.TIME_APPROXIMATE
+    )
+    assert approximate_time_native.date_time.hour == 10
+    assert approximate_time_native.date_time.minute == 0
+    assert approximate_time_native.date_time.second == 0
 
 
 def test_wrapped_data(native):
@@ -257,6 +273,49 @@ def test_wrapped_data(native):
     assert type(quadrants.second) is list
     assert type(quadrants.third) is list
     assert type(quadrants.fourth) is list
+
+
+def test_wrapped_datetime_time_state(native, dob, lat, lon):
+    # Special case here for all possible wrapped outputs
+    natal_chart = charts.Natal(native)
+    assert (
+        str(natal_chart.native.date_time)
+        == "Sat Jan 01 2000 10:00:00 America/Los_Angeles"
+    )
+    # Ambiguous time due to DST
+    ambiguous_date_time = datetime(2022, 11, 6, 1, 30)
+    ambiguous_native = charts.Subject(ambiguous_date_time, lat, lon)
+    natal_chart = charts.Natal(ambiguous_native)
+    assert (
+        str(natal_chart.native.date_time)
+        == "Sun Nov 06 2022 01:30:00 America/Los_Angeles (Ambiguous)"
+    )
+    # Unknown knocks our 10:00 time to noon
+    unknown_time_native = charts.Subject(dob, lat, lon, time_status=chart.TIME_UNKNOWN)
+    natal_chart = charts.Natal(unknown_time_native)
+    assert (
+        str(natal_chart.native.date_time)
+        == "Sat Jan 01 2000 12:00:00 America/Los_Angeles (Unknown time)"
+    )
+    # Approximate keeps the passed time
+    approximate_time_native = charts.Subject(
+        dob, lat, lon, time_status=chart.TIME_APPROXIMATE
+    )
+    natal_chart = charts.Natal(approximate_time_native)
+    assert (
+        str(natal_chart.native.date_time)
+        == "Sat Jan 01 2000 10:00:00 America/Los_Angeles (Approximate time)"
+    )
+    # Let's mix & match
+    ambiguous_date_time = datetime(2022, 11, 6, 1, 30)
+    ambiguous_native = charts.Subject(
+        ambiguous_date_time, lat, lon, time_status=chart.TIME_APPROXIMATE
+    )
+    natal_chart = charts.Natal(ambiguous_native)
+    assert (
+        str(natal_chart.native.date_time)
+        == "Sun Nov 06 2022 01:30:00 America/Los_Angeles (Ambiguous, Approximate time)"
+    )
 
 
 def test_natal(native, lat, lon):
@@ -679,3 +738,18 @@ def test_synastry(native, partner):
     assert partner_chart.house_for(native_chart.objects[chart.SUN]) == chart.HOUSE11
     assert native_chart.house_for(partner_chart.objects[chart.MOON]) == chart.HOUSE9
     assert partner_chart.house_for(native_chart.objects[chart.MOON]) == chart.HOUSE9
+
+
+def test_unknown_and_approximate_times_drop_objects(dob, lat, lon):
+    approximate_time_native = charts.Subject(
+        dob, lat, lon, time_status=chart.TIME_APPROXIMATE
+    )
+    unknown_time_native = charts.Subject(dob, lat, lon, time_status=chart.TIME_UNKNOWN)
+    natal_charts = (
+        charts.Natal(approximate_time_native),
+        charts.Natal(unknown_time_native),
+    )
+    for natal_chart in natal_charts:
+        for index in natal_chart.objects:
+            assert sweph.type_of(index) not in chart.TIME_DEPENDENT_TYPES
+            assert index not in chart.TIME_DEPENDENT_POINTS
