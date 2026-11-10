@@ -191,7 +191,7 @@ class Chart:
                     is_daytime=is_daytime,
                     sun=self._triad[chart.SUN],
                 )
-                if self._time_known and is_daytime
+                if self._time_known and is_daytime is not None
                 else None
             )
             dignity_state = (
