@@ -753,3 +753,70 @@ def test_unknown_and_approximate_times_drop_objects(dob, lat, lon):
         for index in natal_chart.objects:
             assert sweph.type_of(index) not in chart.TIME_DEPENDENT_TYPES
             assert index not in chart.TIME_DEPENDENT_POINTS
+
+
+def test_unknown_and_approximate_times_propagate(native, dob, lat, lon):
+    # Solar returns
+    solar_return_chart = charts.SolarReturn(native, 2026)
+    assert hasattr(solar_return_chart.solar_return_date_time, "sidereal_time")
+    approximate_time_native = charts.Subject(
+        dob, lat, lon, time_status=chart.TIME_APPROXIMATE
+    )
+    approximate_solar_return_chart = charts.SolarReturn(approximate_time_native, 2026)
+    assert not hasattr(
+        approximate_solar_return_chart.solar_return_date_time, "sidereal_time"
+    )
+    unknown_time_native = charts.Subject(dob, lat, lon, time_status=chart.TIME_UNKNOWN)
+    unknown_solar_return_chart = charts.SolarReturn(unknown_time_native, 2026)
+    assert not hasattr(
+        unknown_solar_return_chart.solar_return_date_time, "sidereal_time"
+    )
+
+    # Secondary progressions
+    progression_date = datetime(2026, 1, 1)
+    progressed_chart = charts.Progressed(native, progression_date)
+    assert hasattr(progressed_chart.progressed_date_time, "sidereal_time")
+    approximate_progressed_chart = charts.Progressed(
+        approximate_time_native, progression_date
+    )
+    assert not hasattr(
+        approximate_progressed_chart.progressed_date_time, "sidereal_time"
+    )
+    unknown_progressed_chart = charts.Progressed(unknown_time_native, progression_date)
+    assert not hasattr(unknown_progressed_chart.progressed_date_time, "sidereal_time")
+
+
+def test_unknown_and_approximate_times_with_sect():
+    # Courtesy of https://github.com/theriftlab/immanuel-python/issues/31
+    # I've stolen their night chart use case to test this behavior is behaving
+    natal = charts.Natal(
+        charts.Subject("2001-03-21 23:59", -33.87, 151.21, timezone="Australia/Sydney")
+    )
+    assert hasattr(natal.objects[chart.SUN], "in_sect")
+    assert hasattr(natal.objects[chart.MOON], "in_sect")
+    assert not natal.objects[chart.SUN].in_sect
+    assert natal.objects[chart.MOON].in_sect
+    # Same chart with approximate time
+    natal = charts.Natal(
+        charts.Subject(
+            "2001-03-21 23:59",
+            -33.87,
+            151.21,
+            timezone="Australia/Sydney",
+            time_status=chart.TIME_APPROXIMATE,
+        )
+    )
+    assert not hasattr(natal.objects[chart.SUN], "in_sect")
+    assert not hasattr(natal.objects[chart.MOON], "in_sect")
+    # Same chart with unknown time
+    natal = charts.Natal(
+        charts.Subject(
+            "2001-03-21 23:59",
+            -33.87,
+            151.21,
+            timezone="Australia/Sydney",
+            time_status=chart.TIME_UNKNOWN,
+        )
+    )
+    assert not hasattr(natal.objects[chart.SUN], "in_sect")
+    assert not hasattr(natal.objects[chart.MOON], "in_sect")
