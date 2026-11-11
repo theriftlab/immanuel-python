@@ -31,9 +31,7 @@ def solar_return(jd: float, year: int) -> float:
     return sr_jd
 
 
-def progression(
-    jd: float, lat: float, lon: float, pjd: float, house_system: int, method: int
-) -> tuple:
+def progression(jd: float, lat: float, lon: float, pjd: float, method: int) -> tuple:
     """Returns the progressed Julian date and MC right ascension."""
     year_days = orbit.solar_year_length(jd)
     years = (pjd - jd) / year_days
@@ -41,15 +39,15 @@ def progression(
     match method:
         case calc.DAILY_HOUSES:
             progressed_armc_lon = sweph.angle(
-                chart.ARMC, progressed_jd, lat, lon, house_system
+                chart.ARMC, progressed_jd, lat, lon, chart.EQUAL
             )["lon"]
         case calc.NAIBOD:
-            natal_armc = sweph.angle(chart.ARMC, jd, lat, lon, house_system)["lon"]
+            natal_armc = sweph.angle(chart.ARMC, jd, lat, lon, chart.EQUAL)["lon"]
             progressed_armc_lon = swe.degnorm(
                 natal_armc + years * calc.MEAN_MOTIONS[chart.SUN]
             )
         case calc.SOLAR_ARC:
-            natal_mc = sweph.angle(chart.MC, jd, lat, lon, house_system)
+            natal_mc = sweph.angle(chart.MC, jd, lat, lon, chart.EQUAL)
             natal_sun = sweph.planet(chart.SUN, jd)
             progressed_sun = sweph.planet(chart.SUN, progressed_jd)
             distance = swe.difdeg2n(progressed_sun["lon"], natal_sun["lon"])

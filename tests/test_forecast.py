@@ -207,9 +207,7 @@ def test_progression_date(jd, pjd, coords):
     use to calculate the houses, we can use any available method
     for this test."""
     lat, lon = coords
-    progressed_jd = forecast.progression(
-        jd, lat, lon, pjd, chart.PLACIDUS, calc.NAIBOD
-    )[forecast.JD]
+    progressed_jd = forecast.progression(jd, lat, lon, pjd, calc.NAIBOD)[forecast.JD]
     assert round(progressed_jd + date.deltat(progressed_jd), 6) == 2451570.719456
 
 
@@ -218,7 +216,7 @@ def test_progression(jd, pjd, coords, astro):
     lat, lon = coords
     for method, results in astro.items():
         progressed_jd, progressed_armc_lon = forecast.progression(
-            jd, lat, lon, pjd, chart.PLACIDUS, method
+            jd, lat, lon, pjd, method
         )
         for index, data in results.items():
             house = ephemeris.armc_get_house(

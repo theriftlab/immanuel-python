@@ -437,7 +437,6 @@ class Progressed(Chart):
             lat=self._native.latitude,
             lon=self._native.longitude,
             pjd=progression_jd,
-            house_system=self._config.house_system,
             method=self._config.mc_progression_method,
         )
         self._obliquity = orbit.earth_obliquity(self._progressed_jd)
