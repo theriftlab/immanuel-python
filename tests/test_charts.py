@@ -17,6 +17,7 @@ for the submodules.
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+import pytest
 import swisseph as swe
 from pytest import fixture
 
@@ -820,3 +821,19 @@ def test_unknown_and_approximate_times_with_sect():
     )
     assert not hasattr(natal.objects[chart.SUN], "in_sect")
     assert not hasattr(natal.objects[chart.MOON], "in_sect")
+
+
+def test_polar_angles():
+    # Courtesy of https://github.com/theriftlab/immanuel-python/issues/32
+    # Take Tromsø subject from GH issue
+    lat, lon = 69.6492, 18.9553
+    native = charts.Subject("1988-12-21 09:00", lat, lon, timezone="Europe/Oslo")
+    config = charts.Config()
+    config.house_system = chart.WHOLE_SIGN
+    # This will throw an exception if a non-polar-friendly
+    # house system is still being used under the hood somewhere
+    charts.Natal(native, config=config)
+    # This will throw an exception because Placidus can't cope this far north
+    config.house_system = chart.PLACIDUS
+    with pytest.raises(ValueError):
+        charts.Natal(native, config=config)

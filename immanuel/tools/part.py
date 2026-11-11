@@ -33,12 +33,10 @@ def longitude(
             lat=lat,
             armc=armc,
             armc_obliquity=armc_obliquity,
-            house_system=chart.PLACIDUS,
+            house_system=chart.EQUAL,
         )
     else:
-        asc = sweph.angle(
-            chart.ASC, jd=jd, lat=lat, lon=lon, house_system=chart.PLACIDUS
-        )
+        asc = sweph.angle(chart.ASC, jd=jd, lat=lat, lon=lon, house_system=chart.EQUAL)
     night = formula == calc.NIGHT_FORMULA or (
         formula == calc.DAY_NIGHT_FORMULA and not condition.is_daytime_from(sun, asc)
     )
