@@ -259,17 +259,29 @@ def angles_houses_vertex(
     armc_obliquity: float | None = None,
 ) -> dict:
     """Returns ecliptic longitudes for the houses, main angles, and the vertex,
-    along with their speeds. Defaults to Placidus for main angles & vertex if
-    a PLANET_ON_FIRST house system is chosen. Based on Julian date and
+    along with their speeds. Defaults to Equal Houses for main angles & vertex
+    if a PLANET_ON_FIRST house system is chosen. Based on Julian date and
     lat / lon coordinates."""
     swe_house_system = _SWE[
-        house_system if house_system < chart.PLANET_ON_FIRST else chart.PLACIDUS
+        house_system if house_system < chart.PLANET_ON_FIRST else chart.EQUAL
     ]
     if armc is not None:
         if lat is None or armc_obliquity is None:
             raise TypeError(
                 "lat and armc_obliquity must be provided when armc is used."
             )
+        try:
+            cusps, ascmc, cuspsspeed, ascmcspeed = swe.houses_armc_ex2(
+                armc,
+                lat,
+                armc_obliquity,
+                swe_house_system,
+            )
+        except swe.Error as error:
+            raise ValueError(
+                f"{names.HOUSE_SYSTEMS[house_system]} houses cannot be calculated "
+                f"at latitude {lat:.4f}. Please use another house system."
+            ) from error
         cusps, ascmc, cuspsspeed, ascmcspeed = swe.houses_armc_ex2(
             armc,
             lat,
@@ -287,12 +299,15 @@ def angles_houses_vertex(
     if jd is not None:
         if lat is None or lon is None:
             raise TypeError("lat and lon must be provided when jd is used.")
-        cusps, ascmc, cuspsspeed, ascmcspeed = swe.houses_ex2(
-            jd,
-            lat,
-            lon,
-            swe_house_system,
-        )
+        try:
+            cusps, ascmc, cuspsspeed, ascmcspeed = swe.houses_ex2(
+                jd, lat, lon, swe_house_system
+            )
+        except swe.Error as error:
+            raise ValueError(
+                f"{names.HOUSE_SYSTEMS[house_system]} houses cannot be calculated "
+                f"at latitude {lat:.4f}. Please use another house system."
+            ) from error
         return _angles_houses_vertex_from_sweph(
             true_earth_obliquity(jd),
             cusps,

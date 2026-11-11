@@ -71,7 +71,7 @@ def _is_daytime(
 ) -> bool:
     """Function for is_daytime() and armc_is_daytime()."""
     sun = sweph.planet(chart.SUN, jd)
-    asc = sweph.angle(chart.ASC, jd, lat, lon, chart.PLACIDUS, armc, armc_obliquity)
+    asc = sweph.angle(chart.ASC, jd, lat, lon, chart.EQUAL, armc, armc_obliquity)
     return is_daytime_from(sun, asc)
 
 
