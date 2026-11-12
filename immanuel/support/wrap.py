@@ -413,12 +413,16 @@ class Subject:
         config: Config = DEFAULTS,
     ) -> None:
         self._config = config
-        armc = ephemeris.get_angle(
-            index=chart.ARMC,
-            jd=subject.julian_date,
-            lat=subject.latitude,
-            lon=subject.longitude,
-            house_system=config.house_system,
+        armc = (
+            ephemeris.get_angle(
+                index=chart.ARMC,
+                jd=subject.julian_date,
+                lat=subject.latitude,
+                lon=subject.longitude,
+                house_system=chart.EQUAL,
+            )
+            if subject.time_status == chart.TIME_KNOWN
+            else None
         )
         self.date_time = DateTime(
             dt=subject.date_time,

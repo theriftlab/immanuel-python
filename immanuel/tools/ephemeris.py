@@ -308,6 +308,12 @@ def get_eclipse(index: int, jd: float) -> dict:
     return sweph.pre_post_natal_eclipse(index, jd, eclipse_type, eclipse_jd)
 
 
+def type_of(index: int) -> int:
+    """Returns the type index of any supported chart object index. This is
+    a simple wrapper around sweph.type_of()."""
+    return sweph.type_of(index)
+
+
 def _get_objects(
     object_list: list[int],
     jd: float,

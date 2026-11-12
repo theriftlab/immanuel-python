@@ -741,6 +741,21 @@ def test_synastry(native, partner):
     assert partner_chart.house_for(native_chart.objects[chart.MOON]) == chart.HOUSE9
 
 
+def test_unknown_and_approximate_times_drop_data(dob, lat, lon):
+    approximate_time_native = charts.Subject(
+        dob, lat, lon, time_status=chart.TIME_APPROXIMATE
+    )
+    unknown_time_native = charts.Subject(dob, lat, lon, time_status=chart.TIME_UNKNOWN)
+    natal_charts = (
+        charts.Natal(approximate_time_native),
+        charts.Natal(unknown_time_native),
+    )
+    for natal_chart in natal_charts:
+        assert not hasattr(natal_chart, "house_system")
+        assert not hasattr(natal_chart, "diurnal")
+        assert not hasattr(natal_chart, "houses")
+
+
 def test_unknown_and_approximate_times_drop_objects(dob, lat, lon):
     approximate_time_native = charts.Subject(
         dob, lat, lon, time_status=chart.TIME_APPROXIMATE

@@ -16,8 +16,8 @@ aspects to the planets in that chart rather than its own. An additional
 houses_for_aspected boolean is available on the Transits chart to use the
 houses of the passed aspects_to chart.
 
-For subjects with an unknown time the chart will drop houses, time-sensitive
-chart objects, sect calculation, and sect-based dignities.
+For subjects with an unknown or approximate time the chart will drop houses,
+time-sensitive chart objects, sect calculation, and sect-based dignities.
 
 """
 
@@ -65,7 +65,7 @@ class Chart:
         )
         self._native: Subject
         self._obliquity: float
-        self._diurnal: bool
+        self._diurnal: bool | None = None
         self._moon_phase: int
         self._triad: dict = {
             chart.SUN: None,
@@ -73,7 +73,7 @@ class Chart:
             chart.ASC: None,
         }
         self._objects: dict
-        self._houses: dict
+        self._houses: dict = {}
         self._aspects: dict
         self._wrap_functions = {
             data.NATIVE: self.wrap_native,
@@ -88,13 +88,6 @@ class Chart:
             data.WEIGHTINGS: self.wrap_weightings,
         } | self._wrap_functions
         self.generate()
-        if not self._time_known:
-            self._objects = {
-                index: object
-                for index, object in self._objects.items()
-                if object["type"] not in chart.TIME_DEPENDENT_TYPES
-                and index not in chart.TIME_DEPENDENT_POINTS
-            }
         self.set_aspects()
         self.wrap()
 
@@ -103,6 +96,19 @@ class Chart:
         """Determines whether we should calculate houses & angles
         and all the things that depends on them."""
         return self._native.time_status == chart.TIME_KNOWN
+
+    @property
+    def _object_list(self) -> list:
+        """Returns our config's requested chart objects with any time-dependent
+        entries removed for unknown or approximate subject times."""
+        if self._time_known:
+            return self._config.objects
+        return [
+            index
+            for index in self._config.objects
+            if ephemeris.type_of(index) not in chart.TIME_DEPENDENT_TYPES
+            and index not in chart.TIME_DEPENDENT_POINTS
+        ]
 
     def house_for(self, object: wrap.Object) -> int:
         """Returns the index of the house where any passed arbitrary object
@@ -288,33 +294,35 @@ class Natal(Chart):
         self._triad[chart.MOON] = ephemeris.get_planet(
             chart.MOON, self._native.julian_date
         )
-        self._triad[chart.ASC] = ephemeris.get_angle(
-            index=chart.ASC,
-            jd=self._native.julian_date,
-            lat=self._native.latitude,
-            lon=self._native.longitude,
-            house_system=self._config.house_system,
-        )
-        self._diurnal = condition.is_daytime_from(
-            self._triad[chart.SUN], self._triad[chart.ASC]
-        )
+        if self._time_known:
+            self._triad[chart.ASC] = ephemeris.get_angle(
+                index=chart.ASC,
+                jd=self._native.julian_date,
+                lat=self._native.latitude,
+                lon=self._native.longitude,
+                house_system=self._config.house_system,
+            )
+            self._diurnal = condition.is_daytime_from(
+                self._triad[chart.SUN], self._triad[chart.ASC]
+            )
         self._moon_phase = condition.moon_phase_from(
             self._triad[chart.SUN], self._triad[chart.MOON]
         )
         self._objects = ephemeris.get_objects(
-            object_list=self._config.objects,
+            object_list=self._object_list,
             jd=self._native.julian_date,
             lat=self._native.latitude,
             lon=self._native.longitude,
             house_system=self._config.house_system,
             part_formula=self._config.part_formula,
         )
-        self._houses = ephemeris.get_houses(
-            jd=self._native.julian_date,
-            lat=self._native.latitude,
-            lon=self._native.longitude,
-            house_system=self._config.house_system,
-        )
+        if self._time_known:
+            self._houses = ephemeris.get_houses(
+                jd=self._native.julian_date,
+                lat=self._native.latitude,
+                lon=self._native.longitude,
+                house_system=self._config.house_system,
+            )
 
 
 class SolarReturn(Chart):
@@ -340,44 +348,50 @@ class SolarReturn(Chart):
             self._native.julian_date, self._solar_return_year
         )
         self._obliquity = orbit.earth_obliquity(self._solar_return_jd)
-        self._solar_return_armc = ephemeris.get_angle(
-            index=chart.ARMC,
-            jd=self._solar_return_jd,
-            lat=self._native.latitude,
-            lon=self._native.longitude,
-            house_system=self._config.house_system,
+        self._solar_return_armc = (
+            ephemeris.get_angle(
+                index=chart.ARMC,
+                jd=self._solar_return_jd,
+                lat=self._native.latitude,
+                lon=self._native.longitude,
+                house_system=self._config.house_system,
+            )
+            if self._time_known
+            else None
         )
         self._triad[chart.SUN] = ephemeris.get_planet(chart.SUN, self._solar_return_jd)
         self._triad[chart.MOON] = ephemeris.get_planet(
             chart.MOON, self._solar_return_jd
         )
-        self._triad[chart.ASC] = ephemeris.get_angle(
-            index=chart.ASC,
-            jd=self._solar_return_jd,
-            lat=self._native.latitude,
-            lon=self._native.longitude,
-            house_system=self._config.house_system,
-        )
-        self._diurnal = condition.is_daytime_from(
-            self._triad[chart.SUN], self._triad[chart.ASC]
-        )
+        if self._time_known:
+            self._triad[chart.ASC] = ephemeris.get_angle(
+                index=chart.ASC,
+                jd=self._solar_return_jd,
+                lat=self._native.latitude,
+                lon=self._native.longitude,
+                house_system=self._config.house_system,
+            )
+            self._diurnal = condition.is_daytime_from(
+                self._triad[chart.SUN], self._triad[chart.ASC]
+            )
         self._moon_phase = condition.moon_phase_from(
             self._triad[chart.SUN], self._triad[chart.MOON]
         )
         self._objects = ephemeris.get_objects(
-            object_list=self._config.objects,
+            object_list=self._object_list,
             jd=self._solar_return_jd,
             lat=self._native.latitude,
             lon=self._native.longitude,
             house_system=self._config.house_system,
             part_formula=self._config.part_formula,
         )
-        self._houses = ephemeris.get_houses(
-            jd=self._solar_return_jd,
-            lat=self._native.latitude,
-            lon=self._native.longitude,
-            house_system=self._config.house_system,
-        )
+        if self._time_known:
+            self._houses = ephemeris.get_houses(
+                jd=self._solar_return_jd,
+                lat=self._native.latitude,
+                lon=self._native.longitude,
+                house_system=self._config.house_system,
+            )
 
     def wrap_solar_return_year(self) -> None:
         self.solar_return_year = self._solar_return_year
@@ -429,7 +443,7 @@ class Progressed(Chart):
             jd=progression_jd,
             lat=self._native.latitude,
             lon=self._native.longitude,
-            house_system=self._config.house_system,
+            house_system=chart.EQUAL,
         )
         self._progression_armc_longitude = progression_armc["lon"]
         self._progressed_jd, self._progressed_armc_longitude = forecast.progression(
@@ -442,21 +456,22 @@ class Progressed(Chart):
         self._obliquity = orbit.earth_obliquity(self._progressed_jd)
         self._triad[chart.SUN] = ephemeris.get_planet(chart.SUN, self._progressed_jd)
         self._triad[chart.MOON] = ephemeris.get_planet(chart.MOON, self._progressed_jd)
-        self._triad[chart.ASC] = ephemeris.armc_get_angle(
-            index=chart.ASC,
-            armc=self._progressed_armc_longitude,
-            lat=self._native.latitude,
-            obliquity=self._obliquity,
-            house_system=self._config.house_system,
-        )
-        self._diurnal = condition.is_daytime_from(
-            self._triad[chart.SUN], self._triad[chart.ASC]
-        )
+        if self._time_known:
+            self._triad[chart.ASC] = ephemeris.armc_get_angle(
+                index=chart.ASC,
+                armc=self._progressed_armc_longitude,
+                lat=self._native.latitude,
+                obliquity=self._obliquity,
+                house_system=self._config.house_system,
+            )
+            self._diurnal = condition.is_daytime_from(
+                self._triad[chart.SUN], self._triad[chart.ASC]
+            )
         self._moon_phase = condition.moon_phase_from(
             self._triad[chart.SUN], self._triad[chart.MOON]
         )
         self._objects = ephemeris.armc_get_objects(
-            object_list=self._config.objects,
+            object_list=self._object_list,
             jd=self._progressed_jd,
             armc=self._progressed_armc_longitude,
             lat=self._native.latitude,
@@ -465,12 +480,13 @@ class Progressed(Chart):
             house_system=self._config.house_system,
             part_formula=self._config.part_formula,
         )
-        self._houses = ephemeris.armc_get_houses(
-            armc=self._progressed_armc_longitude,
-            lat=self._native.latitude,
-            obliquity=self._obliquity,
-            house_system=self._config.house_system,
-        )
+        if self._time_known:
+            self._houses = ephemeris.armc_get_houses(
+                armc=self._progressed_armc_longitude,
+                lat=self._native.latitude,
+                obliquity=self._obliquity,
+                house_system=self._config.house_system,
+            )
 
     def wrap_progression_date_time(self) -> None:
         self.progression_date_time = wrap.DateTime(
@@ -520,7 +536,7 @@ class Composite(Chart):
             self._native.julian_date, self._partner.julian_date
         )
         native_objects = ephemeris.get_objects(
-            object_list=self._config.objects,
+            object_list=self._object_list,
             jd=self._native.julian_date,
             lat=self._native.latitude,
             lon=self._native.longitude,
@@ -528,7 +544,7 @@ class Composite(Chart):
             part_formula=self._config.part_formula,
         )
         partner_objects = ephemeris.get_objects(
-            object_list=self._config.objects,
+            object_list=self._object_list,
             jd=self._partner.julian_date,
             lat=self._partner.latitude,
             lon=self._partner.longitude,
@@ -540,67 +556,70 @@ class Composite(Chart):
             objects2=partner_objects,
             obliquity=self._obliquity,
         )
-        if self._config.house_system == chart.WHOLE_SIGN:
-            native_armc = ephemeris.get_angle(
-                index=chart.ARMC,
-                jd=self._native.julian_date,
-                lat=self._native.latitude,
-                lon=self._native.longitude,
-                house_system=self._config.house_system,
-            )
-            partner_armc = ephemeris.get_angle(
-                index=chart.ARMC,
-                jd=self._partner.julian_date,
-                lat=self._partner.latitude,
-                lon=self._partner.longitude,
-                house_system=self._config.house_system,
-            )
-            armc = midpoint.composite(native_armc, partner_armc, self._obliquity)["lon"]
-            latitude = (self._native.latitude + self._partner.latitude) / 2
-            self._houses = ephemeris.armc_get_houses(
-                armc=armc,
-                lat=latitude,
-                obliquity=self._obliquity,
-                house_system=self._config.house_system,
-            )
-        else:
-            native_houses = ephemeris.get_houses(
-                jd=self._native.julian_date,
-                lat=self._native.latitude,
-                lon=self._native.longitude,
-                house_system=self._config.house_system,
-            )
-            partner_houses = ephemeris.get_houses(
-                jd=self._partner.julian_date,
-                lat=self._partner.latitude,
-                lon=self._partner.longitude,
-                house_system=self._config.house_system,
-            )
-            self._houses = midpoint.all(
-                objects1=native_houses,
-                objects2=partner_houses,
-                obliquity=self._obliquity,
-            )
-        if chart.ASC in self._objects:
-            self._triad[chart.ASC] = self._objects[chart.ASC]
-        else:
-            native_asc = ephemeris.get_angle(
-                index=chart.ASC,
-                jd=self._native.julian_date,
-                lat=self._native.latitude,
-                lon=self._native.longitude,
-                house_system=self._config.house_system,
-            )
-            partner_asc = ephemeris.get_angle(
-                index=chart.ASC,
-                jd=self._partner.julian_date,
-                lat=self._partner.latitude,
-                lon=self._partner.longitude,
-                house_system=self._config.house_system,
-            )
-            self._triad[chart.ASC] = midpoint.composite(
-                native_asc, partner_asc, self._obliquity
-            )
+        if self._time_known:
+            if self._config.house_system == chart.WHOLE_SIGN:
+                native_armc = ephemeris.get_angle(
+                    index=chart.ARMC,
+                    jd=self._native.julian_date,
+                    lat=self._native.latitude,
+                    lon=self._native.longitude,
+                    house_system=self._config.house_system,
+                )
+                partner_armc = ephemeris.get_angle(
+                    index=chart.ARMC,
+                    jd=self._partner.julian_date,
+                    lat=self._partner.latitude,
+                    lon=self._partner.longitude,
+                    house_system=self._config.house_system,
+                )
+                armc = midpoint.composite(native_armc, partner_armc, self._obliquity)[
+                    "lon"
+                ]
+                latitude = (self._native.latitude + self._partner.latitude) / 2
+                self._houses = ephemeris.armc_get_houses(
+                    armc=armc,
+                    lat=latitude,
+                    obliquity=self._obliquity,
+                    house_system=self._config.house_system,
+                )
+            else:
+                native_houses = ephemeris.get_houses(
+                    jd=self._native.julian_date,
+                    lat=self._native.latitude,
+                    lon=self._native.longitude,
+                    house_system=self._config.house_system,
+                )
+                partner_houses = ephemeris.get_houses(
+                    jd=self._partner.julian_date,
+                    lat=self._partner.latitude,
+                    lon=self._partner.longitude,
+                    house_system=self._config.house_system,
+                )
+                self._houses = midpoint.all(
+                    objects1=native_houses,
+                    objects2=partner_houses,
+                    obliquity=self._obliquity,
+                )
+            if chart.ASC in self._objects:
+                self._triad[chart.ASC] = self._objects[chart.ASC]
+            else:
+                native_asc = ephemeris.get_angle(
+                    index=chart.ASC,
+                    jd=self._native.julian_date,
+                    lat=self._native.latitude,
+                    lon=self._native.longitude,
+                    house_system=self._config.house_system,
+                )
+                partner_asc = ephemeris.get_angle(
+                    index=chart.ASC,
+                    jd=self._partner.julian_date,
+                    lat=self._partner.latitude,
+                    lon=self._partner.longitude,
+                    house_system=self._config.house_system,
+                )
+                self._triad[chart.ASC] = midpoint.composite(
+                    native_asc, partner_asc, self._obliquity
+                )
         if chart.SUN in self._objects:
             self._triad[chart.SUN] = self._objects[chart.SUN]
         else:
@@ -617,9 +636,10 @@ class Composite(Chart):
             self._triad[chart.MOON] = midpoint.composite(
                 native_moon, partner_moon, self._obliquity
             )
-        self._diurnal = condition.is_daytime_from(
-            self._triad[chart.SUN], self._triad[chart.ASC]
-        )
+        if self._time_known:
+            self._diurnal = condition.is_daytime_from(
+                self._triad[chart.SUN], self._triad[chart.ASC]
+            )
         self._moon_phase = condition.moon_phase_from(
             self._triad[chart.SUN], self._triad[chart.MOON]
         )
@@ -686,7 +706,7 @@ class Transits(Chart):
             self._triad[chart.SUN], self._triad[chart.MOON]
         )
         self._objects = ephemeris.get_objects(
-            object_list=self._config.objects,
+            object_list=self._object_list,
             jd=self._native.julian_date,
             lat=self._native.latitude,
             lon=self._native.longitude,
