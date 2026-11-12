@@ -86,6 +86,8 @@ A summary of any major patterns formed by your chart's aspects. Patterns current
 - Grand sextile
 - Grand quintile
 
+By default only the planets from the Sun to Pluto can form a pattern's vertices. To change which chart objects are included, see the [Settings](5-settings.md#aspect_pattern_objects) section.
+
 Any patterns reported here will contain a tuple of the indices of the chart objects forming the pattern(s). Each object index itself will be a tuple, however - this is to neatly deal with conjunctions on the pattern's vertices to prevent them triggering multiple matches for what is essentially the same pattern.
 
 For example, below shows a T-square between the Moon, Saturn, and Uranus. If Mars had been conjunct Uranus, then a naive search might have reported a 2nd T-square between the Moon, Saturn, and Mars. However, rather than overlap like this, Immanuel will fold Mars into Uranus' tuple and the JSON below would show `[4000006, 4000009]` as the 2nd vertex.

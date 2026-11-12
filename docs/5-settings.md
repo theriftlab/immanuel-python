@@ -409,6 +409,29 @@ The orb used when checking various gap sizes between objects to calculate the ch
 
 Default: `5.0` degrees
 
+### `aspect_pattern_objects`
+
+A list of which chart objects are allowed to form the vertices of aspect patterns such as T-squares and grand trines. Default:
+
+```python
+[
+    chart.SUN, chart.MOON, chart.MERCURY, chart.VENUS, chart.MARS,
+    chart.JUPITER, chart.SATURN, chart.URANUS, chart.NEPTUNE, chart.PLUTO,
+]
+```
+
+All chart objects in the [`objects`](#objects) section are available here too, but only those also included in `objects` will be found in patterns, since anything left out of the main `objects` list will have no aspects to search.
+
+This only affects which aspects are searched for patterns, not which aspects are calculated, so a chart's `aspects` will still include every aspect between all of its objects.
+
+The default leaves out angles and points such as the Ascendant, the nodes and the Part of Fortune. You can easily re-include every chart object in the search, as Immanuel did before this setting was added:
+
+```python
+config.aspect_pattern_objects = config.objects.copy()
+```
+
+**Note:** Use `copy()` here, otherwise later changes to `objects` would also change this list.
+
 ### `aspects`
 
 A list of which aspects to calculate and include in the chart. This setting cascades into the aspect rules described below, and has the final say over which aspects are actually calculated, regardless of what is included in the rules. Default:
