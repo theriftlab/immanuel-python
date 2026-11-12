@@ -160,7 +160,9 @@ class Chart:
 
     def wrap_aspect_patterns(self) -> None:
         self.aspect_patterns = wrap.AspectPatterns(
-            pattern.aspect_patterns(self._aspects) if self._aspects_to is None else {},
+            pattern.aspect_patterns(self._aspects, config=self._config)
+            if self._aspects_to is None
+            else {},
             config=self._config,
         )
 

@@ -66,16 +66,27 @@ _ASPECT_PATTERNS = {
 }
 
 
-def aspect_patterns(aspects: dict) -> dict:
+def aspect_patterns(aspects: dict, config: Config = DEFAULTS) -> dict:
     """Iterates through the aspect patterns and searches the passed aspects for
-    matches. Conjunctions are taken into account to avoid multiple hits of the
-    same pattern with conjunct objects on one or more vertices. This is designed
-    for single charts only, as multiple objects with the same index confuse the
-    search and create enormous vertex groups."""
+    matches formed by the allowed aspecting objects in the config. Conjunctions
+    are taken into account to avoid multiple hits of the same pattern with
+    conjunct objects on one or more vertices. This is designed for single charts
+    only, as multiple objects with the same index confuse the search and create
+    enormous vertex groups."""
+    search_objects = config.aspect_pattern_objects
+    search_aspects = {
+        index: {
+            aspected: aspect_data
+            for aspected, aspect_data in aspect_list.items()
+            if aspected in search_objects
+        }
+        for index, aspect_list in aspects.items()
+        if index in search_objects
+    }
     # First we group conjunct objects into clusters, so that each cluster can
     # act as a single vertex & prevent the search from triggering multiple hits
     clusters = {}
-    for index, aspect_list in aspects.items():
+    for index, aspect_list in search_aspects.items():
         conjunct = {index} | {
             aspected
             for aspected, aspect_data in aspect_list.items()
@@ -88,7 +99,7 @@ def aspect_patterns(aspects: dict) -> dict:
     # Now build a graph keyed by cluster and aspect, with sets of aspected
     # clusters as values
     aspect_graph = defaultdict(set)
-    for index, aspect_list in aspects.items():
+    for index, aspect_list in search_aspects.items():
         for aspected, aspect_data in aspect_list.items():
             aspect_graph[clusters[index], aspect_data["aspect"]].add(clusters[aspected])
     # Initial match checks begin with everything that has aspects

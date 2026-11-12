@@ -159,6 +159,20 @@ class Config:
         """Orb for calculating chart shapes."""
         self.chart_shape_orb = 5.0
 
+        """Which planets, points etc. to use in aspect pattern calculations."""
+        self.aspect_pattern_objects = [
+            chart.SUN,
+            chart.MOON,
+            chart.MERCURY,
+            chart.VENUS,
+            chart.MARS,
+            chart.JUPITER,
+            chart.SATURN,
+            chart.URANUS,
+            chart.NEPTUNE,
+            chart.PLUTO,
+        ]
+
         """MC progression formula for secondary progressions."""
         self.mc_progression_method = calc.NAIBOD
 

@@ -185,6 +185,30 @@ def test_aspect_pattern(aspect_objects):
             assert calc.T_SQUARE not in aspect_patterns
         elif pattern_type == calc.KITE:
             assert calc.GRAND_TRINE not in aspect_patterns
+    # Ensure pattern search respects config
+    test_objects = {
+        chart.ASC: {
+            "index": chart.ASC,
+            "speed": 30.0,
+            "lon": 90.0,
+        },
+        chart.SUN: {
+            "index": chart.SUN,
+            "speed": 60.0,
+            "lon": 0.0,
+        },
+        chart.MOON: {
+            "index": chart.MOON,
+            "speed": 90.0,
+            "lon": 180.0,
+        },
+    }
+    aspects = aspect.all(test_objects, config=config)
+    aspect_patterns = pattern.aspect_patterns(aspects, config=config)
+    assert calc.T_SQUARE not in aspect_patterns
+    config.aspect_pattern_objects.append(chart.ASC)
+    aspect_patterns = pattern.aspect_patterns(aspects, config=config)
+    assert calc.T_SQUARE in aspect_patterns
 
 
 def test_chart_shape(object_indices, birth_data):
