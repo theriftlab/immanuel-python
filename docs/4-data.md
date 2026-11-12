@@ -90,6 +90,8 @@ Any patterns reported here will contain a tuple of the indices of the chart obje
 
 For example, below shows a T-square between the Moon, Saturn, and Uranus. If Mars had been conjunct Uranus, then a naive search might have reported a 2nd T-square between the Moon, Saturn, and Mars. However, rather than overlap like this, Immanuel will fold Mars into Uranus' tuple and the JSON below would show `[4000006, 4000009]` as the 2nd vertex.
 
+Aspect patterns are only searched for in a single chart's own aspects. A chart created with `aspects_to`, as described in the [Examples](3-examples.md) section, still has the `aspect_patterns` attribute with every pattern entry, but each one will be empty.
+
 ```json
 {
     "t_square": [

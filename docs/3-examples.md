@@ -77,6 +77,8 @@ native_chart = charts.Natal(native, aspects_to=partner_chart)
 
 Now `native_chart`'s planets/objects will aspect `partner_chart`'s planets/objects instead of its own. This makes things very flexible - a synastry chart can be created as above, with two natal charts, or a natal+transits chart can be created by passing a transits chart into a natal chart. It might also be useful to pass transits into a progressed or composite chart. You could even pass a composite chart into another composite chart to view synastry aspects between them.
 
+Since a chart created this way only holds aspects between the two charts, it will not search them for aspect patterns. Its `aspect_patterns` property is still present, but every pattern type in it is empty. To find patterns, look at each chart on its own without `aspects_to`.
+
 All chart instances additionally feature a `house_for()` method which takes a chart object as a parameter. This simply returns the index of the current chart's house where the passed chart object would appear. This can be useful in conjunction with the above functionality to see which houses a transiting planet is in, or which houses in your chart a partner's planets appear. Since a chart without a known time has no houses, calling `house_for()` on one raises a `ValueError`.
 
 Similarly, the `Transits` chart class features an additional `houses_for_aspected` boolean parameter. This will give the transits chart the same houses as the `aspects_to` chart for easy transit tracking. If the `aspects_to` chart does not have a known time, this raises a `ValueError`.
