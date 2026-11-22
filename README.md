@@ -223,7 +223,7 @@ See [here](/docs/5-settings.md#chart-settings) for details on how to switch. The
 
 ## AI Transparency
 
-Immanuel is a passion project, and as such all of the code in this package - including the tests - is 100% hand-rolled by a human. AI is used to assist in planning, checking, and auditing the codebase and documentation, and Claude Code has write permission for the documentation only, in order to provide suggested updates and examples to help keep them in line with code changes.
+Immanuel is a passion project, and as such all of the code in this package - including the tests - is 100% hand-rolled by a human. AI is used to assist in generating data tables and in planning, checking, and auditing the codebase and documentation. Complex algorithms are often prototyped by Claude Code in its own testbed branch (which is never merged), their logic reviewed and vetted by myself, and their actual implementation is then hand-written. Claude Code has write permission for the documentation only, in order to provide suggested updates and examples to help keep them in line with code changes.
 
 ## License
 
