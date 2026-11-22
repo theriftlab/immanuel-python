@@ -88,10 +88,12 @@ _JD_POINTS = (
 )
 
 
-def longitude(index: int, jd: float) -> tuple:
+def longitude(index: int, jd: float, deflection: bool = True) -> tuple:
     """Returns the ecliptic longitude and speed of any chart object whose
-    position depends only on the Julian date."""
-    ec_res = _ecliptic(index, jd)
+    position depends only on the Julian date. Light deflection can be switched
+    off to get smoother speeds around Sun conjunctions but this comes at the
+    cost of longitude accuracy."""
+    ec_res = _ecliptic(index, jd, deflection)
     return ec_res[0], ec_res[3]
 
 
@@ -427,7 +429,7 @@ def is_external(index: int | str) -> bool:
     return isinstance(index, int) and index < chart.TYPE_MULTIPLIER
 
 
-def _ecliptic(index: int, jd: float) -> tuple:
+def _ecliptic(index: int, jd: float, deflection: bool = True) -> tuple:
     """Returns the ecliptic longitude, latitude, distance, and speeds
     for objects whose positions only need a Julian date."""
     if is_external(index):
@@ -438,7 +440,10 @@ def _ecliptic(index: int, jd: float) -> tuple:
         raise ValueError(
             f"Chart object {index} cannot be calculated from Julian date only."
         )
-    ec_res = swe.calc_ut(jd, swe_index)[0]
+    flags = swe.FLG_SWIEPH | swe.FLG_SPEED
+    if not deflection:
+        flags |= swe.FLG_NOGDEFL
+    ec_res = swe.calc_ut(jd, swe_index, flags)[0]
     if index in _NODES:
         return swe.degnorm(ec_res[0] + _NODES[index]), 0.0, *ec_res[2:]
     return ec_res

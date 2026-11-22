@@ -388,8 +388,8 @@ def _get(
     if isinstance(index, str) and object_type == chart.FIXED_STAR:
         try:
             return get_fixed_star(index, jd)
-        except swe.Error as e:
-            raise ValueError("Invalid object index.") from e
+        except swe.Error as error:
+            raise ValueError("Invalid object index.") from error
     raise ValueError("Invalid object index.")
 
 
