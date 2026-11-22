@@ -10,36 +10,8 @@ on their position and motion. The moon's phase is also calculated here.
 
 import swisseph as swe
 
-from immanuel.const import calc, chart
+from immanuel.const import calc, chart, motions
 from immanuel.tools import sweph
-
-_SECT_PLANETS = frozenset(
-    (
-        chart.SUN,
-        chart.MOON,
-        chart.MERCURY,
-        chart.VENUS,
-        chart.MARS,
-        chart.JUPITER,
-        chart.SATURN,
-    )
-)
-
-_DAY_SECT_PLANETS = frozenset(
-    (
-        chart.SUN,
-        chart.JUPITER,
-        chart.SATURN,
-    )
-)
-
-_NIGHT_SECT_PLANETS = frozenset(
-    (
-        chart.MOON,
-        chart.VENUS,
-        chart.MARS,
-    )
-)
 
 
 def is_daytime(jd: float, lat: float, lon: float) -> bool:
@@ -79,9 +51,9 @@ def object_motion(object: dict | float) -> int:
     """Returns whether a chart object's motion is direct,
     stationary or retrograde."""
     speed = object["speed"] if isinstance(object, dict) else object
-    if -calc.STATION_SPEED <= speed <= calc.STATION_SPEED:
-        return calc.STATIONARY
-    return calc.DIRECT if speed > calc.STATION_SPEED else calc.RETROGRADE
+    if -motions.STATION_SPEED <= speed <= motions.STATION_SPEED:
+        return motions.STATIONARY
+    return motions.DIRECT if speed > motions.STATION_SPEED else motions.RETROGRADE
 
 
 def is_object_motion_typical(object: dict) -> bool:
@@ -104,7 +76,7 @@ def is_object_motion_typical(object: dict) -> bool:
         chart.TRUE_NORTH_NODE,
         chart.TRUE_SOUTH_NODE,
     )
-    return movement == calc.RETROGRADE if is_node else movement == calc.DIRECT
+    return movement == motions.RETROGRADE if is_node else movement == motions.DIRECT
 
 
 def is_object_out_of_bounds(
@@ -129,11 +101,11 @@ def is_object_in_sect(
     object: dict, is_daytime: bool, sun: dict | float | None = None
 ) -> bool | None:
     """Returns whether the passed planet is in sect."""
-    if object["index"] not in _SECT_PLANETS:
+    if object["index"] not in chart.SECT_PLANETS:
         return None
-    if object["index"] in _DAY_SECT_PLANETS:
+    if object["index"] in chart.DAY_SECT_PLANETS:
         return is_daytime
-    if object["index"] in _NIGHT_SECT_PLANETS:
+    if object["index"] in chart.NIGHT_SECT_PLANETS:
         return not is_daytime
     if object["index"] == chart.MERCURY and sun is not None:
         sun_mercury_position = relative_object_position(sun, object)

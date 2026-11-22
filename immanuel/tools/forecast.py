@@ -9,7 +9,7 @@ This module calculates solar returns and secondary progressions.
 
 import swisseph as swe
 
-from immanuel.const import calc, chart
+from immanuel.const import calc, chart, motions
 from immanuel.tools import date, orbit, sweph
 
 JD = 0
@@ -44,7 +44,7 @@ def progression(jd: float, lat: float, lon: float, pjd: float, method: int) -> t
         case calc.NAIBOD:
             natal_armc = sweph.angle(chart.ARMC, jd, lat, lon, chart.EQUAL)["lon"]
             progressed_armc_lon = swe.degnorm(
-                natal_armc + years * calc.MEAN_MOTIONS[chart.SUN]
+                natal_armc + years * motions.MEAN_MOTIONS[chart.SUN]
             )
         case calc.SOLAR_ARC:
             natal_mc = sweph.angle(chart.MC, jd, lat, lon, chart.EQUAL)

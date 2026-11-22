@@ -22,7 +22,7 @@ import swisseph as swe
 from pytest import fixture
 
 from immanuel import charts
-from immanuel.const import calc, chart, dignities, names
+from immanuel.const import calc, chart, dignities, motions, names
 from immanuel.settings import Config
 from immanuel.support import wrap
 from immanuel.tools import convert, sweph
@@ -209,7 +209,7 @@ def test_wrapped_data(native):
     assert not sun.movement.stationary
     assert not sun.movement.retrograde
     assert sun.movement.typical
-    assert sun.movement.formatted == names.OBJECT_MOVEMENTS[calc.DIRECT]
+    assert sun.movement.formatted == names.OBJECT_MOVEMENTS[motions.DIRECT]
     # DignityState
     assert not sun.dignities.ruler
     assert not sun.dignities.exalted

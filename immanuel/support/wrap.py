@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from immanuel.const import calc, chart, contexts, dignities, names
+from immanuel.const import calc, chart, contexts, dignities, motions, names
 from immanuel.reports import dignity
 from immanuel.settings import DEFAULTS, Config
 from immanuel.support.localize import localize as _
@@ -371,9 +371,9 @@ class Object:
 class ObjectMovement:
     def __init__(self, object: dict, config: Config = DEFAULTS) -> None:
         self._movement = condition.object_motion(object)
-        self.direct = self._movement == calc.DIRECT
-        self.stationary = self._movement == calc.STATIONARY
-        self.retrograde = self._movement == calc.RETROGRADE
+        self.direct = self._movement == motions.DIRECT
+        self.stationary = self._movement == motions.STATIONARY
+        self.retrograde = self._movement == motions.RETROGRADE
         self.typical = condition.is_object_motion_typical(object)
         self.formatted = _(
             names.OBJECT_MOVEMENTS[self._movement],

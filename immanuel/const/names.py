@@ -7,7 +7,7 @@ User-facing names for chart data objects and dates.
 
 """
 
-from immanuel.const import calc, chart, dignities
+from immanuel.const import calc, chart, dignities, motions
 
 CHART_TYPES = {
     chart.NATAL: "Natal",
@@ -223,9 +223,9 @@ MOON_PHASES = {
 }
 
 OBJECT_MOVEMENTS = {
-    calc.DIRECT: "Direct",
-    calc.STATIONARY: "Stationary",
-    calc.RETROGRADE: "Retrograde",
+    motions.DIRECT: "Direct",
+    motions.STATIONARY: "Stationary",
+    motions.RETROGRADE: "Retrograde",
 }
 
 CHART_SHAPES = {

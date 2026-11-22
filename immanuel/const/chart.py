@@ -13,7 +13,6 @@ constants are mainly used by the sweph and ephemeris modules.
 by number, this must be higher than the highest-numbered asteroid. """
 TYPE_MULTIPLIER = 1_000_000
 
-
 """ Supported chart types. """
 NATAL = 1
 SOLAR_RETURN = 2
@@ -203,6 +202,29 @@ POINTS = (
     PART_OF_FORTUNE,
     PART_OF_SPIRIT,
     PART_OF_EROS,
+)
+
+""" Traditional sect planets. """
+SECT_PLANETS = (
+    SUN,
+    MOON,
+    MERCURY,
+    VENUS,
+    MARS,
+    JUPITER,
+    SATURN,
+)
+
+DAY_SECT_PLANETS = (
+    SUN,
+    JUPITER,
+    SATURN,
+)
+
+NIGHT_SECT_PLANETS = (
+    MOON,
+    VENUS,
+    MARS,
 )
 
 """ Time-dependent chart objects. """

@@ -3,9 +3,9 @@ This file is part of immanuel - (C) The Rift Lab
 Author: Robert Davies (robert@theriftlab.com)
 
 
-Transits, eclipses, moon phases, etc. are calculated in this module.
-Several of the transit searches are not used by the chart classes,
-such as sign ingress / egress.
+Transits, eclipses, moon phases, etc. are calculated in this module. The transit
+searches began very simple and are as complex as they are now due to a lot of
+edge cases which arose during testing with certain points.
 
 """
 
@@ -15,7 +15,7 @@ from collections.abc import Iterator
 
 import swisseph as swe
 
-from immanuel.const import calc, chart
+from immanuel.const import calc, chart, motions
 from immanuel.tools import position, sweph
 
 PREVIOUS = -1
@@ -24,7 +24,7 @@ NEXT = 1
 INGRESS = 1
 EGRESS = 2
 
-_MIN_STEP = 0.01
+_MIN_STEP = 0.01  # Minimum degrees for transit search steps
 
 _SWE_ECLIPSES = {
     swe.ECL_TOTAL: chart.TOTAL,
@@ -109,7 +109,7 @@ def can_aspect(index1: int, index2: int, aspect: float) -> bool:
     the passed aspect."""
     if index1 == index2:
         return False
-    max_separation = calc.MAX_SEPARATIONS.get(frozenset((index1, index2)))
+    max_separation = motions.MAX_SEPARATIONS.get(frozenset((index1, index2)))
     if max_separation is None:
         return True
     centre, half_width = max_separation
@@ -219,8 +219,8 @@ def _sign_ingress_egress_search(
     limit: float | None,
 ) -> float:
     """Returns the Julian date of the previous or next ingress into or egress
-    out of the given sign. If the first search puts the planet in the wrong
-    state, it runs the search again to return the correct one."""
+    out of the given sign. If the first crossing puts the planet in the wrong
+    state, it continues the search to return the correct one."""
     sign_boundaries = {swe.degnorm((sign - 1) * 30.0), swe.degnorm(sign * 30.0)}
     crossings = _crossings(
         index, sign_boundaries, jd, direction, direction, limit=limit
@@ -299,8 +299,8 @@ def _crossings(
         # then we're already good to go
         if start_overshoot > 0 and end_overshoot > 0:
             return start
-        # Key the date brackets by which one is already overshooting
-        ends = {
+        # Key the date bracket's ends by which one is already overshooting
+        bracket = {
             start_overshoot > 0: (start_jd, start_overshoot, start_lon),
             end_overshoot > 0: (end_jd, end_overshoot, end_lon),
         }
@@ -308,34 +308,34 @@ def _crossings(
         target_overshoot = calc.MAX_ERROR / 2
         previous_side = None
         repeated_side = False
-        while ends[True][1] > calc.MAX_ERROR:
-            before_jd, before_overshoot, _ = ends[False]
-            after_jd, after_overshoot, _ = ends[True]
+        while bracket[True][1] > calc.MAX_ERROR:
+            before_jd, before_overshoot, _ = bracket[False]
+            after_jd, after_overshoot, _ = bracket[True]
             step = after_jd - before_jd
             if repeated_side:
                 # In rare cases such as a Moon / True Lilith conjunction, we can
                 # end up with 2 samples on the same side of the target, so we
                 # simply halve the bracket here
-                jd = before_jd + step / 2
+                middle_jd = before_jd + step / 2
             else:
                 # Step towards target_overshoot
                 overshoot_range = after_overshoot - before_overshoot
                 step_fraction = (target_overshoot - before_overshoot) / overshoot_range
-                jd = before_jd + step * step_fraction
-            # Jittery ephemeris data can produce date differences too small to
+                middle_jd = before_jd + step * step_fraction
+            # Noisy ephemeris data can produce date differences too small to
             # work with, so here we check if either side rounds to the current
-            # jd and exit if there's a match
-            if jd in (before_jd, after_jd):
+            # middle_jd and exit if there's a match
+            if middle_jd in (before_jd, after_jd):
                 break
-            # Resample at the new jd
-            lon = sample(jd)[0]
+            # Resample at the new middle_jd
+            lon = sample(middle_jd)[0]
             overshoot = overshoot_sign * swe.difdeg2n(lon, target)
-            ends[overshoot > 0] = (jd, overshoot, lon)
+            bracket[overshoot > 0] = (middle_jd, overshoot, lon)
             current_side = overshoot > 0
             repeated_side = current_side == previous_side
             previous_side = current_side
-        jd, _, lon = ends[True]
-        return jd, lon
+        crossing_jd, _, crossing_lon = bracket[True]
+        return crossing_jd, crossing_lon
 
     # Ensure we're starting ahead of any passed limit value
     if limit is not None and (limit - jd) * direction <= 0:
@@ -343,7 +343,7 @@ def _crossings(
     sorted_targets = sorted(targets)
     max_speed = sum(
         # Default to the moon since this is usually the fastest
-        calc.MAX_MOTIONS.get(index, calc.MAX_MOTIONS[chart.MOON])
+        motions.MAX_MOTIONS.get(index, motions.MAX_MOTIONS[chart.MOON])
         for index in (index1, index2)
         if index is not None
     )

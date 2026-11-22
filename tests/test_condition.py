@@ -1,7 +1,7 @@
 import swisseph as swe
 from pytest import fixture
 
-from immanuel.const import calc, chart
+from immanuel.const import calc, chart, motions
 from immanuel.tools import condition, convert, date, ephemeris, orbit
 
 
@@ -81,11 +81,11 @@ def test_object_motion(jd, coords):
         chart.PLACIDUS,
         calc.DAY_NIGHT_FORMULA,
     ).values()
-    assert condition.object_motion(sun) == calc.DIRECT
-    assert condition.object_motion(moon) == calc.DIRECT
-    assert condition.object_motion(saturn) == calc.RETROGRADE
-    assert condition.object_motion(true_north_node) == calc.RETROGRADE
-    assert condition.object_motion(part_of_fortune) == calc.STATIONARY
+    assert condition.object_motion(sun) == motions.DIRECT
+    assert condition.object_motion(moon) == motions.DIRECT
+    assert condition.object_motion(saturn) == motions.RETROGRADE
+    assert condition.object_motion(true_north_node) == motions.RETROGRADE
+    assert condition.object_motion(part_of_fortune) == motions.STATIONARY
 
 
 def test_is_object_motion_typical(jd, coords):
