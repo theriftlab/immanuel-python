@@ -26,6 +26,14 @@ EGRESS = 2
 
 _MIN_STEP = 0.01  # Minimum degrees for transit search steps
 
+_DAY_MINUTES = 1440  # Number of minutes in a day
+
+_SPEED_DELTA = 0.05  # 5% of a Julian day = 72 mins
+
+_SPEED_DELTAS = {
+    chart.TRUE_LILITH: 0.02,  # True Lilith's speed changes way too quickly at stations
+}
+
 _SWE_ECLIPSES = {
     swe.ECL_TOTAL: chart.TOTAL,
     swe.ECL_ANNULAR: chart.ANNULAR,
@@ -115,6 +123,38 @@ def can_aspect(index1: int, index2: int, aspect: float) -> bool:
     centre, half_width = max_separation
     targets = _aspect_targets(calc.CONJUNCTION, aspect)
     return any(abs(swe.difdeg2n(target, centre)) < half_width for target in targets)
+
+
+def previous_retrograde_station(
+    index: int, jd: float, limit: float | None = None
+) -> float:
+    """Returns the Julian date of the passed planet's previous station before
+    turning retrograde."""
+    return _station_search(index, jd, PREVIOUS, motions.RETROGRADE, limit)
+
+
+def next_retrograde_station(index: int, jd: float, limit: float | None = None) -> float:
+    """Returns the Julian date of the passed planet's next station before
+    turning retrograde."""
+    return _station_search(index, jd, NEXT, motions.RETROGRADE, limit)
+
+
+def previous_direct_station(index: int, jd: float, limit: float | None = None) -> float:
+    """Returns the Julian date of the passed planet's previous station before
+    turning direct."""
+    return _station_search(index, jd, PREVIOUS, motions.DIRECT, limit)
+
+
+def next_direct_station(index: int, jd: float, limit: float | None = None) -> float:
+    """Returns the Julian date of the passed planet's next station before
+    turning direct."""
+    return _station_search(index, jd, NEXT, motions.DIRECT, limit)
+
+
+def can_station(index: int) -> bool:
+    """Returns whether the given chart object can station. More accurately,
+    whether it is an object this module can calculate stations for."""
+    return index in motions.MAX_ACCELERATIONS
 
 
 def previous_new_moon(jd: float) -> float:
@@ -233,6 +273,25 @@ def _sign_ingress_egress_search(
     return jd
 
 
+def _station_search(
+    index: int,
+    jd: float,
+    direction: int,
+    movement: int,
+    limit: float | None,
+) -> float:
+    """Returns the Julian date of the previous or next station before the
+    passed planet turns retrograde or direct. If the first station found turns
+    the wrong way, it continues the search to return the correct one."""
+    if not can_station(index):
+        raise ValueError(f"Chart object {index} never stations.")
+    stations = _stations(index, jd, direction, limit)
+    station_jd, _, station_movement = next(stations)
+    if station_movement != movement:
+        station_jd = next(stations)[0]
+    return station_jd
+
+
 def _crossings(
     index1: int,
     targets: set,
@@ -339,7 +398,7 @@ def _crossings(
 
     # Ensure we're starting ahead of any passed limit value
     if limit is not None and (limit - jd) * direction <= 0:
-        raise NotFoundError(f"Limit date {limit} should be ahead of the start date.")
+        raise ValueError(f"Limit date {limit} should be ahead of the start date.")
     sorted_targets = sorted(targets)
     max_speed = sum(
         # Default to the moon since this is usually the fastest
@@ -372,7 +431,7 @@ def _crossings(
                 lon, speed = sample(jd)
             # If a planet stations within a _MIN_STEP sized gap, we can end up
             # missing a crossing, so we do an extra crossing check here
-            if distance < _MIN_STEP and prev_speed * speed < 0:
+            if distance < _MIN_STEP and (speed > 0) != (prev_speed > 0):
                 step = jd - prev_jd
                 step_fraction = prev_speed / (prev_speed - speed)
                 station_jd = prev_jd + step * step_fraction
@@ -394,6 +453,97 @@ def _crossings(
     except swe.Error as error:
         raise NotFoundError(
             "No transit found before the end of the available ephemeris."
+        ) from error
+
+
+def _stations(
+    index: int,
+    jd: float,
+    direction: int,
+    limit: float | None = None,
+) -> Iterator[tuple]:
+    """Yields the Julian date, longitude, and movement of every station of the
+    passed planet, in the given direction and in the order they happen.
+    NotFoundError is raised if the search goes beyond the limit arg (if passed)
+    or the end of the available ephemeris' supported date range."""
+
+    def sample(minute: int) -> float:
+        """Returns the approximate speed of the planet at the given Julian
+        whole minute, calculated from the difference between two longitudes
+        taken a fraction before and after the given date."""
+        minute_jd = minute / _DAY_MINUTES
+        before_lon = sweph.longitude(index, minute_jd - speed_delta, deflection=False)[0]
+        after_lon = sweph.longitude(index, minute_jd + speed_delta, deflection=False)[0]
+        return swe.difdeg2n(after_lon, before_lon) / (2 * speed_delta)
+
+    def station_point(start: tuple, end: tuple) -> tuple:
+        """Returns the moment between the start and end samples when the
+        planet stations, and the direction it turns. This function always works
+        forward in time (earlier -> later) regardless of the search direction.
+        This guarantees previous and next searches will always agree."""
+        (start_minute, start_speed), (end_minute, end_speed) = sorted((start, end))
+        # If the gap is larger than a minute, we need to bisect - this shouldn't
+        # happen in normal usage but in some edge cases where the ephemeris
+        # internally switches data sources, it can happen
+        while end_minute - start_minute > 1:
+            middle_minute = (end_minute + start_minute) // 2
+            middle_speed = sample(middle_minute)
+            if (middle_speed > 0) != (start_speed > 0):
+                end_minute, end_speed = middle_minute, middle_speed
+            else:
+                start_minute, start_speed = middle_minute, middle_speed
+        # Since we're dealing with a tiny interval, we interpolate
+        minute_fraction = start_speed / (start_speed - end_speed)
+        station_jd = (start_minute + minute_fraction) / _DAY_MINUTES
+        movement = motions.DIRECT if end_speed > 0 else motions.RETROGRADE
+        return station_jd, movement
+
+    # Ensure we're starting ahead of any passed limit value
+    if limit is not None and (limit - jd) * direction <= 0:
+        raise ValueError(f"Limit date {limit} should be ahead of the start date.")
+    # Round the start and limit dates to whole minutes
+    if direction == NEXT:
+        minute = math.floor(jd * _DAY_MINUTES)
+        limit_minute = None if limit is None else math.ceil(limit * _DAY_MINUTES)
+    else:
+        minute = math.ceil(jd * _DAY_MINUTES)
+        limit_minute = None if limit is None else math.floor(limit * _DAY_MINUTES)
+    # Set up our motion values for step calculation
+    max_acceleration = motions.MAX_ACCELERATIONS[index]
+    max_motion_noise = motions.MAX_MOTION_NOISE.get(index, 0)
+    speed_delta = _SPEED_DELTAS.get(index, _SPEED_DELTA)
+    speed = sample(minute)
+    try:
+        while True:
+            # Store our old values
+            prev_minute, prev_speed = minute, speed
+            # Update the current values
+            safe_speed = abs(speed) - 2 * max_motion_noise
+            step = math.floor(safe_speed / max_acceleration * _DAY_MINUTES)
+            minute += direction * max(step, 1)
+            # If we have gone past the passed limit, we didn't find anything
+            if limit_minute is not None and (minute - limit_minute) * direction > 0:
+                if prev_minute == limit_minute:
+                    raise NotFoundError(f"No station found before limit date {limit}.")
+                minute = limit_minute
+            speed = sample(minute)
+            # Check if a station has switched directions
+            if (speed > 0) != (prev_speed > 0):
+                station_jd, movement = station_point(
+                    (prev_minute, prev_speed), (minute, speed)
+                )
+                # The first and last minutes searched might have a station
+                # just short of the start, or just past the limit
+                if (station_jd - jd) * direction <= 0:
+                    continue
+                if limit is not None and (station_jd - limit) * direction > 0:
+                    raise NotFoundError(f"No station found before limit date {limit}.")
+                # A valid station has been found, return its information
+                station_lon = sweph.longitude(index, station_jd)[0]
+                yield station_jd, station_lon, movement
+    except swe.Error as error:
+        raise NotFoundError(
+            "No station found before the end of the available ephemeris."
         ) from error
 
 

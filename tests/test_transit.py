@@ -6,7 +6,13 @@ Author: Robert Davies (robert@theriftlab.com)
 The transit module's figures are tested against the output of the websites
 cited in each test function's comments.
 
+For station searches, Mercury is used as a fast-moving planet. The slower outer
+planets will likely differ from other sources by a few minutes in their station
+times due to varying tolerances of near-zero speeds that constitute a station.
+
 """
+
+from functools import partial
 
 import swisseph as swe
 from pytest import fixture, raises
@@ -156,13 +162,57 @@ def test_next_aspect_to(jd, coords):
     assert at_dt.strftime("%Y-%m-%d %H:%M") == "2000-08-09 19:26"
 
 
-def test_can_aspect(jd):
+def test_can_aspect():
     # We have bounded Sun / Mercury aspects to 28°
     assert transit.can_aspect(chart.SUN, chart.MERCURY, 27.0)
     assert not transit.can_aspect(chart.SUN, chart.MERCURY, 29.0)
     # Ensure two-way set keys
     assert transit.can_aspect(chart.MERCURY, chart.SUN, 27.0)
     assert not transit.can_aspect(chart.MERCURY, chart.SUN, 29.0)
+
+
+def test_previous_retrograde_station(jd, coords):
+    # https://horoscopes.astro-seek.com reports Mercury's previous
+    # retrograde station as 1999-11-05 02:59 GMT.
+    pr_jd = transit.previous_retrograde_station(chart.MERCURY, jd)
+    pr_dt = date.to_datetime(pr_jd, *coords)
+    assert pr_dt.strftime("%Y-%m-%d %H:%M") == "1999-11-04 18:59"
+
+
+def test_next_retrograde_station(jd, coords):
+    # https://horoscopes.astro-seek.com reports Mercury's next
+    # retrograde station as 2000-02-21 12:46 GMT.
+    nr_jd = transit.next_retrograde_station(chart.MERCURY, jd)
+    nr_dt = date.to_datetime(nr_jd, *coords)
+    assert nr_dt.strftime("%Y-%m-%d %H:%M") == "2000-02-21 04:46"
+
+
+def test_previous_direct_station(jd, coords):
+    # https://horoscopes.astro-seek.com reports Mercury's previous
+    # direct station as 1999-11-25 03:55 GMT. We can accept 19:54:46
+    # local time since this rounds to 19:55 / 03:55 GMT.
+    pd_jd = transit.previous_direct_station(chart.MERCURY, jd)
+    pd_dt = date.to_datetime(pd_jd, *coords)
+    assert pd_dt.strftime("%Y-%m-%d %H:%M") == "1999-11-24 19:54"
+
+
+def test_next_direct_station(jd, coords):
+    # https://horoscopes.astro-seek.com reports Mercury's next
+    # direct station as 2000-03-14 20:39 GMT.
+    nd_jd = transit.next_direct_station(chart.MERCURY, jd)
+    nd_dt = date.to_datetime(nd_jd, *coords)
+    assert nd_dt.strftime("%Y-%m-%d %H:%M") == "2000-03-14 12:39"
+
+
+def test_can_station():
+    assert transit.can_station(chart.MERCURY)
+    assert transit.can_station(chart.TRUE_NORTH_NODE)
+    assert transit.can_station(chart.TRUE_LILITH)
+    # NORTH_NODE and LILITH have smoothed mean motions so they never station
+    assert not transit.can_station(chart.SUN)
+    assert not transit.can_station(chart.MOON)
+    assert not transit.can_station(chart.NORTH_NODE)
+    assert not transit.can_station(chart.LILITH)
 
 
 def test_previous_new_moon(jd, coords):
@@ -238,33 +288,170 @@ def test_next_lunar_eclipse(jd, coords):
     assert ec_dt.strftime("%Y-%m-%d %H:%M") == "2000-01-20 20:43"
 
 
-def test_search_limit(jd):
-    # Searches beyond the specified limit should raise an exception. We use
-    # the known date of Saturn's ingress into Gemini to test.
-    limit = jd - 10  # Limit before start date should abort
-    with raises(transit.NotFoundError):
-        transit.next_sign_ingress(chart.SATURN, chart.GEMINI, jd, limit=limit)
-    limit = jd + 220  # Actual ingress is approx ~221 days away, this stops short
-    with raises(transit.NotFoundError):
-        transit.next_sign_ingress(chart.SATURN, chart.GEMINI, jd, limit=limit)
-    limit = jd + 222  # This should succeed
-    si_jd = transit.next_sign_ingress(chart.SATURN, chart.GEMINI, jd, limit=limit)
-    assert si_jd <= limit
+def test_search_chaining(jd):
+    searches = (
+        (partial(transit.previous_sign_ingress, chart.SATURN, chart.ARIES), -1),
+        (partial(transit.next_sign_ingress, chart.SATURN, chart.GEMINI), 1),
+        (partial(transit.previous_sign_egress, chart.SATURN, chart.TAURUS), -1),
+        (partial(transit.next_sign_egress, chart.SATURN, chart.TAURUS), 1),
+        (
+            partial(
+                transit.previous_aspect_between,
+                chart.SUN,
+                chart.MOON,
+                aspect=calc.CONJUNCTION,
+            ),
+            -1,
+        ),
+        (
+            partial(
+                transit.next_aspect_between,
+                chart.SUN,
+                chart.MOON,
+                aspect=calc.CONJUNCTION,
+            ),
+            1,
+        ),
+        (
+            partial(
+                transit.previous_aspect_to, chart.SATURN, 30.0, aspect=calc.CONJUNCTION
+            ),
+            -1,
+        ),
+        (
+            partial(
+                transit.next_aspect_to, chart.SATURN, 60.0, aspect=calc.CONJUNCTION
+            ),
+            1,
+        ),
+        (partial(transit.previous_retrograde_station, chart.MERCURY), -1),
+        (partial(transit.next_retrograde_station, chart.MERCURY), 1),
+        (partial(transit.previous_direct_station, chart.MERCURY), -1),
+        (partial(transit.next_direct_station, chart.MERCURY), 1),
+    )
+    for search, direction in searches:
+        first_result_jd = search(jd=jd)
+        second_result_jd = search(jd=first_result_jd)
+        assert (second_result_jd - first_result_jd) * direction > 0
 
 
-def test_search_beyond_ephemeris_limit_raises_exception():
+def test_search_limit(jd, coords):
+    # Specific dates and times are covered in other tests, here we are only
+    # interested the search limit exceptions, so the date/times are from
+    # internal searches rather than a 3rd party source.
+    searches = (
+        (
+            partial(transit.previous_sign_ingress, chart.SATURN, chart.ARIES, jd),
+            "1999-02-28 17:25",
+        ),
+        (
+            partial(transit.next_sign_ingress, chart.SATURN, chart.GEMINI, jd),
+            "2000-08-09 19:26",
+        ),
+        (
+            partial(transit.previous_sign_egress, chart.SATURN, chart.TAURUS, jd),
+            "1999-02-28 17:25",
+        ),
+        (
+            partial(transit.next_sign_egress, chart.SATURN, chart.TAURUS, jd),
+            "2000-08-09 19:26",
+        ),
+        (
+            partial(
+                transit.previous_aspect_between,
+                chart.SUN,
+                chart.MOON,
+                jd,
+                calc.CONJUNCTION,
+            ),
+            "1999-12-07 14:31",
+        ),
+        (
+            partial(
+                transit.next_aspect_between, chart.SUN, chart.MOON, jd, calc.CONJUNCTION
+            ),
+            "2000-01-06 10:13",
+        ),
+        (
+            partial(
+                transit.previous_aspect_to, chart.SATURN, 30.0, jd, calc.CONJUNCTION
+            ),
+            "1999-02-28 17:25",
+        ),
+        (
+            partial(transit.next_aspect_to, chart.SATURN, 60.0, jd, calc.CONJUNCTION),
+            "2000-08-09 19:26",
+        ),
+        (
+            partial(transit.previous_retrograde_station, chart.MERCURY, jd),
+            "1999-11-04 18:59",
+        ),
+        (
+            partial(transit.next_retrograde_station, chart.MERCURY, jd),
+            "2000-02-21 04:46",
+        ),
+        (
+            partial(transit.previous_direct_station, chart.MERCURY, jd),
+            "1999-11-24 19:54",
+        ),
+        (
+            partial(transit.next_direct_station, chart.MERCURY, jd),
+            "2000-03-14 12:39",
+        ),
+    )
+    jd_diff = 2 / 1440  # 2 minute diff for before & after
+    for search, expected_dt in searches:
+        expected_jd = date.to_jd(expected_dt, *coords)
+        direction = 1 if expected_jd > jd else -1
+        # Limit before the start date should abort
+        with raises(ValueError):
+            search(limit=jd - direction * jd_diff)
+        # Limit before the actual result should abort
+        with raises(transit.NotFoundError):
+            search(limit=expected_jd - direction * jd_diff)
+        # Limit just after the actual result should succeed
+        found_jd = search(limit=expected_jd + direction * jd_diff)
+        found_dt = date.to_datetime(found_jd, *coords)
+        assert found_dt.strftime("%Y-%m-%d %H:%M") == expected_dt
+
+
+def test_searches_beyond_ephemeris_limit_raise_exception():
     # Searches beyond the bounds of the default ephemeris files
     # should raise a direct pysweph exception
     jd = date.to_jd("6000-01-01")
     with raises(swe.Error):
         transit.next_sign_ingress(chart.SATURN, chart.GEMINI, jd)
+    with raises(swe.Error):
+        transit.next_aspect_between(chart.SATURN, chart.MERCURY, jd, calc.CONJUNCTION)
+    with raises(swe.Error):
+        transit.next_retrograde_station(chart.MERCURY, jd)
 
 
-def test_impossible_aspect_search_raises_exception(jd):
+def test_impossible_searches_raise_exception(jd):
     # Mercury will never oppose the Sun, so this should trigger a False
     # from can_aspect() under the hood
     with raises(ValueError):
         transit.next_aspect_between(chart.MERCURY, chart.SUN, jd, calc.OPPOSITION)
+    # The Sun will (hopefully) never retrograde
+    with raises(ValueError):
+        transit.next_retrograde_station(chart.SUN, jd)
+
+
+def test_previous_and_next_station_agreement(jd):
+    # Get precise retrograde JD
+    sjd = transit.next_retrograde_station(chart.MERCURY, jd)
+    njd = transit.next_retrograde_station(chart.MERCURY, sjd - 1)
+    pjd = transit.previous_retrograde_station(chart.MERCURY, sjd + 1)
+    assert sjd == njd == pjd
+
+
+def test_station_on_limit(jd):
+    # Get precise retrograde JD
+    sjd = transit.next_retrograde_station(chart.MERCURY, jd)
+    # Use it as the limit for the next and previous searches
+    njd = transit.next_retrograde_station(chart.MERCURY, sjd - 1, limit=sjd)
+    pjd = transit.previous_retrograde_station(chart.MERCURY, sjd + 1, limit=sjd)
+    assert sjd == njd == pjd
 
 
 def test_moon_true_lilith_conjunction(jd):

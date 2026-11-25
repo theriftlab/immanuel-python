@@ -115,15 +115,6 @@ MAX_ACCELERATIONS = {
     chart.INTERPOLATED_LILITH: 0.011,
 }
 
-""" Chart objects that never station. """
-NEVER_STATION = (
-    chart.SUN,
-    chart.MOON,
-    chart.NORTH_NODE,
-    chart.SOUTH_NODE,
-    chart.LILITH,
-)
-
 """ Maximum chart object aspect separations. """
 MAX_SEPARATIONS = {
     frozenset((chart.SUN, chart.MERCURY)): (0, 28.0),
