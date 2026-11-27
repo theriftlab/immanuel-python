@@ -472,9 +472,9 @@ def _stations(
         whole minute, calculated from the difference between two longitudes
         taken a fraction before and after the given date."""
         minute_jd = minute / _DAY_MINUTES
-        before_lon = sweph.longitude(index, minute_jd - speed_delta, deflection=False)[0]
-        after_lon = sweph.longitude(index, minute_jd + speed_delta, deflection=False)[0]
-        return swe.difdeg2n(after_lon, before_lon) / (2 * speed_delta)
+        prev_lon = sweph.longitude(index, minute_jd - speed_delta, deflection=False)[0]
+        next_lon = sweph.longitude(index, minute_jd + speed_delta, deflection=False)[0]
+        return swe.difdeg2n(next_lon, prev_lon) / (2 * speed_delta)
 
     def station_point(start: tuple, end: tuple) -> tuple:
         """Returns the moment between the start and end samples when the
@@ -482,9 +482,8 @@ def _stations(
         forward in time (earlier -> later) regardless of the search direction.
         This guarantees previous and next searches will always agree."""
         (start_minute, start_speed), (end_minute, end_speed) = sorted((start, end))
-        # If the gap is larger than a minute, we need to bisect - this shouldn't
-        # happen in normal usage but in some edge cases where the ephemeris
-        # internally switches data sources, it can happen
+        # If the gap is larger than a minute, we need to bisect down to two
+        # adjacent minutes and then interpolate the station point
         while end_minute - start_minute > 1:
             middle_minute = (end_minute + start_minute) // 2
             middle_speed = sample(middle_minute)
@@ -492,7 +491,7 @@ def _stations(
                 end_minute, end_speed = middle_minute, middle_speed
             else:
                 start_minute, start_speed = middle_minute, middle_speed
-        # Since we're dealing with a tiny interval, we interpolate
+        # Since we're now dealing with a minute-sized interval, we interpolate
         minute_fraction = start_speed / (start_speed - end_speed)
         station_jd = (start_minute + minute_fraction) / _DAY_MINUTES
         movement = motions.DIRECT if end_speed > 0 else motions.RETROGRADE
@@ -511,40 +510,56 @@ def _stations(
     # Set up our motion values for step calculation
     max_acceleration = motions.MAX_ACCELERATIONS[index]
     max_motion_noise = motions.MAX_MOTION_NOISE.get(index, 0)
+    min_station_gap = math.floor(motions.MIN_STATION_GAPS.get(index, 0) * _DAY_MINUTES)
     speed_delta = _SPEED_DELTAS.get(index, _SPEED_DELTA)
     speed = sample(minute)
-    try:
-        while True:
-            # Store our old values
-            prev_minute, prev_speed = minute, speed
-            # Update the current values
-            safe_speed = abs(speed) - 2 * max_motion_noise
-            step = math.floor(safe_speed / max_acceleration * _DAY_MINUTES)
-            minute += direction * max(step, 1)
-            # If we have gone past the passed limit, we didn't find anything
-            if limit_minute is not None and (minute - limit_minute) * direction > 0:
-                if prev_minute == limit_minute:
-                    raise NotFoundError(f"No station found before limit date {limit}.")
-                minute = limit_minute
+    # capped_step helps handle literal edge cases at the edges of ephemeris data
+    capped_step = None
+    while True:
+        # Store our old values
+        prev_minute, prev_speed = minute, speed
+        # Update the current values
+        safe_speed = abs(speed) - 2 * max_motion_noise
+        step_size = math.floor(safe_speed / max_acceleration * _DAY_MINUTES)
+        step = max(step_size, min_station_gap, 1)
+        if capped_step is not None:
+            step = min(step, capped_step)
+        minute += direction * step
+        # If we have gone past the passed limit, we didn't find anything
+        if limit_minute is not None and (minute - limit_minute) * direction > 0:
+            if prev_minute == limit_minute:
+                raise NotFoundError(f"No station found before limit date {limit}.")
+            minute = limit_minute
+        try:
             speed = sample(minute)
-            # Check if a station has switched directions
-            if (speed > 0) != (prev_speed > 0):
-                station_jd, movement = station_point(
-                    (prev_minute, prev_speed), (minute, speed)
-                )
-                # The first and last minutes searched might have a station
-                # just short of the start, or just past the limit
-                if (station_jd - jd) * direction <= 0:
-                    continue
-                if limit is not None and (station_jd - limit) * direction > 0:
-                    raise NotFoundError(f"No station found before limit date {limit}.")
-                # A valid station has been found, return its information
-                station_lon = sweph.longitude(index, station_jd)[0]
-                yield station_jd, station_lon, movement
-    except swe.Error as error:
-        raise NotFoundError(
-            "No station found before the end of the available ephemeris."
-        ) from error
+        except swe.Error as error:
+            # We're close to either the start or the end of the available
+            # ephemeris data (depending which way we're searching), so we
+            # reduce the step size to make sure we don't miss any stations
+            # close to either end
+            capped_step = abs(minute - prev_minute) // 2
+            if capped_step == 0:
+                # No use, this is the end
+                raise NotFoundError(
+                    "No station found before the end of the available ephemeris."
+                ) from error
+            # Reset our values and continue looping with the new capped_step
+            minute, speed = prev_minute, prev_speed
+            continue
+        # Check if a station has switched directions
+        if (speed > 0) != (prev_speed > 0):
+            station_jd, movement = station_point(
+                (prev_minute, prev_speed), (minute, speed)
+            )
+            # The first and last minutes searched might have a station
+            # just short of the start, or just past the limit
+            if (station_jd - jd) * direction <= 0:
+                continue
+            if limit is not None and (station_jd - limit) * direction > 0:
+                raise NotFoundError(f"No station found before limit date {limit}.")
+            # A valid station has been found, return its information
+            station_lon = sweph.longitude(index, station_jd)[0]
+            yield station_jd, station_lon, movement
 
 
 def _aspect_targets(lon: float, aspect: float) -> set:

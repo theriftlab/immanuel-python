@@ -454,6 +454,27 @@ def test_station_on_limit(jd):
     assert sjd == njd == pjd
 
 
+def test_stations_near_ephemeris_limit_not_skipped():
+    # Check we pick up the last one without falling off the end of the ephemeris limit
+    njd = transit.next_direct_station(chart.PHOLUS, date.to_jd("4799-11-01"))
+    ndt = date.to_datetime(njd)
+    assert ndt.strftime("%Y-%m-%d %H:%M:%S") == "4799-12-22 10:39:55"
+    # Check there's nothing after it
+    with raises(transit.NotFoundError):
+        transit.next_retrograde_station(chart.PHOLUS, njd)
+    with raises(transit.NotFoundError):
+        transit.next_direct_station(chart.PHOLUS, njd)
+    # Check we pick up the first one without falling backward off the ephemeris limit
+    pjd = transit.previous_direct_station(chart.VESTA, date.to_jd("1200-03-01"))
+    pdt = date.to_datetime(pjd)
+    assert pdt.strftime("%Y-%m-%d %H:%M:%S") == "1200-01-12 02:48:13"
+    # Check there's nothing before it
+    with raises(transit.NotFoundError):
+        transit.previous_retrograde_station(chart.VESTA, pjd)
+    with raises(transit.NotFoundError):
+        transit.previous_direct_station(chart.VESTA, pjd)
+
+
 def test_moon_true_lilith_conjunction(jd):
     # The Swiss Ephemeris' True Lilith calculations start to break down near and
     # through a conjunction with the Moon, and this was causing the search code
